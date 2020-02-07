@@ -1,0 +1,67 @@
+<?php
+namespace App\Jobs\Credit;
+
+use App\Events\Payment\PaymentWasCreated;
+use App\Factory\PaymentFactory;
+use App\Jobs\Customer\UpdateClientBalance;
+use App\Jobs\Customer\UpdateClientPaidToDate;
+//use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+use App\Jobs\Credit\ApplyPaymentToCredit;
+use App\Account;
+use App\Credit;
+use App\Payment;
+use App\Repositories\CreditRepository;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
+class ApplyCreditPayment implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    public $credit;
+    public $payment;
+    public $amount;
+    private $account;
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct(Credit $credit, Payment $payment, float $amount, Account $account)
+    {
+        $this->credit = $credit;
+        $this->payment = $payment;
+        $this->amount = $amount;
+        $this->account = $account;
+    }
+    /**
+     * Execute the job.
+     *
+     *
+     * @return void
+     */
+    public function handle()
+    {
+         /* Update Pivot Record amount */
+        $this->payment->credits->each(function ($cred) {
+            if ($cred->id == $this->credit->id) {
+                $cred->pivot->amount = $this->amount;
+                $cred->pivot->save();
+            }
+        });
+        $credit_balance = $this->credit->balance;
+        if ($this->amount == $credit_balance) { //total credit applied.
+            $this->credit->setStatus(Credit::STATUS_APPLIED);
+            $this->credit->updateBalance($this->amount*-1);
+        } elseif($this->amount < $credit_balance) { //compare number appropriately
+            $this->credit->setStatus(Credit::PARTIAL);
+            $this->credit->updateBalance($this->amount*-1);
+        }
+            
+        /* Update Payment Applied Amount*/
+        $this->payment->save();
+    }
+    
+}

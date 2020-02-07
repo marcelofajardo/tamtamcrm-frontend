@@ -1,0 +1,32 @@
+td {
+  &:first-child {
+    width: 1% !important;
+  }
+
+  .dropdown {
+    //position: static;
+
+    .menu-button.btn-secondary {
+      color: $dark_grey;
+      background-color: transparent !important;
+      border: none;
+      transform: rotate(-90deg);
+    }
+
+    .dropdown-menu .dropdown-item {
+      i {
+        font-size: 18px !important;
+      }
+
+      i,
+      a {
+        color: $color_mystic_approx !important;
+      }
+    }
+  }
+
+  .dropdown-menu {
+    //margin-top: -52px;
+    // position: relative !important;
+  }
+}

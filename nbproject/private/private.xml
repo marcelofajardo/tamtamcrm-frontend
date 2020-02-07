@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Providers/RepositoryServiceProvider.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/database/factories/InvoiceLineFactory.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Http/Controllers/InvoiceController.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Http/Controllers/TaskController.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/tests/Unit/PermissionTest.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Services/CustomerService.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/InvoiceLine.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Repositories/ProductRepository.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Services/interfaces/InvoiceServiceInterface.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Services/InvoiceService.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/tests/Unit/InvoiceLineTest.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/tests/Unit/DepartmentTest.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Http/Controllers/CustomerController.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Http/Controllers/EventController.php</file>
+            <file>file:/C:/xampp3/htdocs/taskman/app/Transformations/InvoiceTransformable.php</file>
+        </group>
+    </open-files>
+</project-private>

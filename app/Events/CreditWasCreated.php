@@ -1,0 +1,24 @@
+<?php
+namespace App\Events;
+
+use App\Credit;
+use Illuminate\Queue\SerializesModels;
+
+class CreditWasCreated
+{
+    use SerializesModels;
+    /**
+     * @var Credit
+     */
+    public $credit;
+
+    /**
+     * Create a new event instance.
+     *
+     * @param Credit $credit
+     */
+    public function __construct(Credit $credit)
+    {
+        $this->credit = $credit;
+    }
+}
