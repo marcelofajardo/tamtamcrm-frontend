@@ -235,6 +235,17 @@ class TaskController extends Controller
 
     /**
      *
+     * @param CreateDealRequest $request
+     * @return type
+     */
+    public function createLead(Request $request)
+    {
+        $task = $this->task_service->createLead($request);
+        return response()->json($task);
+    }
+
+    /**
+     *
      * @param int $parent_id
      * @return type
      */

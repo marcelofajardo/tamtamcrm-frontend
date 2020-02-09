@@ -94,7 +94,7 @@ export default class Customers extends Component {
     }
 
     getCompanies () {
-        axios.get('/api/brands')
+        axios.get('/api/companies')
             .then((r) => {
                 this.setState({
                     companies: r.data
@@ -104,8 +104,6 @@ export default class Customers extends Component {
                 console.error(e)
             })
     }
-
-    v
 
     getCustomFields () {
         axios.get('api/accounts/fields/Customer')
@@ -162,12 +160,6 @@ export default class Customers extends Component {
 
                     <Col md={2}>
                         <FormGroup>
-                            {columnFilter}
-                        </FormGroup>
-                    </Col>
-
-                    <Col md={2}>
-                        <FormGroup>
                             <Input type='select'
                                 onChange={this.filterCustomers}
                                 name="status"
@@ -202,6 +194,12 @@ export default class Customers extends Component {
                             renderErrorFor={this.renderErrorFor}
                             handleInputChanges={this.filterCustomers}
                         />
+                    </Col>
+
+                    <Col md={9}>
+                        <FormGroup>
+                            {columnFilter}
+                        </FormGroup>
                     </Col>
                 </Row>
             </React.Fragment>

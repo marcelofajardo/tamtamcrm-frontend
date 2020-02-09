@@ -11,6 +11,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import CustomerDropdown from '../common/CustomerDropdown'
+import CompanyDropdown from '../common/CompanyDropdown'
 
 export default class Expenses extends Component {
     constructor (props) {
@@ -25,7 +27,9 @@ export default class Expenses extends Component {
             expenses: [],
             filters: {
                 status_id: 'active',
-                searchText: ''
+                searchText: '',
+                customer_id: '',
+                company_id: ''
             },
             ignoredColumns:
                 [
@@ -130,10 +134,22 @@ export default class Expenses extends Component {
                     <TableSearch onChange={this.filterExpenses}/>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
+                <Col md={3}>
+                    <CustomerDropdown
+                        customer={this.state.filters.customer_id}
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterExpenses}
+                        name="customer_id"
+                    />
+                </Col>
+
+                <Col md={3}>
+                    <CompanyDropdown
+                        company={this.state.filters.company_id}
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterExpenses}
+                        name="company_id"
+                    />
                 </Col>
 
                 <Col md={2}>
@@ -148,6 +164,12 @@ export default class Expenses extends Component {
                             <option value='archived'>Archived</option>
                             <option value='deleted'>Deleted</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={10}>
+                    <FormGroup>
+                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>
@@ -250,8 +272,8 @@ export default class Expenses extends Component {
 
     render () {
         const { expenses, customers, custom_fields, view } = this.state
-        const { searchText, status_id } = this.state.filters
-        const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}`
+        const { searchText, status_id, customer_id, company_id } = this.state.filters
+        const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}`
         const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <AddExpense
             custom_fields={custom_fields}

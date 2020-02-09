@@ -13,9 +13,11 @@ class AccountPresenter extends EntityPresenter
     /**
      * @return string
      */
-    public function name($settings)
+    public function name()
     {
-        return $settings->name ?: "Untitled Account";
+        $settings = $this->entity->settings;
+
+        return $this->settings->name ?: 'Untitled Account';
     }
 
     public function logo($settings = null)

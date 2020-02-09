@@ -35,7 +35,7 @@ trait ProductTransformable
         $prod->status = $product->status;
         $prod->cover = $product->cover;
         $prod->company_id = (int)$product->company_id;
-        $prod->brand = $product->company->name;
+        $prod->brand = !empty($product->company) ? $product->company->name : null;
         $prod->category_ids = $product->categories()->pluck('category_id')->all();
         $prod->images = $product->images()->get(['src']);
         $prod->custom_value1 = $product->custom_value1 ?: '';

@@ -2,9 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\ClientContact;
 use App\Company;
 use App\Customer;
 use App\Filters\CustomerFilter;
+use App\Repositories\ClientContactRepository;
 use App\Repositories\CustomerRepository;
 use App\Requests\SearchRequest;
 use App\User;
@@ -102,6 +104,8 @@ class CustomerTest extends TestCase
     /** @test */
     public function it_can_create_a_customer()
     {
+        $factory = (new CustomerFactory())->create($this->account_id, $this->user->id, $this->company->id);
+
         $data = [
             'account_id' => $this->account_id,
             'first_name' => $this->faker->firstName,
@@ -113,12 +117,13 @@ class CustomerTest extends TestCase
             'customer_type' => 1
         ];
 
-        $data['contacts'][0]['first_name'] = $this->faker->firstName;
-        $data['contacts'][0]['last_name'] = $this->faker->lastName;
-        $data['contacts'][0]['phone'] = $this->faker->phoneNumber;
-        $data['contacts'][0]['email'] = $this->faker->safeEmail;
+        $contacts = [];
+        $contacts[0]['first_name'] = $this->faker->firstName;
+        $contacts[0]['last_name'] = $this->faker->lastName;
+        $contacts[0]['phone'] = $this->faker->phoneNumber;
+        $contacts[0]['email'] = $this->faker->safeEmail;
 
-        $factory = (new CustomerFactory())->create($this->account_id, $this->user->id, $this->company->id);
+
         $customer = new CustomerRepository(new Customer);
         $created = $customer->save($data, $factory);
         $this->assertInstanceOf(Customer::class, $created);
@@ -126,6 +131,9 @@ class CustomerTest extends TestCase
         $this->assertEquals($data['email'], $created->email);
         $collection = collect($data)->except('password');
         $this->assertDatabaseHas('customers', $collection->all());
+        
+        $clients = (new ClientContactRepository(new ClientContact))->save($contacts, $created);
+        $this->assertTrue($clients);
     }
 
     public function it_errors_creating_the_customer_when_required_fields_are_not_passed()

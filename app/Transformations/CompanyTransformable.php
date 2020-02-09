@@ -3,6 +3,8 @@
 namespace App\Transformations;
 
 use App\Company;
+use App\CompanyContact;
+use App\Transformations\CompanyContactTransformable;
 
 trait CompanyTransformable
 {
@@ -32,9 +34,24 @@ trait CompanyTransformable
         $prop->currency_id = $company->currency_id;
         $prop->industry_id = $company->industry_id;
         $prop->company_logo = $company->company_logo;
-        $prop->contacts = $company->contacts->count() > 0 ? $company->contacts : [];
+        $prop->contacts = $this->transformContacts($company->contacts);
 
         return $prop;
+    }
+
+    /**
+     * @param $contacts
+     * @return array
+     */
+    private function transformContacts($contacts)
+    {
+        if (empty($contacts)) {
+            return [];
+        }
+
+        return $contacts->map(function (CompanyContact $company_contact) {
+            return (new CompanyContactTransformable())->transformCompanyContact($company_contact);
+        })->all();
     }
 
 }

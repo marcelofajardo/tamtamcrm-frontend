@@ -40,4 +40,9 @@ class InvoicePresenter extends EntityPresenter
     {
         return $this->customer->company->present()->address();
     }
+
+    public function clientName()
+    {
+        return $this->customer->present()->name();
+    }
 }

@@ -52,7 +52,7 @@ export default class TaxRateDropdown extends Component {
             taxRateList = <option value="">Loading...</option>
         } else {
             taxRateList = this.state.taxRates.map((taxRate, index) => (
-                <option key={index} value={taxRate.rate}>{taxRate.rate}</option>
+                <option key={index} data-rate={taxRate.rate} value={taxRate.id}>{`${taxRate.name} (${taxRate.rate})`}</option>
             ))
         }
 

@@ -1,22 +1,18 @@
 <?php
 namespace App\Transformations;
 
-use App\CompanyContact;
-use App\Company;
-use App\Repositories\UserRepository;
-use App\User;
+use App\ClientContact;
 
-class CompanyContactTransformable
+class ContactTransformable
 {
     /**
-     * Transform the department
-     *
-     * @param Department $department
-     * @return Department
+     * Transform the contact
+     * @param ClientContact $contact
+     * @return ClientContact
      */
-    public function transformCompanyContact(CompanyContact $contact)
+    public function transformClientContact(ClientContact $contact)
     {
-        $prop = new CompanyContact;
+        $prop = new ClientContact;
 
         $prop->id = $contact->id;
         $prop->first_name = $contact->first_name ?: '';

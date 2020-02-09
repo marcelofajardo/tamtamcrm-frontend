@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Address from './Address'
-import LineItemEditor from './LineItemEditor'
+import LineItemEditor from '../common/LineItemEditor'
 import axios from 'axios'
 import {
     Button,
@@ -22,7 +22,9 @@ import {
     DropdownToggle,
     DropdownMenu,
     DropdownItem,
-    TabPane
+    TabPane,
+    Row,
+    Col
 } from 'reactstrap'
 import CustomerDropdown from '../common/CustomerDropdown'
 import TaxRateDropdown from '../common/TaxRateDropdown'
@@ -78,7 +80,8 @@ class EditInvoice extends Component {
             dropdownOpen: false,
             success: false,
             showSuccessMessage: false,
-            showErrorMessage: false
+            showErrorMessage: false,
+            width: window.innerWidth
         }
 
         this.updateData = this.updateData.bind(this)
@@ -103,6 +106,7 @@ class EditInvoice extends Component {
         this.setRecurring = this.setRecurring.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
         this.handleContactChange = this.handleContactChange.bind(this)
+        this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
 
         this.total = 0
     }
@@ -130,6 +134,20 @@ class EditInvoice extends Component {
         }
     }
 
+    componentWillMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
+    }
+
+    // make sure to remove the listener
+    // when the component is not mounted anymore
+    componentWillUnmount () {
+        window.removeEventListener('resize', this.handleWindowSizeChange)
+    }
+
+    handleWindowSizeChange () {
+        this.setState({ width: window.innerWidth })
+    }
+
     renderErrorFor (field) {
         if (this.hasErrorFor(field)) {
             return (
@@ -146,8 +164,6 @@ class EditInvoice extends Component {
             const customer = this.state.customers[index]
 
             const contacts = customer.contacts ? customer.contacts : []
-
-            console.log('contacts', contacts)
 
             this.setState({
                 customerName: customer.name,
@@ -303,6 +319,7 @@ class EditInvoice extends Component {
         let discount_total = 0
         let tax_total = 0
         let sub_total = 0
+        let lexieTotal = 0
 
         this.state.data.map((product) => {
             const quantity = product.quantity === 0 ? 1 : product.quantity
@@ -310,30 +327,35 @@ class EditInvoice extends Component {
             const line_total = product.unit_price * quantity
             total += line_total
             sub_total += line_total
+            lexieTotal += line_total
 
             if (product.unit_discount > 0 && this.state.discount === 0) {
                 const n = parseFloat(total)
                 const percentage = n * product.unit_discount / 100
                 discount_total += percentage
-                total -= percentage
+                lexieTotal -= discount_total
             }
 
             if (product.unit_tax > 0 && this.state.tax === 0) {
                 const n = parseFloat(total)
-                const tax_percentage = n * product.unit_tax / 100
+                const tax_percentage = lexieTotal * product.unit_tax / 100
                 tax_total += tax_percentage
-                total += tax_percentage
             }
         })
 
+        let mikeTotal = total
+
+        if (discount_total > 0) {
+            mikeTotal -= discount_total
+        }
+
         if (this.state.tax > 0) {
             const tax_percentage = parseFloat(this.state.total) * parseFloat(this.state.tax) / 100
-            total += tax_percentage
         }
 
         if (this.state.discount > 0) {
             const percentage = parseFloat(this.state.total) * parseFloat(this.state.discount) / 100
-            total -= percentage
+            // total -= percentage
         }
 
         this.setState({
@@ -348,6 +370,7 @@ class EditInvoice extends Component {
         const data = this.state.data.slice()
         const currentRow = data[index]
         const price = currentRow.unit_price
+        let lexieTotal = 0
 
         if (price < 0) {
             return false
@@ -361,19 +384,20 @@ class EditInvoice extends Component {
 
         if (quantity > 0) {
             total = price * quantity
+            lexieTotal += price * quantity
         }
 
         if (unit_discount > 0 && this.state.discount === 0) {
             const n = parseFloat(total)
-
+            //
             const percentage = n * unit_discount / 100
-            total -= percentage
+            lexieTotal -= percentage
         }
 
         if (unit_tax > 0 && this.state.tax === 0) {
             const n = parseFloat(total)
 
-            const tax_percentage = n * unit_tax / 100
+            const tax_percentage = lexieTotal * unit_tax / 100
             currentRow.tax_total = tax_percentage
             total += tax_percentage
         }
@@ -383,10 +407,8 @@ class EditInvoice extends Component {
         this.setState({ data: data }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
     }
 
-    handleFieldChange (name, value, row) {
-        const data = [...this.state.data]
-        data[row][name] = value
-        this.setState({ data }, function () {
+    handleFieldChange (data, row) {
+        this.setState({ data: data }, () => {
             this.calculateTotals()
             this.updatePriceData(row)
         })
@@ -575,9 +597,8 @@ class EditInvoice extends Component {
         const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
             Email</DropdownItem>
 
-        const downloadButton = this.state.status_id === 1
-            ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('download')}>Download</DropdownItem> : null
+        const downloadButton = <DropdownItem className="primary"
+            onClick={() => this.changeStatus('download')}>Download</DropdownItem>
 
         const deleteButton = this.state.status_id === 1
             ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
@@ -644,12 +665,191 @@ class EditInvoice extends Component {
                 </Card>
             </TabPane> : null
 
-        return (
-            <div>
-                {dropdownMenu}
-                {successMessage}
-                {errorMessage}
+        const detailsForm = <React.Fragment>
 
+            <Card>
+                <CardHeader>Recurring</CardHeader>
+                <CardBody>
+                    <FormGroup>
+                        <Label>Is Recurring?</Label>
+                        <Input type="checkbox" onChange={this.handleSlideClick}/>
+                    </FormGroup>
+
+                    <div className={this.state.is_recurring ? 'collapse show' : 'collapse'}>
+                        <AddRecurringInvoice
+                            finance_type={this.props.finance_type}
+                            invoice={this.props.invoice}
+                            setRecurring={this.setRecurring}
+                        />
+
+                    </div>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>Details</CardHeader>
+                <CardBody>
+
+                    <h2>{this.state.customerName}</h2>
+                    <Address address={this.state.address}/>
+
+                    <FormGroup>
+                        <Label for="date">Invoice Date(*):</Label>
+                        <Input value={this.state.date} type="date" id="date" name="date"
+                            onChange={this.handleInput}/>
+                        {this.renderErrorFor('due_date')}
+                    </FormGroup>
+                    <FormGroup>
+                        <Label for="due_date">Due Date(*):</Label>
+                        <Input value={this.state.due_date} type="date" id="due_date" name="due_date"
+                            onChange={this.handleInput}/>
+                        {this.renderErrorFor('due_date')}
+                    </FormGroup>
+                    <FormGroup>
+                        <Label for="po_number">PO Number(*):</Label>
+                        <Input value={this.state.po_number} type="text" id="po_number" name="po_number"
+                            onChange={this.handleInput}/>
+                        {this.renderErrorFor('po_number')}
+                    </FormGroup>
+                    <FormGroup>
+                        <Label>Partial</Label>
+                        <Input
+                            value={this.state.partial}
+                            type='text'
+                            name='partial'
+                            id='partial'
+                            onChange={this.handleInput}
+                        />
+                    </FormGroup>
+
+                    <CustomerDropdown
+                        handleInputChanges={this.handleInput}
+                        customer={this.state.customer_id}
+                        customers={this.state.customers}
+                        errors={this.state.errors}
+                    />
+
+                    <CompanyDropdown
+                        company_id={this.state.company_id}
+                        name="company_id"
+                        hasErrorFor={this.hasErrorFor}
+                        errors={this.state.errors}
+                        handleInputChanges={this.handleInput}
+                    />
+
+                    {customForm}
+                </CardBody>
+            </Card>
+        </React.Fragment>
+
+        const contactsForm = <Card>
+            <CardHeader>Invitations</CardHeader>
+            <CardBody>
+                {this.state.contacts.length && this.state.contacts.map(contact => (
+                    <FormGroup check>
+                        <Label check>
+                            <Input value={contact.id} onChange={this.handleContactChange}
+                                type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
+                        </Label>
+                    </FormGroup>
+                ))
+                }
+
+                {!this.state.contacts.length &&
+                <h2>You haven't selected a customer</h2>
+                }
+            </CardBody>
+        </Card>
+
+        const taxesTab =
+            <Card>
+                <CardHeader>Items</CardHeader>
+                <CardBody>
+                    <FormGroup>
+                        <Label>Tax</Label>
+                        <TaxRateDropdown
+                            name="tax"
+                            handleInputChanges={this.handleInput}
+                            errors={this.state.errors}
+                        />
+                    </FormGroup>
+
+                    <FormGroup>
+                        <Label>Discount</Label>
+                        <Input
+                            value={this.state.discount}
+                            type='text'
+                            name='discount'
+                            id='discount'
+                            onChange={this.handleInput}
+                        />
+                    </FormGroup>
+                </CardBody>
+            </Card>
+
+        const itemsForm = <Card>
+            <CardHeader>Items</CardHeader>
+            <CardBody>
+                <LineItemEditor
+                    finance_type={this.state.finance_type}
+                    total={this.state.total}
+                    sub_total={this.state.sub_total}
+                    tax_total={this.state.tax_total}
+                    discount_total={this.state.discount_total}
+                    rows={this.state.data}
+                    delete={this.handleDelete}
+                    update={this.handleFieldChange}
+                    onAddFiled={this.handleAddFiled}
+                    setTotal={this.setTotal}/>
+
+                <br/>
+                <br/>
+            </CardBody>
+        </Card>
+
+        const notesForm = <Card>
+            <CardHeader>Notes</CardHeader>
+            <CardBody>
+                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                    <Label>Notes</Label>
+                    <Input
+                        value={this.state.notes}
+                        type='textarea'
+                        name='notes'
+                        id='notes'
+                        onChange={this.handleInput}
+                    />
+                </FormGroup>
+
+                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                    <Label>Terms</Label>
+                    <Input
+                        value={this.state.terms}
+                        type='textarea'
+                        name='terms'
+                        id='notes'
+                        onChange={this.handleInput}
+                    />
+                </FormGroup>
+
+                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                    <Label>Footer</Label>
+                    <Input
+                        value={this.state.footer}
+                        type='textarea'
+                        name='footer'
+                        id='footer'
+                        onChange={this.handleInput}
+                    />
+
+                </FormGroup>
+
+            </CardBody>
+        </Card>
+
+        const isMobile = this.state.width <= 500
+        const form = isMobile
+            ? <React.Fragment>
                 <Nav tabs>
                     <NavItem>
                         <NavLink
@@ -695,186 +895,57 @@ class EditInvoice extends Component {
 
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
-                        <h2>{this.state.customerName}</h2>
-                        <Address address={this.state.address}/>
-
-                        <Card>
-                            <CardHeader>Recurring</CardHeader>
-                            <CardBody>
-                                <FormGroup>
-                                    <Label>Is Recurring?</Label>
-                                    <Input type="checkbox" onChange={this.handleSlideClick}/>
-                                </FormGroup>
-
-                                <div className={this.state.is_recurring ? 'collapse show' : 'collapse'}>
-                                    <AddRecurringInvoice
-                                        finance_type={this.props.finance_type}
-                                        invoice={this.props.invoice}
-                                        setRecurring={this.setRecurring}
-                                    />
-
-                                </div>
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Details</CardHeader>
-                            <CardBody>
-
-                                <FormGroup>
-                                    <Label for="date">Invoice Date(*):</Label>
-                                    <Input value={this.state.date} type="date" id="date" name="date"
-                                        onChange={this.handleInput}/>
-                                    {this.renderErrorFor('due_date')}
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="due_date">Due Date(*):</Label>
-                                    <Input value={this.state.due_date} type="date" id="due_date" name="due_date"
-                                        onChange={this.handleInput}/>
-                                    {this.renderErrorFor('due_date')}
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label for="po_number">PO Number(*):</Label>
-                                    <Input value={this.state.po_number} type="text" id="po_number" name="po_number"
-                                        onChange={this.handleInput}/>
-                                    {this.renderErrorFor('po_number')}
-                                </FormGroup>
-                                <FormGroup>
-                                    <Label>Partial</Label>
-                                    <Input
-                                        value={this.state.partial}
-                                        type='text'
-                                        name='partial'
-                                        id='partial'
-                                        onChange={this.handleInput}
-                                    />
-                                </FormGroup>
-
-                                <CustomerDropdown
-                                    handleInputChanges={this.handleInput}
-                                    customer={this.state.customer_id}
-                                    customers={this.state.customers}
-                                    errors={this.state.errors}
-                                />
-
-                                <CompanyDropdown
-                                    company_id={this.state.company_id}
-                                    name="company_id"
-                                    hasErrorFor={this.hasErrorFor}
-                                    errors={this.state.errors}
-                                    handleInputChanges={this.handleInput}
-                                />
-
-                                {customForm}
-                            </CardBody>
-                        </Card>
+                        {detailsForm}
                     </TabPane>
 
                     <TabPane tabId="2">
-                        <Card>
-                            <CardHeader>Invitations</CardHeader>
-                            <CardBody>
-                                {this.state.contacts.length && this.state.contacts.map(contact => (
-                                    <FormGroup check>
-                                        <Label check>
-                                            <Input value={contact.id} onChange={this.handleContactChange}
-                                                type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
-                                        </Label>
-                                    </FormGroup>
-                                ))
-                                }
-                            </CardBody>
-                        </Card>
+                        {contactsForm}
                     </TabPane>
 
                     <TabPane tabId="3">
-                        <Card>
-                            <CardHeader>Items</CardHeader>
-                            <CardBody>
-                                <div className="form-inline mb-4">
-                                    <FormGroup>
-                                        <Label>Tax</Label>
-                                        <TaxRateDropdown
-                                            name="tax"
-                                            handleInputChanges={this.handleInput}
-                                            errors={this.state.errors}
-                                        />
-                                    </FormGroup>
-
-                                    <FormGroup>
-                                        <Label>Discount</Label>
-                                        <Input
-                                            value={this.state.discount}
-                                            type='text'
-                                            name='discount'
-                                            id='discount'
-                                            onChange={this.handleInput}
-                                        />
-                                    </FormGroup>
-                                </div>
-
-                                <LineItemEditor
-                                    finance_type={this.state.finance_type}
-                                    total={this.state.total}
-                                    sub_total={this.state.sub_total}
-                                    tax_total={this.state.tax_total}
-                                    discount_total={this.state.discount_total}
-                                    rows={this.state.data}
-                                    delete={this.handleDelete}
-                                    update={this.handleFieldChange}
-                                    onAddFiled={this.handleAddFiled}
-                                    setTotal={this.setTotal}/>
-
-                                <br/>
-                                <br/>
-                            </CardBody>
-                        </Card>
+                        {taxesTab}
+                        {itemsForm}
                     </TabPane>
 
                     <TabPane tabId="4">
-                        <Card>
-                            <CardHeader>Notes</CardHeader>
-                            <CardBody>
-                                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                                    <Label>Notes</Label>
-                                    <Input
-                                        value={this.state.notes}
-                                        type='textarea'
-                                        name='notes'
-                                        id='notes'
-                                        onChange={this.handleInput}
-                                    />
-                                </FormGroup>
-
-                                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                                    <Label>Terms</Label>
-                                    <Input
-                                        value={this.state.terms}
-                                        type='textarea'
-                                        name='terms'
-                                        id='notes'
-                                        onChange={this.handleInput}
-                                    />
-                                </FormGroup>
-
-                                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                                    <Label>Footer</Label>
-                                    <Input
-                                        value={this.state.footer}
-                                        type='textarea'
-                                        name='footer'
-                                        id='footer'
-                                        onChange={this.handleInput}
-                                    />
-
-                                </FormGroup>
-
-                            </CardBody>
-                        </Card>
+                        {notesForm}
                     </TabPane>
 
                     {documentTab}
                 </TabContent>
+            </React.Fragment>
+
+            : <React.Fragment>
+                <Row form>
+                    <Col md={6}>
+                        {detailsForm}
+                    </Col>
+
+                    <Col md={6}>
+                        {contactsForm}
+                        {taxesTab}
+                    </Col>
+                </Row>
+                {itemsForm}
+
+                <Row form>
+                    <Col md={6}>
+                        {notesForm}
+                    </Col>
+
+                    <Col md={6}>
+                        {documentTab}
+                    </Col>
+                </Row>
+            </React.Fragment>
+
+        return (
+            <div>
+                {dropdownMenu}
+                {successMessage}
+                {errorMessage}
+                {form}
+
             </div>
         )
     }

@@ -233,12 +233,6 @@ export default class Payments extends Component {
                     <TableSearch onChange={this.filterPayments}/>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
                 <Col md={3}>
                     <CustomerDropdown
                         renderErrorFor={this.renderErrorFor}
@@ -260,6 +254,12 @@ export default class Payments extends Component {
                             <option value='archived'>Archived</option>
                             <option value='deleted'>Deleted</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={10}>
+                    <FormGroup>
+                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

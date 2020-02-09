@@ -21,7 +21,7 @@ class ClientContactRepository extends BaseRepository
         $this->model = $client_contact;
     }
 
-    public function save($contacts, Customer $customer) : void
+    public function save($contacts, Customer $customer) : bool
     {
 
         /* Convert array to collection */
@@ -73,5 +73,7 @@ class ClientContactRepository extends BaseRepository
             $new_contact->is_primary = true;
             $new_contact->save();
         }
+
+        return true;
     }
 }

@@ -1,5 +1,16 @@
 import React, { Component } from 'react'
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Form, Input, Label } from 'reactstrap'
+import {
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    FormGroup,
+    Form,
+    Input,
+    Label,
+    UncontrolledTooltip
+} from 'reactstrap'
 import axios from 'axios'
 import SuccessMessage from './SucessMessage'
 import ErrorMessage from './ErrorMessage'
@@ -53,7 +64,11 @@ export default class SupportModal extends Component {
 
         return (
             <React.Fragment>
-                <i onClick={this.toggle}
+                <UncontrolledTooltip placement="right" target="contactTooltip">
+                    Contact Us
+                </UncontrolledTooltip>
+
+                <i id="contactTooltip" onClick={this.toggle}
                     style={{ marginRight: 'auto', color: '#000', fontSize: '26px', cursor: 'pointer' }}
                     className="fa fa-envelope"/>
 
@@ -66,7 +81,8 @@ export default class SupportModal extends Component {
                         <Form>
                             <FormGroup>
                                 <Label for="exampleEmail">Message</Label>
-                                <Input type="textarea" onChange={this.handleChange} name="message" id="message" placeholder="Message"/>
+                                <Input type="textarea" onChange={this.handleChange} name="message" id="message"
+                                    placeholder="Message"/>
                             </FormGroup>
                             <FormGroup check>
                                 <Label check>

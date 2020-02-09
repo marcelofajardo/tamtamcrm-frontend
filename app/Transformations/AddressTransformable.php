@@ -6,7 +6,7 @@ use App\Address;
 use App\Customer;
 use App\Repositories\CustomerRepository;
 
-trait AddressTransformable
+class AddressTransformable
 {
 
     /**
@@ -22,7 +22,8 @@ trait AddressTransformable
         $obj->address_2 = $address->address_2;
         $obj->zip = $address->zip;
         $obj->city = $address->city;
-        $obj->country = 225;
+        $obj->country_id = $address->country_id;
+        $obj->address_type = $address->address_type;
         $customerRepo = new CustomerRepository(new Customer);
         $customer = $customerRepo->findCustomerById($address->customer_id);
         $obj->customer = $customer->name;

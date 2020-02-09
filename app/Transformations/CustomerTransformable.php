@@ -2,11 +2,12 @@
 
 namespace App\Transformations;
 
+use App\Address;
+use App\ClientContact;
 use App\Customer;
 
 trait CustomerTransformable
 {
-
     protected function transformCustomer(Customer $customer)
     {
 
@@ -14,7 +15,9 @@ trait CustomerTransformable
         $customer_type = $customer->customerType()->count() > 0 ? $customer->customerType->name : '';
         $credit = $customer->credits()->count() > 0 ? $customer->credits->first()->amount : 0;
 
-        $addresses = $customer->addresses;
+
+        $addresses = $this->transformAddress($customer->addresses);
+
 
         $billing = null;
         $shipping = null;
@@ -40,7 +43,7 @@ trait CustomerTransformable
         $prop->deleted_at = $customer->deleted_at;
         $prop->company = $company;
         $prop->credit = $credit;
-        $prop->contacts = $customer->contacts->count() > 0 ? $customer->contacts : [];
+        $prop->contacts = $this->transformContacts($customer->contacts);
         $prop->customerType = $customer_type;
         $prop->customer_type = $customer->customer_type;
         $prop->default_payment_method = $customer->default_payment_method;
@@ -63,4 +66,33 @@ trait CustomerTransformable
         return $prop;
     }
 
+    /**
+     * @param $contacts
+     * @return array
+     */
+    private function transformContacts($contacts)
+    {
+        if (empty($contacts)) {
+            return [];
+        }
+
+        return $contacts->map(function (ClientContact $contact) {
+            return (new ContactTransformable())->transformClientContact($contact);
+        })->all();
+    }
+
+    /**
+     * @param $addresses
+     * @return array
+     */
+    private function transformAddress($addresses)
+    {
+        if (empty($addresses)) {
+            return [];
+        }
+
+        return $addresses->map(function (Address $address) {
+            return (new AddressTransformable())->transformAddress($address);
+        })->all();
+    }
 }

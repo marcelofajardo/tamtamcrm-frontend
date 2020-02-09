@@ -31,7 +31,7 @@ export default class ViewEntity extends Component {
 
     render () {
         const columnList = this.props.entity ? Object.keys(this.props.entity).filter(key => {
-            return this.props.ignore && !this.props.ignore.includes(key)
+            return this.props.ignore && !this.props.ignore.includes(key) && typeof this.props.entity[key] !== 'object'
         }).map(key => {
             return <ListGroupItem color="dark" key={key}>
                 <ListGroupItemHeading>
@@ -48,7 +48,7 @@ export default class ViewEntity extends Component {
             <React.Fragment>
                 <Modal centered={true} backdrop="static" isOpen={this.props.viewed} toggle={this.toggle}
                     className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>Details</ModalHeader>
+                    <ModalHeader toggle={this.toggle}>{this.props.title ? this.props.title : 'Details'}</ModalHeader>
                     <ModalBody>
                         <ListGroup>
                             {columnList}

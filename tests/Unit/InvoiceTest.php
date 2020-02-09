@@ -97,9 +97,10 @@ class InvoiceTest extends TestCase
             'account_id' => 1,
             'user_id' => $user->id,
             'customer_id' => $this->customer->id,
-            'total' => $this->faker->randomFloat(),
-            'tax_total' => $this->faker->randomFloat(),
-            'discount_total' => $this->faker->randomFloat(),
+            'total' => 200,
+            'balance' => 200,
+            'tax_total' => 0,
+            'discount_total' => 0,
             'status_id' => 1,
         ];
 
@@ -111,20 +112,15 @@ class InvoiceTest extends TestCase
         $invoice->service()->markPaid();
 
         $invoice = Invoice::find($invoice->id);
-        $client = $invoice->customer;
+        $client = $invoice->customer->fresh();
 
-        $this->assertEquals(0.00, $invoice->balance);
+        $this->assertEquals(0, $invoice->balance);
 
         $this->assertEquals(1, count($invoice->payments));
 
-//        foreach($invoice->payments as $payment) {
-//            $this->assertEquals(round($invoice->total,2), $payment->amount);
-//        }
-
-        //events are not firing which makes this impossible to control.
-
-//        $this->assertEquals(0.00, $invoice->balance);
-//        $this->assertEquals(($client_balance - $invoice_balance), $client->balance);
+        foreach($invoice->payments as $payment) {
+            $this->assertEquals(round($invoice->total,2), $payment->amount);
+        }
     }
 
     /** @test */

@@ -120,12 +120,6 @@ export default class UserList extends Component {
                         <TableSearch onChange={this.filterUsers}/>
                     </Col>
 
-                    <Col md={2}>
-                        <FormGroup>
-                            {columnFilter}
-                        </FormGroup>
-                    </Col>
-
                     <Col md={3}>
                         <DepartmentDropdown
                             name="department_id"
@@ -155,6 +149,12 @@ export default class UserList extends Component {
                                 <option value='archived'>Archived</option>
                                 <option value='deleted'>Deleted</option>
                             </Input>
+                        </FormGroup>
+                    </Col>
+
+                    <Col md={8}>
+                        <FormGroup>
+                            {columnFilter}
                         </FormGroup>
                     </Col>
                 </Row>

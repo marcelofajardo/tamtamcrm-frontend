@@ -174,6 +174,8 @@ class CompanySettings extends BaseSettings
     public $all_pages_header = true;
     public $all_pages_footer = true;
 
+    public $invoice_variables;
+
     public static $casts = [
         'fill_products' => 'bool',
         'update_products' => 'bool',
@@ -330,6 +332,7 @@ class CompanySettings extends BaseSettings
         'counter_padding' => 'integer',
         'design' => 'string',
         'website' => 'string',
+        'invoice_variables' => 'array',
     ];
     /**
      * Array of variables which
@@ -371,6 +374,7 @@ class CompanySettings extends BaseSettings
         $data->date_format_id = (string)config('taskmanager.i18n.date_format_id');
         $data->country_id = (string)config('taskmanager.i18n.country_id');
         $data->translations = (object)[];
+        $data->invoice_variables = (array) self::getInvoiceVariableDefaults();
 
         /* $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
         $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
@@ -411,4 +415,53 @@ class CompanySettings extends BaseSettings
         }
         return $settings;
     }
+
+    private static function getInvoiceVariableDefaults()
+     {
+         $variables = [
+             'client_details' => [
+                 'name',
+                 'id_number',
+                 'vat_number',
+                 'address1',
+                 'address2',
+                 'city_state_postal',
+                 'country',
+                 'email',
+             ],
+             'company_details' => [
+                 'company_name',
+                 'id_number',
+                 'vat_number',
+                 'website',
+                 'email',
+                 'phone',
+             ],
+             'company_address' => [
+                 'address1',
+                 'address2',
+                 'city_state_postal',
+                 'country',
+             ],
+             'invoice_details' => [
+                 'invoice_number',
+                 'po_number',
+                 'date',
+                 'due_date',
+                 'balance_due',
+                 'invoice_total',
+             ],
+             'table_columns' => [
+                 'product_key', 
+                 'notes', 
+                 'cost',
+                 'quantity', 
+                 'discount', 
+                 'tax_name1', 
+                 'line_total'
+             ],
+         ];
+
+         return $variables;
+     }
 }

@@ -202,12 +202,6 @@ export default class Invoice extends Component {
                     <TableSearch onChange={this.filterInvoices}/>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
                 <Col md={3}>
                     <CustomerDropdown
                         customer={this.state.filters.customer_id}
@@ -235,6 +229,12 @@ export default class Invoice extends Component {
                             <option value='paid'>Paid</option>
                             <option value='overdue'>Past Due</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={10}>
+                    <FormGroup>
+                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

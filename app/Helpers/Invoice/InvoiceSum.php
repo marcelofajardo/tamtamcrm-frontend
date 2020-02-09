@@ -13,11 +13,25 @@ use Illuminate\Support\Collection;
 class InvoiceSum
 {
     use NumberFormatter;
+    use Discounter;
 
     protected $invoice;
+
     public $tax_map;
+
     public $invoice_item;
+
     public $total_taxes;
+
+    private $total;
+
+    private $total_discount;
+
+    private $total_custom_values;
+
+    private $total_tax_map;
+
+    private $sub_total;
 
     /**
      * Constructs the object with Invoice and Settings object
@@ -28,20 +42,59 @@ class InvoiceSum
     {
 
         $this->invoice = $invoice;
+        //$this->total = $invoice->total;
+         $this->tax_map = new Collection;
     }
 
     public function build()
     {
-        $this->calculateBalance()
+        $this->calculateLineItems()
+            //->setTotal($this->invoice->total)
+            ->calculateDiscount()
+            //->calculateInvoiceTaxes()
+            ->setTaxMap()
+            ->calculateTotals()
+            ->calculateBalance()
             ->calculatePartial();
-//        $this->calculateLineItems()
-//            ->calculateDiscount()
-//            ->calculateCustomValues()
-//            ->calculateInvoiceTaxes()
-//            ->setTaxMap()
-//            ->calculateTotals()
-//            ->calculateBalance()
-//            ->calculatePartial();
+        return $this;
+    }
+
+    private function calculateLineItems()
+    {
+        $this->invoice_items = new InvoiceItemSum($this->invoice);
+        $this->invoice_items->process();
+        $this->invoice->line_items = $this->invoice_items->getLineItems();
+        //$this->total = $this->invoice_items->getSubTotal();
+        $this->setSubTotal($this->invoice_items->getSubTotal());
+
+        return $this;
+    }
+
+    private function calculateInvoiceTaxes()
+    {
+        if ($this->invoice->unit_tax > 0) {
+            $tax = $this->taxer($this->total, $this->invoice->unit_tax);
+            $this->total_taxes += $tax;
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_rate_name . ' ' . $this->invoice->unit_tax.'%', 'total' => $tax];
+        }
+
+        return $this;
+    }
+
+    private function calculateDiscount()
+    {
+
+        //$this->total_discount = $this->discount($this->invoice_items->getSubTotal());
+
+        $this->total = $this->invoice_items->getSubTotal() - $this->invoice->discount_total;
+
+        return $this;
+    }
+
+    private function calculateTotals()
+    {
+        $this->total += $this->total_taxes;
+
         return $this;
     }
 
@@ -66,26 +119,64 @@ class InvoiceSum
         return $this;
     }
 
+    public function setTaxMap()
+    {
+        if ($this->invoice->is_amount_discount == true) {
+            $this->invoice_items->calcTaxesWithAmountDiscount();
+        }
+
+        $this->tax_map = collect();
+
+        $keys = $this->invoice_items->getGroupedTaxes()->pluck('key')->unique();
+
+        $values = $this->invoice_items->getGroupedTaxes();
+
+        foreach ($keys as $key) {
+            $tax_name = $values->filter(function ($value, $k) use ($key) {
+                return $value['key'] == $key;
+            })->pluck('tax_name')->first();
+
+            $total_line_tax = $values->filter(function ($value, $k) use ($key) {
+                return $value['key'] == $key;
+            })->sum('total');
+
+            //$total_line_tax -= $this->discount($total_line_tax);
+
+            $this->tax_map[] = ['name' => $tax_name, 'total' => $total_line_tax];
+
+            $this->total_taxes += $total_line_tax;
+        }
+
+        return $this;
+    }
+
+    public function getTaxMap()
+    {
+        return $this->tax_map;
+    }
+
     /**
      * Build $this->invoice variables after
      * calculations have been performed.
      */
     private function setCalculatedAttributes()
     {
-        $precision = !empty($this->invoice->customer->currency) ?  $this->invoice->customer->currency->precision : 2;
+        $precision = !empty($this->invoice->customer) && !empty($this->invoice->customer->currency) ? $this->invoice->customer->currency->precision : 2;
 
         /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
         if ($this->invoice->total != $this->invoice->balance) {
             $paid_to_date = $this->invoice->total - $this->invoice->balance;
-            $this->invoice->balance = $this->formatValue($this->invoice->total,
-                    $precision) - $paid_to_date;
+
+            $this->invoice->balance = $this->formatValue($this->getTotal(), $precision) - $paid_to_date;
         } else {
-            $this->invoice->balance = $this->formatValue($this->invoice->total,
-               $precision);
+            $this->invoice->balance = $this->formatValue($this->getTotal(), $precision);
         }
+
         /* Set new calculated total */
-        $this->invoice->total = $this->formatValue($this->invoice->total,
-           $precision);
+        $this->invoice->total = $this->formatValue($this->getTotal(), $precision);
+
+        $this->invoice->tax_total = $this->getTotalTaxes();
+
         return $this;
     }
 
@@ -97,4 +188,57 @@ class InvoiceSum
         return $this->invoice;
     }
 
+    public function setTotalDiscount($discount_total)
+    {
+        $this->discount_total = $discount_total;
+        return $this;
+    }
+
+    public function setSubTotal($sub_total)
+    {
+        $this->sub_total = $sub_total;
+        return $this;
+    }
+
+    public function getSubTotal()
+    {
+        return $this->sub_total;
+    }
+
+    public function getTotalDiscount()
+    {
+        return $this->total_discount;
+    }
+
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    public function setTotal($total)
+    {
+        die('here');
+        $this->total = $total;
+        return $this;
+    }
+
+    public function getBalance()
+    {
+        return $this->invoice->balance;
+    }
+
+    public function getItemTotalTaxes()
+    {
+        return $this->getTotalTaxes();
+    }
+
+    public function getTotalTaxes()
+    {
+        return $this->total_taxes;
+    }
+
+    public function getTotalTaxMap()
+    {
+        return $this->total_tax_map;
+    }
 }

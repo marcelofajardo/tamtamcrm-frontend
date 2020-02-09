@@ -11,19 +11,21 @@ use App\Transformations\AddressTransformable;
 use App\Customer;
 use App\Repositories\CustomerRepository;
 
-class AddressTest extends TestCase {
+class AddressTest extends TestCase
+{
 
     use DatabaseTransactions,
-        WithFaker,
-        AddressTransformable;
+        WithFaker;
 
-    public function setUp(): void {
+    public function setUp(): void
+    {
         parent::setUp();
         $this->beginDatabaseTransaction();
     }
 
     /** @test */
-    public function it_can_delete_the_address() {
+    public function it_can_delete_the_address()
+    {
         $created = factory(Address::class)->create();
         $address = new AddressRepository($created);
         $delete = $address->deleteAddress();
@@ -32,7 +34,8 @@ class AddressTest extends TestCase {
     }
 
     /** @test */
-    public function it_can_transform_address() {
+    public function it_can_transform_address()
+    {
         $customer = factory(Customer::class)->create();
 
         $city = $this->faker->city;
@@ -44,15 +47,16 @@ class AddressTest extends TestCase {
             'customer_id' => $customer->id,
         ]);
 
-        $transformed = $this->transformAddress($address);
+        $transformed = (new AddressTransformable())->transformAddress($address);
 
         $this->assertEquals($city, $transformed->city);
-        $this->assertEquals($country, $transformed->country);
+        $this->assertEquals($country, $transformed->country_id);
         $this->assertEquals($customer->name, $transformed->customer);
     }
 
     /** @test */
-    public function it_can_update_the_address() {
+    public function it_can_update_the_address()
+    {
         $address = factory(Address::class)->create();
         $data = [
             'alias' => $this->faker->title('Male'),
@@ -74,7 +78,8 @@ class AddressTest extends TestCase {
     }
 
     /** @test */
-    public function it_can_return_the_owner_of_the_address() {
+    public function it_can_return_the_owner_of_the_address()
+    {
         $customer = factory(Customer::class)->create();
         $address = factory(Address::class)->create(['customer_id' => $customer->id]);
         $addressRepo = new AddressRepository($address);
@@ -83,7 +88,8 @@ class AddressTest extends TestCase {
     }
 
     /** @test */
-    public function it_can_be_attached_to_a_customer() {
+    public function it_can_be_attached_to_a_customer()
+    {
         $customer = factory(Customer::class)->create();
         $address = factory(Address::class)->create();
         $addressRepo = new AddressRepository($address);
@@ -92,7 +98,8 @@ class AddressTest extends TestCase {
     }
 
     /** @test */
-    public function it_can_list_all_the_addresses() {
+    public function it_can_list_all_the_addresses()
+    {
         $address = factory(Address::class)->create();
         $address = new AddressRepository($address);
         $addresses = $address->listAddress();
@@ -102,13 +109,15 @@ class AddressTest extends TestCase {
     }
 
     /** @test */
-    public function it_can_show_the_address() {
+    public function it_can_show_the_address()
+    {
         $address = factory(Address::class)->create();
         $this->assertDatabaseHas('addresses', ['id' => $address->id]);
     }
 
     /** @test */
-    public function it_can_list_all_the_addresses_of_the_customer() {
+    public function it_can_list_all_the_addresses_of_the_customer()
+    {
         $customer = factory(Customer::class)->create();
         factory(Address::class)->create(['customer_id' => $customer->id]);
         $customerRepo = new CustomerRepository($customer);
@@ -116,7 +125,8 @@ class AddressTest extends TestCase {
         $this->assertCount(1, $lists);
     }
 
-    public function tearDown(): void {
+    public function tearDown(): void
+    {
         parent::tearDown();
     }
 

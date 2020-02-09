@@ -137,12 +137,6 @@ export default class ProductList extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
                         <Input type='select'
                             onChange={this.filterProducts}
                             id="status"
@@ -173,6 +167,12 @@ export default class ProductList extends Component {
                         handleInputChanges={this.filterProducts}
                         categories={categories}
                     />
+                </Col>
+
+                <Col md={10}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
                 </Col>
             </Row>
         )

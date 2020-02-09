@@ -155,10 +155,6 @@ export default class Credits extends Component {
                 </Col>
 
                 <Col md={3}>
-                    {columnFilter}
-                </Col>
-
-                <Col md={3}>
                     <CustomerDropdown
                         customer={this.state.filters.customer_id}
                         renderErrorFor={this.renderErrorFor}
@@ -168,7 +164,7 @@ export default class Credits extends Component {
                     />
                 </Col>
 
-                <Col md={3}>
+                <Col md={2}>
                     <FormGroup>
                         <Input type='select'
                             onChange={this.filterCredits}
@@ -184,6 +180,10 @@ export default class Credits extends Component {
                             <option value='deleted'>Deleted</option>
                         </Input>
                     </FormGroup>
+                </Col>
+
+                <Col md={8}>
+                    {columnFilter}
                 </Col>
             </Row>
         )

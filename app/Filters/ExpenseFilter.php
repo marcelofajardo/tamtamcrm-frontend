@@ -62,6 +62,14 @@ class ExpenseFilter extends QueryFilter
             $this->query = $this->searchFilter($request->search_term);
         }
 
+        if ($request->filled('customer_id')) {
+            $this->query->whereCustomerId($request->customer_id);
+        }
+
+        if ($request->filled('company_id')) {
+            $this->query->whereCompanyId($request->company_id);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
@@ -104,16 +112,16 @@ class ExpenseFilter extends QueryFilter
             return false;
         }
 
-        return  $this->query->where(function ($query) use ($filter) {
-            $query->where('expenses.name', 'like', '%'.$filter.'%')
-                ->orWhere('expenses.id_number', 'like', '%'.$filter.'%')
+        return $this->query->where(function ($query) use ($filter) {
+            $query->where('expenses.name', 'like', '%' . $filter . '%')
+                ->orWhere('expenses.id_number', 'like', '%' . $filter . '%')
                 //->orWhere('expense_contacts.first_name', 'like', '%'.$filter.'%')
                 //->orWhere('expense_contacts.last_name', 'like', '%'.$filter.'%')
                 //->orWhere('expense_contacts.email', 'like', '%'.$filter.'%')
-                ->orWhere('expenses.custom_value1', 'like', '%'.$filter.'%')
-                ->orWhere('expenses.custom_value2', 'like', '%'.$filter.'%')
-                ->orWhere('expenses.custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('expenses.custom_value4', 'like', '%'.$filter.'%');
+                ->orWhere('expenses.custom_value1', 'like', '%' . $filter . '%')
+                ->orWhere('expenses.custom_value2', 'like', '%' . $filter . '%')
+                ->orWhere('expenses.custom_value3', 'like', '%' . $filter . '%')
+                ->orWhere('expenses.custom_value4', 'like', '%' . $filter . '%');
         });
     }
 

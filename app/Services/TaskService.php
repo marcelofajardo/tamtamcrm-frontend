@@ -110,6 +110,45 @@ class TaskService
         return $task;
     }
 
+    public function createLead(Request $request)
+    {
+        $currentUser = Auth::user();
+        $userId = !$currentUser ? 9874 : $currentUser->id;
+        $request->customer_type = 2;
+        $account_id = 1;
+        $factory = (new CustomerFactory())->create($account_id, $userId);
+
+        $date = new \DateTime(); // Y-m-d
+        $date->add(new \DateInterval('P30D'));
+        $due_date = $date->format('Y-m-d');
+
+        $customer = $this->customerRepository->save($request->except('_token', '_method', 'valued_at',
+            'title', 'description'), $factory);
+
+        $taskFactory = (new TaskFactory())->create($userId, $account_id);
+
+        $task = $this->taskRepository->save(
+            [
+                'content' => $request->notes,
+                'due_date' => $due_date,
+                'created_by' => $userId,
+                'source_type' => $request->source_type,
+                'title' => $request->title,
+                'description' => $request->description,
+                'customer_id' => $customer->id,
+                'task_type' => $request->task_type,
+                'task_status' => $request->task_status
+            ], $taskFactory
+        );
+
+        if ($request->has('contributors')) {
+
+            $this->taskRepository->syncUsers($task, $request->input('contributors'));
+        }
+
+        return $task;
+    }
+
     /**
      *
      * @param int $task_id

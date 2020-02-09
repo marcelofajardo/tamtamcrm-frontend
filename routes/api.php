@@ -353,4 +353,5 @@ Route::group(['middleware' => 'api-header'], function () {
     Route::post('tasks/products/{task_id}', 'TaskController@addProducts');
     Route::post("categories/products/{id}", 'ProductController@getProductsForCategory');
     Route::post('tasks/deal', 'TaskController@createDeal');
+    Route::post('tasks/lead', 'TaskController@createLead');
 });

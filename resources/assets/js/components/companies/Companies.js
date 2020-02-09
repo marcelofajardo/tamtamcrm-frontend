@@ -121,7 +121,7 @@ export default class Companies extends Component {
                     <TableSearch onChange={this.filterCompanies}/>
                 </Col>
 
-                <Col md={2}>
+                <Col md={6}>
                     {columnFilter}
                 </Col>
 
