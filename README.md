@@ -2,6 +2,28 @@
 
 TamTam CRM is an all in one invoicing, accounting and crm system. It was built to prevent the need for multiple subscriptions with data spread across multiple systems. As well as giving you full control over customers, vendors, products, events, tasks and many other features. It also includes financial management including invoices, quotes, expenses, credits and payments.
 
+#Features
+Multiple Accounts
+Customer Management with contacts
+Invoices
+Recurring Invoices
+Quotes
+Recurring Quotes
+Payments
+Credits
+Refunds
+Expenses
+Company Management with contacts
+Events
+Tasks with time management
+Projects
+Leads
+Deals
+Customer Portal
+Online Orders / Payments
+User Management with roles, permissions and departments
+Product Management with categories
+
 ## Getting Started
 
 git clone https://github.com/michael-hampton/taskmanager.git
