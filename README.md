@@ -1,6 +1,6 @@
 # TamTam CRM
 
-TamTam CRM is an all in one invoicing, accounting and crm system. It was built to prevent the need for multiple subscriptions with data spread across multiple systems. As well as giving you full control over customers, vendors, products, events, tasks and many other features. It also includes financial management including invoices, quotes, expenses, credits and payments.
+TamTam CRM is an all in one invoicing, accounting and crm system. It was built to prevent a common issue often seen with other CRM's when you need to have multiple subscriptions with data spread across multiple systems. TamTam CRM is a functionality rich system providing you with a full package all in one place. The system is under continuous development and is updated regularly. Some of the features that can be found in TamTam CRM are as follows
 
 * Features
 * Multiple Accounts
