@@ -22,12 +22,11 @@ trait RecurringInvoiceTransformable
 
         $prop->id = (int)$invoice->id;
         $prop->number = $invoice->number;
-        $prop->customer_name = $invoice->customer->present()->name;
+        $prop->customer_id = $invoice->customer_id;
         $prop->date = $invoice->date;
         $prop->due_date = $invoice->due_date;
         $prop->start_date = $invoice->start_date;
         $customer = $invoice->customer;
-        $prop->customer_id = $invoice->customer_id;
         $prop->total = $invoice->total;
         $prop->sub_total = $invoice->sub_total;
         $prop->tax_total = $invoice->tax_total;

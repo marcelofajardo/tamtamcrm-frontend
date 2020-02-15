@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Factory\CreditInvitationFactory;
@@ -32,53 +33,57 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
         return $this->model;
     }
 
-    public function save(array $data, Credit $credit, $invoice = null) : ?Credit
-     {
-         $credit->fill($data);
-
-         $credit->save();
-
-         $credit->number = $this->getNextCreditNumber($credit->customer);
-
-         if (isset($data['invitations'])) {
-             $invitations = collect($data['invitations']);
-
-             /* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
-             collect($credit->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
-                 CreditInvitation::destroy($invitation);
-             });
-
-
-             foreach ($data['invitations'] as $invitation) {
-                 $cred = false;
-
-                 if (array_key_exists('key', $invitation)) {
-                     $cred = CreditInvitation::whereKey($invitation['key'])->first();
-                 }
-
-                 if (!$cred) {
-                     $invitation['client_contact_id'] = $invitation['client_contact_id'];
-                     $new_invitation = CreditInvitationFactory::create($credit->account_id, $credit->user_id);
-                     $new_invitation->fill($invitation);
-                     $new_invitation->credit_id = $credit->id;
-                     //$new_invitation->customer_id = $credit->customer_id;
-                     $new_invitation->client_contact_id = $invitation['client_contact_id'];
-                     $new_invitation->save();
-                 }
-             }
-         }
-
-         /**
-          * Perform calculations on the
-          * credit note
-          */
-
-         $credit = $credit->calc()->getInvoice();
+    public function save(array $data, Credit $credit, $invoice = null): ?Credit
+    {
+        $credit->fill($data);
 
         $credit->save();
 
-         return $credit;
-     }
+        if (isset($data['invitations'])) {
+            $invitations = collect($data['invitations']);
+
+            /* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
+            collect($credit->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
+                CreditInvitation::destroy($invitation);
+            });
+
+
+            foreach ($data['invitations'] as $invitation) {
+                $cred = false;
+
+                if (array_key_exists('key', $invitation)) {
+                    $cred = CreditInvitation::whereKey($invitation['key'])->first();
+                }
+
+                if (!$cred) {
+                    $invitation['client_contact_id'] = $invitation['client_contact_id'];
+                    $new_invitation = CreditInvitationFactory::create($credit->account_id, $credit->user_id);
+                    $new_invitation->fill($invitation);
+                    $new_invitation->credit_id = $credit->id;
+                    //$new_invitation->customer_id = $credit->customer_id;
+                    $new_invitation->client_contact_id = $invitation['client_contact_id'];
+                    $new_invitation->save();
+                }
+            }
+        }
+
+        /* If no invitations have been created, this is our fail safe to maintain state*/
+        if ($credit->invitations->count() == 0) {
+            $credit->service()->createInvitations();
+        }
+
+        /**
+         * Perform calculations on the
+         * credit note
+         */
+
+        $credit = $credit->calc()->getInvoice();
+        $credit->save();
+
+        $credit = $credit->service()->applyNumber()->save();
+
+        return $credit->fresh();
+    }
 
     public function getCreditForCustomer(Customer $objCustomer)
     {

@@ -51,7 +51,7 @@ class CompanySettings extends BaseSettings
     public $inclusive_taxes = false;
     public $quote_footer = '';
     public $translations;
-    public $counter_number_applied = 'when_saved'; // when_saved , when_sent , when_paid 
+    public $counter_number_applied = 'when_saved'; // when_saved , when_sent , when_paid
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent
     /* Counters */
     public $invoice_number_pattern = '';
@@ -143,7 +143,7 @@ class CompanySettings extends BaseSettings
     public $schedule_reminder1 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
     public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
     public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date)
-    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders 
+    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders
     public $late_fee_amount1 = 0;
     public $late_fee_amount2 = 0;
     public $late_fee_amount3 = 0;
@@ -174,7 +174,7 @@ class CompanySettings extends BaseSettings
     public $all_pages_header = true;
     public $all_pages_footer = true;
 
-    public $invoice_variables;
+    public $invoice_variables = [];
 
     public static $casts = [
         'fill_products' => 'bool',
@@ -332,7 +332,7 @@ class CompanySettings extends BaseSettings
         'counter_padding' => 'integer',
         'design' => 'string',
         'website' => 'string',
-        'invoice_variables' => 'array',
+        'invoice_variables' => 'object',
     ];
     /**
      * Array of variables which
@@ -452,12 +452,12 @@ class CompanySettings extends BaseSettings
                  'invoice_total',
              ],
              'table_columns' => [
-                 'product_key', 
-                 'notes', 
+                 'product_key',
+                 'notes',
                  'cost',
-                 'quantity', 
-                 'discount', 
-                 'tax_name1', 
+                 'quantity',
+                 'discount',
+                 'tax_name1',
                  'line_total'
              ],
          ];

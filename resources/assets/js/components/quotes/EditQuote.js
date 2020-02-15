@@ -47,7 +47,7 @@ class EditInvoice extends Component {
             finance_type: this.props.finance_type ? this.props.finance_type : 1,
             invoice_id: this.props.invoice_id,
             lines: [],
-            invitations: [],
+            invitations: this.props.invoice && this.props.invoice.invitations && this.props.invoice.invitations.length ? this.props.invoice.invitations : [],
             contacts: [],
             address: {},
             customerName: '',
@@ -68,6 +68,7 @@ class EditInvoice extends Component {
             notes: this.props.invoice && this.props.invoice.notes ? this.props.invoice.notes : null,
             terms: this.props.invoice && this.props.invoice.terms ? this.props.invoice.terms : null,
             footer: this.props.invoice && this.props.invoice.footer ? this.props.invoice.footer : null,
+            invoice_id: this.props.invoice && this.props.invoice.id ? this.props.invoice.id : null,
             visible: 'collapse',
             success: false,
             tax: 0,
@@ -122,12 +123,6 @@ class EditInvoice extends Component {
         })
     }
 
-    toggleMenu (event) {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        })
-    }
-
     componentDidMount () {
         if (this.props.task_id || this.props.invoice_id) {
             this.loadInvoice()
@@ -136,6 +131,13 @@ class EditInvoice extends Component {
                 const storedValues = JSON.parse(localStorage.getItem('quoteForm'))
                 this.setState({ ...storedValues }, () => console.log('new state', this.state))
             }
+        }
+
+        if (this.props.invoice && this.props.invoice.customer_id) {
+            const index = this.props.customers.findIndex(customer => customer.id === this.props.invoice.customer_id)
+            const customer = this.props.customers[index]
+            const contacts = customer.contacts ? customer.contacts : []
+            this.setState({ contacts: contacts })
         }
     }
 
@@ -575,13 +577,11 @@ class EditInvoice extends Component {
     }
 
     buildForm () {
-        const changeStatusButton = this.state.status === 1
-            ? <DropdownItem color="primary" onClick={() => this.changeStatus('mark_sent')}>Mark Sent</DropdownItem>
-            : <DropdownItem color="primary" onClick={() => this.changeStatus('mark_paid')}>Mark Paid</DropdownItem>
+        const changeStatusButton = <DropdownItem color="primary" onClick={() => this.changeStatus('mark_sent')}>Mark Sent</DropdownItem>
 
         const approveButton = this.state.status !== 4
             ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('approve')}>Approve</DropdownItem> : null
+                onClick={() => this.changeStatus('mark_approved')}>Approve</DropdownItem> : null
 
         const sendEmailButton = this.state.status === 1
             ? <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
@@ -742,14 +742,16 @@ class EditInvoice extends Component {
         const contactsForm = <Card>
             <CardHeader>Invitations</CardHeader>
             <CardBody>
-                {this.state.contacts.length && this.state.contacts.map(contact => (
-                    <FormGroup check>
+                {this.state.contacts.length && this.state.contacts.map(contact => {
+                    const invitations = this.state.invitations.length ? this.state.invitations.filter(invitation => parseInt(invitation.client_contact_id) === contact.id) : []
+                    const checked = invitations.length ? 'checked="checked"' : ''
+                    return <FormGroup check>
                         <Label check>
-                            <Input value={contact.id} onChange={this.handleContactChange}
+                            <Input checked={checked} value={contact.id} onChange={this.handleContactChange}
                                 type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
                         </Label>
                     </FormGroup>
-                ))
+                })
                 }
                 {!this.state.contacts.length &&
                 <h2>You haven't selected a customer</h2>

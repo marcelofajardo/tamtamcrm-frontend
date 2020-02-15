@@ -197,7 +197,8 @@ class InvoiceController extends Controller
                 break;
             case 'download':
                 $headers = array('Content-Type: pdf');
-                $contents = file_get_contents(public_path($invoice->pdf_file_path()));
+                $contents = file_get_contents(public_path($invoice->service()->getInvoicePdf(null)));
+                //$contents = file_get_contents(public_path($invoice->pdf_file_path()));
                 return response()->json(['data' => base64_encode($contents)]);
                 //return response()->download(public_path($invoice->pdf_file_path()), 'test.pdf', $headers);
                 break;
@@ -214,7 +215,7 @@ class InvoiceController extends Controller
                 }
                 break;
             case 'email':
-                EmailInvoice::dispatch($invoice, $invoice->account);
+                $invoice->service()->sendEmail(null);
                 if (!$bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }
@@ -223,6 +224,16 @@ class InvoiceController extends Controller
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
         }
+    }
+
+    public function downloadPdf($invitation_key) {
+        $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
+        $contact    = $invitation->contact;
+        $invoice    = $invitation->invoice;
+
+        $file_path = $invoice->service()->getInvoicePdf();
+
+        return response()->download($file_path);
     }
 
     /**

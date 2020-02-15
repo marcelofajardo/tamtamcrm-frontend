@@ -43,7 +43,7 @@ class InvoiceSum
 
         $this->invoice = $invoice;
         //$this->total = $invoice->total;
-         $this->tax_map = new Collection;
+        $this->tax_map = new Collection;
     }
 
     public function build()
@@ -75,7 +75,10 @@ class InvoiceSum
         if ($this->invoice->unit_tax > 0) {
             $tax = $this->taxer($this->total, $this->invoice->unit_tax);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_rate_name . ' ' . $this->invoice->unit_tax.'%', 'total' => $tax];
+            $this->total_tax_map[] = [
+                'name' => $this->invoice->tax_rate_name . ' ' . $this->invoice->unit_tax . '%',
+                'total' => $tax
+            ];
         }
 
         return $this;
@@ -83,16 +86,25 @@ class InvoiceSum
 
     private function calculateDiscount()
     {
+        $total = $this->invoice_items->getSubTotal() - $this->invoice->discount_total;
+
+        if ($total <= 0) {
+            return $this;
+        }
 
         //$this->total_discount = $this->discount($this->invoice_items->getSubTotal());
 
-        $this->total = $this->invoice_items->getSubTotal() - $this->invoice->discount_total;
+        $this->total = $total;
 
         return $this;
     }
 
     private function calculateTotals()
     {
+        if (empty($this->total_taxes)) {
+            return $this;
+        }
+
         $this->total += $this->total_taxes;
 
         return $this;
@@ -212,12 +224,15 @@ class InvoiceSum
 
     public function getTotal()
     {
+        if ($this->total <= 0) {
+            return $this->invoice->total;
+        }
+
         return $this->total;
     }
 
     public function setTotal($total)
     {
-        die('here');
         $this->total = $total;
         return $this;
     }

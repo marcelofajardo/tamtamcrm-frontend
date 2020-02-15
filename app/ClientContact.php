@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Laracasts\Presenter\PresentableTrait;
 
-class ClientContact extends Model
+class ClientContact extends Model implements HasLocalePreference
 {
     use PresentableTrait;
     use SoftDeletes;
@@ -57,6 +57,19 @@ class ClientContact extends Model
     public function getRouteKeyName()
     {
         return 'contact_id';
+    }
+
+    public function preferredLocale()
+    {
+        $languages = Language::all();
+
+        return $languages->filter(function ($item) {
+            return $item->id == $this->customer->getSetting('language_id');
+        })->first()->locale;
+
+        //$lang = Language::find($this->client->getSetting('language_id'));
+
+        //return $lang->locale;
     }
 
     public function setAvatarAttribute($value)

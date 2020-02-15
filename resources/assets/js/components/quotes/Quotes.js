@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import EditQuote from './EditQuote'
-import { FormGroup, Input, Badge, Card, CardBody, Col, Row } from 'reactstrap'
+import { FormGroup, Input, Card, CardBody, Col, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerDropdown from '../common/CustomerDropdown'
 import RestoreModal from '../common/RestoreModal'
@@ -11,6 +11,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import QuotePresenter from '../presenters/QuotePresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Quotes extends Component {
     constructor (props) {
@@ -23,6 +25,7 @@ export default class Quotes extends Component {
                 title: null
             },
             quotes: [],
+            cachedData: [],
             customers: [],
             custom_fields: [],
             filters: {
@@ -31,22 +34,8 @@ export default class Quotes extends Component {
                 searchText: ''
             },
             showRestoreButton: false,
-            ignoredColumns: ['next_send_date', 'customer_id', 'id', 'company_id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_sent_date', 'uses_inclusive_taxes', 'line_items', 'next_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
+            ignoredColumns: ['invitations', 'next_send_date', 'id', 'company_id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_sent_date', 'uses_inclusive_taxes', 'line_items', 'next_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
 
-        }
-
-        this.colors = {
-            1: 'secondary',
-            2: 'primary',
-            4: 'success',
-            '-1': 'danger'
-        }
-
-        this.statuses = {
-            1: 'Draft',
-            2: 'Sent',
-            4: 'Approved',
-            '-1': 'Expired'
         }
 
         this.updateInvoice = this.updateInvoice.bind(this)
@@ -70,7 +59,11 @@ export default class Quotes extends Component {
     }
 
     updateInvoice (quotes) {
-        this.setState({ quotes: quotes })
+        const cachedData = !this.state.cachedData.length ? quotes : this.state.cachedData
+        this.setState({
+            quotes: quotes,
+            cachedData: cachedData
+        })
     }
 
     toggleViewedEntity (id, title = null) {
@@ -109,7 +102,7 @@ export default class Quotes extends Component {
 
     userList () {
         const { quotes, custom_fields, customers } = this.state
-        if (this.state.quotes && this.state.quotes.length) {
+        if (this.state.quotes && this.state.quotes.length && customers.length) {
             return quotes.map(user => {
                 const restoreButton = user.deleted_at
                     ? <RestoreModal id={user.id} entities={quotes} updateState={this.updateInvoice}
@@ -120,10 +113,6 @@ export default class Quotes extends Component {
 
                 const archiveButton = !user.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteQuote} id={user.id}/> : null
-
-                const status = !user.deleted_at
-                    ? <Badge color={this.colors[user.status_id]}>{this.statuses[user.status_id]}</Badge>
-                    : <Badge color="warning">Archived</Badge>
 
                 const editButton = !user.deleted_at ? <EditQuote
                     custom_fields={custom_fields}
@@ -139,9 +128,8 @@ export default class Quotes extends Component {
                 const columnList = Object.keys(user).filter(key => {
                     return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
                 }).map(key => {
-                    return key === 'status_id' ? <td data-label="Status">{status}</td>
-                        : <td onClick={() => this.toggleViewedEntity(user, user.number)} key={key}
-                            data-label={key}>{user[key]}</td>
+                    return <QuotePresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={user}/>
                 })
 
                 return (
@@ -224,6 +212,13 @@ export default class Quotes extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.updateInvoice}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
                 <Col md={10}>
                     <FormGroup>
                         {columnFilter}
@@ -284,7 +279,7 @@ export default class Quotes extends Component {
                         {addButton}
 
                         <DataTable
-                            columnMapping={{ customer_id: 'Customer' }}
+                            columnMapping={{ customer_id: 'CUSTOMER' }}
                             ignore={this.state.ignoredColumns}
                             disableSorting={['id']}
                             defaultColumn='total'

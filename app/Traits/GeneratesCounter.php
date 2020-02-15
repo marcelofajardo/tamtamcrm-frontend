@@ -242,6 +242,28 @@ trait GeneratesCounter
     }
 
     /**
+     * Gets the next client number.
+     *
+     * @param      \App\Models\Client  $client  The client
+     *
+     * @return     string              The next client number.
+     */
+    public function getNextClientNumber(Customer $client) :string
+    {
+        //Reset counters if enabled
+        $this->resetCounters($client);
+
+        $counter = $client->getSetting('client_number_counter');
+        $setting_entity = $client->getSettingEntity('client_number_counter');
+
+        $client_number = $this->checkEntityNumber(Customer::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_pattern'));
+
+        $this->incrementCounter($setting_entity, 'client_number_counter');
+
+        return $client_number;
+    }
+
+    /**
      * Checks that the number has not already been used
      * @param $class
      * @param $customer

@@ -15,7 +15,7 @@ class StoreRecurringQuoteRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'customer_id' => 'required|integer',
+            'customer_id' => 'required|exists:customers,id',
         ];
     }
 

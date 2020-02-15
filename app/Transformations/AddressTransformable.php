@@ -3,7 +3,9 @@
 namespace App\Transformations;
 
 use App\Address;
+use App\ClientContact;
 use App\Customer;
+use App\Repositories\ClientContactRepository;
 use App\Repositories\CustomerRepository;
 
 class AddressTransformable
@@ -24,7 +26,7 @@ class AddressTransformable
         $obj->city = $address->city;
         $obj->country_id = $address->country_id;
         $obj->address_type = $address->address_type;
-        $customerRepo = new CustomerRepository(new Customer);
+        $customerRepo = new CustomerRepository(new Customer, new ClientContactRepository(new ClientContact));
         $customer = $customerRepo->findCustomerById($address->customer_id);
         $obj->customer = $customer->name;
         $obj->status = $address->status;

@@ -63,7 +63,7 @@ class CreatePaymentRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
             'invoices.*.invoice_id' => 'required',
             'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'required',

@@ -4,20 +4,30 @@ namespace App;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Services\Quote\QuoteService;
+use App\Traits\MakesInvoiceValues;
+use App\Traits\MakesReminders;
 use Illuminate\Database\Eloquent\Model;
 use App\Task;
 use App\InvoiceStatus;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Events\Invoice\QuoteWasMarkedSent;
 use App\Jobs\Customer\UpdateClientBalance;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\InvoiceLine;
+use Illuminate\Support\Facades\Storage;
+use Laracasts\Presenter\PresentableTrait;
 
 class Quote extends Model
 {
-
     use SoftDeletes;
+    use MakesInvoiceValues;
+    use PresentableTrait;
+    use MakesReminders;
+
+    protected $presenter = 'App\Presenters\QuotePresenter';
 
     protected $casts = [
         'line_items' => 'object',
@@ -123,6 +133,20 @@ class Quote extends Model
         $this->save();
     }
 
+    /**
+     * Updates Invites to SENT
+     *
+     */
+    public function markInvitationsSent()
+    {
+        $this->invitations->each(function ($invitation) {
+            if (!isset($invitation->sent_date)) {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+        });
+    }
+
         /**
       * Access the quote calculator object
       *
@@ -141,4 +165,20 @@ class Quote extends Model
          return $quote_calc->build();
 
      }
+
+    public function service(): QuoteService
+    {
+        return new QuoteService($this);
+    }
+
+    public function pdf_file_path()
+    {
+        return '';
+        $storage_path = 'storage/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
+        if (!Storage::exists($storage_path)) {
+            CreateInvoicePdf::dispatchNow($this, $this->account, $this->customer->primary_contact()->first());
+        }
+
+        return $storage_path;
+    }
 }

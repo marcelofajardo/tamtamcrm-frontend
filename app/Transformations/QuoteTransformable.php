@@ -3,6 +3,7 @@
 namespace App\Transformations;
 
 use App\Quote;
+use App\QuoteInvitation;
 use App\Repositories\CustomerRepository;
 use App\Customer;
 
@@ -22,7 +23,6 @@ trait QuoteTransformable
         $customer = $quote->customer;
         $prop->company_id = $quote->company_id ?: null;
         $prop->customer_id = $quote->customer_id;
-        $prop->customer_name = $quote->customer->present()->name;
         $prop->date = $quote->date ?: '';
         $prop->due_date = $quote->due_date ?: '';
         $prop->total = $quote->total;
@@ -40,6 +40,7 @@ trait QuoteTransformable
         $prop->terms = $quote->terms;
         $prop->footer = $quote->footer ?: '';
         $prop->line_items = $quote->line_items ?: (array)[];
+        $prop->invitations = $this->transformInvitations($quote->invitations);
         $prop->custom_value1 = $quote->custom_value1 ?: '';
         $prop->custom_value2 = $quote->custom_value2 ?: '';
         $prop->custom_value3 = $quote->custom_value3 ?: '';
@@ -51,4 +52,18 @@ trait QuoteTransformable
         return $prop;
     }
 
+    /**
+     * @param $invitations
+     * @return array
+     */
+    private function transformInvitations($invitations)
+    {
+        if (empty($invitations)) {
+            return [];
+        }
+
+        return $invitations->map(function (QuoteInvitation $invitation) {
+            return (new QuoteInvitationTransformable())->transformQuoteInvitations($invitation);
+        })->all();
+    }
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import AddRecurringQuote from './AddRecurringQuote'
 import UpdateRecurringQuote from './UpdateRecurringQuote'
-import { FormGroup, Input, Badge, Card, CardBody, Col, Row } from 'reactstrap'
+import { FormGroup, Input, Card, CardBody, Col, Row } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerDropdown from '../common/CustomerDropdown'
 import RestoreModal from '../common/RestoreModal'
@@ -12,6 +12,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import RecurringQuotePresenter from '../presenters/RecurringQuotePresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class RecurringQuotes extends Component {
     constructor (props) {
@@ -24,6 +26,7 @@ export default class RecurringQuotes extends Component {
                 title: null
             },
             invoices: [],
+            cachedData: [],
             custom_fields: [],
             customers: [],
             allQuotes: [],
@@ -33,27 +36,11 @@ export default class RecurringQuotes extends Component {
                 searchText: ''
             },
             showRestoreButton: false,
-            ignoredColumns: ['customer_id', 'id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
+            ignoredColumns: ['id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
 
         }
 
         this.ignore = []
-        this.colors = {
-            2: 'primary',
-            3: 'primary',
-            '-3': 'danger',
-            '-1': 'primary',
-            Partial: 'dark',
-            '-2': 'success'
-        }
-
-        this.statuses = {
-            2: 'Draft',
-            3: 'Active',
-            '-3': 'Cancelled',
-            '-1': 'Pending',
-            '-2': 'Completed'
-        }
 
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
@@ -77,7 +64,11 @@ export default class RecurringQuotes extends Component {
     }
 
     updateInvoice (invoices) {
-        this.setState({ invoices: invoices })
+        const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+        this.setState({
+            invoices: invoices,
+            cachedData: cachedData
+        })
     }
 
     toggleViewedEntity (id, title = null) {
@@ -128,7 +119,7 @@ export default class RecurringQuotes extends Component {
 
     userList () {
         const { invoices, custom_fields, customers, allQuotes } = this.state
-        if (invoices && invoices.length) {
+        if (invoices && invoices.length && customers.length) {
             return invoices.map(user => {
                 const restoreButton = user.deleted_at
                     ? <RestoreModal id={user.id} entities={invoices} updateState={this.updateInvoice}
@@ -138,10 +129,6 @@ export default class RecurringQuotes extends Component {
 
                 const deleteButton = !user.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteInvoice} id={user.id}/> : null
-
-                const status = !user.deleted_at
-                    ? <Badge color={this.colors[user.status_id]}>{this.statuses[user.status_id]}</Badge>
-                    : <Badge color="warning">Archived</Badge>
 
                 const editButton = !user.deleted_at ? <UpdateRecurringQuote
                     allQuotes={allQuotes}
@@ -158,10 +145,8 @@ export default class RecurringQuotes extends Component {
                 const columnList = Object.keys(user).filter(key => {
                     return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
                 }).map(key => {
-                    return (key === 'status_id') ? (
-                        <td data-label="Status">{status}</td>) : ((key === 'customer_id') ? (
-                        <td onClick={() => this.toggleViewedEntity(user, user.number)}>{`${user.first_name} ${user.last_name}`}</td>) : (
-                        <td onClick={() => this.toggleViewedEntity(user, user.number)} key={key} data-label={key}>{user[key]}</td>))
+                    return <RecurringQuotePresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={user}/>
                 })
 
                 return (
@@ -216,12 +201,6 @@ export default class RecurringQuotes extends Component {
                     <TableSearch onChange={this.filterInvoices}/>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
                 <Col md={3}>
                     <CustomerDropdown
                         customer={this.state.filters.customer_id}
@@ -249,6 +228,19 @@ export default class RecurringQuotes extends Component {
                             <option value='paid'>Paid</option>
                             <option value='overdue'>Past Due</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.updateInvoice}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={8}>
+                    <FormGroup>
+                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>
@@ -306,7 +298,7 @@ export default class RecurringQuotes extends Component {
                         <FilterTile filters={filters}/>
                         {addButton}
                         <DataTable
-                            // order={['id', 'number', 'date', 'customer_name', 'total', 'status_id']}
+                            columnMapping={{ customer_id: 'Customer' }}
                             ignore={this.state.ignoredColumns}
                             disableSorting={['id']}
                             defaultColumn='total'

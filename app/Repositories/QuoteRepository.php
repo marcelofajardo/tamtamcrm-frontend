@@ -58,7 +58,6 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
 
     public function save($data, Quote $quote): ?Quote
     {
-
         $quote->fill($data);
         $quote->save();
 
@@ -87,11 +86,10 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
 
                 if(!$inv)
                 {
-                    $invitation['client_contact_id'] = $invitation['client_contact_id'];
                     $new_invitation = QuoteInvitationFactory::create($quote->account_id, $quote->user_id);
                     $new_invitation->fill($invitation);
                     $new_invitation->quote_id = $quote->id;
-                    //$new_invitation->customer_id = $quote->customer_id;
+                    $new_invitation->client_contact_id = $invitation['client_contact_id'];
                     $new_invitation->save();
                 }
             }
@@ -99,7 +97,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($quote->invitations->count() == 0) {
-            CreateQuoteInvitations::dispatchNow($quote, $quote->account);
+            $quote->service()->createInvitations();
         }
 
         $quote = $quote->calc()->getInvoice();
@@ -107,7 +105,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
         $finished_amount = $quote->total;
         //todo need answers on this
 
-        $quote = ApplyQuoteNumber::dispatchNow($quote, $quote->customer->getMergedSettings(), $quote->account);
+        $quote = $quote->service()->applyNumber()->save();
         return $quote->fresh();
     }
 

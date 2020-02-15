@@ -1,7 +1,7 @@
 <?php
 namespace App\Designs;
 
-class Modern
+class Modern extends AbstractDesign
 {
 
     public function __construct()
@@ -87,7 +87,7 @@ class Modern
 			                $table_body
 			        </tbody>
 			    </table>
-			    <div class="flex px-4 mt-6 w-full">
+			    <div class="flex px-4 mt-6 w-full" style="page-break-inside: avoid;">
 			        <div class="w-1/2">
 			            $invoice.public_notes
 			        </div>

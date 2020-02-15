@@ -10,6 +10,7 @@ use Illuminate\Support\Collection as Support;
 use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Traits\GeneratesCounter;
 use App\Factory\CustomerFactory;
 
 /**
@@ -19,15 +20,21 @@ use App\Factory\CustomerFactory;
  */
 class CustomerRepository extends BaseRepository implements CustomerRepositoryInterface
 {
+    use GeneratesCounter;
+    /**
+     * @var ClientContactRepository
+     */
+    protected $contact_repo;
 
     /**
      * CustomerRepository constructor.
      * @param Customer $customer
      */
-    public function __construct(Customer $customer)
+    public function __construct(Customer $customer, ClientContactRepository $contact_repo)
     {
         parent::__construct($customer);
         $this->model = $customer;
+        $this->contact_repo = $contact_repo;
     }
 
     /**
@@ -84,7 +91,9 @@ function deleteCustomer(): bool
  * @return mixed
  */
 public
-function searchCustomer(string $text = null): Collection
+function searchCustomer(
+    string $text = null
+): Collection
 {
     if (is_null($text)) {
         return $this->all();
@@ -92,7 +101,9 @@ function searchCustomer(string $text = null): Collection
     return $this->model->searchCustomer($text)->get();
 }
 
-public function getModel() {
+public
+function getModel()
+{
     return $this->model;
 }
 
@@ -102,8 +113,10 @@ public function getModel() {
  * @return type
  */
 public
-function getRecentCustomers(int $number_of_days, int $account_id)
-{
+function getRecentCustomers(
+    int $number_of_days,
+    int $account_id
+) {
 
     $date = Carbon::today()->subDays($number_of_days);
     $result = $this->model->select(DB::raw('count(*) as total'))
@@ -115,8 +128,9 @@ function getRecentCustomers(int $number_of_days, int $account_id)
 }
 
 public
-function addAddressForCustomer(array $arrData)
-{
+function addAddressForCustomer(
+    array $arrData
+) {
     $this->model->addresses()->updateOrCreate(
         ['customer_id' => $this->model->id], $arrData
     );
@@ -136,28 +150,34 @@ function findAddresses(): Support
 /**
  * Saves the client and its contacts
  *
- * @param      array $data The data
- * @param      \App\Models\Client $client The client
+ * @param array $data The data
+ * @param \App\Models\Client $client The client
  *
  * @return     Client|\App\Models\Client|null  Client Object
  */
 public
-function save(array $data, Customer $customer) : ?Customer
-	{
-        $customer->fill($data);
+function save(
+    array $data,
+    Customer $customer
+): ?Customer {
+    $customer->fill($data);
 
-        if (isset($data['password'])) {
-            $customer->password = bcrypt($data['password']);
-        }
-
-        $customer->save();
-
-        if (isset($data['contacts'])) {
-            $contacts = (new ClientContactRepository(new ClientContact))->save($data['contacts'], $customer);
-        }
-
-        return $customer->fresh();
-
+    if (isset($data['password'])) {
+        $customer->password = bcrypt($data['password']);
     }
+
+    $customer->save();
+
+    if ($customer->id_number == "" || !$customer->id_number) {
+        $customer->id_number = $this->getNextClientNumber($customer);
+    }
+
+    $customer->save();
+
+    $this->contact_repo->save($data, $customer);
+
+    return $customer->fresh();
+
+}
 
 }

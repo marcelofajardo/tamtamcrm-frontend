@@ -80,7 +80,7 @@ class QuoteController extends Controller
      */
     public function show(int $quote_id)
     {
-        $invoice = $this->quote_repo->findQuoteById($quote_id)->first();
+        $invoice = $this->quote_repo->findQuoteById($quote_id);
         return response()->json($invoice);
     }
 
@@ -136,7 +136,7 @@ class QuoteController extends Controller
         switch ($action) {
             case 'clone_to_invoice':
                 $this->invoice_repo->save($request->all(),
-                    (new CloneQuoteToInvoiceFactory)->create($this->quote_repo->findQuoteById($quote->id),
+                    CloneQuoteToInvoiceFactory::create($this->quote_repo->findQuoteById($quote->id),
                         auth()->user()->id, auth()->user()->account_user()->account_id));
                 return response()->json($quote);
                 break;
@@ -151,8 +151,14 @@ class QuoteController extends Controller
             case 'delivery_note':
                 # code...
                 break;
-            case 'mark_paid':
-                # code...
+            case 'mark_sent':
+                $quote = $quote->service()->markSent();
+                return response()->json($quote);
+                break;
+            case
+                'mark_approved':
+               $quote = $quote->service()->markApproved($this->invoice_repo);
+               return response()->json($quote);
                 break;
             case 'download':
                 return response()->download(public_path($quote->pdf_file_path()));
@@ -166,6 +172,7 @@ class QuoteController extends Controller
                 return response()->json($quote);
                 break;
             case 'email':
+                $quote->service()->sendEmail();
                 return response()->json(['message' => 'email sent'], 200);
                 break;
             default:
@@ -234,7 +241,8 @@ class QuoteController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $invoice = Quote::withTrashed()->where('id', '=', $id)->first();
         $this->quote_repo->restore($invoice);
         return response()->json([], 200);

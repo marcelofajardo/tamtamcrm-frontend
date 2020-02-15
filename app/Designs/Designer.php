@@ -272,6 +272,10 @@ class Designer
 
         $custom_fields = $company->custom_fields;
 
+        if(!$custom_fields) {
+            return [];
+        }
+
         foreach (self::$custom_fields as $cf) {
 
             if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{$cf}) == 0)) {
@@ -288,6 +292,10 @@ class Designer
     {
 
         $custom_fields = $company->custom_fields;
+
+        if(!$custom_fields) {
+            return [];
+        }
 
         $matches = array_intersect(self::$custom_fields, $variables);
 

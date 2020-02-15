@@ -14,7 +14,7 @@ namespace App\Services\Invoice;
      }
 
 
-   	public function __invoke($balance_adjustment)
+   	public function run($balance_adjustment)
    	{
 
          if ($this->invoice->is_deleted) {

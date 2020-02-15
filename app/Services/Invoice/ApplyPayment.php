@@ -16,7 +16,7 @@ class ApplyPayment
         $this->invoice = $invoice;
     }
 
-  	public function __invoke($payment, $payment_amount)
+  	public function run($payment, $payment_amount)
   	{
 
         UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment_amount*-1), $payment->account);

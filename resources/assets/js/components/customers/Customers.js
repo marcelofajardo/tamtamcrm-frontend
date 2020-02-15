@@ -4,7 +4,6 @@ import AddCustomer from './AddCustomer'
 import EditCustomer from './EditCustomer'
 import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import Avatar from '../common/Avatar'
 import CustomerTypeDropdown from '../common/CustomerTypeDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import DeleteModal from '../common/DeleteModal'
@@ -15,6 +14,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import CustomerPresenter from '../presenters/CustomerPresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Customers extends Component {
     constructor (props) {
@@ -27,6 +28,7 @@ export default class Customers extends Component {
                 title: null
             },
             customers: [],
+            cachedData: [],
             companies: [],
             filters: {
                 status: 'active',
@@ -84,7 +86,11 @@ export default class Customers extends Component {
     }
 
     updateCustomers (customers) {
-        this.setState({ customers: customers })
+        const cachedData = !this.state.cachedData.length ? customers : this.state.cachedData
+        this.setState({
+            customers: customers,
+            cachedData: cachedData
+        })
     }
 
     updateIgnoredColumns (columns) {
@@ -196,6 +202,13 @@ export default class Customers extends Component {
                         />
                     </Col>
 
+                    <Col md={2}>
+                        <FormGroup>
+                            <DateFilter update={this.updateCustomers}
+                                data={this.state.cachedData}/>
+                        </FormGroup>
+                    </Col>
+
                     <Col md={9}>
                         <FormGroup>
                             {columnFilter}
@@ -239,9 +252,8 @@ export default class Customers extends Component {
                 const columnList = Object.keys(customer).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return key === 'id' ? <td data-label="Name"><Avatar name={customer.name}/></td>
-                        : <td onClick={() => this.toggleViewedEntity(customer, customer.name)}
-                            data-label={key}>{customer[key]}</td>
+                    return <CustomerPresenter toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={customer}/>
                 })
 
                 return (

@@ -22,6 +22,7 @@ class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
+        'key',
         'client_contact_id'
     ];
 
@@ -109,6 +110,10 @@ class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
     {
         $this->viewed_date = Carbon::now();
         $this->save();
+    }
+
+    public function entityType() {
+        return Invoice::class;
     }
 
 }

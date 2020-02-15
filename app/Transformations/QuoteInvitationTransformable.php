@@ -5,24 +5,25 @@ namespace App\Transformations;
 use App\Quote;
 use App\QuoteInvitation;
 
-trait QuoteInvitationTransformable
+class QuoteInvitationTransformable
 {
 
     /**
      * @param QuoteInvitation $invitation
      * @return QuoteInvitation
      */
-    protected function transformQuote(QuoteInvitation $invitation)
+    public function transformQuoteInvitations(QuoteInvitation $invitation)
     {
         $prop = new QuoteInvitation;
-        $prop->id = $invitation->id;
-        $prop->customer_id = $invitation->customer_id;
+        $prop->id = (int)$invitation->id;
+        $prop->client_contact_id = (int)$invitation->client_contact_id;
         $prop->key = $invitation->key;
-        $prop->link = $invitation->getLink() ?: '';
+        //$prop->link = $invitation->getLink() ?: '';
         $prop->sent_date = $invitation->sent_date ?: '';
         $prop->viewed_date = $invitation->viewed_date ?: '';
         $prop->opened_date = $invitation->opened_date ?: '';
-
+        $prop->updated_at = $invitation->updated_at;
+        $prop->archived_at = $invitation->deleted_at;
 
         return $prop;
     }

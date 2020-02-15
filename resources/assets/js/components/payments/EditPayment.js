@@ -287,6 +287,7 @@ class EditPayment extends React.Component {
                         <FormGroup>
                             <Label>Customer</Label>
                             <CustomerDropdown
+                                customers={this.props.customers}
                                 customer={this.state.customer_id}
                                 name="customer_id"
                                 errors={this.state.errors}

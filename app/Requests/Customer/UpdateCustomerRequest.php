@@ -3,6 +3,7 @@
 namespace App\Requests\Customer;
 
 use App\Repositories\Base\BaseFormRequest;
+use App\Rules\ValidClientGroupSettingsRule;
 use Illuminate\Validation\Rule;
 
 class UpdateCustomerRequest extends BaseFormRequest
@@ -16,10 +17,12 @@ class UpdateCustomerRequest extends BaseFormRequest
     public function rules()
     {
         return [
+            'settings' => new ValidClientGroupSettingsRule(),
             'customer_type' => 'required',
             'first_name' => ['required'],
             'last_name' => ['required'],
-            'email' => ['required', 'email', Rule::unique('customers')->ignore($this->segment(3))]
+            'email' => ['required', 'email', Rule::unique('customers')->ignore($this->segment(3))],
+            'contacts.*.email' => ['nullable', 'distinct']
         ];
     }
 

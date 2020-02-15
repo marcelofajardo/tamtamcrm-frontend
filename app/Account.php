@@ -20,6 +20,7 @@ use App\Product;
 use App\TaxRate;
 use App\Currency;
 use App\Payment;
+use App\Design;
 
 class Account extends Model
 {
@@ -63,6 +64,11 @@ class Account extends Model
     public function users()
     {
         return $this->hasManyThrough(User::class, AccountUser::class, 'company_id', 'id', 'id', 'user_id');
+    }
+
+    public function designs()
+    {
+        return $this->hasMany(Design::class)->whereAccountId($this->id)->orWhere('account_id',null);
     }
 
     /**

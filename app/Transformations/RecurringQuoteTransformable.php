@@ -22,7 +22,6 @@ trait RecurringQuoteTransformable
         $prop->number = $quote->number ?: '';
         $customer = $quote->customer;
         $prop->customer_id = $quote->customer_id;
-        $prop->customer_name = $quote->customer->present()->name;
         $prop->date = $quote->date;
         $prop->due_date = $quote->due_date;
         $prop->start_date = $quote->start_date;

@@ -146,8 +146,6 @@ export default function CustomerTabs (props) {
 
     const [contacts, setContacts] = useState(props.customer && props.customer.contacts ? props.customer.contacts : []);
 
-    console.log('contacts 22', contacts)
-
     const [customer, setCustomerValues] = useState({
         first_name: props.customer ? props.customer.name.split(' ').slice(0, -1).join(' ') : '',
         last_name: props.customer ? props.customer.name.split(' ').slice(-1).join(' ') : '',

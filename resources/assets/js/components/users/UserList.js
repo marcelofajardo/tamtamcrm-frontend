@@ -13,12 +13,15 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import UserPresenter from '../presenters/UserPresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class UserList extends Component {
     constructor (props) {
         super(props)
         this.state = {
             users: [],
+            cachedData: [],
             departments: [],
             custom_fields: [],
             error: '',
@@ -152,6 +155,13 @@ export default class UserList extends Component {
                         </FormGroup>
                     </Col>
 
+                    <Col md={2}>
+                        <FormGroup>
+                            <DateFilter update={this.addUserToState}
+                                data={this.state.cachedData}/>
+                        </FormGroup>
+                    </Col>
+
                     <Col md={8}>
                         <FormGroup>
                             {columnFilter}
@@ -190,7 +200,11 @@ export default class UserList extends Component {
     }
 
     addUserToState (users) {
-        this.setState({ users: users })
+        const cachedData = !this.state.cachedData.length ? users : this.state.cachedData
+        this.setState({
+            users: users,
+            cachedData: cachedData
+        })
     }
 
     userList () {
@@ -213,9 +227,8 @@ export default class UserList extends Component {
                 const columnList = Object.keys(user).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <td onClick={() => this.toggleViewedEntity(user, `${user.first_name} ${user.last_name}`)}
-                        data-label={key} key={key}
-                        className="align-middle">{user[key]}</td>
+                    return <UserPresenter toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={user}/>
                 })
 
                 return <tr key={user.id}>

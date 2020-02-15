@@ -11,6 +11,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import CompanyPresenter from '../presenters/CompanyPresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Companies extends Component {
     constructor (props) {
@@ -19,6 +21,7 @@ export default class Companies extends Component {
         this.state = {
             users: [],
             brands: [],
+            cachedData: [],
             errors: [],
             error: '',
             view: {
@@ -139,6 +142,13 @@ export default class Companies extends Component {
                         </Input>
                     </FormGroup>
                 </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.addUserToState}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
             </Row>
         )
     }
@@ -165,8 +175,8 @@ export default class Companies extends Component {
                 const columnList = Object.keys(brand).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <td onClick={() => this.toggleViewedEntity(brand, brand.name)} data-label={key}
-                        key={key}>{brand[key]}</td>
+                    return <CompanyPresenter toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={brand}/>
                 })
                 return <tr key={brand.id}>
                     <td>

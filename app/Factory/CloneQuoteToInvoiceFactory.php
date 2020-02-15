@@ -6,7 +6,7 @@ use App\Quote;
 
 class CloneQuoteToInvoiceFactory
 {
-    public function create(Quote $quote, $user_id, $account_id) : ?Invoice
+    public static function create(Quote $quote, $user_id, $account_id) : ?Invoice
 	{
 		$invoice = new Invoice();
 		$invoice->account_id = $account_id;

@@ -23,7 +23,7 @@ namespace App\Services\Invoice;
          $this->customer = $customer;
      }
 
-   	public function __invoke($invoice)
+   	public function run($invoice)
    	{
 
          if ($invoice->number != '') 

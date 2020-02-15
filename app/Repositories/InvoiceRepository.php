@@ -6,6 +6,8 @@ use App\Customer;
 use App\Factory\InvoiceInvitationFactory;
 use App\Invoice;
 use App\ClientContact;
+use App\InvoiceInvitation;
+use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use Illuminate\Support\Collection;
@@ -47,6 +49,11 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     {
         return $this->findOneOrFail($id);
     }
+
+    public function getInvitationByKey($key)
+ 	{
+ 		return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+ 	}
 
     /**
      * List all the invoices
@@ -107,27 +114,35 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         }
 
 
-        if (isset($data['invitations']) && !empty($data['invitations'])) {
+        if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
-            /* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
+
+            /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation
             ) {
-                InvoiceInvitation::destroy($invitation);
+                InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation])->delete();
             });
+
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
 
                 if (array_key_exists('key', $invitation)) {
-                    $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+                    // $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+                    $inv = InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
                 }
 
                 if (!$inv) {
-                    $invitation['client_contact_id'] = $invitation['client_contact_id'];
+
+                    if (isset($invitation['id'])) {
+                        unset($invitation['id']);
+                    }
+
                     $new_invitation = InvoiceInvitationFactory::create($invoice->account_id, $invoice->user_id);
-                    $new_invitation->fill($invitation);
+                    //$new_invitation->fill($invitation);
                     $new_invitation->invoice_id = $invoice->id;
-                    //$new_invitation->customer_id = $invoice->customer_id;
+                    $new_invitation->client_contact_id = $invitation['client_contact_id'];
                     $new_invitation->save();
+
                 }
             }
         }
@@ -144,7 +159,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
         /**/
         if ($finished_amount != $starting_amount) {
-            //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
+            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
 
         }
 

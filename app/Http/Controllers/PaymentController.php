@@ -166,6 +166,7 @@ class PaymentController extends Controller
                 break;
             case 'email':
                 //dispatch email to queue
+                $payment->service()->sendEmail();
                 break;
             default:
                 # code...

@@ -17,7 +17,7 @@ trait PaymentTransformable
         $obj->user_id = (int)$payment->user_id;
         $obj->assigned_user_id = (int)$payment->assigned_user_id;
         $obj->number = (string)$payment->number ?: '';
-        $obj->customer_name = $payment->customer->present()->name;
+        $obj->customer_id = (int)$payment->customer_id;
         $obj->date = $payment->date ?: '';
         $obj->amount = (float)$payment->amount;
         $obj->transaction_reference = $payment->transaction_reference ?: '';
@@ -29,7 +29,6 @@ trait PaymentTransformable
         //$obj->is_deleted = (bool) $payment->is_deleted;
         $obj->type_id = (string)$payment->type_id;
         $obj->invitation_id = (string)$payment->invitation_id ?: '';
-        $obj->customer_id = (int)$payment->customer_id;
         $obj->invoice_id = $payment->invoices->pluck('id')->toArray();
 
         $obj->refunded = (float)$payment->refunded;

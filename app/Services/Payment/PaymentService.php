@@ -32,4 +32,12 @@ class PaymentService
 
         return $payment;
     }
+
+public
+function sendEmail($contact = null)
+{
+    $send_email = new SendEmail($this->payment);
+
+    return $send_email->run(null, $contact);
+}
 }

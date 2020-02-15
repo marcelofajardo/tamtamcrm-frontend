@@ -13,6 +13,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import CustomerDropdown from '../common/CustomerDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
+import ExpensePresenter from '../presenters/ExpensePresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Expenses extends Component {
     constructor (props) {
@@ -25,6 +27,7 @@ export default class Expenses extends Component {
                 title: null
             },
             expenses: [],
+            cachedData: [],
             filters: {
                 status_id: 'active',
                 searchText: '',
@@ -35,7 +38,6 @@ export default class Expenses extends Component {
                 [
                     'user_id',
                     'company_id',
-                    'customer_id',
                     'invoice_currency_id',
                     'foreign_amount',
                     'exchange_rate',
@@ -167,6 +169,13 @@ export default class Expenses extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.updateExpenses}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
                 <Col md={10}>
                     <FormGroup>
                         {columnFilter}
@@ -189,13 +198,17 @@ export default class Expenses extends Component {
     }
 
     updateExpenses (expenses) {
-        this.setState({ expenses: expenses })
+        const cachedData = !this.state.cachedData.length ? expenses : this.state.cachedData
+        this.setState({
+            expenses: expenses,
+            cachedData: cachedData
+        })
     }
 
     expenseList () {
         const { expenses, customers, custom_fields, ignoredColumns } = this.state
         console.log('custom_fields', custom_fields)
-        if (expenses && expenses.length) {
+        if (expenses && expenses.length && customers.length) {
             return expenses.map(expense => {
                 const restoreButton = expense.deleted_at
                     ? <RestoreModal id={expense.id} entities={expenses} updateState={this.addUserToState}
@@ -216,7 +229,8 @@ export default class Expenses extends Component {
                 const columnList = Object.keys(expense).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <td onClick={() => this.toggleViewedEntity(expense)} data-label={key}>{expense[key]}</td>
+                    return <ExpensePresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={expense}/>
                 })
 
                 return (

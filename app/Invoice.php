@@ -12,12 +12,11 @@ use App\PaymentMethod;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use App\Events\Invoice\InvoiceWasMarkedSent;
+use App\Events\Quote\QuoteWasMarkedSent;
 use App\Jobs\Customer\UpdateClientBalance;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Traits\MakesInvoiceValues;
 use Laracasts\Presenter\PresentableTrait;
-use App\Traits\InvoiceEmailBuilder;
 use App\Traits\MakesReminders;
 use App\Services\Invoice\InvoiceService;
 
@@ -27,7 +26,6 @@ class Invoice extends Model
     use PresentableTrait,
         SoftDeletes,
         MakesInvoiceValues,
-        InvoiceEmailBuilder,
         MakesReminders;
 
     protected $presenter = 'App\Presenters\InvoicePresenter';
@@ -92,70 +90,10 @@ class Invoice extends Model
     const STATUS_UNPAID = -2;
     const STATUS_REVERSED = -3;
 
-    public function service() :InvoiceService
-     {
-         return new InvoiceService($this);
-     }
-
-     /*public function markPaid() :InvoiceService
-     {
-         return $this->service()->markPaid();
-     }
-
-     public function applyNumber() :InvoiceService
-     {
-         return $this->service()->applyNumber();
-     }
-
-     public function applyPayment($payment, $payment_amount) :InvoiceService
-     {
-         return $this->service()->applyPayment($payment, $payment_amount);
-     }
-
-    public function updateBalance($balance_adjustment) :InvoiceService
-     {
-         return $this->service()->updateBalance($balance_adjustment);
-     }
-
-     public function setDueDate() :InvoiceService
-     {
-         return $this->service->setDueDate();
-     }
-
-     public function setStatus($status) :InvoiceService
-     {
-         return $this->service()->setStatus($status);
-     }
-
-     public function clearPartial() :InvoiceService
-     {
-         return $this->service()->clearPartial();
-     }
-
-     public function updatePartial($amount) :InvoiceService
-     {
-         return $this->service()->updatePartial($amount);
-     }
-
-     public function markSent() :InvoiceService
-     {
-         return $this->service()->markSent();
-     }
-
-     public function markViewed() :InvoiceService
-     {
-         return $this->service()->markViewed();
-     } */
-
-    /**
-     * @param $typeId
-     *
-     * @return bool
-     */
-    /*public function isType(int $typeId)
+    public function service(): InvoiceService
     {
-        return $this->finance_type == $typeId;
-    }*/
+        return new InvoiceService($this);
+    }
 
     public function canBePaid()
     {
@@ -163,17 +101,17 @@ class Invoice extends Model
     }
 
     /**
-      * @return bool
-      */
-     public function isPartial() : bool
-     {
-         return $this->status_id >= self::STATUS_PARTIAL;
-     }
+     * @return bool
+     */
+    public function isPartial(): bool
+    {
+        return $this->status_id >= self::STATUS_PARTIAL;
+    }
 
     /**
      * @return bool
      */
-    public function hasPartial() : bool
+    public function hasPartial(): bool
     {
         return ($this->partial && $this->partial > 0) === true;
     }
@@ -222,10 +160,10 @@ class Invoice extends Model
      */
     public function design() :string
     {
-        if ($this->customer->getSetting('design')) {
-            return file_exists(resource_path($this->customer->getSetting('design'))) ? file_get_contents(resource_path($this->customer->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
+        if ($this->client->getSetting('design')) {
+            return File::exists(resource_path($this->customer->getSetting('design'))) ? File::get(resource_path($this->customer->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
         } else {
-            return file_get_contents(resource_path('views/pdf/design1.blade.php'));
+            return File::get(resource_path('views/pdf/design1.blade.php'));
         }
     }
 
@@ -249,21 +187,25 @@ class Invoice extends Model
     /** TODO// DOCUMENT THIS FUNCTIONALITY */
     public function pdf_url()
     {
-        $public_path = 'storage/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
-        $storage_path = 'public/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
-        if (!Storage::exists($storage_path)) {
+        $public_path = $this->customer->invoice_filepath() . $this->number . '.pdf';
+
+        $storage_path = 'storage/' . $this->customer->invoice_filepath() . $this->number . '.pdf';
+
+        $disk = config('filesystems.default');
+
+        if (!Storage::disk($disk)->exists($public_path)) {
             event(new InvoiceWasUpdated($this, $this->account));
-            CreateInvoicePdf::dispatch($this, $this->account);
+            CreateInvoicePdf::dispatch($this, $this->account, $this->customer->primary_contact()->first());
         }
 
-        return $public_path;
+        return $storage_path;
     }
 
     public function pdf_file_path()
     {
-        $storage_path = 'storage/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
+        $storage_path = 'storage/' . $this->customer->invoice_filepath() . $this->number . '.pdf';
         if (!Storage::exists($storage_path)) {
-            CreateInvoicePdf::dispatchNow($this, $this->account);
+            CreateInvoicePdf::dispatchNow($this, $this->account, $this->customer->primary_contact()->first());
         }
 
         return $storage_path;
@@ -299,12 +241,13 @@ class Invoice extends Model
 
     public function credits()
     {
-        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount','refunded')->withTimestamps();
+        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount',
+            'refunded')->withTimestamps();
     }
 
     public function payments()
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
+        return $this->morphToMany(Payment::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     /**
@@ -336,7 +279,7 @@ class Invoice extends Model
         return $this->hasMany('App\InvoiceInvitation')->orderBy('invoice_invitations.client_contact_id');
     }
 
-    public function isPayable() : bool
+    public function isPayable(): bool
     {
         if ($this->status_id == Invoice::STATUS_SENT && $this->is_deleted == false) {
             return true;
@@ -384,13 +327,13 @@ class Invoice extends Model
         }
     }
 
-    public function isRefundable() : bool
+    public function isRefundable(): bool
     {
-        if($this->is_deleted) {
+        if ($this->is_deleted) {
             return false;
         }
 
-        if(($this->total - $this->balance) == 0) {
+        if (($this->total - $this->balance) == 0) {
             return false;
         }
 

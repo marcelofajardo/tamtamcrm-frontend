@@ -73,6 +73,7 @@ class CreditController extends Controller
      */
     public function store(CreateCreditRequest $request)
     {
+
         $credit = $this->credit_repo->save($request->all(),
             CreditFactory::create($request->customer_id, auth()->user()->account_user()->account_id,
                 auth()->user()->id, $request->total));

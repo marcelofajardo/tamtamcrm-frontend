@@ -16,7 +16,7 @@ class CreateCreditRequest extends BaseFormRequest
     public function rules()
     {
         return [
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
             'total' => 'required',
         ];
     }

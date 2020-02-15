@@ -3,6 +3,7 @@ namespace App;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Services\Credit\CreditService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 class Credit extends Model
@@ -57,6 +58,12 @@ class Credit extends Model
     {
         return $this->belongsTo('App\User')->withTrashed();
     }
+
+    public function service(): CreditService
+    {
+        return new CreditService($this);
+    }
+
 
     /**
      * @return mixed

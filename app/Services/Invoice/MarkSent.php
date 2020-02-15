@@ -16,7 +16,7 @@ class MarkSent
         $this->customer = $customer;
     }
 
-    public function __invoke($invoice)
+    public function run($invoice)
     {
 
         /* Return immediately if status is not draft */

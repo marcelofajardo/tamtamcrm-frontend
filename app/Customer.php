@@ -14,8 +14,9 @@ use App\Country;
 use Laracasts\Presenter\PresentableTrait;
 use App\Traits\CustomerSettingsSaver;
 use App\Services\Customer\CustomerService;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
-class Customer extends Model
+class Customer extends Model implements HasLocalePreference
 {
 
     use CustomerSettingsSaver,
@@ -30,6 +31,7 @@ class Customer extends Model
      * @var array
      */
     protected $fillable = [
+        'id_number',
         'first_name',
         'credits',
         'last_name',
@@ -109,31 +111,31 @@ class Customer extends Model
         $this->save();
     }
 
-      public function service() :CustomerService
-     {
-         return new CustomerService($this);
-     }
+    public function service(): CustomerService
+    {
+        return new CustomerService($this);
+    }
 
-     /**
-      * Adjusts client "balances" when a customer
-      * makes a payment that goes on file, but does
-      * not effect the customer.balance record
-      *
-      * @param  float $amount Adjustment amount
-      * @return Customer
-      */
-     public function processUnappliedPayment($amount) :Customer
-     {
+    /**
+     * Adjusts client "balances" when a customer
+     * makes a payment that goes on file, but does
+     * not effect the customer.balance record
+     *
+     * @param float $amount Adjustment amount
+     * @return Customer
+     */
+    public function processUnappliedPayment($amount): Customer
+    {
 
-         return $this->service()->updatePaidToDate($amount)
-                                 ->adjustCreditBalance($amount)
-                                 ->save();
-     }
+        return $this->service()->updatePaidToDate($amount)
+            ->adjustCreditBalance($amount)
+            ->save();
+    }
 
-     public function updateBalance($amount) :CustomerService
-     {
-         return $this->service()->updateBalance($amount);
-     }
+    public function updateBalance($amount): CustomerService
+    {
+        return $this->service()->updateBalance($amount);
+    }
 
     /**
      * @return float|int
@@ -187,13 +189,36 @@ class Customer extends Model
         return $this->belongsTo(GroupSetting::class);
     }
 
+    public function language()
+    {
+        return Language::find($this->getSetting('language_id'));
+    }
+
+    public function locale()
+    {
+        return $this->language()->locale ?:  'en';
+    }
+
+    public function preferredLocale()
+    {
+        $languages = Language::all();
+
+        return $languages->filter(function ($item) {
+            return $item->id == $this->getSetting('language_id');
+        })->first()->locale;
+
+        //$lang = Language::find($this->client->getSetting('language_id'));
+
+        //return $lang->locale;
+    }
+
     /**
      *
      * Returns a single setting
      * which cascades from
      * Client > Group > Company
      *
-     * @param  string $setting The Setting parameter
+     * @param string $setting The Setting parameter
      * @return mixed          The setting requested
      */
     public function getSetting($setting)
@@ -225,6 +250,29 @@ class Customer extends Model
         throw new \Exception("Settings corrupted", 1);
     }
 
+    public function getSettingEntity($setting)
+    {
+        /*Client Settings*/
+        if ($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false)) {
+            /*need to catch empty string here*/
+            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
+                return $this;
+            }
+        }
+
+        /*Group Settings*/
+        if ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)) {
+            return $this->group_settings;
+        }
+
+        /*Company Settings*/
+        if ((property_exists($this->account->settings, $setting) != false) && (isset($this->account->settings->{$setting}) !== false)) {
+            return $this->account;
+        }
+
+        throw new \Exception("Could not find a settings object", 1);
+    }
+
     /**
      *
      * Returns the entire filtered set
@@ -233,31 +281,32 @@ class Customer extends Model
      *
      * @return object stdClass object of settings
      */
-    public function getMergedSettings() : ?object
+    public function getMergedSettings(): ?object
     {
-        if(empty($this->settings)) {
+        if (empty($this->settings)) {
             return null;
         }
 
-if ($this->group_settings !== null) {
-    $group_settings = CustomerSettings::buildCustomerSettings($this->group_settings->settings,
-        $this->settings);
-    return CustomerSettings::buildCustomerSettings($this->account->settings, $group_settings);
-}
-return CompanySettings::setProperties(CustomerSettings::buildCustomerSettings($this->account->settings,
-    $this->settings));
-}
-
-public
-function getCountryId() : ?Country {
-    $address = Address::where('address_type', '=', 1)->where('customer_id', '=', $this->id)->first();
-
-    if ($address->count() > 0) {
-        return $address->country;
+        if ($this->group_settings !== null) {
+            $group_settings = CustomerSettings::buildCustomerSettings($this->group_settings->settings,
+                $this->settings);
+            return CustomerSettings::buildCustomerSettings($this->account->settings, $group_settings);
+        }
+        return CompanySettings::setProperties(CustomerSettings::buildCustomerSettings($this->account->settings,
+            $this->settings));
     }
+
+    public
+    function getCountryId(): ?Country
+    {
+        $address = Address::where('address_type', '=', 1)->where('customer_id', '=', $this->id)->first();
+
+        if ($address->count() > 0) {
+            return $address->country;
+        }
 #
-    return null;
-}
+        return null;
+    }
 
 
     /**
@@ -271,62 +320,62 @@ function getCountryId() : ?Country {
      * upstream of this method as they are not
      * included in this logic.
      *
-     * @param  float $amount The amount to be charged
+     * @param float $amount The amount to be charged
      * @return array         Array of payment labels and urls
      */
-    public function getPaymentMethods($amount) :array
-{
+    public function getPaymentMethods($amount): array
+    {
 //this method will get all the possible gateways a client can pay with
 //but we also need to consider payment methods that are already stored
 //so we MUST filter the company gateways and remove duplicates.
 //
 //Also need to harvest the list of client gateway tokens and present these
 //for instant payment
-    $company_gateways = $this->getSetting('company_gateway_ids');
-    if ($company_gateways) {
-        $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
-    } else {
-        $gateways = $this->account->company_gateways;
-    }
-    $gateways->filter(function ($method) use ($amount) {
-        if ($method->min_limit !== null && $amount < $method->min_limit) {
-            return false;
+        $company_gateways = $this->getSetting('company_gateway_ids');
+        if ($company_gateways) {
+            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
+        } else {
+            $gateways = $this->account->company_gateways;
         }
-        if ($method->max_limit !== null && $amount > $method->min_limit) {
-            return false;
+        $gateways->filter(function ($method) use ($amount) {
+            if ($method->min_limit !== null && $amount < $method->min_limit) {
+                return false;
+            }
+            if ($method->max_limit !== null && $amount > $method->min_limit) {
+                return false;
+            }
+        });
+        $payment_methods = [];
+        foreach ($gateways as $gateway) {
+            foreach ($gateway->driver($this)->gatewayTypes() as $type) {
+                $payment_methods[] = [$gateway->id => $type];
+            }
         }
-    });
-    $payment_methods = [];
-    foreach ($gateways as $gateway) {
-        foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-            $payment_methods[] = [$gateway->id => $type];
+
+        $payment_methods_collections = collect($payment_methods);
+        //** Plucks the remaining keys into its own collection
+        $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
+        $payment_urls = [];
+        foreach ($payment_methods_intersect as $key => $child_array) {
+            foreach ($child_array as $gateway_id => $gateway_type_id) {
+                $gateway = $gateways->where('id', $gateway_id)->first();
+                $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
+                $payment_urls[] = [
+                    'label' => ctrans('texts.' . $gateway->getTypeAlias($gateway_type_id)) . $fee_label,
+                    'company_gateway_id' => $gateway_id,
+                    'gateway_type_id' => $gateway_type_id
+                ];
+            }
         }
+        return $payment_urls;
     }
 
-    $payment_methods_collections = collect($payment_methods);
-    //** Plucks the remaining keys into its own collection
-    $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
-    $payment_urls = [];
-    foreach ($payment_methods_intersect as $key => $child_array) {
-        foreach ($child_array as $gateway_id => $gateway_type_id) {
-            $gateway = $gateways->where('id', $gateway_id)->first();
-            $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
-            $payment_urls[] = [
-                'label' => ctrans('texts.' . $gateway->getTypeAlias($gateway_type_id)) . $fee_label,
-                'company_gateway_id' => $gateway_id,
-                'gateway_type_id' => $gateway_type_id
-            ];
-        }
-    }
-    return $payment_urls;
-}
-
-        /**
-         * Returns the first Credit Card Gateway
-         *
-         * @return NULL|CompanyGateway The Priority Credit Card gateway
-         */
-    public function getCreditCardGateway() :?CompanyGateway
+    /**
+     * Returns the first Credit Card Gateway
+     *
+     * @return NULL|CompanyGateway The Priority Credit Card gateway
+     */
+    public function getCreditCardGateway(): ?CompanyGateway
     {
         $company_gateways = $this->getSetting('company_gateway_ids');
 
@@ -344,9 +393,15 @@ function getCountryId() : ?Country {
     }
 
     public function gateway_tokens()
-{
-    return $this->hasMany(ClientGatewayToken::class);
-}
+    {
+        return $this->hasMany(ClientGatewayToken::class);
+    }
+
+    public function invoice_filepath()
+    {
+        return $this->id . '/invoices/';
+    }
+
     /**
      * Retrieves the specific payment token per
      * gateway - per payment method
@@ -354,15 +409,15 @@ function getCountryId() : ?Country {
      * Allows the storage of multiple tokens
      * per client per gateway per payment_method
      *
-     * @param  int $company_gateway_id The company gateway ID
-     * @param  int $payment_method_id The payment method ID
+     * @param int $company_gateway_id The company gateway ID
+     * @param int $payment_method_id The payment method ID
      * @return ClientGatewayToken       The client token record
      */
     public function gateway_token($company_gateway_id, $payment_method_id)
-{
-    return $this->gateway_tokens()
-        ->whereCompanyGatewayId($company_gateway_id)
-        ->whereGatewayTypeId($payment_method_id)
-        ->first();
-}
+    {
+        return $this->gateway_tokens()
+            ->whereCompanyGatewayId($company_gateway_id)
+            ->whereGatewayTypeId($payment_method_id)
+            ->first();
+    }
 }

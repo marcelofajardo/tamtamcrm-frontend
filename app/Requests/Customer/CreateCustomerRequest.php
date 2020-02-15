@@ -2,7 +2,9 @@
 
 namespace App\Requests\Customer;
 
+use App\DataMapper\CustomerSettings;
 use App\Repositories\Base\BaseFormRequest;
+use App\Rules\ValidClientGroupSettingsRule;
 
 class CreateCustomerRequest extends BaseFormRequest
 {
@@ -15,6 +17,7 @@ class CreateCustomerRequest extends BaseFormRequest
     public function rules()
     {
         return [
+            'settings' => new ValidClientGroupSettingsRule(),
             'customer_type' => 'required',
 //            'address_1' => ['required'],
             'first_name' => ['required'],
@@ -27,6 +30,11 @@ class CreateCustomerRequest extends BaseFormRequest
     protected function prepareForValidation()
     {
         $input = $this->all();
-    }
 
+        if (!isset($input['settings'])) {
+            $input['settings'] = CustomerSettings::defaults();
+        }
+
+        $this->replace($input);
+    }
 }

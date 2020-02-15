@@ -23,8 +23,6 @@ export default class InvoiceLine extends Component {
         const lines = [...this.state.lines]
         let amount = 0
 
-        console.log('props', this.props)
-
         if (name === 'invoice_id') {
             const invoice = this.props.invoices.filter(function (invoice) {
                 return invoice.id === parseInt(e.target.value)

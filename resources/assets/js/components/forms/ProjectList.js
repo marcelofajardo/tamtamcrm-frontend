@@ -12,6 +12,7 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import DateFilter from '../common/DateFilter'
 
 export default class ProjectList extends Component {
     constructor (props) {
@@ -19,6 +20,7 @@ export default class ProjectList extends Component {
 
         this.state = {
             projects: [],
+            cachedData: [],
             errors: [],
             error: '',
             view: {
@@ -73,7 +75,11 @@ export default class ProjectList extends Component {
     }
 
     addUserToState (projects) {
-        this.setState({ projects: projects })
+        const cachedData = !this.state.cachedData.length ? projects : this.state.cachedData
+        this.setState({
+            projects: projects,
+            cachedData: cachedData
+        })
     }
 
     toggleViewedEntity (id, title = null) {
@@ -144,6 +150,13 @@ export default class ProjectList extends Component {
                             <option value='archived'>Archived</option>
                             <option value='deleted'>Deleted</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.addUserToState}
+                            data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
             </Row>

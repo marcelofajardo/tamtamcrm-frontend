@@ -28,7 +28,7 @@ class CreateQuoteRequest extends FormRequest
     {
 
         return [
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
             'date' => 'required',
             'due_date' => 'required'
         ];

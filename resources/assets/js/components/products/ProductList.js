@@ -13,6 +13,7 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import DateFilter from '../common/DateFilter'
 
 export default class ProductList extends Component {
     constructor (props) {
@@ -26,6 +27,7 @@ export default class ProductList extends Component {
             },
             products: [],
             brands: [],
+            cachedData: [],
             categories: [],
             custom_fields: [],
             filters: {
@@ -94,7 +96,11 @@ export default class ProductList extends Component {
     }
 
     addProductToState (products) {
-        this.setState({ products: products })
+        const cachedData = !this.state.cachedData.length ? products : this.state.cachedData
+        this.setState({
+            products: products,
+            cachedData: cachedData
+        })
     }
 
     filterProducts (event) {
@@ -167,6 +173,13 @@ export default class ProductList extends Component {
                         handleInputChanges={this.filterProducts}
                         categories={categories}
                     />
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.addProductToState}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
                 </Col>
 
                 <Col md={10}>

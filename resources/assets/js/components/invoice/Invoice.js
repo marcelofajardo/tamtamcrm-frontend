@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import EditInvoice from './EditInvoice'
-import { FormGroup, Input, Badge, Card, CardBody, Row, Col } from 'reactstrap'
+import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerDropdown from '../common/CustomerDropdown'
 import RestoreModal from '../common/RestoreModal'
@@ -11,6 +11,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import InvoicePresenter from '../presenters/InvoicePresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Invoice extends Component {
     constructor (props) {
@@ -23,9 +25,10 @@ export default class Invoice extends Component {
                 title: null
             },
             invoices: [],
+            cachedData: [],
             customers: [],
             custom_fields: [],
-            ignoredColumns: ['id', 'user_id', 'status', 'company_id', 'customer_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
+            ignoredColumns: ['invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
             filters: {
                 status_id: 'Draft',
                 customer_id: '',
@@ -37,29 +40,6 @@ export default class Invoice extends Component {
 
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
-
-        this.colors = {
-            1: 'secondary',
-            2: 'primary',
-            3: 'success',
-            4: 'warning',
-            5: 'danger',
-            '-1': 'danger',
-            '-2': 'danger',
-            '-3': 'danger'
-        }
-
-        this.statuses = {
-            1: 'Draft',
-            2: 'Sent',
-            3: 'Paid',
-            4: 'Partial',
-            5: 'Cancelled',
-            '-1': 'Overdue',
-            '-2': 'Unpaid',
-            '-3': 'Reversed'
-        }
-
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
@@ -92,7 +72,11 @@ export default class Invoice extends Component {
     }
 
     updateInvoice (invoices) {
-        this.setState({ invoices: invoices })
+        const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
+        this.setState({
+            invoices: invoices,
+            cachedData: cachedData
+        })
     }
 
     filterInvoices (event) {
@@ -120,18 +104,18 @@ export default class Invoice extends Component {
 
     userList () {
         const { invoices, customers, custom_fields } = this.state
-        if (invoices && invoices.length) {
+        if (invoices && invoices.length && customers.length) {
             return invoices.map(invoice => {
                 const restoreButton = invoice.deleted_at
                     ? <RestoreModal id={invoice.id} entities={invoices} updateState={this.updateInvoice}
                         url={`/api/invoice/restore/${invoice.id}`}/> : null
+
                 const archiveButton = !invoice.deleted_at
                     ? <DeleteModal archive={true} deleteFunction={this.deleteInvoice} id={invoice.id}/> : null
+
                 const deleteButton = !invoice.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteInvoice} id={invoice.id}/> : null
-                const status = !invoice.deleted_at
-                    ? <Badge color={this.colors[invoice.status_id]}>{this.statuses[invoice.status_id]}</Badge>
-                    : <Badge className="mr-2" color="warning">Archived</Badge>
+
                 const editButton = !invoice.deleted_at ? <EditInvoice
                     custom_fields={custom_fields}
                     customers={customers}
@@ -146,9 +130,8 @@ export default class Invoice extends Component {
                 const columnList = Object.keys(invoice).filter(key => {
                     return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
                 }).map(key => {
-                    return key === 'status_id' ? <td className="status" data-label="Status">{status}</td>
-                        : <td onClick={() => this.toggleViewedEntity(invoice)} key={key}
-                            data-label={key}>{invoice[key]}</td>
+                    return <InvoicePresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={invoice}/>
                 })
 
                 return (
@@ -232,6 +215,13 @@ export default class Invoice extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.updateInvoice}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
                 <Col md={10}>
                     <FormGroup>
                         {columnFilter}
@@ -292,7 +282,7 @@ export default class Invoice extends Component {
                         {addButton}
                         <DataTable
                             ignore={this.state.ignoredColumns}
-                            columnMapping={{ customer_id: 'Customer' }}
+                            columnMapping={{ customer_id: 'CUSTOMER' }}
                             // order={['id', 'number', 'date', 'customer_name', 'total', 'balance', 'status_id']}
                             disableSorting={['id']}
                             defaultColumn='total'

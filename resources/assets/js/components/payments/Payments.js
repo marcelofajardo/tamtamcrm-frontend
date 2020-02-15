@@ -13,6 +13,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import PaymentPresenter from '../presenters/PaymentPresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Payments extends Component {
     constructor (props) {
@@ -25,24 +27,17 @@ export default class Payments extends Component {
                 title: null
             },
             payments: [],
+            cachedData: [],
             custom_fields: [],
-            ignoredColumns: ['paymentables', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'customer_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
+            ignoredColumns: ['paymentables', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
             filters: {
                 status_id: 'active',
                 customer_id: '',
                 searchText: ''
             },
             invoices: [],
+            customers: [],
             showRestoreButton: false
-        }
-
-        this.colors = {
-            Pending: 'secondary',
-            Voided: 'danger',
-            Failed: 'danger',
-            Completed: 'success',
-            'Partially Refunded': 'dark',
-            Refunded: 'danger'
         }
 
         this.updateCustomers = this.updateCustomers.bind(this)
@@ -57,6 +52,7 @@ export default class Payments extends Component {
 
     componentDidMount () {
         this.getInvoices()
+        this.getCustomers()
         this.getCustomFields()
     }
 
@@ -104,8 +100,24 @@ export default class Payments extends Component {
             })
     }
 
+    getCustomers () {
+        axios.get('/api/customers')
+            .then((r) => {
+                this.setState({
+                    customers: r.data
+                })
+            })
+            .catch((e) => {
+                console.error(e)
+            })
+    }
+
     updateCustomers (payments) {
-        this.setState({ payments: payments })
+        const cachedData = !this.state.cachedData.length ? payments : this.state.cachedData
+        this.setState({
+            payments: payments,
+            cachedData: cachedData
+        })
     }
 
     filterPayments (event) {
@@ -131,29 +143,6 @@ export default class Payments extends Component {
         return true
     }
 
-    renderTableColumn (key, payment) {
-        const status = !payment.deleted_at
-            ? <Badge color={this.colors[payment.status]}>{payment.status}</Badge>
-            : <Badge color="warning">Archived</Badge>
-
-        const paymentInvoices = payment.invoices && Object.keys(payment.invoices).length > 0 ? Array.prototype.map.call(payment.invoices, s => s.number).toString() : null
-
-        switch (key) {
-            case 'status':
-                return <td onClick={() => this.toggleViewedEntity(payment)} data-label="Status">{status}</td>
-            case 'customer_id':
-                return <td onClick={() => this.toggleViewedEntity(payment)}
-                    data-label="Customer">{`${payment.first_name} ${payment.last_name}`}</td>
-
-            case 'invoices':
-                return <td data-label="Invoices">{paymentInvoices}</td>
-
-            default:
-                return <td onClick={() => this.toggleViewedEntity(payment, payment.number)} key={key}
-                    data-label={key}>{payment[key]}</td>
-        }
-    }
-
     getPaymentables (payment) {
         const invoiceIds = payment.paymentables.filter(paymentable => {
             return paymentable.payment_id === payment.id && paymentable.paymentable_type === 'App\\Invoice'
@@ -169,8 +158,8 @@ export default class Payments extends Component {
     }
 
     customerList () {
-        const { payments, custom_fields, invoices } = this.state
-        if (payments && payments.length) {
+        const { payments, custom_fields, invoices, customers } = this.state
+        if (payments && payments.length && customers.length && invoices.length) {
             return payments.map(payment => {
                 const paymentableInvoices = this.getPaymentables(payment)
 
@@ -190,17 +179,20 @@ export default class Payments extends Component {
                     payment={payment}
                     action={this.updateCustomers}
                     payments={payments}
+                    customers={customers}
                     modal={true}
                 /> : null
 
                 const columnList = Object.keys(payment).filter(key => {
                     return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
                 }).map(key => {
-                    return this.renderTableColumn(key, payment)
+                    return <PaymentPresenter customers={customers} field={key} entity={payment}
+                        toggleViewedEntity={this.toggleViewedEntity}/>
                 })
 
                 const refundButton = paymentableInvoices.length && invoices.length
-                    ? <Refund payment={payment} allInvoices={paymentableInvoices} invoices={invoices}
+                    ? <Refund customers={customers} payment={payment} allInvoices={paymentableInvoices}
+                        invoices={invoices}
                         payments={this.state.payments}
                         action={this.updateCustomers}/> : null
 
@@ -240,6 +232,13 @@ export default class Payments extends Component {
                         customer={this.state.filters.customer_id}
                         name="customer_id"
                     />
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.updateCustomers}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
                 </Col>
 
                 <Col md={2}>

@@ -12,6 +12,8 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import CreditPresenter from '../presenters/CreditPresenter'
+import DateFilter from '../common/DateFilter'
 
 export default class Credits extends Component {
     constructor (props) {
@@ -24,12 +26,12 @@ export default class Credits extends Component {
                 title: null
             },
             credits: [],
+            cachedData: [],
             customers: [],
             custom_fields: [],
             ignoredColumns: [
                 'id',
                 'type_id',
-                'customer_id',
                 'terms',
                 'footer',
                 'notes',
@@ -43,18 +45,6 @@ export default class Credits extends Component {
                 searchText: ''
             },
             showRestoreButton: false
-        }
-
-        this.colors = {
-            1: 'primary',
-            2: 'warning',
-            3: 'success'
-        }
-
-        this.statuses = {
-            1: 'Draft',
-            2: 'Partial',
-            3: 'Applied'
         }
 
         this.updateCustomers = this.updateCustomers.bind(this)
@@ -127,7 +117,11 @@ export default class Credits extends Component {
     }
 
     updateCustomers (credits) {
-        this.setState({ credits: credits })
+        const cachedData = !this.state.cachedData.length ? credits : this.state.cachedData
+        this.setState({
+            credits: credits,
+            cachedData: cachedData
+        })
     }
 
     toggleViewedEntity (id, title = null) {
@@ -182,6 +176,13 @@ export default class Credits extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.updateCustomers}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
                 <Col md={8}>
                     {columnFilter}
                 </Col>
@@ -191,7 +192,7 @@ export default class Credits extends Component {
 
     customerList () {
         const { credits, customers, custom_fields, ignoredColumns } = this.state
-        if (credits && credits.length) {
+        if (credits && credits.length && customers.length) {
             return credits.map(credit => {
                 const editButton = !credit.deleted_at ? <EditCredit
                     custom_fields={custom_fields}
@@ -208,17 +209,12 @@ export default class Credits extends Component {
                     ? <DeleteModal archive={true} deleteFunction={this.deleteCredit} id={credit.id}/> : null
                 const deleteButton = !credit.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteCredit} id={credit.id}/> : null
-                const status = !credit.deleted_at
-                    ? <Badge color={this.colors[credit.status_id]}>{this.statuses[credit.status_id]}</Badge>
-                    : <Badge className="mr-2" color="warning">Archived</Badge>
 
                 const columnList = Object.keys(credit).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return key === 'status_id'
-                        ? <td data-label="Status">{status}</td>
-                        : <td onClick={() => this.toggleViewedEntity(credit)} key={key}
-                            data-label={key}>{credit[key]}</td>
+                    return <CreditPresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                        field={key} entity={credit}/>
                 })
                 return (
                     <tr key={credit.id}>

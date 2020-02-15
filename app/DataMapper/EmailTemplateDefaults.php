@@ -7,7 +7,7 @@ class EmailTemplateDefaults
 {
     public static function emailInvoiceSubject()
     {
-        return Parsedown::instance()->line(self::transformText('invoice_subject'));
+        return trans('texts.invoice_subject', ['number'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailInvoiceTemplate()
@@ -17,7 +17,7 @@ class EmailTemplateDefaults
 
     public static function emailQuoteSubject()
     {
-        return Parsedown::instance()->line(self::transformText("New quote $number from $account));
+        return trans('texts.quote_subject', ['number'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailQuoteTemplate()
@@ -27,12 +27,12 @@ class EmailTemplateDefaults
 
     public static function emailPaymentSubject()
     {
-        return Parsedown::instance()->line(self::transformText('Payment received'));
+        return trans('texts.payment_subject');
     }
 
     public static function emailPaymentTemplate()
     {
-        return Parsedown::instance()->line(self::transformText('Thankyou for your payment'));
+        return Parsedown::instance()->line(self::transformText('payment_message'));
     }
 
     public static function emailReminder1Subject()
@@ -47,7 +47,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Subject()
     {
-        return Parsedown::instance()->line(self::transformText('Reminder Invoice $invoice from $account'));
+        return trans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
     }
 
     public static function emailReminder2Template()

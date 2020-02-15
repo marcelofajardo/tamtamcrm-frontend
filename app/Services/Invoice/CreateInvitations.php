@@ -13,7 +13,7 @@ class CreateInvitations
     {
     }
 
-    public function __invoke($invoice)
+    public function run($invoice)
     {
 
         $contacts = $invoice->customer->contacts;

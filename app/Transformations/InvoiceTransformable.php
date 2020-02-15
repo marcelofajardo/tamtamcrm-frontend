@@ -3,6 +3,7 @@
 namespace App\Transformations;
 
 use App\Invoice;
+use App\InvoiceInvitation;
 use App\Repositories\CustomerRepository;
 use App\Customer;
 
@@ -19,18 +20,16 @@ trait InvoiceTransformable
     {
         $prop = new Invoice;
 
-        $status = $invoice->invoiceStatus->count() > 0 ? $invoice->invoiceStatus->name : 'Pending';
-
         $prop->id = (int)$invoice->id;
         $customer = $invoice->customer;
-        $prop->customer_id = (int)$invoice->customer_id;
         $prop->user_id = (int)$invoice->user_id;
         $prop->company_id = (int)$invoice->company_id ?: null;
         $prop->number = $invoice->number ?: '';
-        $prop->customer_name = $customer->present()->name;
+        $prop->customer_id = (int)$invoice->customer_id;
         $prop->date = $invoice->date ?: '';
         $prop->due_date = $invoice->due_date ?: '';
         $prop->next_send_date = $invoice->date ?: '';
+        $prop->invitations = $this->transformInvitations($invoice->invitations);
 
 
         $prop->total = $invoice->total;
@@ -53,4 +52,18 @@ trait InvoiceTransformable
         return $prop;
     }
 
+    /**
+     * @param $invitations
+     * @return array
+     */
+    private function transformInvitations($invitations)
+    {
+        if (empty($invitations)) {
+            return [];
+        }
+
+        return $invitations->map(function (InvoiceInvitation $invitation) {
+            return (new InvoiceInvitationTransformable())->transformInvoiceInvitation($invitation);
+        })->all();
+    }
 }

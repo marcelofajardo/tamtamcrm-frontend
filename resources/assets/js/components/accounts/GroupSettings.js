@@ -11,6 +11,7 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import DateFilter from '../common/DateFilter'
 
 export default class GroupSettings extends Component {
     constructor (props) {
@@ -18,6 +19,7 @@ export default class GroupSettings extends Component {
 
         this.state = {
             groups: [],
+            cachedData: [],
             view: {
                 viewMode: false,
                 viewedId: null,
@@ -41,7 +43,11 @@ export default class GroupSettings extends Component {
     }
 
     addUserToState (groups) {
-        this.setState({ groups: groups })
+        const cachedData = !this.state.cachedData.length ? groups : this.state.cachedData
+        this.setState({
+            groups: groups,
+            cachedData: cachedData
+        })
     }
 
     updateIgnoredColumns (columns) {
@@ -104,6 +110,13 @@ export default class GroupSettings extends Component {
                             <option value='archived'>Archived</option>
                             <option value='deleted'>Deleted</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.addUserToState}
+                            data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
             </Row>

@@ -239,6 +239,7 @@ Route::group(['middleware' => ['jwt.auth', 'api-header']], function () {
     Route::delete('payments/{payment_id}', 'PaymentController@destroy');
     Route::put('payments/{payment_id}', 'PaymentController@update');
     Route::put('refund/{payment_id}', 'PaymentController@refund');
+    Route::post('payment/{payment}/{action}', 'PaymentController@action')->name('payments.action');
     Route::post('payments/filterPayments',
         'PaymentController@filterPayments')->middleware('role:null,taskcontroller.filtertasks');
     Route::post('payments/restore/{id}', 'PaymentController@restore');

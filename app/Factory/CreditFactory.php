@@ -12,7 +12,7 @@ class CreditFactory
         $credit->balance = $total;
         $credit->customer_id = $customer_id;
         $credit->account_id = $account_id;
-        $credit->total = 0;
+        $credit->total = $total;
         $credit->user_id = $user_id;
         return $credit;
     }

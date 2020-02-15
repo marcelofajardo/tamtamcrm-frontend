@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use App\Services\Payment\PaymentService;
 use Illuminate\Database\Eloquent\Model;
 use App\PaymentMethod;
 use App\Customer;
@@ -181,5 +182,10 @@ class Payment extends Model
         $this->processRefund($data);
 
         return $this;
+    }
+
+    public function service(): PaymentService
+    {
+        return new PaymentService($this);
     }
 }

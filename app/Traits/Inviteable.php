@@ -33,7 +33,7 @@ trait Inviteable
 		//$this->with('company','contact',$this->entity_type);
 		$this->with('account');
 		$domain = isset($this->account->portal_domain) ?: $this->account->domain();
-		switch ($this->company->portal_mode) {
+		switch ($this->account->portal_mode) {
 			case 'subdomain':
 				return $domain .'/customer/'. $entity_type .'/'. $this->key;
 				break;

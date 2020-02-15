@@ -42,7 +42,8 @@ class EditInvoice extends Component {
     constructor (props, context) {
         super(props, context)
         this.state = {
-            invitations: [],
+            invitations: this.props.invoice && this.props.invoice.invitations && this.props.invoice.invitations.length ? this.props.invoice.invitations : [],
+            customer_id: this.props.invoice && this.props.invoice.customer_id ? this.props.invoice.customer_id : null,
             contacts: [],
             due_date: this.props.invoice && this.props.invoice.due_date && this.props.invoice.due_date.length ? moment(this.props.invoice.due_date).format('YYYY-MM-DD') : moment(new Date()).format('YYYY-MM-DD'),
             quantity: '',
@@ -51,7 +52,6 @@ class EditInvoice extends Component {
             lines: [],
             address: {},
             customerName: '',
-            customer_id: this.props.invoice && this.props.invoice.customer_id ? this.props.invoice.customer_id : null,
             company_id: this.props.invoice && this.props.invoice.company_id ? this.props.invoice.company_id : null,
             status_id: this.props.invoice && this.props.invoice.status_id ? parseInt(this.props.invoice.status_id) : 1,
             customers: this.props.customers,
@@ -131,6 +131,13 @@ class EditInvoice extends Component {
                 const storedValues = JSON.parse(localStorage.getItem('invoiceForm'))
                 this.setState({ ...storedValues }, () => console.log('new state', this.state))
             }
+        }
+
+        if (this.props.invoice && this.props.invoice.customer_id) {
+            const index = this.props.customers.findIndex(customer => customer.id === this.props.invoice.customer_id)
+            const customer = this.props.customers[index]
+            const contacts = customer.contacts ? customer.contacts : []
+            this.setState({ contacts: contacts })
         }
     }
 
@@ -337,26 +344,26 @@ class EditInvoice extends Component {
             }
 
             if (product.unit_tax > 0 && this.state.tax === 0) {
-                const n = parseFloat(total)
+                // const n = parseFloat(total)
                 const tax_percentage = lexieTotal * product.unit_tax / 100
                 tax_total += tax_percentage
             }
         })
 
-        let mikeTotal = total
+        // const mikeTotal = total
 
-        if (discount_total > 0) {
-            mikeTotal -= discount_total
-        }
+        // if (discount_total > 0) {
+        // mikeTotal -= discount_total
+        // }
 
         if (this.state.tax > 0) {
-            const tax_percentage = parseFloat(this.state.total) * parseFloat(this.state.tax) / 100
+            // const tax_percentage = parseFloat(this.state.total) * parseFloat(this.state.tax) / 100
         }
 
-        if (this.state.discount > 0) {
-            const percentage = parseFloat(this.state.total) * parseFloat(this.state.discount) / 100
-            // total -= percentage
-        }
+        // if (this.state.discount > 0) {
+        // const percentage = parseFloat(this.state.total) * parseFloat(this.state.discount) / 100
+        // total -= percentage
+        // }
 
         this.setState({
             total: total,
@@ -574,6 +581,7 @@ class EditInvoice extends Component {
 
         // check if the check box is checked or unchecked
         if (e.target.checked) {
+            alert(contact)
             // add the numerical value of the checkbox to options array
             invitations.push({ client_contact_id: contact })
         } else {
@@ -745,14 +753,16 @@ class EditInvoice extends Component {
         const contactsForm = <Card>
             <CardHeader>Invitations</CardHeader>
             <CardBody>
-                {this.state.contacts.length && this.state.contacts.map(contact => (
-                    <FormGroup check>
+                {this.state.contacts.length && this.state.contacts.map(contact => {
+                    const invitations = this.state.invitations.length ? this.state.invitations.filter(invitation => parseInt(invitation.client_contact_id) === contact.id) : []
+                    const checked = invitations.length ? 'checked="checked"' : ''
+                    return <FormGroup check>
                         <Label check>
-                            <Input value={contact.id} onChange={this.handleContactChange}
+                            <Input checked={checked} value={contact.id} onChange={this.handleContactChange}
                                 type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
                         </Label>
                     </FormGroup>
-                ))
+                })
                 }
 
                 {!this.state.contacts.length &&

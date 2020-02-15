@@ -11,6 +11,7 @@ import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
+import DateFilter from '../common/DateFilter'
 
 export default class TaxRates extends Component {
     constructor (props) {
@@ -18,6 +19,7 @@ export default class TaxRates extends Component {
 
         this.state = {
             taxRates: [],
+            cachedData: [],
             filters: {
                 status_id: 'active',
                 searchText: ''
@@ -47,7 +49,11 @@ export default class TaxRates extends Component {
     }
 
     addUserToState (taxRates) {
-        this.setState({ taxRates: taxRates })
+        const cachedData = !this.state.cachedData.length ? taxRates : this.state.cachedData
+        this.setState({
+            taxRates: taxRates,
+            cachedData: cachedData
+        })
     }
 
     updateIgnoredColumns (columns) {
@@ -122,6 +128,13 @@ export default class TaxRates extends Component {
                             <option value='archived'>Archived</option>
                             <option value='deleted'>Deleted</option>
                         </Input>
+                    </FormGroup>
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter update={this.addUserToState}
+                            data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
             </Row>

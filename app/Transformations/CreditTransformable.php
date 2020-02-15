@@ -27,7 +27,6 @@ trait CreditTransformable
         $prop->id = (int)$credit->id;
         $prop->customer_id = (int)$credit->customer_id;
         //$prop->customer = $credit->customer;
-        $prop->customer_name = $credit->customer->present()->name;
         $prop->deleted_at = $credit->deleted_at;
         $prop->user_id = $credit->user_id;
         $prop->total = (float)$credit->total;

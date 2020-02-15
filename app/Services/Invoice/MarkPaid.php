@@ -21,7 +21,7 @@ class MarkPaid
         $this->customer_service = $customer_service;
     }
 
-    public function __invoke($invoice)
+    public function run($invoice)
     {
 
         if ($invoice->status_id == Invoice::STATUS_DRAFT) {

@@ -3,7 +3,9 @@
 namespace Tests\Unit;
 
 use App\Address;
+use App\ClientContact;
 use App\Repositories\AddressRepository;
+use App\Repositories\ClientContactRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -120,7 +122,7 @@ class AddressTest extends TestCase
     {
         $customer = factory(Customer::class)->create();
         factory(Address::class)->create(['customer_id' => $customer->id]);
-        $customerRepo = new CustomerRepository($customer);
+        $customerRepo = new CustomerRepository($customer, new ClientContactRepository(new ClientContact));
         $lists = $customerRepo->findAddresses();
         $this->assertCount(1, $lists);
     }
