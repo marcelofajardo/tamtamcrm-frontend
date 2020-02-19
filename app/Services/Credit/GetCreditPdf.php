@@ -3,28 +3,36 @@
 namespace App\Services\Credit;
 
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
+use App\Credit;
+use App\ClientContact;
 
-class GetCreditPdf
+class GetCreditPdf extends AbstractService
 {
 
-    public function __construct()
+    private $credit;
+    private $contact;
+
+    public function __construct(Credit $credit, ClientContact $contact = null)
     {
+        $this->credit = $credit;
+        $this->contact = $contact;
     }
 
-    public function __invoke($credit, $contact = null)
+    public function run()
     {
-        if (!$contact) {
-            $contact = $credit->customer->primary_contact()->first();
+        if (!$this->contact) {
+            $this->contact = $this->credit->customer->primary_contact()->first();
         }
 
-        $path = 'public/' . $credit->customer->id . '/credits/';
-        $file_path = $path . $credit->number . '.pdf';
+        $path = 'public/' . $this->credit->customer->id . '/credits/';
+        $file_path = $path . $this->credit->number . '.pdf';
         $disk = config('filesystems.default');
         $file = Storage::disk($disk)->exists($file_path);
 
         if (!$file) {
-            $file_path = CreateInvoicePdf::dispatchNow($this, $credit->account, $contact);
+            $file_path = CreateInvoicePdf::dispatchNow($this, $this->credit->account, $this->contact);
         }
 
         return Storage::disk($disk)->url($file_path);

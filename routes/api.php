@@ -121,6 +121,7 @@ Route::group(['middleware' => ['jwt.auth', 'api-header']], function () {
     Route::get('invoice/getInvoicesByStatus/{status}',
         'InvoiceController@getInvoicesByStatus')->middleware('role:null,invoicecontroller.index');
     Route::post('invoice/{invoice}/{action}', 'InvoiceController@action')->name('invoices.action');
+     Route::post('invoice/bulk', 'InvoiceController@bulk');
     Route::post('invoice/restore/{id}', 'InvoiceController@restore');
 
     //recurring invoice

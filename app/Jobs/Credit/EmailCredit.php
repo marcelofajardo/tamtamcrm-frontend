@@ -47,9 +47,9 @@ class EmailCredit implements ShouldQueue
         //todo - change runtime config of mail driver if necessary
 
         $template_style = $this->credit->customer->getSetting('email_style');
-        
+
         $this->credit->invitations->each(function ($invitation) use ($template_style) {
-            if ($invitation->contact->send_invoice && $invitation->contact->email) {
+            if ($invitation->contact->send_email && $invitation->contact->email) {
                 $message_array = $this->credit->getEmailData('', $invitation->contact);
                 $message_array['title'] = &$message_array['subject'];
                 $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();

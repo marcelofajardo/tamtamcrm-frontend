@@ -120,7 +120,7 @@ class AddCredit extends React.Component {
                     custom_value3: '',
                     custom_value4: '',
                     loading: false,
-                    errors: [],
+                    errors: []
                 })
                 this.toggle()
             })
@@ -150,7 +150,7 @@ class AddCredit extends React.Component {
                     custom_value3: '',
                     custom_value4: '',
                     loading: false,
-                    errors: [],
+                    errors: []
                 }, () => localStorage.removeItem('creditForm'))
             }
         })

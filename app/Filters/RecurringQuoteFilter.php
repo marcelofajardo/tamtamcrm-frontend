@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Invoice;
@@ -49,6 +50,10 @@ class RecurringQuoteFilter extends QueryFilter
             $this->query->whereCustomerId($request->customer_id);
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
@@ -61,6 +66,13 @@ class RecurringQuoteFilter extends QueryFilter
         }
 
         return $quotes;
+    }
+
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
     }
 
     private function transformList()

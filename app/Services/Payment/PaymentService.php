@@ -17,7 +17,7 @@ class PaymentService
     public function manualPayment($invoice) :?Payment
     {
         /* Create Payment */
-        $payment = PaymentFactory::create($invoice->account_id, $invoice->user_id);
+        $payment = PaymentFactory::create($invoice->customer_id, $invoice->user_id, $invoice->account_id);
 
         $payment->amount = $invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
@@ -36,8 +36,8 @@ class PaymentService
 public
 function sendEmail($contact = null)
 {
-    $send_email = new SendEmail($this->payment);
+    $send_email = new SendEmail($this->payment, $contact);
 
-    return $send_email->run(null, $contact);
+    return $send_email->run();
 }
 }

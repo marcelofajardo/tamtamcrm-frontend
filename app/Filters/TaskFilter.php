@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Task;
@@ -35,7 +36,8 @@ class TaskFilter extends QueryFilter
         $orderBy = !$request->column ? 'title' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
-        $this->query = $this->model->select('*', 'tasks.id as id')->leftJoin('task_user', 'tasks.id', '=', 'task_user.task_id');
+        $this->query = $this->model->select('*', 'tasks.id as id')->leftJoin('task_user', 'tasks.id', '=',
+            'task_user.task_id');
 
         if ($request->has('search_term') && !empty($request->search_term)) {
             $this->query = $this->searchFilter($request->search_term);
@@ -151,7 +153,7 @@ class TaskFilter extends QueryFilter
      * Filters the list based on the status
      * archived, active, deleted
      *
-     * @param  string filter
+     * @param string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '')

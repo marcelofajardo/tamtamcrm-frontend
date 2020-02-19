@@ -70,7 +70,7 @@ class AddTaxRate extends React.Component {
                 localStorage.removeItem('taxForm')
                 this.setState({
                     name: '',
-                    rate: '',
+                    rate: ''
                 })
             })
             .catch((error) => {
@@ -92,7 +92,7 @@ class AddTaxRate extends React.Component {
             if (!this.state.modal) {
                 this.setState({
                     name: '',
-                    rate: '',
+                    rate: ''
                 }, () => localStorage.removeItem('taxForm'))
             }
         })

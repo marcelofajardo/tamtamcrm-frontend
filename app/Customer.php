@@ -25,6 +25,8 @@ class Customer extends Model implements HasLocalePreference
 
     protected $presenter = 'App\Presenters\CustomerPresenter';
 
+    const CUSTOMER_TYPE_WON = 1;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -55,7 +57,6 @@ class Customer extends Model implements HasLocalePreference
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'boolean',
     ];
@@ -400,6 +401,16 @@ class Customer extends Model implements HasLocalePreference
     public function invoice_filepath()
     {
         return $this->id . '/invoices/';
+    }
+
+    public function quote_filepath()
+    {
+        return $this->id . '/quotes/';
+    }
+
+    public function credit_filepath()
+    {
+        return $this->id . '/credits/';
     }
 
     /**

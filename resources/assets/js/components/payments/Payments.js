@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import DataTable from '../common/DataTable'
 import AddPayment from './AddPayment'
 import EditPayment from './EditPayment'
-import { FormGroup, Input, Badge, Card, CardBody, Row, Col } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import axios from 'axios'
 import DeleteModal from '../common/DeleteModal'
 import RestoreModal from '../common/RestoreModal'
@@ -29,11 +34,16 @@ export default class Payments extends Component {
             payments: [],
             cachedData: [],
             custom_fields: [],
-            ignoredColumns: ['paymentables', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
+            bulk: [],
+            ignoredColumns: ['paymentables', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
             filters: {
                 status_id: 'active',
                 customer_id: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             invoices: [],
             customers: [],
@@ -48,6 +58,9 @@ export default class Payments extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -62,6 +75,12 @@ export default class Payments extends Component {
         })
     }
 
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
+        })
+    }
+
     toggleViewedEntity (id, title = null) {
         this.setState({
             view: {
@@ -71,6 +90,43 @@ export default class Payments extends Component {
                 title: title
             }
         }, () => console.log('view', this.state.view))
+    }
+
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/payment/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     getCustomFields () {
@@ -121,6 +177,17 @@ export default class Payments extends Component {
     }
 
     filterPayments (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -199,6 +266,7 @@ export default class Payments extends Component {
                 return (
                     <tr key={payment.id}>
                         <td>
+                            <Input value={payment.id} type="checkbox" onChange={this.onChangeBulk} />
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 refund={refundButton}
                                 restore={restoreButton}/>
@@ -236,7 +304,7 @@ export default class Payments extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.updateCustomers}
+                        <DateFilter onChange={this.filterPayments} update={this.updateCustomers}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
@@ -261,6 +329,17 @@ export default class Payments extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -286,8 +365,8 @@ export default class Payments extends Component {
 
     render () {
         const { payments, custom_fields, invoices, view } = this.state
-        const { status_id, searchText, customer_id } = this.state.filters
-        const fetchUrl = `/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}`
+        const { status_id, searchText, customer_id, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = invoices.length ? <AddPayment
             custom_fields={custom_fields}

@@ -32,6 +32,7 @@ trait RecurringInvoiceTransformable
         $prop->tax_total = $invoice->tax_total;
         $prop->discount_total = $invoice->discount_total;
         $prop->deleted_at = $invoice->deleted_at;
+        $prop->created_at = $invoice->created_at;
         $prop->status_id = $invoice->status_id;
         $prop->notes = $invoice->notes;
         $prop->terms = $invoice->terms;

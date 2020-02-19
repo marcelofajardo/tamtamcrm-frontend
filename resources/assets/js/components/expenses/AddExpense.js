@@ -171,7 +171,7 @@ class AddExpense extends React.Component {
                     company_id: null,
                     category_id: null,
                     notes: null,
-                    loading: false,
+                    loading: false
                 })
                 this.toggle()
             })
@@ -209,7 +209,7 @@ class AddExpense extends React.Component {
                     company_id: null,
                     category_id: null,
                     notes: null,
-                    loading: false,
+                    loading: false
                 }, () => localStorage.removeItem('expenseForm'))
             }
         })

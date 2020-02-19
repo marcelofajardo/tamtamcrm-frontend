@@ -25,13 +25,15 @@ export default class DateFilter extends Component {
             if (this.state.startDate && this.state.endDate) {
                 const startDate = this.state.startDate.format('YYYY-MM-DD')
                 const endDate = this.state.endDate.format('YYYY-MM-DD')
-                const data = this.props.data.filter(item => {
+                this.props.onChange({ start_date: startDate, end_date: endDate })
+
+                /* const data = this.props.data.filter(item => {
                     item.created_at = moment(item.created_at).format('YYYY-MM-DD')
                     return item.created_at >= startDate && item.created_at <= endDate
                 })
 
                 this.setState({ data: data })
-                this.props.update(data)
+                this.props.update(data) */
             }
         })
     }
@@ -39,6 +41,7 @@ export default class DateFilter extends Component {
     render () {
         return (
             <DateRangePicker
+                isOutsideRange={() => false}
                 startDate={this.state.startDate} // momentPropTypes.momentObj or null,
                 startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
                 endDate={this.state.endDate} // momentPropTypes.momentObj or null,

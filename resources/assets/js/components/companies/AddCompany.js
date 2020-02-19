@@ -202,7 +202,7 @@ class AddCompany extends React.Component {
                     town: '',
                     city: '',
                     postcode: '',
-                    loading: false,
+                    loading: false
                 }, () => localStorage.removeItem('companyForm'))
             }
         })

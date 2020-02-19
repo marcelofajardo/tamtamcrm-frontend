@@ -29,7 +29,7 @@ class EditTask extends Component {
     constructor (props) {
         super(props)
 
-        const start_date = moment(this.props.task.start_date, 'YYYY-MM-DD').format('YYYY-MM-DD')
+        const start_date = this.props.task.start_date ? moment(this.props.task.start_date, 'YYYY-MM-DD') : moment()
 
         this.state = {
             modal: false,
@@ -41,7 +41,7 @@ class EditTask extends Component {
             title: this.props.task.title,
             description: this.props.task.content,
             due_date: moment(this.props.task.due_date),
-            start_date: moment(start_date),
+            start_date: start_date,
             contributors: this.props.task.contributors,
             rating: this.props.task.rating,
             source_type: this.props.task.source_type,

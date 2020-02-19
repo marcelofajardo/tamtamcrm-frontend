@@ -5,15 +5,20 @@ namespace App\Services\Quote;
 use App\Helpers\Email\QuoteEmail;
 use App\Jobs\Quote\EmailQuote;
 use App\Quote;
+use App\Services\AbstractService;
 
-class SendEmail
+class SendEmail extends AbstractService
 {
 
-    public $quote;
+    private $quote;
+    private $reminder_template;
+    private $contact;
 
-    public function __construct($quote)
+    public function __construct($quote, $reminder_template = null, $contact = null)
     {
         $this->quote = $quote;
+        $this->reminder_template = $reminder_template;
+        $this->contact = $contact;
     }
 
     /**
@@ -21,16 +26,15 @@ class SendEmail
      * @param string $reminder_template The template name ie reminder1
      * @return array
      */
-    public function run($reminder_template = null, $contact = null): array
+    public function run()
     {
-        if (!$reminder_template) {
-            $reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
+        if (!$this->reminder_template) {
+            $this->reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
         }
 
-        $email_builder = (new QuoteEmail())->build($this->quote, $reminder_template, $contact);
-
-        $this->quote->invitations->each(function ($invitation) use ($email_builder) {
-            if ($invitation->contact->send_invoice && $invitation->contact->email) {
+        $this->quote->invitations->each(function ($invitation) {
+            if ($invitation->contact->send && $invitation->contact->email) {
+                $email_builder = (new QuoteEmail())->build($invitation, $this->reminder_template);
                 EmailQuote::dispatchNow($email_builder, $invitation);
             }
         });

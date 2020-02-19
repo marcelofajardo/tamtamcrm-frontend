@@ -3,28 +3,33 @@
 namespace App\Services\Quote;
 
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 
-class GetQuotePdf
+class GetQuotePdf extends AbstractService
 {
+    private $quote;
+    private $contact;
 
-    public function __construct()
+    public function __construct($quote, $contact = null)
     {
+        $this->quote = $quote;
+        $this->contact = $contact;
     }
 
-    public function __invoke($quote, $contact = null)
+    public function run()
     {
-        if (!$contact) {
-            $contact = $quote->customer->primary_contact()->first();
+        if (!$this->contact) {
+            $this->contact = $this->quote->customer->primary_contact()->first();
         }
 
-        $path = 'public/' . $quote->customer->id . '/quotes/';
-        $file_path = $path . $quote->number . '.pdf';
+        $path = 'public/' . $this->quote->customer->id . '/quotes/';
+        $file_path = $path . $this->quote->number . '.pdf';
         $disk = config('filesystems.default');
         $file = Storage::disk($disk)->exists($file_path);
 
         if (!$file) {
-            $file_path = CreateInvoicePdf::dispatchNow($this, $quote->account, $contact);
+            $file_path = CreateInvoicePdf::dispatchNow($this, $this->quote->account, $this->contact);
         }
 
         return Storage::disk($disk)->url($file_path);

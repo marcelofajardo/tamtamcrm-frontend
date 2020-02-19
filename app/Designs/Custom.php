@@ -1,66 +1,77 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Designs;
 
 class Custom extends AbstractDesign
 {
+	
+	private $header;
 
-    private $header;
+	private $body;
+	
+	private $table;
+	
+	private $footer;
+	
+	private $table_styles;
 
-    private $body;
+	public function __construct($design) 
+	{
 
-    private $table;
+		$this->header = $design->header;
+		
+		$this->body = $design->body;
+		
+		$this->table = $design->table;
+		
+		$this->footer = $design->footer;
+		
+		$this->table_styles = $design->table_styles;
+	
+	}
 
-    private $footer;
+	public function header() 
+	{
 
-    private $table_styles;
+		return $this->header;
+			
+	}
 
-    /**
-     * Custom constructor.
-     * @param array $data
-     */
-    public function __construct(array $data)
-    {
-        $this->header = $data['header'];
-        $this->body = $data['body'];
-        $this->table = $data['table'];
-        $this->footer = $data['footer'];
-        $this->table_styles = $data['table_styles'];
-    }
+	public function body() 
+	{
 
-    public function header()
-    {
+		return $this->body;	
 
-        return $this->header;
+	}
 
-    }
+	public function table_styles() 
+	{
 
-    public function body()
-    {
+		return $this->table_styles;
 
-        return $this->body;
+	}
 
-    }
+	public function table() 
+	{
 
-    public function table_styles()
-    {
+		return $this->table;
 
-        return $this->table_styles;
+	}
 
-    }
+	public function footer() 
+	{
 
-    public function table()
-    {
+		return $this->footer;
 
-        return $this->table;
-
-    }
-
-    public function footer()
-    {
-
-        return $this->footer;
-
-    }
+	}
 
 }

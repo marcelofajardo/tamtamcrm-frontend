@@ -24,7 +24,7 @@ export default class FileUploads extends Component {
         this.setState({ loading: true })
 
         const entity_id = this.props.entity_type.includes('Invoice') ? 1 : 2
-        
+
         // get all the comments
         axios.get(`/api/uploads/${entity_id}/${this.props.entity.id}`)
             .then((r) => {

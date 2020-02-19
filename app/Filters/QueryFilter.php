@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Filters;
 
-class QueryFilter {
-    
-        /**
+class QueryFilter
+{
+
+    /**
      * active status
      */
     const STATUS_ACTIVE = 'active';

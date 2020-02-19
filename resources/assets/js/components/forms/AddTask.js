@@ -22,8 +22,8 @@ class AddModal extends React.Component {
             content: '',
             contributors: '',
             created_by: '5af1921c0fe5703dd4a463ec',
-            due_date: '',
-            start_date: '',
+            due_date: moment(),
+            start_date: moment(),
             task_status: parseInt(this.props.status),
             project_id: this.props.storyType ? parseInt(this.props.storyType) : 0,
             loading: false,
@@ -43,8 +43,8 @@ class AddModal extends React.Component {
 
     componentDidMount () {
         if (localStorage.hasOwnProperty('taskForm')) {
-            const storedValues = JSON.parse(localStorage.getItem('taskForm'))
-            this.setState({ ...storedValues }, () => console.log('new state', this.state))
+            // const storedValues = JSON.parse(localStorage.getItem('taskForm'))
+            // this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }
     }
 
@@ -84,7 +84,7 @@ class AddModal extends React.Component {
                     contributors: '',
                     created_by: '5af1921c0fe5703dd4a463ec',
                     due_date: '',
-                    start_date: '',
+                    start_date: ''
                 }, () => localStorage.removeItem('taskForm'))
             }
         })
@@ -192,8 +192,6 @@ class AddModal extends React.Component {
                 </FormGroup>
 
                 {userOptions}
-
-                <i className="fa fa-calendar-alt"/> Created Date: {moment().format('L, h:mm:ss')} <br/>
 
                 <DateRangePicker
                     startDate={this.state.start_date} // momentPropTypes.momentObj or null,

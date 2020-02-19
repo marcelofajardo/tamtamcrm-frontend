@@ -5,7 +5,12 @@ import AddProject from './AddStory'
 import DataTable from '../common/DataTable'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
-import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DisplayColumns from '../common/DisplayColumns'
 import CustomerDropdown from '../common/CustomerDropdown'
 import ActionsMenu from '../common/ActionsMenu'
@@ -22,6 +27,9 @@ export default class ProjectList extends Component {
             projects: [],
             cachedData: [],
             errors: [],
+            bulk: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             error: '',
             view: {
                 viewMode: false,
@@ -31,10 +39,13 @@ export default class ProjectList extends Component {
             filters: {
                 status_id: 'active',
                 customer_id: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             custom_fields: [],
             ignoredColumns: [
+                'created_at',
                 'deleted_at',
                 'updated_at',
                 'is_completed',
@@ -61,6 +72,9 @@ export default class ProjectList extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -74,12 +88,55 @@ export default class ProjectList extends Component {
         })
     }
 
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
+        })
+    }
+
     addUserToState (projects) {
         const cachedData = !this.state.cachedData.length ? projects : this.state.cachedData
         this.setState({
             projects: projects,
             cachedData: cachedData
         })
+    }
+
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/project/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     toggleViewedEntity (id, title = null) {
@@ -94,6 +151,17 @@ export default class ProjectList extends Component {
     }
 
     filterProjects (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -155,10 +223,21 @@ export default class ProjectList extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.addUserToState}
+                        <DateFilter onChange={this.filterProjects} update={this.addUserToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -191,6 +270,7 @@ export default class ProjectList extends Component {
                 })
                 return <tr key={project.id}>
                     <td>
+                        <Input value={project.id} type="checkbox" onChange={this.onChangeBulk} />
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>
@@ -257,8 +337,8 @@ export default class ProjectList extends Component {
 
     render () {
         const { projects, users, custom_fields, ignoredColumns, view } = this.state
-        const { status_id, customer_id, searchText } = this.state.filters
-        const fetchUrl = `/api/projects?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}`
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/projects?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
         const filters = this.getFilters()
 

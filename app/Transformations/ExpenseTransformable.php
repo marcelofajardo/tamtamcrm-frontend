@@ -51,6 +51,7 @@ trait ExpenseTransformable
         $prop->deleted_at = $expense->deleted_at;
         $prop->updated_at = $expense->updated_at;
         $prop->archived_at = $expense->deleted_at;
+        $prop->created_at = $expense->created_at;
 
         return $prop;
     }

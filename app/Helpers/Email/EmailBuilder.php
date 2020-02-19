@@ -15,7 +15,7 @@ abstract class EmailBuilder
     protected $subject;
     protected $body;
     protected $recipients;
-    protected $attachments;
+    protected $attachments = [];
     protected $footer;
     protected $template_style;
     protected $variables = [];
@@ -89,6 +89,7 @@ abstract class EmailBuilder
     public function setAttachments($attachments)
     {
         $this->attachments[] = $attachments;
+        return $this;
     }
 
 

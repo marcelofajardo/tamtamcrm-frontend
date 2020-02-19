@@ -2,32 +2,35 @@
 namespace App\Services\Quote;
 
 use App\Quote;
+use App\Services\AbstractService;
 use App\Traits\GeneratesCounter;
 
-class ApplyNumber
+class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
     private $client;
+    private $quote;
 
-    public function __construct($client)
+    public function __construct($client, $quote)
     {
         $this->client = $client;
+        $this->quote = $quote;
     }
 
-    public function __invoke($quote)
+    public function run()
     {
 
-        if ($quote->number != '')
-            return $quote;
+        if ($this->quote->number != '')
+            return $this->quote;
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
-                $quote->number = $this->getNextQuoteNumber($this->client);
+                $this->quote->number = $this->getNextQuoteNumber($this->client);
                 break;
             case 'when_sent':
-                if ($quote->status_id == Quote::STATUS_SENT) {
-                    $quote->number = $this->getNextQuoteNumber($this->client);
+                if ($this->quote->status_id == Quote::STATUS_SENT) {
+                    $this->quote->number = $this->getNextQuoteNumber($this->client);
                 }
                 break;
 
@@ -36,6 +39,6 @@ class ApplyNumber
                 break;
         }
 
-        return $quote;
+        return $this->quote;
     }
 }

@@ -1,11 +1,11 @@
 <?php
+
 namespace App\Designs;
 
-use App\Invoice;
 use App\Account;
+use App\Invoice;
 
-class Designer
-{
+class Designer {
 
     protected $design;
 
@@ -14,6 +14,8 @@ class Designer
     protected $exported_variables;
 
     protected $html;
+
+    protected $entity_string;
 
     private static $custom_fields = [
         'invoice1',
@@ -38,11 +40,15 @@ class Designer
         'company4',
     ];
 
-    public function __construct($design, $input_variables)
+    public function __construct($design, $input_variables, $entity_string)
     {
+
         $this->design = $design;
 
-        $this->input_variables = (array)$input_variables;
+        $this->input_variables = (array) $input_variables;
+
+        $this->entity_string = $entity_string;
+
     }
 
     /**
@@ -50,23 +56,24 @@ class Designer
      * formatted HTML
      * @return string The HTML design built
      */
-    public function build(Invoice $invoice) :Designer
+    public function build($entity):Designer
     {
 
-        $this->exportVariables($invoice)
+        $this->exportVariables($entity)
             ->setDesign($this->getSection('header'))
             ->setDesign($this->getSection('body'))
-            ->setDesign($this->getTable($invoice))
+            ->setDesign($this->getTable($entity))
             ->setDesign($this->getSection('footer'));
 
         return $this;
+
     }
 
-    public function getTable(Invoice $invoice) :string
+    public function getTable($entity):string
     {
 
-        $table_header = $invoice->table_header($this->input_variables['table_columns'], $this->design->table_styles());
-        $table_body = $invoice->table_body($this->input_variables['table_columns'], $this->design->table_styles());
+        $table_header = $entity->table_header($this->input_variables['table_columns'], $this->design->table_styles());
+        $table_body   = $entity->table_body($this->input_variables['table_columns'], $this->design->table_styles());
 
         $data = str_replace('$table_header', $table_header, $this->getSection('table'));
         $data = str_replace('$table_body', $table_body, $data);
@@ -75,7 +82,7 @@ class Designer
 
     }
 
-    public function getHtml() :string
+    public function getHtml():string
     {
         return $this->html;
     }
@@ -95,53 +102,57 @@ class Designer
      * @param  string $section the method name to be executed ie header/body/table/footer
      * @return string The HTML of the template section
      */
-    public function getSection($section) :string
+    public function getSection($section):string
     {
-        return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables),
-            $this->design->{$section}());
+        return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables), $this->design->{$section}());
     }
 
-    private function exportVariables($invoice)
+    private function exportVariables($entity)
     {
-        $account = $invoice->account;
-        $this->exported_variables['$client_details'] = $this->processVariables($this->processInputVariables($account,
-            $this->input_variables['client_details']), $this->clientDetails($account));
-        $this->exported_variables['$company_details'] = $this->processVariables($this->processInputVariables($account,
-            $this->input_variables['company_details']), $this->companyDetails($account));
-        $this->exported_variables['$company_address'] = $this->processVariables($this->processInputVariables($account,
-            $this->input_variables['company_address']), $this->companyAddress($account));
-        $this->exported_variables['$invoice_details_labels'] = $this->processLabels($this->processInputVariables($account,
-            $this->input_variables['invoice_details']), $this->invoiceDetails($account));
-        $this->exported_variables['$invoice_details'] = $this->processVariables($this->processInputVariables($account,
-            $this->input_variables['invoice_details']), $this->invoiceDetails($account));
 
+        $company = $entity->account;
+
+        $this->exported_variables['$client_details']  = $this->processVariables($this->processInputVariables($company, $this->input_variables['client_details']), $this->clientDetails($company));
+        $this->exported_variables['$company_details'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_details']), $this->companyDetails($company));
+        $this->exported_variables['$company_address'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['company_address']), $this->companyAddress($company));
+
+        if($this->entity_string == 'invoice')
+        {
+            $this->exported_variables['$entity_labels']  = $this->processLabels($this->processInputVariables($company, $this->input_variables['invoice_details']), $this->invoiceDetails($company));
+            $this->exported_variables['$entity_details'] = $this->processVariables($this->processInputVariables($company, $this->input_variables['invoice_details']), $this->invoiceDetails($company));
+        }
+        elseif($this->entity_string == 'credit')
+        {
+            $this->exported_variables['$entity_labels']   = $this->processLabels($this->processInputVariables($company, $this->input_variables['credit_details']), $this->creditDetails($company));
+            $this->exported_variables['$entity_details']  = $this->processVariables($this->processInputVariables($company, $this->input_variables['credit_details']), $this->creditDetails($company));
+        }
+        elseif($this->entity_string == 'quote')
+        {
+            $this->exported_variables['$entity_labels']    = $this->processLabels($this->processInputVariables($company, $this->input_variables['quote_details']), $this->quoteDetails($company));
+            $this->exported_variables['$entity_details']   = $this->processVariables($this->processInputVariables($company, $this->input_variables['quote_details']), $this->quoteDetails($company));
+        }
         return $this;
     }
 
-    private function processVariables($input_variables, $variables) :string
+    private function processVariables($input_variables, $variables):string
     {
 
         $output = '';
 
-        foreach ($input_variables as $value) {
-            if (isset($variables[$value])) {
-                $output .= $variables[$value];
-            }
-        }
+        foreach ($input_variables as $value)
+            $output .= $variables[$value];
 
         return $output;
 
     }
 
-    private function processLabels($input_variables, $variables) :string
+    private function processLabels($input_variables, $variables):string
     {
         $output = '';
 
         foreach ($input_variables as $value) {
 
-            if (isset($variables[$value])) {
-                $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
-            }
+            $tmp = str_replace("</span>", "_label</span>", $variables[$value]);
 
             $output .= $tmp;
         }
@@ -152,8 +163,8 @@ class Designer
     // private function exportVariables()
     // {
     // 	/*
-    // 	 * $invoice_details_labels
-    // 	 * $invoice_details
+    // 	 * $entity_labels
+    // 	 * $entity_details
     // 	 */
     // 	$header = $this->design->header();
 
@@ -178,92 +189,142 @@ class Designer
     // 	$footer = $this->design->footer();
     // }
 
-    private function clientDetails(Account $account)
+    private function clientDetails(Account $company)
     {
 
         $data = [
-            'name' => '<p>$client.name</p>',
-            'id_number' => '<p>$client.id_number</p>',
-            'vat_number' => '<p>$client.vat_number</p>',
-            'address1' => '<p>$client.address1</p>',
-            'address2' => '<p>$client.address2</p>',
+            'name'              => '<p>$client.name</p>',
+            'id_number'         => '<p>$client.id_number</p>',
+            'vat_number'        => '<p>$client.vat_number</p>',
+            'address1'          => '<p>$client.address1</p>',
+            'address2'          => '<p>$client.address2</p>',
             'city_state_postal' => '<p>$client.city_state_postal</p>',
             'postal_city_state' => '<p>$client.postal_city_state</p>',
-            'country' => '<p>$client.country</p>',
-            'email' => '<p>$client.email</p>',
-            'client1' => '<p>$client1</p>',
-            'client2' => '<p>$client2</p>',
-            'client3' => '<p>$client3</p>',
-            'client4' => '<p>$client4</p>',
-            'contact1' => '<p>$contact1</p>',
-            'contact2' => '<p>$contact2</p>',
-            'contact3' => '<p>$contact3</p>',
-            'contact4' => '<p>$contact4</p>',
+            'country'           => '<p>$client.country</p>',
+            'email'             => '<p>$client.email</p>',
+            'client1'           => '<p>$client1</p>',
+            'client2'           => '<p>$client2</p>',
+            'client3'           => '<p>$client3</p>',
+            'client4'           => '<p>$client4</p>',
+            'contact1'          => '<p>$contact1</p>',
+            'contact2'          => '<p>$contact2</p>',
+            'contact3'          => '<p>$contact3</p>',
+            'contact4'          => '<p>$contact4</p>',
         ];
 
-        return $this->processCustomFields($account, $data);
-
+        return $this->processCustomFields($company, $data);
     }
 
-    private function companyDetails(Account $account)
+    private function companyDetails(Account $company)
     {
+
         $data = [
             'company_name' => '<span>$company.company_name</span>',
-            'id_number' => '<span>$company.id_number</span>',
-            'vat_number' => '<span>$company.vat_number</span>',
-            'website' => '<span>$company.website</span>',
-            'email' => '<span>$company.email</span>',
-            'phone' => '<span>$company.phone</span>',
-            'company1' => '<span>$company1</span>',
-            'company2' => '<span>$company2</span>',
-            'company3' => '<span>$company3</span>',
-            'company4' => '<span>$company4</span>',
+            'id_number'    => '<span>$company.id_number</span>',
+            'vat_number'   => '<span>$company.vat_number</span>',
+            'website'      => '<span>$company.website</span>',
+            'email'        => '<span>$company.email</span>',
+            'phone'        => '<span>$company.phone</span>',
+            'company1'     => '<span>$company1</span>',
+            'company2'     => '<span>$company2</span>',
+            'company3'     => '<span>$company3</span>',
+            'company4'     => '<span>$company4</span>',
         ];
 
-        return $this->processCustomFields($account, $data);
+        return $this->processCustomFields($company, $data);
+
     }
 
-    private function companyAddress(Account $account)
+    private function companyAddress(Account $company)
     {
 
         $data = [
-            'address1' => '<span>$company.address1</span>',
-            'address2' => '<span>$company.address1</span>',
+            'address1'          => '<span>$company.address1</span>',
+            'address2'          => '<span>$company.address1</span>',
             'city_state_postal' => '<span>$company.city_state_postal</span>',
             'postal_city_state' => '<span>$company.postal_city_state</span>',
-            'country' => '<span>$company.country</span>',
-            'company1' => '<span>$company1</span>',
-            'company2' => '<span>$company2</span>',
-            'company3' => '<span>$company3</span>',
-            'company4' => '<span>$company4</span>',
+            'country'           => '<span>$company.country</span>',
+            'company1'          => '<span>$company1</span>',
+            'company2'          => '<span>$company2</span>',
+            'company3'          => '<span>$company3</span>',
+            'company4'          => '<span>$company4</span>',
         ];
 
-        return $this->processCustomFields($account, $data);
+        return $this->processCustomFields($company, $data);
 
     }
 
-    private function invoiceDetails(Account $account)
+    private function invoiceDetails(Account $company)
     {
 
         $data = [
             'invoice_number' => '<span>$invoice_number</span>',
-            'po_number' => '<span>$po_number</span>',
-            'date' => '<span>$date</span>',
-            'due_date' => '<span>$due_date</span>',
-            'balance_due' => '<span>$balance_due</span>',
-            'invoice_total' => '<span>$invoice_total</span>',
-            'partial_due' => '<span>$partial_due</span>',
-            'invoice1' => '<span>$invoice1</span>',
-            'invoice2' => '<span>$invoice2</span>',
-            'invoice3' => '<span>$invoice3</span>',
-            'invoice4' => '<span>$invoice4</span>',
-            'surcharge1' => '<span>$surcharge1</span>',
-            'surcharge2' => '<span>$surcharge2</span>',
-            'surcharge3' => '<span>$surcharge3</span>',
-            'surcharge4' => '<span>$surcharge4</span>',
+            'po_number'      => '<span>$po_number</span>',
+            'date'           => '<span>$date</span>',
+            'due_date'       => '<span>$due_date</span>',
+            'balance_due'    => '<span>$balance_due</span>',
+            'invoice_total'  => '<span>$invoice_total</span>',
+            'partial_due'    => '<span>$partial_due</span>',
+            'invoice1'       => '<span>$invoice1</span>',
+            'invoice2'       => '<span>$invoice2</span>',
+            'invoice3'       => '<span>$invoice3</span>',
+            'invoice4'       => '<span>$invoice4</span>',
+            'surcharge1'     => '<span>$surcharge1</span>',
+            'surcharge2'     => '<span>$surcharge2</span>',
+            'surcharge3'     => '<span>$surcharge3</span>',
+            'surcharge4'     => '<span>$surcharge4</span>',
         ];
 
-        return $this->processCustomFields($account, $data);
+        return $this->processCustomFields($company, $data);
+
+    }
+
+    private function quoteDetails(Account $company)
+    {
+
+        $data = [
+            'quote_number' => '<span>$quote_number</span>',
+            'po_number'      => '<span>$po_number</span>',
+            'date'           => '<span>$date</span>',
+            'valid_until'       => '<span>$valid_until</span>',
+            'balance_due'    => '<span>$balance_due</span>',
+            'quote_total'  => '<span>$quote_total</span>',
+            'partial_due'    => '<span>$partial_due</span>',
+            'quote1'       => '<span>$quote1</span>',
+            'quote2'       => '<span>$quote2</span>',
+            'quote3'       => '<span>$quote3</span>',
+            'quote4'       => '<span>$quote4</span>',
+            'surcharge1'     => '<span>$surcharge1</span>',
+            'surcharge2'     => '<span>$surcharge2</span>',
+            'surcharge3'     => '<span>$surcharge3</span>',
+            'surcharge4'     => '<span>$surcharge4</span>',
+        ];
+
+        return $this->processCustomFields($company, $data);
+
+    }
+
+    private function creditDetails(Account $company)
+    {
+
+        $data = [
+            'credit_number' => '<span>$credit_number</span>',
+            'po_number'      => '<span>$po_number</span>',
+            'date'           => '<span>$date</span>',
+            'credit_balance'    => '<span>$credit_balance</span>',
+            'credit_amount'  => '<span>$credit_amount</span>',
+            'partial_due'    => '<span>$partial_due</span>',
+            'invoice1'       => '<span>$invoice1</span>',
+            'invoice2'       => '<span>$invoice2</span>',
+            'invoice3'       => '<span>$invoice3</span>',
+            'invoice4'       => '<span>$invoice4</span>',
+            'surcharge1'     => '<span>$surcharge1</span>',
+            'surcharge2'     => '<span>$surcharge2</span>',
+            'surcharge3'     => '<span>$surcharge3</span>',
+            'surcharge4'     => '<span>$surcharge4</span>',
+        ];
+
+        return $this->processCustomFields($company, $data);
 
     }
 
@@ -272,16 +333,16 @@ class Designer
 
         $custom_fields = $company->custom_fields;
 
-        if(!$custom_fields) {
+        if (!$custom_fields) {
             return [];
         }
 
         foreach (self::$custom_fields as $cf) {
 
-            if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{$cf}) == 0)) {
+            if (!property_exists($custom_fields, $cf) || (strlen($custom_fields->{ $cf}) == 0)) {
                 unset($data[$cf]);
-            }
 
+            }
         }
 
         return $data;
@@ -293,15 +354,11 @@ class Designer
 
         $custom_fields = $company->custom_fields;
 
-        if(!$custom_fields) {
-            return [];
-        }
-
         $matches = array_intersect(self::$custom_fields, $variables);
 
         foreach ($matches as $match) {
 
-            if (!property_exists($custom_fields, $match) || (strlen($custom_fields->{$match}) == 0)) {
+            if (!property_exists($custom_fields, $match) || (strlen($custom_fields->{ $match}) == 0)) {
                 foreach ($variables as $key => $value) {
                     if ($value == $match) {
                         unset($variables[$key]);
@@ -309,10 +366,10 @@ class Designer
                 }
             }
 
-
         }
 
         return $variables;
 
     }
+
 }

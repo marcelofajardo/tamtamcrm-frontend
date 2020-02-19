@@ -170,7 +170,7 @@ class AddProduct extends React.Component {
                     custom_value4: '',
                     notes: '',
                     price: '',
-                    sku: '',
+                    sku: ''
                 }, () => localStorage.removeItem('productForm'))
             }
         })

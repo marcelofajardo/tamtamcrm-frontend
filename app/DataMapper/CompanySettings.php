@@ -28,6 +28,7 @@ class CompanySettings extends BaseSettings
     public $document_email_attachment = false;
     public $send_portal_password = false;
     public $timezone_id = '';
+    public $portal_design_id    = '1';
     public $date_format_id = '';
     public $military_time = false;
     public $language_id = '';
@@ -174,9 +175,10 @@ class CompanySettings extends BaseSettings
     public $all_pages_header = true;
     public $all_pages_footer = true;
 
-    public $invoice_variables = [];
+    public $pdf_variables = [];
 
     public static $casts = [
+        'portal_design_id' => 'string',
         'fill_products' => 'bool',
         'update_products' => 'bool',
         'default_quantity' => 'bool',
@@ -332,7 +334,7 @@ class CompanySettings extends BaseSettings
         'counter_padding' => 'integer',
         'design' => 'string',
         'website' => 'string',
-        'invoice_variables' => 'object',
+        'pdf_variables' => 'object',
     ];
     /**
      * Array of variables which
@@ -374,7 +376,7 @@ class CompanySettings extends BaseSettings
         $data->date_format_id = (string)config('taskmanager.i18n.date_format_id');
         $data->country_id = (string)config('taskmanager.i18n.country_id');
         $data->translations = (object)[];
-        $data->invoice_variables = (array) self::getInvoiceVariableDefaults();
+        $data->pdf_variables = (array) self::getEntityVariableDefaults();
 
         /* $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
         $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
@@ -416,7 +418,7 @@ class CompanySettings extends BaseSettings
         return $settings;
     }
 
-    private static function getInvoiceVariableDefaults()
+    private static function getEntityVariableDefaults()
      {
          $variables = [
              'client_details' => [
@@ -450,6 +452,21 @@ class CompanySettings extends BaseSettings
                  'due_date',
                  'balance_due',
                  'invoice_total',
+             ],
+             'quote_details' => [
+                 'quote_number',
+                 'po_number',
+                 'date',
+                 'valid_until',
+                 'balance_due',
+                 'quote_total',
+             ],
+             'credit_details' => [
+                 'credit_number',
+                 'po_number',
+                 'date',
+                 'credit_balance',
+                 'credit_amount',
              ],
              'table_columns' => [
                  'product_key',

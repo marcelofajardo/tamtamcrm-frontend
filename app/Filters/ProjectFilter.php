@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Project;
@@ -38,9 +39,13 @@ class ProjectFilter extends QueryFilter
             $this->query->whereCustomerId($request->customer_id);
         }
 
-         if ($request->has('search_term') && !empty($request->search_term)) {
+        if ($request->has('search_term') && !empty($request->search_term)) {
             $this->query = $this->searchFilter($request->search_term);
-         }
+        }
+
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
 
         $this->addAccount($account_id);
 
@@ -56,11 +61,18 @@ class ProjectFilter extends QueryFilter
         return $projects;
     }
 
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
+    }
+
     /**
      * Filters the list based on the status
      * archived, active, deleted
      *
-     * @param  string filter
+     * @param string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '')
@@ -119,7 +131,7 @@ class ProjectFilter extends QueryFilter
 
         return $this->query->where(function ($query) use ($filter) {
             $query->where('projects.title', 'like', '%' . $filter . '%');
-                //->orWhere('companies.id_number', 'like', '%'.$filter.'%')
+            //->orWhere('companies.id_number', 'like', '%'.$filter.'%')
 //                ->orWhere('companies.custom_value1', 'like', '%' . $filter . '%')
 //                ->orWhere('companies.custom_value2', 'like', '%' . $filter . '%')
 //                ->orWhere('companies.custom_value3', 'like', '%' . $filter . '%')

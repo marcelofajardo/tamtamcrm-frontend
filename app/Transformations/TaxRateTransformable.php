@@ -29,6 +29,7 @@ trait TaxRateTransformable
         $prop->rate = (float)$tax_rate->rate;
         $prop->updated_at = $tax_rate->updated_at;
         $prop->deleted_at = $tax_rate->deleted_at;
+        $prop->created_at = $tax_rate->created_at;
 
         return $prop;
     }

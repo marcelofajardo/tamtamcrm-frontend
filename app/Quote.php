@@ -2,9 +2,10 @@
 
 namespace App;
 
+use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Jobs\Quote\CreateQuotePdf;
 use App\Services\Quote\QuoteService;
 use App\Traits\MakesInvoiceValues;
 use App\Traits\MakesReminders;
@@ -26,13 +27,13 @@ class Quote extends Model
     use MakesInvoiceValues;
     use PresentableTrait;
     use MakesReminders;
+    use MakesInvoiceValues;
 
     protected $presenter = 'App\Presenters\QuotePresenter';
 
     protected $casts = [
         'line_items' => 'object',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'boolean',
     ];
@@ -147,6 +148,24 @@ class Quote extends Model
         });
     }
 
+    public function pdf_file_path($invitation = null)
+    {
+        $storage_path = 'storage/' . $this->customer->quote_filepath() . $this->number . '.pdf';
+
+        if (Storage::exists($storage_path)) {
+            return $storage_path;
+        }
+
+        if(!$invitation) {
+            CreateQuotePdf::dispatchNow($this, $this->account, $this->customer->primary_contact()->first());
+        } else {
+            CreateQuotePdf::dispatchNow($invitation->quote, $invitation->account, $invitation->contact);
+        }
+
+        return $storage_path;
+
+    }
+
         /**
       * Access the quote calculator object
       *
@@ -169,16 +188,5 @@ class Quote extends Model
     public function service(): QuoteService
     {
         return new QuoteService($this);
-    }
-
-    public function pdf_file_path()
-    {
-        return '';
-        $storage_path = 'storage/' . $this->customer->id . '/invoices/' . $this->number . '.pdf';
-        if (!Storage::exists($storage_path)) {
-            CreateInvoicePdf::dispatchNow($this, $this->account, $this->customer->primary_contact()->first());
-        }
-
-        return $storage_path;
     }
 }

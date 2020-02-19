@@ -32,6 +32,7 @@ trait QuoteTransformable
 
         $prop->sub_total = $quote->sub_total;
         $prop->deleted_at = $quote->deleted_at;
+        $prop->created_at = $quote->created_at;
         $prop->tax_total = $quote->tax_total;
         $prop->discount_total = $quote->discount_total;
         $prop->notes = $quote->notes;

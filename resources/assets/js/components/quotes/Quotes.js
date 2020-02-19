@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import EditQuote from './EditQuote'
-import { FormGroup, Input, Card, CardBody, Col, Row } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Col, Row, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerDropdown from '../common/CustomerDropdown'
 import RestoreModal from '../common/RestoreModal'
@@ -28,13 +33,18 @@ export default class Quotes extends Component {
             cachedData: [],
             customers: [],
             custom_fields: [],
+            bulk: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             filters: {
                 status_id: 'active',
                 customer_id: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             showRestoreButton: false,
-            ignoredColumns: ['invitations', 'next_send_date', 'id', 'company_id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_sent_date', 'uses_inclusive_taxes', 'line_items', 'next_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
+            ignoredColumns: ['invitations', 'next_send_date', 'id', 'company_id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_sent_date', 'uses_inclusive_taxes', 'line_items', 'next_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
 
         }
 
@@ -45,6 +55,9 @@ export default class Quotes extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -66,6 +79,12 @@ export default class Quotes extends Component {
         })
     }
 
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
+        })
+    }
+
     toggleViewedEntity (id, title = null) {
         this.setState({
             view: {
@@ -77,7 +96,55 @@ export default class Quotes extends Component {
         }, () => console.log('view', this.state.view))
     }
 
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(+e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/quote/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
+    }
+
     filterInvoices (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -135,6 +202,7 @@ export default class Quotes extends Component {
                 return (
                     <tr key={user.id}>
                         <td>
+                            <Input value={user.id} type="checkbox" onChange={this.onChangeBulk} />
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>
@@ -214,7 +282,7 @@ export default class Quotes extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.updateInvoice}
+                        <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
@@ -224,6 +292,17 @@ export default class Quotes extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -257,8 +336,8 @@ export default class Quotes extends Component {
 
     render () {
         const { quotes, custom_fields, customers, view } = this.state
-        const { status_id, customer_id, searchText } = this.state.filters
-        const fetchUrl = `/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}`
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <EditQuote
             custom_fields={custom_fields}

@@ -26,10 +26,12 @@ export default class GroupSettings extends Component {
                 title: null
             },
             errors: [],
-            ignoredColumns: ['settings', 'deleted_at'],
+            ignoredColumns: ['settings', 'deleted_at', 'created_at'],
             filters: {
                 searchText: '',
-                status: 'active'
+                status: 'active',
+                start_date: '',
+                end_date: ''
             }
         }
 
@@ -58,6 +60,18 @@ export default class GroupSettings extends Component {
 
     filterGroups (event) {
         console.log('event', event)
+
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.name
         const value = event.target.value
 
@@ -115,7 +129,7 @@ export default class GroupSettings extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.addUserToState}
+                        <DateFilter onChange={this.filterGroups} update={this.addUserToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
@@ -205,9 +219,9 @@ export default class GroupSettings extends Component {
     }
 
     render () {
-        const { searchText, status } = this.state.filters
+        const { searchText, status, start_date, end_date } = this.state.filters
         const { view } = this.state
-        const fetchUrl = `/api/groups?search_term=${searchText}&status=${status}`
+        const fetchUrl = `/api/groups?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
         const filters = this.getFilters()
 
         return (

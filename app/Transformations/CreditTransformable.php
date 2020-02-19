@@ -36,6 +36,7 @@ trait CreditTransformable
         $prop->terms = $credit->terms ?: '';
         $prop->footer = $credit->footer ?: '';
         $prop->notes = $credit->notes ?: '';
+        $prop->created_at = $credit->created_at;
 
         return $prop;
     }

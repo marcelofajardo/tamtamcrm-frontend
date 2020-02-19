@@ -20,6 +20,7 @@ trait ProjectTransformable
         $prop->customer_id = $project->customer_id;
         $prop->updated_at = (int)$project->updated_at;
         $prop->deleted_at = $project->deleted_at;
+        $prop->created_at = $project->created_at;
         $prop->is_deleted = (bool)$project->is_deleted;
         $prop->task_rate = (float)$project->task_rate;
         $prop->budgeted_hours = (float)$project->budgeted_hours;

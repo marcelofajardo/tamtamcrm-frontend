@@ -5,38 +5,40 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Invoice;
+use App\Services\AbstractService;
 
-class MarkSent
+class MarkSent extends AbstractService
 {
-
     private $customer;
+    private $invoice;
 
-    public function __construct($customer)
+    public function __construct($customer, $invoice)
     {
         $this->customer = $customer;
+        $this->invoice = $invoice;
     }
 
-    public function run($invoice)
+    public function run()
     {
 
         /* Return immediately if status is not draft */
-        if ($invoice->status_id != Invoice::STATUS_DRAFT) {
-            return $invoice;
+        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
+            return $this->invoice;
         }
 
-        $invoice->markInvitationsSent();
+        $this->invoice->markInvitationsSent();
 
-        $invoice->setReminder();
+        $this->invoice->setReminder();
 
-        event(new InvoiceWasMarkedSent($invoice, $invoice->account));
+        event(new InvoiceWasMarkedSent($this->invoice, $this->invoice->account));
 
-        $this->customer->service()->updateBalance($invoice->balance)->save();
+        $this->customer->service()->updateBalance($this->invoice->balance)->save();
 
-        $invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
+        $this->invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, $invoice->balance, $invoice->account);
+        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->account);
 
-        return $invoice;
+        return $this->invoice;
 
     }
 }

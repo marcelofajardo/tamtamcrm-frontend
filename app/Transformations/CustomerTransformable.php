@@ -33,6 +33,7 @@ trait CustomerTransformable
 
         $prop = new Customer;
         $prop->id = (int)$customer->id;
+        $prop->created_at = $customer->created_at;
         $prop->name = $customer->first_name . " " . $customer->last_name;
         $prop->first_name = $customer->first_name;
         $prop->last_name = $customer->last_name;

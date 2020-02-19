@@ -15,6 +15,7 @@ trait PaymentTransformable
         $obj = new Payment;
         $obj->id = (int)$payment->id;
         $obj->user_id = (int)$payment->user_id;
+        $obj->created_at = $payment->created_at;
         $obj->assigned_user_id = (int)$payment->assigned_user_id;
         $obj->number = (string)$payment->number ?: '';
         $obj->customer_id = (int)$payment->customer_id;

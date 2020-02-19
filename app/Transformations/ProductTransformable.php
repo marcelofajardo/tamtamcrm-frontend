@@ -23,6 +23,7 @@ trait ProductTransformable
         $prod->name = $product->name;
         $prod->sku = $product->sku;
         $prod->quantity = $product->quantity;
+        $prod->created_at = $product->created_at;
         $prod->deleted_at = $product->deleted_at;
         $prod->slug = $product->slug;
         $prod->description = $product->description;

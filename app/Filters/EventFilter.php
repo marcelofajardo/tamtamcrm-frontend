@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Event;
@@ -125,7 +126,7 @@ class EventFilter extends QueryFilter
      * Filters the list based on the status
      * archived, active, deleted
      *
-     * @param  string filter
+     * @param string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '')
@@ -145,7 +146,7 @@ class EventFilter extends QueryFilter
             $this->query->orWhere(function ($query) use ($table) {
                 $query->whereNotNull($table . '.deleted_at');
                 //if (!in_array($table, ['users'])) {
-                    //$query->where($table . '.is_deleted', '=', 0);
+                //$query->where($table . '.is_deleted', '=', 0);
                 //}
             });
 

@@ -54,9 +54,13 @@ class CustomerFilter extends QueryFilter
             $this->query->whereCustomerType($request->customer_type);
         }
 
-          if ($request->has('search_term') && !empty($request->search_term)) {
-                    $this->query = $this->searchFilter($request->search_term);
-                }
+        if ($request->has('search_term') && !empty($request->search_term)) {
+            $this->query = $this->searchFilter($request->search_term);
+        }
+
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
 
         $this->addAccount($account_id);
 
@@ -70,6 +74,13 @@ class CustomerFilter extends QueryFilter
         }
 
         return $customers;
+    }
+
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
     }
 
     public function searchFilter(string $filter = '')

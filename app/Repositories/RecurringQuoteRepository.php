@@ -31,8 +31,8 @@ class RecurringQuoteRepository extends BaseRepository
         $quote->fill($data);
 
         $quote->save();
-        $invoice_calc = new InvoiceSum($quote);
-        $quote = $invoice_calc->build()->getInvoice();
+        $quote_calc  = new InvoiceSum($quote);
+        $quote = $quote_calc->build()->getQuote();
 
         if (!$quote->number) {
             $quote->number = $this->getNextRecurringQuoteNumber($quote->customer);

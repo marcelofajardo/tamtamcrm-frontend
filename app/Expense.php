@@ -12,6 +12,7 @@ class Expense extends Model
 
     protected $fillable = [
         'customer_id',
+        'status_id',
         'company_id',
         'expense_currency_id',
         'expense_date',
@@ -44,7 +45,6 @@ class Expense extends Model
     protected $casts = [
         'is_deleted' => 'boolean',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
 

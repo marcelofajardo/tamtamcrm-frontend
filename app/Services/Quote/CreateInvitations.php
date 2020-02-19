@@ -3,35 +3,37 @@ namespace App\Services\Quote;
 
 use App\Factory\QuoteInvitationFactory;
 use App\QuoteInvitation;
+use App\Services\AbstractService;
 
-class CreateInvitations
+class CreateInvitations extends AbstractService
 {
+    private $quote;
 
-    public function __construct()
+    public function __construct($quote)
     {
+        $this->quote = $quote;
     }
 
-    public function __invoke($quote)
+    public function run()
     {
+        $contacts = $this->quote->customer->contacts;
 
-        $contacts = $quote->customer->contacts;
-
-        $contacts->each(function ($contact) use($quote){
-            $invitation = QuoteInvitation::whereAccountId($quote->account_id)
+        $contacts->each(function ($contact) {
+            $invitation = QuoteInvitation::whereAccountId($this->quote->account_id)
                 ->whereClientContactId($contact->id)
-                ->whereQuoteId($quote->id)
+                ->whereQuoteId($this->quote->id)
                 ->first();
 
-            if (!$invitation && $contact->send_invoice) {
-                $ii = QuoteInvitationFactory::create($quote->account_id, $quote->user_id);
-                $ii->quote_id = $quote->id;
+            if (!$invitation && $contact->send_email) {
+                $ii = QuoteInvitationFactory::create($this->quote->account_id, $this->quote->user_id);
+                $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && !$contact->send_invoice) {
+            } elseif ($invitation && !$contact->send_email) {
                 $invitation->delete();
             }
         });
 
-        return $quote;
+        return $this->quote;
     }
 }

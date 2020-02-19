@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\ClientContact;
+use App\Customer;
 use App\Factory\OrderFactory;
 use App\Factory\TaskFactory;
 use App\Jobs\Task\SaveTaskTimes;
+use App\Project;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\CustomerRepository;
 use App\Repositories\OrderRepository;
 use App\Order;
+use App\Repositories\ProjectRepository;
+use App\Repositories\TaskRepository;
 use App\User;
 use Illuminate\Http\Request;
 use App\Task;
@@ -21,7 +28,6 @@ use App\Transformations\TaskTransformable;
 use App\Filters\OrderFilter;
 use App\Repositories\SourceTypeRepository;
 use App\SourceType;
-use App\Services\TaskService;
 use App\Filters\TaskFilter;
 use App\Requests\SearchRequest;
 
@@ -49,12 +55,10 @@ class TaskController extends Controller
      */
     public function __construct(
         TaskRepositoryInterface $task_repo,
-        ProjectRepositoryInterface $project_repo,
-        TaskService $task_service
+        ProjectRepositoryInterface $project_repo
     ) {
         $this->task_repo = $task_repo;
         $this->project_repo = $project_repo;
-        $this->task_service = $task_service;
     }
 
     public function index(SearchRequest $request)
@@ -129,7 +133,7 @@ class TaskController extends Controller
 
     public function getLeads()
     {
-        $list = $this->task_repo->getLeads();
+        $list = $this->task_repo->getLeads(null, null, auth()->user()->account_user()->account_id);
 
         $tasks = $list->map(function (Task $task) {
             return $this->transformTask($task);
@@ -229,7 +233,11 @@ class TaskController extends Controller
      */
     public function createDeal(Request $request)
     {
-        $task = $this->task_service->createDeal($request);
+        $task = (new TaskFactory())->create(9874, 1);
+        $task = $task->service()->createDeal($request,
+            (new CustomerRepository(new Customer, new ClientContactRepository(new ClientContact))),
+            new TaskRepository(new Task, new ProjectRepository(new Project)), true);
+
         return response()->json($task);
     }
 
@@ -240,7 +248,10 @@ class TaskController extends Controller
      */
     public function createLead(Request $request)
     {
-        $task = $this->task_service->createLead($request);
+        $task = (new TaskFactory())->create(9874, 1);
+        $task = $task->service()->createDeal($request,
+            (new CustomerRepository(new Customer, new ClientContactRepository(new ClientContact))),
+            new TaskRepository(new Task, new ProjectRepository(new Project)), false);
         return response()->json($task);
     }
 
@@ -279,7 +290,9 @@ class TaskController extends Controller
      */
     public function convertToDeal(int $task_id)
     {
-        $response = $this->task_service->convertLeadToDeal($task_id);
+        $task = $this->task_repo->findTaskById($task_id);
+        $response = $task->service()->convertLead();
+        //$response = $this->task_service->convertLeadToDeal($task_id);
 
         if ($response) {
             return response()->json('Converted successfully');
@@ -288,12 +301,13 @@ class TaskController extends Controller
         return response()->json('Unable to convert');
     }
 
-    public function show(int $id) {
+    public function show(int $id)
+    {
         $task = $this->task_repo->getTaskById($id);
         return response()->json($this->transformTask($task));
     }
 
-    
+
     /**
      * @param $id
      *
@@ -317,7 +331,8 @@ class TaskController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $task = Task::withTrashed()->where('id', '=', $id)->first();
         $this->task_repo->restore($task);
         return response()->json([], 200);

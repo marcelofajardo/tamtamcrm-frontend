@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Invoice;
@@ -49,11 +50,15 @@ class RecurringInvoiceFilter extends QueryFilter
             $this->query->whereCustomerId($request->customer_id);
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
 
-       $invoices = $this->transformList();
+        $invoices = $this->transformList();
 
         if ($recordsPerPage > 0) {
             $paginatedResults = $this->recurringInvoiceRepository->paginateArrayResults($invoices, $recordsPerPage);
@@ -63,41 +68,51 @@ class RecurringInvoiceFilter extends QueryFilter
         return $invoices;
     }
 
-    private function transformList() {
-          $list = $this->query->get();
-           $invoices = $list->map(function (RecurringInvoice $invoice) {
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
+    }
+
+    private function transformList()
+    {
+        $list = $this->query->get();
+        $invoices = $list->map(function (RecurringInvoice $invoice) {
             return $this->transformInvoice($invoice);
         })->all();
 
-      return $invoices;
+        return $invoices;
     }
 
     public function searchFilter(string $filter = '')
     {
-        if(strlen($filter) == 0) {
+        if (strlen($filter) == 0) {
             return $this->query;
         }
-        return  $this->query->where(function ($query) use ($filter) {
-                    $query->where('recurring_invoices.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('recurring_invoices.custom_value2', 'like' , '%'.$filter.'%')
-                          ->orWhere('recurring_invoices.custom_value3', 'like' , '%'.$filter.'%')
-                          ->orWhere('recurring_invoices.custom_value4', 'like' , '%'.$filter.'%');
-                });
+        return $this->query->where(function ($query) use ($filter) {
+            $query->where('recurring_invoices.custom_value1', 'like', '%' . $filter . '%')
+                ->orWhere('recurring_invoices.custom_value2', 'like', '%' . $filter . '%')
+                ->orWhere('recurring_invoices.custom_value3', 'like', '%' . $filter . '%')
+                ->orWhere('recurring_invoices.custom_value4', 'like', '%' . $filter . '%');
+        });
     }
 
     /**
      * @param $orderBy
      * @param $orderDir
      */
-    private function orderBy($orderBy, $orderDir) {
-         $this->query->orderBy($orderBy, $orderDir);
+    private function orderBy($orderBy, $orderDir)
+    {
+        $this->query->orderBy($orderBy, $orderDir);
     }
 
     /**
      * @param int $account_id
      */
-    private function addAccount(int $account_id) {
-          $this->query->where('account_id', '=', $account_id);
+    private function addAccount(int $account_id)
+    {
+        $this->query->where('account_id', '=', $account_id);
     }
 
     private function filterStatus($filter)

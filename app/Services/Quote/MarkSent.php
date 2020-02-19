@@ -4,31 +4,33 @@ namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasMarkedSent;
 use App\Quote;
+use App\Services\AbstractService;
 
-class MarkSent
+class MarkSent extends AbstractService
 {
     private $client;
+    private $quote;
 
-    public function __construct($client)
+    public function __construct($client, $quote)
     {
         $this->client = $client;
+        $this->quote = $quote;
     }
 
-    public function __invoke($quote)
+    public function run()
     {
-
         /* Return immediately if status is not draft */
-        if ($quote->status_id != Quote::STATUS_DRAFT) {
-            return $quote;
+        if ($this->quote->status_id != Quote::STATUS_DRAFT) {
+            return $this->quote;
         }
 
-        $quote->markInvitationsSent();
+        $this->quote->markInvitationsSent();
 
-        event(new QuoteWasMarkedSent($quote));
+        event(new QuoteWasMarkedSent($this->quote));
 
-        $quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
+        $this->quote->service()->setStatus(Quote::STATUS_SENT)->applyNumber()->save();
 
-        return $quote;
+        return $this->quote;
 
     }
 }

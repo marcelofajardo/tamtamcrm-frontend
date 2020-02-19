@@ -1,41 +1,35 @@
 <?php
 namespace App\Services\Invoice;
 
- use App\Events\Payment\PaymentWasCreated;
- use App\Factory\PaymentFactory;
- use App\Jobs\Customer\UpdateCustomerBalance;
- use App\Jobs\Customer\UpdateCustomerPaidToDate;
- use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
- use App\Models\Invoice;
- use App\Models\Payment;
- use App\Services\Customer\CustomerService;
- use App\Services\Payment\PaymentService;
+ use App\Invoice;
+ use App\Services\AbstractService;
  use App\Traits\GeneratesCounter;
 
- class ApplyNumber
+ class ApplyNumber extends AbstractService
  {
  	use GeneratesCounter;
 
      private $customer;
+     private $invoice;
 
-     public function __construct($customer)
+     public function __construct($customer, $invoice)
      {
          $this->customer = $customer;
+         $this->invoice = $invoice;
      }
 
-   	public function run($invoice)
+   	public function run()
    	{
-
-         if ($invoice->number != '') 
-             return $invoice;
+         if ($this->invoice->number != '')
+             return $this->invoice;
 
          switch ($this->customer->getSetting('counter_number_applied')) {
              case 'when_saved':
-                 $invoice->number = $this->getNextInvoiceNumber($this->customer);
+                 $this->invoice->number = $this->getNextInvoiceNumber($this->customer);
                  break;
              case 'when_sent':
-                 if ($invoice->status_id == Invoice::STATUS_SENT) {
-                     $invoice->number = $this->getNextInvoiceNumber($this->customer);
+                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
+                     $this->invoice->number = $this->getNextInvoiceNumber($this->customer);
                  }
                  break;
 
@@ -44,6 +38,6 @@ namespace App\Services\Invoice;
                  break;
          }
 
-         return $invoice;
+         return $this->invoice;
    	}
- } 
+ }

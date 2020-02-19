@@ -3,7 +3,12 @@ import axios from 'axios'
 import EditProduct from './EditProduct'
 import AddProduct from './AddProduct'
 import DataTable from '../common/DataTable'
-import { FormGroup, Input, Card, CardBody, Col, Row } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Col, Row, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import CategoryDropdown from '../common/CategoryDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import RestoreModal from '../common/RestoreModal'
@@ -30,14 +35,20 @@ export default class ProductList extends Component {
             cachedData: [],
             categories: [],
             custom_fields: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
+            bulk: [],
             filters: {
                 status: 'active',
                 category_id: '',
                 company_id: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             ignoredColumns: [
                 'deleted_at',
+                'created_at',
                 'cover',
                 'images',
                 'company_id',
@@ -70,6 +81,9 @@ export default class ProductList extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -84,6 +98,12 @@ export default class ProductList extends Component {
         })
     }
 
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
+        })
+    }
+
     toggleViewedEntity (id, title = null) {
         this.setState({
             view: {
@@ -95,6 +115,43 @@ export default class ProductList extends Component {
         }, () => console.log('view', this.state.view))
     }
 
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/product/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
+    }
+
     addProductToState (products) {
         const cachedData = !this.state.cachedData.length ? products : this.state.cachedData
         this.setState({
@@ -104,6 +161,17 @@ export default class ProductList extends Component {
     }
 
     filterProducts (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -177,7 +245,7 @@ export default class ProductList extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.addProductToState}
+                        <DateFilter onChange={this.filterProducts} update={this.addProductToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
@@ -187,6 +255,17 @@ export default class ProductList extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -261,6 +340,7 @@ export default class ProductList extends Component {
 
                 return <tr key={product.id}>
                     <td>
+                        <Input value={product.id} type="checkbox" onChange={this.onChangeBulk} />
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>
@@ -291,8 +371,8 @@ export default class ProductList extends Component {
 
     render () {
         const { products, custom_fields, brands, categories, view } = this.state
-        const { status, searchText, category_id, company_id } = this.state.filters
-        const fetchUrl = `/api/products?search_term=${searchText}&status=${status}&category_id=${category_id}&company_id=${company_id}`
+        const { status, searchText, category_id, company_id, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/products?search_term=${searchText}&status=${status}&category_id=${category_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = categories.length ? this.getFilters() : 'Loading filters'
         const addButton = brands.length && categories.length ? <AddProduct
             custom_fields={custom_fields}

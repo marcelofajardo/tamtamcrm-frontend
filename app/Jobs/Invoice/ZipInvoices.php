@@ -1,6 +1,7 @@
 <?php
 namespace App\Jobs\Invoice;
 
+use App\Mail\DownloadInvoices;
 use App\Account;
 use App\Invoice;
 use Illuminate\Bus\Queueable;
@@ -8,15 +9,16 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class ZipInvoices implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoice;
+    public $invoices;
 
     private $account;
 
@@ -41,19 +43,20 @@ class ZipInvoices implements ShouldQueue
      */
     public function handle()
     {
+
         $tempStream = fopen('php://memory', 'w+');
 
         $options = new Archive();
         $options->setOutputStream($tempStream);
 
-# create a new zipstream object
-        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . ".zip";
+        # create a new zipstream object
+        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')).".zip";
 
         $path = $this->invoices->first()->customer->invoice_filepath();
 
         $zip = new ZipStream($file_name, $options);
 
-        foreach ($invoices as $invoice) {
+        foreach ($this->invoices as $invoice) {
             $zip->addFileFromPath(basename($invoice->pdf_file_path()), public_path($invoice->pdf_file_path()));
         }
 
@@ -63,9 +66,9 @@ class ZipInvoices implements ShouldQueue
 
         fclose($tempStream);
 
-
-//fire email here
-        return Storage::disk(config('filesystems.default'))->url($path . $file_name);
+        //fire email here
+        Mail::to(config('taskmanager.contact.ninja_official_contact'))
+            ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
 
     }
 }

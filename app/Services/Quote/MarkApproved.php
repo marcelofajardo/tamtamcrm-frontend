@@ -7,27 +7,30 @@ use App\Events\Quote\QuoteWasMarkedApproved;
 use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Invoice;
 use App\Quote;
+use App\Services\AbstractService;
 
-class MarkApproved
+class MarkApproved extends AbstractService
 {
     private $client;
+    private $quote;
 
-    public function __construct($client)
+    public function __construct($client, $quote)
     {
         $this->client = $client;
+        $this->quote = $quote;
     }
 
-    public function __invoke($quote)
+    public function run()
     {
         /* Return immediately if status is not draft */
-        if ($quote->status_id != Quote::STATUS_SENT) {
-            return $quote;
+        if ($this->quote->status_id != Quote::STATUS_SENT) {
+            return $this->quote;
         }
 
-        $quote->service()->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
+        $this->quote->service()->setStatus(Quote::STATUS_APPROVED)->applyNumber()->save();
 
-        event(new QuoteWasMarkedApproved($quote));
+        event(new QuoteWasMarkedApproved($this->quote));
 
-        return $quote;
+        return $this->quote;
     }
 }

@@ -5,7 +5,12 @@ import AddTaxRate from './AddTaxRate'
 import DataTable from '../common/DataTable'
 import DeleteModal from '../common/DeleteModal'
 import RestoreModal from '../common/RestoreModal'
-import { Card, CardBody, FormGroup, Input, Row, Col } from 'reactstrap'
+import {
+    Card, CardBody, FormGroup, Input, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
@@ -22,7 +27,9 @@ export default class TaxRates extends Component {
             cachedData: [],
             filters: {
                 status_id: 'active',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             view: {
                 viewMode: false,
@@ -46,6 +53,7 @@ export default class TaxRates extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     addUserToState (taxRates) {
@@ -53,6 +61,12 @@ export default class TaxRates extends Component {
         this.setState({
             taxRates: taxRates,
             cachedData: cachedData
+        })
+    }
+
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -73,7 +87,55 @@ export default class TaxRates extends Component {
         }, () => console.log('view', this.state.view))
     }
 
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/user/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
+    }
+
     filterTaxRates (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -133,10 +195,21 @@ export default class TaxRates extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.addUserToState}
+                        <DateFilter onChange={this.filterTaxRates} update={this.addUserToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -202,8 +275,8 @@ export default class TaxRates extends Component {
 
     render () {
         const { taxRates, error, view } = this.state
-        const { searchText, status_id } = this.state.filters
-        const fetchUrl = `/api/taxRates?search_term=${searchText}&status=${status_id}`
+        const { searchText, status_id, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/taxRates?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = <AddTaxRate taxRates={taxRates} action={this.addUserToState}/>
 

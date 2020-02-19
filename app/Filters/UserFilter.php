@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Repositories\UserRepository;
@@ -35,19 +36,24 @@ class UserFilter extends QueryFilter
         $orderBy = !$request->column || $request->column === 'name' ? 'first_name' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
-        $this->query = $this->model->select('users.*')->leftJoin('department_user', 'users.id', '=', 'department_user.user_id')
-                    ->leftJoin('role_user', 'users.id', '=', 'role_user.user_id');
+        $this->query = $this->model->select('users.*')->leftJoin('department_user', 'users.id', '=',
+            'department_user.user_id')
+            ->leftJoin('role_user', 'users.id', '=', 'role_user.user_id');
 
         if ($request->has('status')) {
             $this->status($request->status);
         }
 
-        if($request->filled('role_id')) {
+        if ($request->filled('role_id')) {
             $this->query->where('role_id', '=', $request->role_id);
         }
 
-        if($request->filled('department_id')) {
+        if ($request->filled('department_id')) {
             $this->query->where('department_user.department_id', '=', $request->department_id);
+        }
+
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
         }
 
         $this->orderBy($orderBy, $orderDir);
@@ -56,9 +62,9 @@ class UserFilter extends QueryFilter
             $query->where('account_id', '=', $account_id);
         });
 
-          if ($request->filled('search_term')) {
-                    $this->query = $this->searchFilter($request->search_term);
-                }
+        if ($request->filled('search_term')) {
+            $this->query = $this->searchFilter($request->search_term);
+        }
 
         $this->query->groupBy('users.id');
 
@@ -70,6 +76,13 @@ class UserFilter extends QueryFilter
         }
 
         return $users;
+    }
+
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('from_date')));
+        $end = date("Y-m-d", strtotime($request->input('to_date') . "+1 day"));
+        $this->query->whereBetween('created_at', [$start, $end]);
     }
 
     public function searchFilter(string $filter = '')

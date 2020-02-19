@@ -26,6 +26,7 @@ trait RecurringQuoteTransformable
         $prop->due_date = $quote->due_date;
         $prop->start_date = $quote->start_date;
         $prop->deleted_at = $quote->deleted_at;
+        $prop->created_at = $quote->created_at;
 
         $prop->total = $quote->total;
         $prop->sub_total = $quote->sub_total;

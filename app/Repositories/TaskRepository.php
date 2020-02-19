@@ -203,7 +203,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
         return $this->model->join('source_type', 'source_type.id', '=', 'tasks.source_type')
             ->select('source_type.name', DB::raw('count(*) as value'))
             ->where('task_type', $task_type)
-            ->where('account_id', $account_id)
+            ->where('tasks.account_id', $account_id)
             ->groupBy('source_type.name')
             ->get();
     }

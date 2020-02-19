@@ -23,19 +23,22 @@ class EmailInvoice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoice_invitation;
+    private $invoice_invitation;
 
-    public $email_builder;
+    private $email_builder;
+
+    private $account;
 
     /**
      * EmailQuote constructor.
      * @param BuildEmail $email_builder
      * @param QuoteInvitation $quote_invitation
      */
-    public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation)
+    public function __construct(InvoiceEmail $email_builder, InvoiceInvitation $invoice_invitation, Account $account)
     {
         $this->invoice_invitation = $invoice_invitation;
         $this->email_builder = $email_builder;
+        $this->account = $account;
     }
 
     /**
@@ -46,18 +49,16 @@ class EmailInvoice implements ShouldQueue
      */
     public function handle()
     {
-        $email_builder = $this->email_builder;
-        $recipient = $email_builder->getRecipients();
 
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
-            ->send(new TemplateEmail($email_builder,
+            ->send(new TemplateEmail($this->email_builder,
                     $this->invoice_invitation->contact->user,
                     $this->invoice_invitation->contact->customer
                 )
             );
 
         if (count(Mail::failures()) > 0) {
-            return $this->logMailError($errors);
+            return $this->logMailError(Mail::failures());
         }
     }
 

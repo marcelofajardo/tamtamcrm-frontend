@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import EditInvoice from './EditInvoice'
-import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerDropdown from '../common/CustomerDropdown'
 import RestoreModal from '../common/RestoreModal'
@@ -27,12 +32,17 @@ export default class Invoice extends Component {
             invoices: [],
             cachedData: [],
             customers: [],
+            bulk: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             custom_fields: [],
-            ignoredColumns: ['invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
+            ignoredColumns: ['invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
             filters: {
                 status_id: 'Draft',
                 customer_id: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             showRestoreButton: false
             // columns: ['Number', 'Customer', 'Due Date', 'Total', 'Balance', 'Status']
@@ -47,6 +57,9 @@ export default class Invoice extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -57,6 +70,12 @@ export default class Invoice extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('line_items') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
+        })
+    }
+
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -71,6 +90,25 @@ export default class Invoice extends Component {
         }, () => console.log('view', this.state.view))
     }
 
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options }, () => console.log('bulk', this.state.bulk))
+    }
+
     updateInvoice (invoices) {
         const cachedData = !this.state.cachedData.length ? invoices : this.state.cachedData
         this.setState({
@@ -80,6 +118,17 @@ export default class Invoice extends Component {
     }
 
     filterInvoices (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -137,6 +186,7 @@ export default class Invoice extends Component {
                 return (
                     <tr key={invoice.id}>
                         <td>
+                            <Input value={invoice.id} type="checkbox" onChange={this.onChangeBulk} />
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>
@@ -149,6 +199,24 @@ export default class Invoice extends Component {
                 <td className="text-center">No Records Found.</td>
             </tr>
         }
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/invoice/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     deleteInvoice (id, archive = true) {
@@ -217,7 +285,7 @@ export default class Invoice extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.updateInvoice}
+                        <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
@@ -227,6 +295,17 @@ export default class Invoice extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -260,8 +339,8 @@ export default class Invoice extends Component {
 
     render () {
         const { invoices, customers, custom_fields, view } = this.state
-        const { status_id, customer_id, searchText } = this.state.filters
-        const fetchUrl = `/api/invoice?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}`
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/invoice?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
         const addButton = this.state.customers.length ? <EditInvoice
             custom_fields={custom_fields}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\Factory\CloneInvoiceFactory;
+use App\Jobs\Invoice\ZipInvoices;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\NotificationFactory;
 use App\Jobs\Invoice\CreateInvoicePdf;
@@ -165,7 +166,8 @@ class InvoiceController extends Controller
     {
         switch ($action) {
             case 'clone_to_invoice':
-                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id);
+                $invoice = CloneInvoiceFactory::create($invoice, auth()->user()->id,
+                    auth()->user()->account_user()->account_id);
                 $this->invoice_repo->save($request->all(), $invoice);
                 return response()->json($invoice);
                 break;
@@ -226,10 +228,11 @@ class InvoiceController extends Controller
         }
     }
 
-    public function downloadPdf($invitation_key) {
+    public function downloadPdf($invitation_key)
+    {
         $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
-        $contact    = $invitation->contact;
-        $invoice    = $invitation->invoice;
+        $contact = $invitation->contact;
+        $invoice = $invitation->invoice;
 
         $file_path = $invoice->service()->getInvoicePdf();
 
@@ -267,17 +270,43 @@ class InvoiceController extends Controller
 
     public function bulk()
     {
+
+        /*
+         * WIP!
+         */
         $action = request()->input('action');
 
         $ids = request()->input('ids');
-        $invoices = Invoice::withTrashed()->whereIn('id', $ids);
+
+        $invoices = Invoice::withTrashed()->whereIn('id', $ids)->get();
+
         if (!$invoices) {
             return response()->json(['message' => 'No Invoices Found']);
         }
+
+
+        if ($action == 'download' && $invoices->count() > 1) {
+
+            /* $invoices->each(function ($invoice) {
+
+                if(auth()->user()->cannot('view', $invoice)){
+                    return response()->json(['message'=>'Insufficient privileges to access invoice '. $invoice->number]);
+                }
+
+            }); */
+
+            ZipInvoices::dispatch($invoices, $invoices->first()->account);
+
+            return response()->json(['message' => 'Email Sent!'], 200);
+        }
+
+
         $invoices->each(function ($invoice, $key) use ($action) {
-//      $this->invoice_repo->{$action}($invoice);
-            $this->performAction($invoice, request(), $action, true);
+            $this->performAction($invoice, $action, true);
         });
-        return response()->json(Invoice::withTrashed()->whereIn('id', $ids));
+
+        /* Need to understand which permission are required for the given bulk action ie. view / edit */
+
+        return $this->response->json(Invoice::withTrashed()->whereIn('id', $ids));
     }
 }

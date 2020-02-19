@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use App\Events\PaymentWasVoided;
 use App\Services\Payment\PaymentService;
 use Illuminate\Database\Eloquent\Model;
 use App\PaymentMethod;
@@ -41,7 +42,6 @@ class Payment extends Model
     protected $casts = [
         //'line_items' => 'object',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'boolean',
     ];
@@ -101,42 +101,65 @@ class Payment extends Model
     }
 
     /**
-     * @return bool
+     * @return mixed
      */
-    public function isRefunded()
+    public function getCompletedAmount() :float
     {
-        return $this->status_id == self::STATUS_REFUNDED;
+        return $this->amount - $this->refunded;
     }
 
-    /**
-     * @return bool
-     */
+    public function recordRefund($amount = null)
+    {
+        //do i need $this->isRefunded() here?
+        if ($this->isVoided()) {
+            return false;
+        }
+
+        //if no refund specified
+        if (! $amount) {
+            $amount = $this->amount;
+        }
+
+        $new_refund = min($this->amount, $this->refunded + $amount);
+        $refund_change = $new_refund - $this->refunded;
+
+        if ($refund_change) {
+            $this->refunded = $new_refund;
+            $this->status_id = $this->refunded == $this->amount ? self::STATUS_REFUNDED : self::STATUS_PARTIALLY_REFUNDED;
+            $this->save();
+
+            event(new PaymentWasRefunded($this, $refund_change));
+        }
+
+        return true;
+    }
+
     public function isVoided()
     {
         return $this->status_id == self::STATUS_VOIDED;
     }
 
-    /**
-     * @return bool
-     */
     public function isPartiallyRefunded()
     {
         return $this->status_id == self::STATUS_PARTIALLY_REFUNDED;
     }
 
-    /**
-     * @return bool
-     */
+    public function isRefunded()
+    {
+        return $this->status_id == self::STATUS_REFUNDED;
+    }
+
     public function markVoided()
     {
         if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {
             return false;
         }
-        //Event::fire(new PaymentWasVoided($this));
+
         $this->refunded = $this->amount;
-        $this->status_id = STATUS_VOIDED;
+        $this->status_id = self::STATUS_VOIDED;
         $this->save();
-        return true;
+
+        event(new PaymentWasVoided($this));
     }
 
     public function markComplete()
@@ -145,6 +168,7 @@ class Payment extends Model
         $this->save();
         //Event::fire(new PaymentCompleted($this));
     }
+
 
     /**
      * @param string $failureMessage

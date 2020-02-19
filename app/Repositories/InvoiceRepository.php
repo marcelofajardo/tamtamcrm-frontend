@@ -105,9 +105,9 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
         $invoice->save();
         if (isset($data['client_contacts'])) {
             foreach ($data['client_contacts'] as $contact) {
-                if ($contact['send_invoice'] == 1) {
+                if ($contact['send_email'] == 1) {
                     $client_contact = ClientContact::find($contact['id']);
-                    $client_contact->send_invoice = true;
+                    $client_contact->send_email = true;
                     $client_contact->save();
                 }
             }
@@ -163,7 +163,6 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
         }
 
-//$invoice = ApplyInvoiceNumber::dispatchNow($invoice, $invoice->customer->getMergedSettings(), $invoice->account);
         $invoice = $invoice->service()->applyNumber()->save();
 
         if (!empty($invoice->line_items) && $invoice->account->update_products !== false) {

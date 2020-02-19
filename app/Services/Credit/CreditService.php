@@ -11,14 +11,13 @@ class CreditService
     public function __construct($credit)
     {
         $this->credit = $credit;
-
     }
 
     public function getCreditPdf($contact)
     {
-        $get_invoice_pdf = new GetCreditPdf();
+        $get_invoice_pdf = new GetCreditPdf($this->credit, $contact);
 
-        return $get_invoice_pdf($this->credit, $contact);
+        return $get_invoice_pdf->run();
     }
 
     /**
@@ -27,18 +26,18 @@ class CreditService
      */
     public function applyNumber()
     {
-        $apply_number = new ApplyNumber($this->credit->customer);
+        $apply_number = new ApplyNumber($this->credit->customer, $this->credit);
 
-        $this->credit = $apply_number($this->credit);
+        $this->credit = $apply_number->run();
 
         return $this;
     }
 
     public function createInvitations()
     {
-        $create_invitation = new CreateInvitations();
+        $create_invitation = new CreateInvitations($this->credit);
 
-        $this->credit = $create_invitation($this->credit);
+        $this->credit = $create_invitation->run();
 
         return $this;
     }

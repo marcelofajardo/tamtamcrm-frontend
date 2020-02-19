@@ -21,6 +21,7 @@ trait InvoiceTransformable
         $prop = new Invoice;
 
         $prop->id = (int)$invoice->id;
+        $prop->created_at = $invoice->created_at;
         $customer = $invoice->customer;
         $prop->user_id = (int)$invoice->user_id;
         $prop->company_id = (int)$invoice->company_id ?: null;
@@ -29,7 +30,7 @@ trait InvoiceTransformable
         $prop->date = $invoice->date ?: '';
         $prop->due_date = $invoice->due_date ?: '';
         $prop->next_send_date = $invoice->date ?: '';
-        $prop->invitations = $this->transformInvitations($invoice->invitations);
+        $prop->invitations = $this->transformInvoiceInvitations($invoice->invitations);
 
 
         $prop->total = $invoice->total;
@@ -56,7 +57,7 @@ trait InvoiceTransformable
      * @param $invitations
      * @return array
      */
-    private function transformInvitations($invitations)
+    private function transformInvoiceInvitations($invitations)
     {
         if (empty($invitations)) {
             return [];

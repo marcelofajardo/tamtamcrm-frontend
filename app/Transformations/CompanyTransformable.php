@@ -19,6 +19,7 @@ trait CompanyTransformable
         $prop->id = (int)$company->id;
         $prop->name = $company->name;
         $prop->website = $company->website;
+        $prop->created_at = $company->created_at;
         $prop->assigned_user_id = (int)$company->assigned_user_id;
         $prop->user_id = (int)$company->user_id;
         $prop->email = $company->email;

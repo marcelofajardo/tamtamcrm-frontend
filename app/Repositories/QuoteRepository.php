@@ -63,9 +63,9 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
 
         if (isset($data['client_contacts'])) {
             foreach ($data['client_contacts'] as $contact) {
-                if ($contact['send_invoice'] == 1) {
+                if ($contact['send_email'] == 1) {
                     $client_contact = ClientContact::find($contact['id']);
-                    $client_contact->send_invoice = true;
+                    $client_contact->send_email = true;
                     $client_contact->save();
                 }
             }
@@ -73,24 +73,32 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
 
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
-            /* Get array of Keyss which have been removed from the invitations array and soft delete each invitation */
+
+            /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             collect($quote->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation) {
-                QuoteInvitation::destroy($invitation);
+                $this->getInvitationByKey($invitation)->delete();
             });
 
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
+
                 if (array_key_exists('key', $invitation)) {
-                    $inv = QuoteInvitation::whereKey($invitation['key'])->first();
+                    // $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
+                    $inv = $this->getInvitationByKey([$invitation['key']])->first();
                 }
 
-                if(!$inv)
-                {
+                if (!$inv) {
+
+                    if (isset($invitation['id'])) {
+                        unset($invitation['id']);
+                    }
+
                     $new_invitation = QuoteInvitationFactory::create($quote->account_id, $quote->user_id);
-                    $new_invitation->fill($invitation);
+                    //$new_invitation->fill($invitation);
                     $new_invitation->quote_id = $quote->id;
                     $new_invitation->client_contact_id = $invitation['client_contact_id'];
                     $new_invitation->save();
+
                 }
             }
         }
@@ -100,13 +108,18 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
             $quote->service()->createInvitations();
         }
 
-        $quote = $quote->calc()->getInvoice();
+        $quote = $quote->calc()->getQuote();
         $quote->save();
         $finished_amount = $quote->total;
         //todo need answers on this
 
         $quote = $quote->service()->applyNumber()->save();
         return $quote->fresh();
+    }
+
+    public function getInvitationByKey($key): QuoteInvitation
+    {
+        return QuoteInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
     }
 
     /**

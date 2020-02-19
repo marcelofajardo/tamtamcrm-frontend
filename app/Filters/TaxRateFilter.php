@@ -48,6 +48,10 @@ class TaxRateFilter extends QueryFilter
             $this->status($request->status);
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
@@ -60,6 +64,13 @@ class TaxRateFilter extends QueryFilter
         }
 
         return $tax_rates;
+    }
+
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('from_date')));
+        $end = date("Y-m-d", strtotime($request->input('to_date') . "+1 day"));
+        $this->query->whereBetween('created_at', [$start, $end]);
     }
 
     public function searchFilter(string $filter = '')

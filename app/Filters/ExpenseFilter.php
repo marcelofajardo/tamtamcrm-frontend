@@ -70,6 +70,10 @@ class ExpenseFilter extends QueryFilter
             $this->query->whereCompanyId($request->company_id);
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
@@ -82,6 +86,13 @@ class ExpenseFilter extends QueryFilter
         }
 
         return $expenses;
+    }
+
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
     }
 
     /**
@@ -101,7 +112,7 @@ class ExpenseFilter extends QueryFilter
     /**
      * Filter based on search text
      *
-     * @param  string query filter
+     * @param string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
      *
@@ -129,7 +140,7 @@ class ExpenseFilter extends QueryFilter
      * Filters the list based on the status
      * archived, active, deleted
      *
-     * @param  string filter
+     * @param string filter
      * @return Illuminate\Database\Query\Builder
      */
     public function status(string $filter = '')
@@ -160,7 +171,7 @@ class ExpenseFilter extends QueryFilter
     /**
      * Sorts the list based on $sort
      *
-     * @param  string sort formatted as column|asc
+     * @param string sort formatted as column|asc
      * @return Illuminate\Database\Query\Builder
      */
     private function orderBy($orderBy, $orderDir)

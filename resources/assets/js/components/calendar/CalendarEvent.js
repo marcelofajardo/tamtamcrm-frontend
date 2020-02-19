@@ -56,7 +56,7 @@ class CalendarEvent extends React.Component {
             users: [],
             errors: [],
             attendees: arrAttendees,
-            changesMade: false,
+            changesMade: false
         }
 
         this.initialState = this.state

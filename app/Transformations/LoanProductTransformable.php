@@ -38,7 +38,7 @@ trait LoanProductTransformable
         $prod->price = $product->price;
         $prod->status = $product->status;
         $prod->company_id = (int)$product->company_id;
-        $prod->brand = $product->brand->name;
+        $prod->brand = $product->company->name;
         $prod->category_ids = $product->categories()->pluck('category_id')->all();
 
         $interest_rate = $attributes->interest_rate;

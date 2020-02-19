@@ -18,6 +18,7 @@ trait GroupSettingTransformable
     {
         $prop = new GroupSetting;
         $prop->id = $group_setting->id;
+        $prop->created_at = $group_setting->created_at;
         $prop->deleted_at = $group_setting->deleted_at;
         $prop->name = (string)$group_setting->name ?: '';
         $prop->settings = $group_setting->settings ?: new \stdClass;

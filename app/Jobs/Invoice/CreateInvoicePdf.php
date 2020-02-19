@@ -3,11 +3,9 @@
 namespace App\Jobs\Invoice;
 
 use App\Designs\Designer;
-use App\Designs\Modern;
-use App\Invoice;
+use App\Traits\Pdf\PdfMaker;
+use App\Design;
 use App\Account;
-use App\Payment;
-use App\Repositories\InvoiceRepository;
 use App\Traits\NumberFormatter;
 use App\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
@@ -15,17 +13,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Browsershot\Browsershot;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 use App\ClientContact;
 
 class CreateInvoicePdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
 
     public $invoice;
 
@@ -40,7 +34,7 @@ class CreateInvoicePdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Invoice $invoice, Account $account, ClientContact $contact = null, $disk = 'public')
+    public function __construct($invoice, Account $account, ClientContact $contact = null)
     {
         $this->invoice = $invoice;
         $this->account = $account;
@@ -60,8 +54,17 @@ class CreateInvoicePdf implements ShouldQueue
 
         $file_path = $path . $this->invoice->number . '.pdf';
 
-        $modern = new Modern();
-        $designer = new Designer($modern, $this->invoice->customer->getSetting('invoice_variables'));
+        $design = Design::find($this->invoice->customer->getSetting('invoice_design_id'));
+
+ 		if($design->is_custom){
+ 			$invoice_design = new Custom($design->design);
+ 		}
+ 		else{
+ 			$class = 'App\Designs\\'.$design->name;
+ 			$invoice_design = new $class();
+ 		}
+
+        $designer = new Designer($invoice_design, $this->invoice->customer->getSetting('pdf_variables'), 'invoice');
 
         //get invoice design
         $html = $this->generateInvoiceHtml($designer->build($this->invoice)->getHtml(), $this->invoice, $this->contact);
@@ -89,11 +92,11 @@ class CreateInvoicePdf implements ShouldQueue
      *
      * @return string        The PDF string
      */
-    private function makePdf($header, $footer, $html)
-    {
-
-        $pdf = App::make('dompdf.wrapper');
-        $pdf->loadHTML($html);
-        return $pdf->stream();
-    }
+//    private function makePdf($header, $footer, $html)
+//    {
+//
+//        $pdf = App::make('dompdf.wrapper');
+//        $pdf->loadHTML($html);
+//        return $pdf->stream();
+//    }
 }

@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import AddCustomer from './AddCustomer'
 import EditCustomer from './EditCustomer'
-import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerTypeDropdown from '../common/CustomerTypeDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
@@ -30,14 +35,20 @@ export default class Customers extends Component {
             customers: [],
             cachedData: [],
             companies: [],
+            bulk: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             filters: {
                 status: 'active',
                 company_id: '',
                 customer_type: '',
                 group_settings_id: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             ignoredColumns: [
+                'created_at',
                 'contacts',
                 'deleted_at',
                 'credit_balance',
@@ -78,6 +89,9 @@ export default class Customers extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -90,6 +104,12 @@ export default class Customers extends Component {
         this.setState({
             customers: customers,
             cachedData: cachedData
+        })
+    }
+
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -108,6 +128,43 @@ export default class Customers extends Component {
             })
             .catch((e) => {
                 console.error(e)
+            })
+    }
+
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(+e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk () {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/customer/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
             })
     }
 
@@ -131,6 +188,17 @@ export default class Customers extends Component {
     }
 
     filterCustomers (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -158,64 +226,73 @@ export default class Customers extends Component {
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.customers[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
         return (
-            <React.Fragment>
-                <Row form>
-                    <Col md={2}>
-                        <TableSearch onChange={this.filterCustomers}/>
-                    </Col>
+            <Row form>
+                <Col md={2}>
+                    <TableSearch onChange={this.filterCustomers}/>
+                </Col>
 
-                    <Col md={2}>
-                        <FormGroup>
-                            <Input type='select'
-                                onChange={this.filterCustomers}
-                                name="status"
-                                id="status"
-                            >
-                                <option value="">Select Status</option>
-                                <option value='active'>Active</option>
-                                <option value='archived'>Archived</option>
-                                <option value='deleted'>Deleted</option>
-                            </Input>
-                        </FormGroup>
-                    </Col>
+                <Col md={2}>
+                    <FormGroup>
+                        <Input type='select'
+                            onChange={this.filterCustomers}
+                            name="status"
+                            id="status"
+                        >
+                            <option value="">Select Status</option>
+                            <option value='active'>Active</option>
+                            <option value='archived'>Archived</option>
+                            <option value='deleted'>Deleted</option>
+                        </Input>
+                    </FormGroup>
+                </Col>
 
-                    <Col md={3}>
-                        <CompanyDropdown
-                            company_id={this.state.filters.company_id}
-                            renderErrorFor={this.renderErrorFor}
-                            handleInputChanges={this.filterCustomers}
-                        />
-                    </Col>
+                <Col md={3}>
+                    <CompanyDropdown
+                        company_id={this.state.filters.company_id}
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterCustomers}
+                    />
+                </Col>
 
-                    <Col md={3}>
-                        <CustomerGroupDropdown
-                            customer_group={this.state.filters.group_settings_id}
-                            renderErrorFor={this.renderErrorFor}
-                            handleInputChanges={this.filterCustomers}
-                        />
-                    </Col>
+                <Col md={3}>
+                    <CustomerGroupDropdown
+                        customer_group={this.state.filters.group_settings_id}
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterCustomers}
+                    />
+                </Col>
 
-                    <Col md={3}>
-                        <CustomerTypeDropdown
-                            renderErrorFor={this.renderErrorFor}
-                            handleInputChanges={this.filterCustomers}
-                        />
-                    </Col>
+                <Col md={3}>
+                    <CustomerTypeDropdown
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterCustomers}
+                    />
+                </Col>
 
-                    <Col md={2}>
-                        <FormGroup>
-                            <DateFilter update={this.updateCustomers}
-                                data={this.state.cachedData}/>
-                        </FormGroup>
-                    </Col>
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterCustomers} update={this.updateCustomers}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
 
-                    <Col md={9}>
-                        <FormGroup>
-                            {columnFilter}
-                        </FormGroup>
-                    </Col>
-                </Row>
-            </React.Fragment>
+                <Col md={9}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
+                </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                            Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
+            </Row>
         )
     }
 
@@ -259,6 +336,7 @@ export default class Customers extends Component {
                 return (
                     <tr key={customer.id}>
                         <td>
+                            <Input value={customer.id} type="checkbox" onChange={this.onChangeBulk} />
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>
@@ -284,9 +362,9 @@ export default class Customers extends Component {
     }
 
     render () {
-        const { searchText, status, company_id, customer_type, group_settings_id } = this.state.filters
+        const { searchText, status, company_id, customer_type, group_settings_id, start_date, end_date } = this.state.filters
         const { custom_fields, customers, companies, error, view } = this.state
-        const fetchUrl = `/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&customer_type=${customer_type}&group_settings_id=${group_settings_id}`
+        const fetchUrl = `/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&customer_type=${customer_type}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = companies.length ? <AddCustomer
             custom_fields={custom_fields}

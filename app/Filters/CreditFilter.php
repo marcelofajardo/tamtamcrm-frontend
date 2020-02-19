@@ -52,6 +52,10 @@ class CreditFilter extends QueryFilter
             $this->query->whereCustomerId($request->customer_id);
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
@@ -64,6 +68,13 @@ class CreditFilter extends QueryFilter
         }
 
         return $companies;
+    }
+
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
     }
 
     public function searchFilter(string $filter = '')
@@ -150,7 +161,7 @@ class CreditFilter extends QueryFilter
             $this->query->where('status_id', Credit::STAUTS_PARTIAL);
         }
 
-        if(in_array('applied', $status_parameters)) {
+        if (in_array('applied', $status_parameters)) {
             $this->query->where('status_id', Credit::STATUS_APPLIED);
         }
     }

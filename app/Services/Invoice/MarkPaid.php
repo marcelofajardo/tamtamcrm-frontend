@@ -9,40 +9,43 @@ use App\Jobs\Customer\UpdateCustomerPaidToDate;
 use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Invoice;
 use App\Payment;
+use App\Services\AbstractService;
 use App\Services\Customer\CustomerService;
 use App\Services\Payment\PaymentService;
 
-class MarkPaid
+class MarkPaid extends AbstractService
 {
     private $customer_service;
+    private $invoice;
 
-    public function __construct($customer_service)
+    public function __construct($customer_service, $invoice)
     {
         $this->customer_service = $customer_service;
+        $this->invoice = $invoice;
     }
 
-    public function run($invoice)
+    public function run()
     {
 
-        if ($invoice->status_id == Invoice::STATUS_DRAFT) {
-            $invoice->service()->markSent();
+        if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
+            $this->invoice->service()->markSent();
         }
 
         /* Create Payment */
-        $payment = PaymentFactory::create($invoice->customer_id, $invoice->user_id, $invoice->account_id);
+        $payment = PaymentFactory::create($this->invoice->customer_id, $this->invoice->user_id, $this->invoice->account_id);
 
-        $payment->amount = $invoice->balance;
+        $payment->amount = $this->invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->customer_id = $invoice->customer_id;
+        $payment->customer_id = $this->invoice->customer_id;
         $payment->transaction_reference = 'manual entry';
         /* Create a payment relationship to the invoice entity */
         $payment->save();
 
-        $payment->invoices()->attach($invoice->id, [
+        $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount
         ]);
 
-        $invoice->service()
+        $this->invoice->service()
             ->updateBalance($payment->amount * -1)
             ->setStatus(Invoice::STATUS_PAID)
             ->save();
@@ -57,7 +60,7 @@ class MarkPaid
             ->updatePaidToDate($payment->amount)
             ->save();
 
-        return $invoice;
+        return $this->invoice;
     }
 
 }

@@ -10,13 +10,17 @@ namespace App\Helpers\Email;
 
 
 use App\Quote;
+use App\QuoteInvitation;
 
 class QuoteEmail extends EmailBuilder
 {
 
-    public function build(Quote $quote, $reminder_template, $contact = null)
+    public function build(QuoteInvitation $invitation, $reminder_template, $contact = null)
     {
-        $client = $quote->customer;
+        $client = $invitation->customer;
+        $quote = $invitation->quote;
+        $contact = $invitation->contact;
+
         $this->template_style = $quote->customer->getSetting('email_style');
 
         $body_template = $client->getSetting('email_template_' . $reminder_template);
@@ -44,7 +48,7 @@ class QuoteEmail extends EmailBuilder
 
         $this->setTemplate($quote->customer->getSetting('email_style'))
             ->setContact($contact)
-            ->setFooter("<a href='{$quote->invitations->first()->getLink()}'>Invoice Link</a>")
+            ->setFooter("<a href='{$invitation->getLink()}'>Quote Link</a>")
             ->setVariables($quote->makeValues($contact))
             ->setSubject($subject_template)
             ->setBody($body_template);

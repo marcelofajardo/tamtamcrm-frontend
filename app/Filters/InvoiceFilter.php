@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Repositories\InvoiceRepository;
@@ -49,6 +50,10 @@ class InvoiceFilter extends QueryFilter
             $this->query->whereCustomerId($request->customer_id);
         }
 
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
+
         $this->addAccount($account_id);
 
         $this->orderBy($orderBy, $orderDir);
@@ -63,10 +68,18 @@ class InvoiceFilter extends QueryFilter
         return $invoices;
     }
 
+    private function filterDates($request)
+    {
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
+
+    }
+
     /**
      * Filter based on search text
      *
-     * @param  string query filter
+     * @param string query filter
      * @return Illuminate\Database\Query\Builder
      * @deprecated
      *

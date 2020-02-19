@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use App\Payment;
@@ -44,9 +45,13 @@ class PaymentFilter extends QueryFilter
             $this->query->whereCustomerId($request->customer_id);
         }
 
-            if ($request->filled('search_term')) {
-                    $this->query = $this->searchFilter($request->search_term);
-                }
+        if ($request->filled('search_term')) {
+            $this->query = $this->searchFilter($request->search_term);
+        }
+
+        if ($request->input('start_date') <> '' && $request->input('end_date') <> '') {
+            $this->filterDates($request);
+        }
 
         $this->addAccount($account_id);
 
@@ -61,69 +66,81 @@ class PaymentFilter extends QueryFilter
         return $payments;
     }
 
-    /**
-     * Filter based on search text
-     *
-     * @param  string query filter
-     * @return Illuminate\Database\Query\Builder
-     * @deprecated
-     *
-     */
-    public function searchFilter(string $filter = '')
+    private function filterDates($request)
     {
-        if (strlen($filter) == 0) {
-            return $this->query;
-        }
-        return $this->query->where(function ($query) use ($filter) {
-            $query->where('payments.amount', 'like', '%' . $filter . '%')
-                ->orWhere('payments.date', 'like', '%' . $filter . '%')
-                ->orWhere('payments.custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('payments.custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('payments.custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('payments.custom_value4', 'like', '%' . $filter . '%');
+        $start = date("Y-m-d", strtotime($request->input('start_date')));
+        $end = date("Y-m-d", strtotime($request->input('end_date')));
+        $this->query->whereBetween('created_at', [$start, $end]);
+}
+
+/**
+ * Filter based on search text
+ *
+ * @param string query filter
+ * @return Illuminate\Database\Query\Builder
+ * @deprecated
+ *
+ */
+public
+function searchFilter(string $filter = '')
+{
+    if (strlen($filter) == 0) {
+        return $this->query;
+    }
+    return $this->query->where(function ($query) use ($filter) {
+        $query->where('payments.amount', 'like', '%' . $filter . '%')
+            ->orWhere('payments.date', 'like', '%' . $filter . '%')
+            ->orWhere('payments.custom_value1', 'like', '%' . $filter . '%')
+            ->orWhere('payments.custom_value2', 'like', '%' . $filter . '%')
+            ->orWhere('payments.custom_value3', 'like', '%' . $filter . '%')
+            ->orWhere('payments.custom_value4', 'like', '%' . $filter . '%');
+    });
+}
+
+private
+function orderBy($orderBy, $orderDir)
+{
+    $this->query->orderBy($orderBy, $orderDir);
+}
+
+private
+function addAccount(int $account_id)
+{
+    $this->query->where('account_id', '=', $account_id);
+}
+
+private
+function transformList()
+{
+    $list = $this->query->get();
+    $payments = $list->map(function (Payment $payment) {
+        return $this->transformPayment($payment);
+    })->all();
+
+    return $payments;
+}
+
+private
+function filterStatus($filter)
+{
+    $filters = explode(',', $filter);
+    $table = 'payments';
+    $this->query->whereNull($table . '.id');
+
+    if (in_array(parent::STATUS_ACTIVE, $filters)) {
+        $this->query->orWhereNull($table . '.deleted_at');
+    }
+    if (in_array(parent::STATUS_ARCHIVED, $filters)) {
+
+        $this->query->orWhere(function ($query) use ($table) {
+            $query->whereNotNull($table . '.deleted_at');
         });
+
+        $this->query->withTrashed();
     }
-
-    private function orderBy($orderBy, $orderDir)
-    {
-        $this->query->orderBy($orderBy, $orderDir);
+    if (in_array(parent::STATUS_DELETED, $filters)) {
+        $this->query->orWhere($table . '.is_deleted', '=', 1)->withTrashed();
     }
-
-    private function addAccount(int $account_id)
-    {
-        $this->query->where('account_id', '=', $account_id);
-    }
-
-    private function transformList()
-    {
-        $list = $this->query->get();
-        $payments = $list->map(function (Payment $payment) {
-            return $this->transformPayment($payment);
-        })->all();
-
-        return $payments;
-    }
-
-    private function filterStatus($filter)
-    {
-        $filters = explode(',', $filter);
-        $table = 'payments';
-        $this->query->whereNull($table . '.id');
-
-        if (in_array(parent::STATUS_ACTIVE, $filters)) {
-            $this->query->orWhereNull($table . '.deleted_at');
-        }
-        if (in_array(parent::STATUS_ARCHIVED, $filters)) {
-
-            $this->query->orWhere(function ($query) use ($table) {
-                $query->whereNotNull($table . '.deleted_at');
-            });
-
-            $this->query->withTrashed();
-        }
-        if (in_array(parent::STATUS_DELETED, $filters)) {
-            $this->query->orWhere($table . '.is_deleted', '=', 1)->withTrashed();
-        }
-    }
+}
 
 }

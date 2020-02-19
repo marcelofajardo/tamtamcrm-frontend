@@ -5,7 +5,12 @@ import AddExpense from './AddExpense'
 import EditExpense from './EditExpense'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
-import { Card, CardBody, FormGroup, Input, Row, Col } from 'reactstrap'
+import {
+    Card, CardBody, FormGroup, Input, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
@@ -28,11 +33,16 @@ export default class Expenses extends Component {
             },
             expenses: [],
             cachedData: [],
+            bulk: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             filters: {
                 status_id: 'active',
                 searchText: '',
                 customer_id: '',
-                company_id: ''
+                company_id: '',
+                start_date: '',
+                end_date: ''
             },
             ignoredColumns:
                 [
@@ -53,6 +63,7 @@ export default class Expenses extends Component {
                     'invoice_documents',
                     'notes',
                     'archived_at',
+                    'created_at',
                     'updated_at',
                     'is_deleted',
                     'payment_type_id',
@@ -79,6 +90,9 @@ export default class Expenses extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -89,6 +103,12 @@ export default class Expenses extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
+        })
+    }
+
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -104,6 +124,17 @@ export default class Expenses extends Component {
     }
 
     filterExpenses (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -124,6 +155,43 @@ export default class Expenses extends Component {
         }))
 
         return true
+    }
+
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/expense/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     getFilters () {
@@ -171,7 +239,7 @@ export default class Expenses extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.updateExpenses}
+                        <DateFilter onChange={this.filterExpenses} update={this.updateExpenses}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
@@ -181,6 +249,17 @@ export default class Expenses extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -236,6 +315,7 @@ export default class Expenses extends Component {
                 return (
                     <tr key={expense.id}>
                         <td>
+                            <Input value={expense.id} type="checkbox" onChange={this.onChangeBulk} />
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>
@@ -286,8 +366,8 @@ export default class Expenses extends Component {
 
     render () {
         const { expenses, customers, custom_fields, view } = this.state
-        const { searchText, status_id, customer_id, company_id } = this.state.filters
-        const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}`
+        const { searchText, status_id, customer_id, company_id, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <AddExpense
             custom_fields={custom_fields}

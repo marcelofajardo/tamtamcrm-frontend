@@ -28,7 +28,6 @@ class Project extends Model
 
     protected $casts = [
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
     ];
 
     /**

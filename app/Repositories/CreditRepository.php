@@ -77,7 +77,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
          * credit note
          */
 
-        $credit = $credit->calc()->getInvoice();
+        $credit = $credit->calc()->getCredit();
         $credit->save();
 
         $credit = $credit->service()->applyNumber()->save();

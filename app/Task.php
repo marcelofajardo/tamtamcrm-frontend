@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Services\Task\TaskService;
 use Illuminate\Database\Eloquent\Model;
 use App\Project;
 use App\Product;
@@ -16,6 +17,8 @@ class Task extends Model
 {
 
     use SoftDeletes;
+
+    const TASK_TYPE_DEAL = 3;
 
     protected $fillable = [
         'title',
@@ -41,7 +44,6 @@ class Task extends Model
 
     protected $casts = [
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
     ];
 
     public function projects()
@@ -132,6 +134,11 @@ class Task extends Model
     public function getDuration($startTimeCutoff = 0, $endTimeCutoff = 0)
     {
         return self::calcDuration($this, $startTimeCutoff, $endTimeCutoff);
+    }
+
+    public function service(): TaskService
+    {
+        return new TaskService($this);
     }
 
     /**

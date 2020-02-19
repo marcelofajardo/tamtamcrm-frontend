@@ -41,18 +41,18 @@ class InvoiceService
      */
     public function markPaid()
     {
-        $mark_invoice_paid = new MarkPaid($this->customer_service);
+        $mark_invoice_paid = new MarkPaid($this->customer_service, $this->invoice);
 
-        $this->invoice = $mark_invoice_paid->run($this->invoice);
+        $this->invoice = $mark_invoice_paid->run();
 
         return $this;
     }
 
     public function getInvoicePdf($contact)
      {
-         $get_invoice_pdf = new GetInvoicePdf();
+         $get_invoice_pdf = new GetInvoicePdf($this->invoice, $contact);
 
-         return $get_invoice_pdf($this->invoice, $contact);
+         return $get_invoice_pdf->run();
      }
 
     /**
@@ -61,9 +61,9 @@ class InvoiceService
      */
     public function applyNumber()
     {
-        $apply_number = new ApplyNumber($this->invoice->customer);
+        $apply_number = new ApplyNumber($this->invoice->customer, $this->invoice);
 
-        $this->invoice = $apply_number->run($this->invoice);
+        $this->invoice = $apply_number->run();
 
         return $this;
     }
@@ -76,18 +76,18 @@ class InvoiceService
       */
     public function applyPayment(Payment $payment, float $payment_amount)
      {
-         $apply_payment = new ApplyPayment($this->invoice);
+         $apply_payment = new ApplyPayment($this->invoice, $payment, $payment_amount);
 
-         $this->invoice = $apply_payment->run($payment, $payment_amount);
+         $this->invoice = $apply_payment->run();
 
          return $this;
      }
 
     public function createInvitations()
     {
-        $create_invitation = new CreateInvitations();
+        $create_invitation = new CreateInvitations($this->invoice);
 
-        $this->invoice = $create_invitation->run($this->invoice);
+        $this->invoice = $create_invitation->run();
 
         return $this;
     }
@@ -101,18 +101,18 @@ class InvoiceService
       */
      public function updateBalance($balance_adjustment)
      {
-         $update_balance = new UpdateBalance($this->invoice);
+         $update_balance = new UpdateBalance($this->invoice, $balance_adjustment);
 
-         $this->invoice = $update_balance->run($balance_adjustment);
+         $this->invoice = $update_balance->run();
 
          return $this;
      }
 
      public function markSent()
      {
-         $mark_sent = new MarkSent($this->invoice->customer);
+         $mark_sent = new MarkSent($this->invoice->customer, $this->invoice);
 
-         $this->invoice = $mark_sent->run($this->invoice);
+         $this->invoice = $mark_sent->run();
 
          return $this;
      }
@@ -149,9 +149,9 @@ class InvoiceService
 
     public function sendEmail($contact = null)
     {
-        $send_email = new SendEmail($this->invoice);
+        $send_email = new SendEmail($this->invoice, null, $contact);
 
-        return $send_email->run(null, $contact);
+        return $send_email->run();
     }
 
     /**

@@ -5,7 +5,18 @@ import AddCompany from './AddCompany'
 import DataTable from '../common/DataTable'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
-import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
+import {
+    FormGroup,
+    Input,
+    Card,
+    CardBody,
+    Row,
+    Col,
+    ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
 import TableSearch from '../common/TableSearch'
@@ -21,8 +32,11 @@ export default class Companies extends Component {
         this.state = {
             users: [],
             brands: [],
+            bulk: [],
             cachedData: [],
             errors: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             error: '',
             view: {
                 viewMode: false,
@@ -31,12 +45,15 @@ export default class Companies extends Component {
             },
             filters: {
                 status_id: 'active',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             custom_fields: [],
             ignoredColumns: [
                 'contacts',
                 'deleted_at',
+                'created_at',
                 'address_1',
                 'company_logo',
                 'address_2',
@@ -61,6 +78,9 @@ export default class Companies extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -85,13 +105,65 @@ export default class Companies extends Component {
         }, () => console.log('view', this.state.view))
     }
 
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
+        })
+    }
+
     addUserToState (brands) {
         this.setState({ brands: brands })
     }
 
-    v
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/company/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
+    }
 
     filterCompanies (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.name
         const value = event.target.value
 
@@ -145,10 +217,21 @@ export default class Companies extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter update={this.addUserToState}
+                        <DateFilter onChange={this.filterCompanies} update={this.addUserToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
             </Row>
         )
     }
@@ -180,6 +263,7 @@ export default class Companies extends Component {
                 })
                 return <tr key={brand.id}>
                     <td>
+                        <Input value={brand.id} type="checkbox" onChange={this.onChangeBulk}/>
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>
@@ -246,8 +330,8 @@ export default class Companies extends Component {
 
     render () {
         const { custom_fields, users, error, view } = this.state
-        const { searchText, status_id } = this.state.filters
-        const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}`
+        const { searchText, status_id, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date} `
         const filters = this.getFilters()
         const addButton = users.length
             ? <AddCompany users={users} action={this.addUserToState}

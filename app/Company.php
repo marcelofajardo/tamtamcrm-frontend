@@ -47,7 +47,6 @@ class Company extends Model
         'settings' => 'object',
         'is_deleted' => 'boolean',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
 

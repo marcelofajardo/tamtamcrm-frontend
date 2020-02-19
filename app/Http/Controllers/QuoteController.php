@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\CloneInvoiceFactory;
 use App\Factory\CloneQuoteFactory;
 use App\Factory\NotificationFactory;
 use App\Jobs\Order\QuoteOrders;
@@ -13,6 +14,7 @@ use App\Repositories\TaskRepository;
 use App\Requests\Quote\CreateQuoteRequest;
 use App\Requests\SearchRequest;
 use App\Task;
+use App\Transformations\InvoiceTransformable;
 use Carbon\Carbon;
 use App\Factory\QuoteFactory;
 use App\Transformations\QuoteTransformable;
@@ -39,7 +41,8 @@ class QuoteController extends Controller
 {
 
     use QuoteTransformable,
-        CheckEntityStatus;
+        CheckEntityStatus,
+        InvoiceTransformable;
 
     /**
      * @var InvoiceRepositoryInterface
@@ -132,18 +135,17 @@ class QuoteController extends Controller
      */
     public function action(Request $request, Quote $quote, $action)
     {
-
         switch ($action) {
             case 'clone_to_invoice':
-                $this->invoice_repo->save($request->all(),
-                    CloneQuoteToInvoiceFactory::create($this->quote_repo->findQuoteById($quote->id),
+                $invoice = $this->invoice_repo->save($request->all(),
+                    CloneInvoiceFactory::create($this->quote_repo->findQuoteById($quote->id),
                         auth()->user()->id, auth()->user()->account_user()->account_id));
-                return response()->json($quote);
+                return response()->json($this->transformInvoice($invoice));
                 break;
             case 'clone_to_quote':
                 $quote = CloneQuoteFactory::create($quote, auth()->user()->id);
                 $this->quote_repo->save($request->all(), $quote);
-                return response()->json($quote);
+                return response()->json($this->transformQuote($quote));
                 break;
             case 'history':
                 # code...
@@ -156,9 +158,9 @@ class QuoteController extends Controller
                 return response()->json($quote);
                 break;
             case
-                'mark_approved':
-               $quote = $quote->service()->markApproved($this->invoice_repo);
-               return response()->json($quote);
+            'mark_approved':
+                $quote = $quote->service()->markApproved($this->invoice_repo);
+                return response()->json($quote);
                 break;
             case 'download':
                 return response()->download(public_path($quote->pdf_file_path()));
@@ -178,7 +180,6 @@ class QuoteController extends Controller
             default:
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
-
         }
     }
 

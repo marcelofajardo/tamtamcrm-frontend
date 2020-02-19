@@ -30,7 +30,6 @@ class Credit extends Model
     protected $casts = [
         'line_items' => 'object',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
 
@@ -94,6 +93,11 @@ class Credit extends Model
     public function invoices()
     {
          return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
+    }
+
+    public function company_ledger()
+    {
+        return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
      /**

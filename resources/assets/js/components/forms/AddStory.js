@@ -125,7 +125,7 @@ class AddStory extends React.Component {
                     notes: '',
                     due_date: null,
                     assigned_user_id: null,
-                    budgeted_hours: null,
+                    budgeted_hours: null
                 }, () => localStorage.removeItem('projectForm'))
             }
         })

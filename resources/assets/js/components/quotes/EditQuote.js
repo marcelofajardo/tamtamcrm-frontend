@@ -587,9 +587,8 @@ class EditInvoice extends Component {
             ? <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
                     Email</DropdownItem> : null
 
-        const downloadButton = this.state.status_id === 1
-            ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('download')}>Download</DropdownItem> : null
+        const downloadButton = <DropdownItem className="primary"
+                onClick={() => this.changeStatus('download')}>Download</DropdownItem>
 
         const cloneInvoiceButton = <DropdownItem className="primary"
             onClick={() => this.changeStatus('clone_to_invoice').bind(this)}>Convert

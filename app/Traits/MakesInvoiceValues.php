@@ -37,6 +37,9 @@ trait MakesInvoiceValues
      * @var array
      */
     private static $labels = [
+        'credit_balance',
+        'credit_amount',
+        'quote_total',
         'date',
         'due_date',
         'invoice_number',
@@ -228,6 +231,18 @@ trait MakesInvoiceValues
         $data['$total_tax_values'] = $this->totalTaxValues();
         $data['$line_tax_labels'] = $this->lineTaxLabels();
         $data['$line_tax_values'] = $this->lineTaxValues();
+
+        $data['$quote_date'] = &$data['$date'];
+        $data['$quote_number'] = &$data['$number'];
+        $data['$quote_no'] = &$data['$quote_number'];
+        $data['$quote.quote_no'] = &$data['$quote_number'];
+        $data['$valid_until'] = $this->due_date;
+        $data['$quote_total'] = &$data['$total'];
+
+
+        $data['$credit_amount'] =  &$data['$total'];
+        $data['$credit_balance'] =  &$data['$balance'];
+        $data['$credit.amount'] = &$data['$total'];
 
         $data['$date'] = $this->date ?: '&nbsp;';
         $data['$invoice.date'] = &$data['$date'];
@@ -591,8 +606,12 @@ trait MakesInvoiceValues
      */
     private
     function transformLineItems(
-        array $items
+        $items
     ): array {
+        if(!is_array($items)) {
+            return [];
+        }
+
         foreach ($items as $item) {
             $item->cost = Number::formatMoney($item->sub_total, $this->customer);
             $item->line_total = Number::formatMoney($item->sub_total, $this->customer);

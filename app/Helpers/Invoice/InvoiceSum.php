@@ -194,8 +194,25 @@ class InvoiceSum
 
     public function getInvoice()
     {
+        //Build invoice values here and return Invoice
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
 
-        //$this->invoice->save();
+        return $this->invoice;
+    }
+
+    public function getQuote()
+    {
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
+
+        return $this->invoice;
+    }
+
+    public function getCredit()
+    {
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
 
         return $this->invoice;
     }

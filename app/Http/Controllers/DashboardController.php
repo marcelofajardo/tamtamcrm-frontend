@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Expense;
+use App\Invoice;
+use App\Payment;
+use App\Quote;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
 use App\Repositories\Interfaces\CustomerRepositoryInterface;
 use App\Transformations\TaskTransformable;
@@ -58,7 +62,12 @@ class DashboardController extends Controller
             'leadsToday' => number_format($leadsToday, 2),
             'newDeals' => number_format($newDeals, 2),
             'newCustomers' => number_format($customersToday, 2),
-            'deals' => $tasks
+            'deals' => $tasks,
+            'invoices' => Invoice::all()->where('account_id', auth()->user()->account_user()->account_id),
+            'quotes' => Quote::all()->where('account_id', auth()->user()->account_user()->account_id),
+            'payments' => Payment::all()->where('account_id', auth()->user()->account_user()->account_id),
+            'expenses' => Expense::all()->where('account_id', auth()->user()->account_user()->account_id),
+            'tasks' => Task::all()->where('account_id', auth()->user()->account_user()->account_id),
         ];
 
         return response()->json($arrOutput);

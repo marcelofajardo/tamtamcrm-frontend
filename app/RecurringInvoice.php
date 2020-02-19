@@ -76,7 +76,6 @@ class RecurringInvoice extends Model
         'settings' => 'object',
         'line_items' => 'object',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
 //    protected $appends = [

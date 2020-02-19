@@ -6,6 +6,10 @@ namespace App;
 
  class Design extends Model
  {
+     protected $casts = [
+         'design' => 'object'
+     ];
+
 
      public function account()
      {

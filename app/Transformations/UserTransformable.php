@@ -35,6 +35,7 @@ trait UserTransformable
         $prop->custom_value3 = $user->custom_value3 ?: '';
         $prop->custom_value4 = $user->custom_value4 ?: '';
         $prop->deleted_at = $user->deleted_at;
+        $prop->created_at = $user->created_at;
 
         if ($user->departments->count() > 0) {
             $objDepartment = $user->departments->first();

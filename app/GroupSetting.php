@@ -16,7 +16,6 @@ class GroupSetting extends Model
     protected $casts = [
         'settings' => 'object',
         'updated_at' => 'timestamp',
-        'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
     protected $fillable = [

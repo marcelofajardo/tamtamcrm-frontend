@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import EditUser from './EditUser'
 import AddUser from './AddUser'
-import { FormGroup, Input, Card, CardBody, Row, Col } from 'reactstrap'
+import {
+    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
+} from 'reactstrap'
 import DataTable from '../common/DataTable'
 import DepartmentDropdown from '../common/DepartmentDropdown'
 import RoleDropdown from '../common/RoleDropdown'
@@ -24,6 +29,9 @@ export default class UserList extends Component {
             cachedData: [],
             departments: [],
             custom_fields: [],
+            bulk: [],
+            dropdownButtonActions: ['download'],
+            dropdownButtonOpen: false,
             error: '',
             view: {
                 viewMode: false,
@@ -31,6 +39,8 @@ export default class UserList extends Component {
                 title: null
             },
             filters: {
+                start_date: '',
+                end_date: '',
                 status: 'active',
                 role_id: '',
                 department_id: '',
@@ -47,7 +57,8 @@ export default class UserList extends Component {
                 'custom_value2',
                 'custom_value3',
                 'custom_value4',
-                'deleted_at'
+                'deleted_at',
+                'created_at'
             ],
             showRestoreButton: false
         }
@@ -60,6 +71,9 @@ export default class UserList extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -70,6 +84,12 @@ export default class UserList extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
+        })
+    }
+
+    toggleDropdownButton (event) {
+        this.setState({
+            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -84,7 +104,55 @@ export default class UserList extends Component {
         }, () => console.log('view', this.state.view))
     }
 
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
+    }
+
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post('/api/user/bulk', { bulk: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
+    }
+
     filterUsers (event) {
+        if ('start_date' in event) {
+            this.setState(prevState => ({
+                filters: {
+                    ...prevState.filters,
+                    start_date: event.start_date,
+                    end_date: event.end_date
+                }
+            }))
+            return
+        }
+
         const column = event.target.id
         const value = event.target.value
 
@@ -117,58 +185,67 @@ export default class UserList extends Component {
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.users[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
         return (
-            <React.Fragment>
-                <Row form>
-                    <Col md={3}>
-                        <TableSearch onChange={this.filterUsers}/>
-                    </Col>
+            <Row form>
+                <Col md={3}>
+                    <TableSearch onChange={this.filterUsers}/>
+                </Col>
 
-                    <Col md={3}>
-                        <DepartmentDropdown
-                            name="department_id"
-                            renderErrorFor={this.renderErrorFor}
-                            handleInputChanges={this.filterUsers}
-                            departments={departments}
-                        />
-                    </Col>
+                <Col md={3}>
+                    <DepartmentDropdown
+                        name="department_id"
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterUsers}
+                        departments={departments}
+                    />
+                </Col>
 
-                    <Col md={2}>
-                        <RoleDropdown
-                            name="role_id"
-                            renderErrorFor={this.renderErrorFor}
-                            handleInputChanges={this.filterUsers}
-                        />
-                    </Col>
+                <Col md={2}>
+                    <RoleDropdown
+                        name="role_id"
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.filterUsers}
+                    />
+                </Col>
 
-                    <Col md={2}>
-                        <FormGroup>
-                            <Input type='select'
-                                onChange={this.filterUsers}
-                                name="status"
-                                id="status"
-                            >
-                                <option value="">Select Status</option>
-                                <option value='active'>Active</option>
-                                <option value='archived'>Archived</option>
-                                <option value='deleted'>Deleted</option>
-                            </Input>
-                        </FormGroup>
-                    </Col>
+                <Col md={2}>
+                    <FormGroup>
+                        <Input type='select'
+                            onChange={this.filterUsers}
+                            name="status"
+                            id="status"
+                        >
+                            <option value="">Select Status</option>
+                            <option value='active'>Active</option>
+                            <option value='archived'>Archived</option>
+                            <option value='deleted'>Deleted</option>
+                        </Input>
+                    </FormGroup>
+                </Col>
 
-                    <Col md={2}>
-                        <FormGroup>
-                            <DateFilter update={this.addUserToState}
-                                data={this.state.cachedData}/>
-                        </FormGroup>
-                    </Col>
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterUsers} update={this.addUserToState}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
 
-                    <Col md={8}>
-                        <FormGroup>
-                            {columnFilter}
-                        </FormGroup>
-                    </Col>
-                </Row>
-            </React.Fragment>
+                <Col md={8}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
+                </Col>
+
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                            Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
+            </Row>
         )
     }
 
@@ -233,6 +310,7 @@ export default class UserList extends Component {
 
                 return <tr key={user.id}>
                     <td>
+                        <Input value={user.id} type="checkbox" onChange={this.onChangeBulk} />
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>
@@ -267,8 +345,8 @@ export default class UserList extends Component {
 
     render () {
         const { users, departments, custom_fields, error, view } = this.state
-        const { status, role_id, department_id, searchText } = this.state.filters
-        const fetchUrl = `/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}`
+        const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = departments.length ? <AddUser custom_fields={custom_fields} departments={departments}
             users={users}
