@@ -7,6 +7,7 @@ use App\RecurringInvoice;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\RecurringInvoiceTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RecurringInvoiceFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class RecurringInvoiceFilter extends QueryFilter
 
     /**
      * @param SearchRequest $request
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -92,9 +93,9 @@ class RecurringInvoiceFilter extends QueryFilter
         }
         return $this->query->where(function ($query) use ($filter) {
             $query->where('recurring_invoices.custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('recurring_invoices.custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('recurring_invoices.custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('recurring_invoices.custom_value4', 'like', '%' . $filter . '%');
+                  ->orWhere('recurring_invoices.custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('recurring_invoices.custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('recurring_invoices.custom_value4', 'like', '%' . $filter . '%');
         });
     }
 
@@ -135,9 +136,10 @@ class RecurringInvoiceFilter extends QueryFilter
             //->orWhere('partial_due_date', '>', Carbon::now());
         }
         if (in_array('overdue', $status_parameters)) {
-            $this->query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where('due_date', '<', Carbon::now())
-                ->orWhere('partial_due_date', '<', Carbon::now());
+            $this->query->whereIn('status_id', [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL
+            ])->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
         }
 
         $table = 'recurring_invoices';

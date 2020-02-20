@@ -245,9 +245,19 @@ class Dashboard extends Component {
         this.getChartData = this.getChartData.bind(this)
         this.doExport = this.doExport.bind(this)
         this.setDates = this.setDates.bind(this)
+        this.onRadioBtnClick = this.onRadioBtnClick.bind(this)
+        this.fetchData = this.fetchData.bind(this)
     }
 
     componentDidMount () {
+        this.fetchData()
+
+        window.setInterval(() => {
+            this.fetchData()
+        }, 5000)
+    }
+
+    fetchData () {
         axios.get('/api/dashboard')
             .then((r) => {
                 if (r.data) {
@@ -287,13 +297,13 @@ class Dashboard extends Component {
             currentMoment = moment(this.state.start_date)
         }
 
-        if(this.state.end_date !== null) {
+        if (this.state.end_date !== null) {
             endMoment = moment(this.state.end_date)
         }
 
         const start = currentMoment.format('YYYY-MM-DD')
         const end = endMoment.format('YYYY-MM-DD')
-        
+
         let array = []
 
         switch (entity) {
@@ -375,7 +385,7 @@ class Dashboard extends Component {
             currentMoment = moment(this.state.start_date)
         }
 
-        if(this.state.end_date !== null) {
+        if (this.state.end_date !== null) {
             endMoment = moment(this.state.end_date)
         }
 
@@ -490,11 +500,11 @@ class Dashboard extends Component {
                     },
                     Approved: {
                         avg: quoteApproved && Object.keys(quoteApproved).length ? quoteActive.avg : 0,
-                        pct:quoteApproved && Object.keys(quoteApproved).length ? quoteActive.pct : 0,
+                        pct: quoteApproved && Object.keys(quoteApproved).length ? quoteActive.pct : 0,
                         value: quoteApproved && Object.keys(quoteApproved).length ? quoteActive.value : 0
                     },
                     Unapproved: {
-                        avg:quoteUnapproved && Object.keys(quoteUnapproved).length ? quoteActive.avg : 0,
+                        avg: quoteUnapproved && Object.keys(quoteUnapproved).length ? quoteActive.avg : 0,
                         pct: quoteUnapproved && Object.keys(quoteUnapproved).length ? quoteActive.pct : 0,
                         value: quoteUnapproved && Object.keys(quoteUnapproved).length ? quoteActive.value : 0
                     }
@@ -728,6 +738,13 @@ class Dashboard extends Component {
             link.click()
             document.body.removeChild(link)
         }
+    }
+
+    onRadioBtnClick (radioSelected, entity) {
+        this.setState({
+            radioSelected: radioSelected,
+            entity: entity
+        })
     }
 
     render () {

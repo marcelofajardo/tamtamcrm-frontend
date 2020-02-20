@@ -15,6 +15,8 @@ use App\Order;
 use App\Repositories\ProjectRepository;
 use App\Repositories\TaskRepository;
 use App\User;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Task;
 use App\Requests\Task\CreateTaskRequest;
@@ -53,10 +55,8 @@ class TaskController extends Controller
      * @param TaskRepositoryInterface $taskRepository
      * @param ProjectRepositoryInterface $projectRepository
      */
-    public function __construct(
-        TaskRepositoryInterface $task_repo,
-        ProjectRepositoryInterface $project_repo
-    ) {
+    public function __construct(TaskRepositoryInterface $task_repo, ProjectRepositoryInterface $project_repo)
+    {
         $this->task_repo = $task_repo;
         $this->project_repo = $project_repo;
     }
@@ -199,8 +199,8 @@ class TaskController extends Controller
         }
 
         if ($request->has('products')) {
-            $order_factory = (new OrderFactory())->create($user->id,
-                $user->account_user()->account_id, $task_id, empty($request->quantity) ? 1 : $request->quantity);
+            $order_factory = (new OrderFactory())->create($user->id, $user->account_user()->account_id, $task_id,
+                empty($request->quantity) ? 1 : $request->quantity);
             (new OrderRepository(new Order))->buildOrderDetails($request->input('products'), $task,
                 (new ProductRepository(new Product)), $order_factory);
             return response()->json((new OrderFilter((new OrderRepository(new Order))))->filterByTask($task));
@@ -311,8 +311,8 @@ class TaskController extends Controller
     /**
      * @param $id
      *
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function archive(int $id)
     {

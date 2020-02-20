@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\QuoteRepositoryInterface;
@@ -10,6 +11,7 @@ use App\Repositories\Interfaces\InvoiceLineRepositoryInterface;
 use App\Transformations\InvoiceTransformable;
 use App\Repositories\TaskRepository;
 use App\Task;
+use Illuminate\Http\Response;
 
 class InvoiceLineController extends Controller
 {
@@ -20,11 +22,10 @@ class InvoiceLineController extends Controller
 
     private $quoteRepository;
 
-    public function __construct(
-        InvoiceRepositoryInterface $invoiceRepository,
+    public function __construct(InvoiceRepositoryInterface $invoiceRepository,
         QuoteRepositoryInterface $quoteRepository,
-        InvoiceLineRepositoryInterface $invoiceLineRepository
-    ) {
+        InvoiceLineRepositoryInterface $invoiceLineRepository)
+    {
         $this->invoiceRepository = $invoiceRepository;
         $this->quoteRepository = $quoteRepository;
         $this->invoiceLineRepository = $invoiceLineRepository;
@@ -33,10 +34,10 @@ class InvoiceLineController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function destroyLine(int $id)
     {

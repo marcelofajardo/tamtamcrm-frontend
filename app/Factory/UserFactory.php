@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\User;
 
 class UserFactory
 {
-    public function create() :User
+    public function create(): User
     {
         $user = new User;
         $user->first_name = '';

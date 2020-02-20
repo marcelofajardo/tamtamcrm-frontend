@@ -6,6 +6,7 @@ use App\Event;
 use App\Repositories\EventRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\EventTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EventFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class EventFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -66,9 +67,8 @@ class EventFilter extends QueryFilter
             return $this->query;
         }
         return $this->query->where(function ($query) use ($filter) {
-            $query->where('location', 'like', '%' . $filter . '%')
-                ->orWhere('title', 'like', '%' . $filter . '%')
-                ->orWhere('description', 'like', '%' . $filter . '%');
+            $query->where('location', 'like', '%' . $filter . '%')->orWhere('title', 'like', '%' . $filter . '%')
+                  ->orWhere('description', 'like', '%' . $filter . '%');
         });
     }
 

@@ -7,6 +7,7 @@ use App\Invoice;
 use App\Repositories\Interfaces\InvoiceLineRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use App\Task;
+use Exception;
 use Illuminate\Support\Collection as Support;
 use App\Quote;
 
@@ -48,7 +49,7 @@ class InvoiceLineRepository extends BaseRepository implements InvoiceLineReposit
      * @param int $id
      *
      * @return InvoiceLine
-     * @throws \Exception
+     * @throws Exception
      */
     public function findLineById(int $id): InvoiceLine
     {
@@ -59,7 +60,7 @@ class InvoiceLineRepository extends BaseRepository implements InvoiceLineReposit
      * Delete a invoice line
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteLine(): bool
     {
@@ -87,11 +88,9 @@ class InvoiceLineRepository extends BaseRepository implements InvoiceLineReposit
     public function getInvoiceLinesForTask(Task $objTask, int $finance_type): Support
     {
         return $this->model->join('invoice_task', 'invoice_task.invoice_id', '=', 'invoice_lines.invoice_id')
-            ->join('invoices', 'invoice_lines.invoice_id', '=', 'invoices.id')
-            ->select('invoice_lines.*')
-            ->where('invoice_task.task_id', $objTask->id)
-            ->where('invoices.finance_type', $finance_type)
-            ->get();
+                           ->join('invoices', 'invoice_lines.invoice_id', '=', 'invoices.id')->select('invoice_lines.*')
+                           ->where('invoice_task.task_id', $objTask->id)->where('invoices.finance_type', $finance_type)
+                           ->get();
     }
 
     /**
@@ -102,11 +101,8 @@ class InvoiceLineRepository extends BaseRepository implements InvoiceLineReposit
     public function getQuoteLinesForTask(Task $objTask): Support
     {
         return $this->model->join('quote_task', 'quote_task.quote_id', '=', 'invoice_lines.invoice_id')
-            ->join('invoices', 'invoice_lines.invoice_id', '=', 'invoices.id')
-            ->select('invoice_lines.*')
-            ->where('quote_task.task_id', $objTask->id)
-            ->where('invoices.finance_type', 2)
-            ->get();
+                           ->join('invoices', 'invoice_lines.invoice_id', '=', 'invoices.id')->select('invoice_lines.*')
+                           ->where('quote_task.task_id', $objTask->id)->where('invoices.finance_type', 2)->get();
     }
 
     /**
@@ -117,10 +113,8 @@ class InvoiceLineRepository extends BaseRepository implements InvoiceLineReposit
     public function getInvoiceLinesByInvoiceId(Invoice $objInvoice): Support
     {
 
-        return $this->model->join('invoices', 'invoices.id', '=', 'invoice_lines.invoice_id')
-            ->select('invoice_lines.*')
-            ->where('invoices.id', $objInvoice->id)
-            ->get();
+        return $this->model->join('invoices', 'invoices.id', '=', 'invoice_lines.invoice_id')->select('invoice_lines.*')
+                           ->where('invoices.id', $objInvoice->id)->get();
     }
 
     /**

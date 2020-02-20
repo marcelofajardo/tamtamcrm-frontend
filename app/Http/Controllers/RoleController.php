@@ -11,6 +11,11 @@ use App\Requests\UpdateRoleRequest;
 use App\Role;
 use App\Transformations\RoleTransformable;
 use App\Requests\SearchRequest;
+use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class RoleController extends Controller
 {
@@ -33,16 +38,15 @@ class RoleController extends Controller
      * @param RoleRepositoryInterface $roleRepository
      * @param PermissionRepositoryInterface $permissionRepository
      */
-    public function __construct(
-        RoleRepositoryInterface $roleRepository,
-        PermissionRepositoryInterface $permissionRepository
-    ) {
+    public function __construct(RoleRepositoryInterface $roleRepository,
+        PermissionRepositoryInterface $permissionRepository)
+    {
         $this->roleRepo = $roleRepository;
         $this->permissionRepository = $permissionRepository;
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index(SearchRequest $request)
     {
@@ -72,7 +76,7 @@ class RoleController extends Controller
     /**
      * @param CreateRoleRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateRoleRequest $request)
     {
@@ -90,7 +94,7 @@ class RoleController extends Controller
     /**
      * @param $id
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function edit($id)
     {
@@ -112,7 +116,7 @@ class RoleController extends Controller
      * @param UpdateRoleRequest $request
      * @param $id
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function update(UpdateRoleRequest $request, $id)
     {
@@ -131,10 +135,10 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function destroy(int $id)
     {

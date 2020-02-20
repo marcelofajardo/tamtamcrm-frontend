@@ -15,7 +15,7 @@ class UpdateCompanyRequest extends BaseFormRequest
      */
     public function rules()
     {
-        $rules =  [
+        $rules = [
             'name' => ['required'],
             'website' => ['required', 'string'],
             'phone_number' => ['required', 'string'],
@@ -31,22 +31,22 @@ class UpdateCompanyRequest extends BaseFormRequest
 
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-         $contacts = request('contacts');
+        $contacts = request('contacts');
 
-         if (is_array($contacts)) {
-             // for ($i = 0; $i < count($contacts); $i++) {
-                 // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
-                 //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
-                 // }
-         }
-         return $rules;
+        if (is_array($contacts)) {
+            // for ($i = 0; $i < count($contacts); $i++) {
+            // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
+            //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
+            // }
+        }
+        return $rules;
     }
 
     protected function prepareForValidation()
-     {
-         $input = $this->all();
+    {
+        $input = $this->all();
 
-         $this->replace($input);
-     }
+        $this->replace($input);
+    }
 
 }

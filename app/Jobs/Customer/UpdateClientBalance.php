@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Customer;
 
 use App\Customer;

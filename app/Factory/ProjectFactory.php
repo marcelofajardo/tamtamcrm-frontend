@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Factory;
+
 use App\Project;
+
 class ProjectFactory
 {
-    public static function create(int $user_id, int $customer_id, int $account_id) :Project
+    public static function create(int $user_id, int $customer_id, int $account_id): Project
     {
         $project = new Project;
         $project->title = '';

@@ -12,11 +12,12 @@ use App\Order;
 use App\Product;
 use App\Task;
 use App\Repositories\Base\BaseRepository;
+use Exception;
 use Illuminate\Support\Collection;
 
 class OrderRepository extends BaseRepository
 {
-     /**
+    /**
      * OrderRepository constructor.
      *
      * @param Order $order
@@ -27,15 +28,16 @@ class OrderRepository extends BaseRepository
         $this->model = $order;
     }
 
-    public function getModel() {
+    public function getModel()
+    {
         return $this->model;
     }
 
-       /**
+    /**
      * @param int $id
      *
      * @return Order
-     * @throws \Exception
+     * @throws Exception
      */
     public function findOrderById(int $id): Order
     {
@@ -100,7 +102,8 @@ class OrderRepository extends BaseRepository
      * @param Order $order
      * @return Order
      */
-    public function saveOrder($data, Order $order) : Order {
+    public function saveOrder($data, Order $order): Order
+    {
         $order->fill($data);
         $order->save();
         return $order;

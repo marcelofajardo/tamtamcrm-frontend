@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\Credit;
 
 use App\Repositories\Base\BaseFormRequest;

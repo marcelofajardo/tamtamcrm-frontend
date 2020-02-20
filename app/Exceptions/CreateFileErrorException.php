@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Exceptions;
 
-class CreateFileErrorException extends \Exception
+use Exception;
+
+class CreateFileErrorException extends Exception
 {
 }

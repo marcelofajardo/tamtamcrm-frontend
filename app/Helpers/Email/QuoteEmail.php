@@ -27,31 +27,31 @@ class QuoteEmail extends EmailBuilder
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-            $body_template = trans('texts.quote_message',
-                ['amount' => $quote->amount, 'account' => $quote->account->present()->name()], null,
-                $quote->customer->locale());
+            $body_template = trans('texts.quote_message', [
+                'amount' => $quote->amount,
+                'account' => $quote->account->present()->name()
+            ], null, $quote->customer->locale());
         }
 
         $subject_template = $client->getSetting('email_subject_' . $reminder_template);
 
         if (iconv_strlen($subject_template) == 0) {
             if ($reminder_template == 'quote') {
-                $subject_template = trans('texts.quote_subject',
-                    ['number' => $quote->number, 'account' => $quote->account->present()->name()],
-                    null, $quote->customer->locale());
+                $subject_template = trans('texts.quote_subject', [
+                    'number' => $quote->number,
+                    'account' => $quote->account->present()->name()
+                ], null, $quote->customer->locale());
             } else {
-                $subject_template = trans('texts.reminder_subject',
-                    ['number' => $quote->number, 'account' => $quote->account->present()->name()],
-                    null, $quote->customer->locale());
+                $subject_template = trans('texts.reminder_subject', [
+                    'number' => $quote->number,
+                    'account' => $quote->account->present()->name()
+                ], null, $quote->customer->locale());
             }
         }
 
-        $this->setTemplate($quote->customer->getSetting('email_style'))
-            ->setContact($contact)
-            ->setFooter("<a href='{$invitation->getLink()}'>Quote Link</a>")
-            ->setVariables($quote->makeValues($contact))
-            ->setSubject($subject_template)
-            ->setBody($body_template);
+        $this->setTemplate($quote->customer->getSetting('email_style'))->setContact($contact)
+             ->setFooter("<a href='{$invitation->getLink()}'>Quote Link</a>")
+             ->setVariables($quote->makeValues($contact))->setSubject($subject_template)->setBody($body_template);
 
         if ($client->getSetting('pdf_email_attachment') !== false) {
             $this->attachments = $quote->pdf_file_path();

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Notification;
@@ -26,11 +27,7 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
      *
      * @return Collection
      */
-    public function listNotifications(
-        $columns = array('*'),
-        string $orderBy = 'id',
-        string $sortBy = 'asc'
-    ) : Collection
+    public function listNotifications($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection
     {
         return $this->all($columns, $orderBy, $sortBy);
     }
@@ -39,7 +36,8 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
      * @param array $data
      * @return Notification
      */
-    public function create(array $data) : Notification {
+    public function create(array $data): Notification
+    {
         $test = $this->create($data);
 
     }

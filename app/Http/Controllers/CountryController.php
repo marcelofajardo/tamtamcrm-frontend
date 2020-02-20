@@ -9,6 +9,7 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\Interfaces\CountryRepositoryInterface;
+use Illuminate\Http\Response;
 
 
 class CountryController extends Controller
@@ -25,7 +26,7 @@ class CountryController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {

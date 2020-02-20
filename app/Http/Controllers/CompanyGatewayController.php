@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Factory\CompanyGatewayFactory;
@@ -36,7 +37,8 @@ class CompanyGatewayController extends Controller
 
     public function index()
     {
-        $company_gateways = CompanyGateway::whereAccountId(auth()->user()->account_user()->account_id)->get()->keyBy('gateway_key');
+        $company_gateways =
+            CompanyGateway::whereAccountId(auth()->user()->account_user()->account_id)->get()->keyBy('gateway_key');
         $company_gateways = $company_gateways->map(function (CompanyGateway $company_gateway) {
             return $this->transformCompanyGateway($company_gateway);
         })->all();
@@ -46,8 +48,8 @@ class CompanyGatewayController extends Controller
 
     public function store(StoreCompanyGatewayRequest $request)
     {
-        $company_gateway = CompanyGatewayFactory::create(auth()->user()->account_user()->account_id,
-            auth()->user()->id);
+        $company_gateway =
+            CompanyGatewayFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id);
         $company_gateway->fill($request->all());
         $company_gateway->save();
         return response()->json($this->transformCompanyGateway($company_gateway));

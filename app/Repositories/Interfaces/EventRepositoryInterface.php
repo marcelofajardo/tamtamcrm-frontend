@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\Event;
@@ -17,28 +18,28 @@ interface EventRepositoryInterface extends BaseRepositoryInterface
      * @param string $orderBy
      * @param string $sortBy
      */
-    public function listEvents($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') : Collection;
+    public function listEvents($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection;
 
     /**
      *
      */
-    public function deleteEvent() : bool;
+    public function deleteEvent(): bool;
 
     /**
      *
      * @param int $id
      */
-    public function findEventById(int $id) : Event;
+    public function findEventById(int $id): Event;
 
     /**
      *
      * @param \App\Repositories\Interfaces\Task $objTask
      */
-    public function getEventsForTask(Task $objTask) : Collection;
+    public function getEventsForTask(Task $objTask): Collection;
 
     /**
      *
      * @param \App\Repositories\Interfaces\User $objUser
      */
-    public function getEventsForUser(User $objUser) : Collection;
+    public function getEventsForUser(User $objUser): Collection;
 }

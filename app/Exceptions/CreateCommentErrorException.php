@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Exceptions;
 
-class CreateCommentErrorException extends \Exception
+use Exception;
+
+class CreateCommentErrorException extends Exception
 {
 }

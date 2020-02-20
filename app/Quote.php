@@ -12,6 +12,7 @@ use App\Traits\MakesReminders;
 use Illuminate\Database\Eloquent\Model;
 use App\Task;
 use App\InvoiceStatus;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use App\Events\Invoice\QuoteWasMarkedSent;
@@ -59,7 +60,8 @@ class Quote extends Model
         'end_date',
         'frequency',
         'recurring_due_date',
-        'notes',
+        'public_notes',
+        'private_notes',
         'terms',
         'footer',
         'partial',
@@ -79,7 +81,7 @@ class Quote extends Model
     ];
 
     const STATUS_DRAFT = 1;
-    const STATUS_SENT =  2;
+    const STATUS_SENT = 2;
     const STATUS_APPROVED = 4;
     const STATUS_EXPIRED = -1;
 
@@ -94,7 +96,7 @@ class Quote extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function invoiceStatus()
     {
@@ -102,7 +104,7 @@ class Quote extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function paymentType()
     {
@@ -156,7 +158,7 @@ class Quote extends Model
             return $storage_path;
         }
 
-        if(!$invitation) {
+        if (!$invitation) {
             CreateQuotePdf::dispatchNow($this, $this->account, $this->customer->primary_contact()->first());
         } else {
             CreateQuotePdf::dispatchNow($invitation->quote, $invitation->account, $invitation->contact);
@@ -166,24 +168,24 @@ class Quote extends Model
 
     }
 
-        /**
-      * Access the quote calculator object
-      *
-      * @return object The quote calculator object getters
-      */
-     public function calc()
-     {
-         $quote_calc = null;
+    /**
+     * Access the quote calculator object
+     *
+     * @return object The quote calculator object getters
+     */
+    public function calc()
+    {
+        $quote_calc = null;
 
-         if($this->uses_inclusive_taxes) {
-             $quote_calc = new InvoiceSumInclusive($this);
-         } else {
-             $quote_calc = new InvoiceSum($this);
-         }
+        if ($this->uses_inclusive_taxes) {
+            $quote_calc = new InvoiceSumInclusive($this);
+        } else {
+            $quote_calc = new InvoiceSum($this);
+        }
 
-         return $quote_calc->build();
+        return $quote_calc->build();
 
-     }
+    }
 
     public function service(): QuoteService
     {

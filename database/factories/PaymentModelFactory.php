@@ -21,8 +21,12 @@ $factory->define(Payment::class, function (Faker\Generator $faker) {
     $invoice = factory(Invoice::class)->create();
     return [
         'account_id' => 1,
+        'is_deleted' => false,
+        'amount' => $faker->numberBetween(1,10),
+        'date' => $faker->date(),
+        'transaction_reference' => $faker->text(10),
         'type_id' => 1,
+        'status_id' => Payment::STATUS_COMPLETED,
         'customer_id' => $customer->id,
-        'amount' => $faker->randomFloat()
     ];
 });

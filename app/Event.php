@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\User;
@@ -11,8 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Event extends Authenticatable
 {
-    use Notifiable,
-        SoftDeletes;
+    use Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -31,7 +31,7 @@ class Event extends Authenticatable
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function users()
     {

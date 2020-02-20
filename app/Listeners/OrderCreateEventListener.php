@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Listeners;
 
 use App\Events\OrderCreateEvent;
@@ -20,7 +21,7 @@ class OrderCreateEventListener
     /**
      * Handle the event.
      *
-     * @param  OrderCreateEvent $event
+     * @param OrderCreateEvent $event
      * @return void
      */
     public function handle(OrderCreateEvent $event)

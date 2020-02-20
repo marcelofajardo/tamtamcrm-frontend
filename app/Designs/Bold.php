@@ -14,12 +14,14 @@ namespace App\Designs;
 class Bold extends AbstractDesign
 {
 
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
-	public function header() {
+    public function header()
+    {
 
-		return '
+        return '
 			<!DOCTYPE html>
 			<html lang="en">
 			    <head>
@@ -51,14 +53,15 @@ class Bold extends AbstractDesign
                 </div>
 			';
 
-	}
+    }
 
-	public function body() {
+    public function body()
+    {
 
         return '
             <div class="flex mt-32 pl-12">
                 <div class="w-1/2 mr-40 flex flex-col">
-                    <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">$your_invoice</h2> $client_details
+                    <h2 class="text-2xl uppercase font-semibold text-teal-600 tracking-tight">$your_invoice_label</h2> $client_details
                 </div>
                 <div class="w-1/2">
                     <div class="w-full bg-teal-600 px-5 py-3 text-white flex">
@@ -73,17 +76,19 @@ class Bold extends AbstractDesign
             </div>
         ';
 
-	}
+    }
 
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left",
-			'table_header_td_class'    => "px-12 text-2xl px-4 py-2",
-			'table_body_td_class'      => "bg-gray-200 py-5 pl-12",
-		];
-	}
+    public function table_styles()
+    {
+        return [
+            'table_header_thead_class' => "text-left",
+            'table_header_td_class' => "px-12 text-2xl px-4 py-2",
+            'table_body_td_class' => "bg-gray-200 py-5 pl-12",
+        ];
+    }
 
-	public function table() {
+    public function table()
+    {
 
         return '
             <table class="w-full table-auto mt-8">
@@ -99,7 +104,7 @@ class Bold extends AbstractDesign
             
             <div class="flex px-4 mt-6 w-full px-12">
                 <div class="w-1/2">
-                    $invoice.public_notes
+                    $entity.public_notes
                 </div>
                 <div class="w-1/2 flex">
                     <div class="w-1/2 text-right flex flex-col">
@@ -126,15 +131,16 @@ class Bold extends AbstractDesign
                 </div>
             </div>
         ';
-	}
+    }
 
-	public function footer() {
+    public function footer()
+    {
 
         return '
                 </div>
             </body>
         </html>';
 
-	}
+    }
 
 }

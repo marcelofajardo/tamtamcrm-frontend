@@ -1,8 +1,10 @@
 <?php
+
 namespace App\DataMapper;
 
 use App\DataMapper\CompanySettings;
 use App\Customer;
+use stdClass;
 
 /**
  * ClientSettings
@@ -40,7 +42,7 @@ class CustomerSettings extends BaseSettings
      * prevents missing properties from not being returned
      * and always ensure an up to date class is returned
      *
-     * @return \stdClass
+     * @return stdClass
      */
     public function __construct($obj)
     {
@@ -51,10 +53,10 @@ class CustomerSettings extends BaseSettings
      *
      * Default Client Settings scaffold
      *
-     * @return \stdClass
+     * @return stdClass
      *
      */
-    public static function defaults() : \stdClass
+    public static function defaults(): stdClass
     {
         $data = (object)[
             'entity' => (string)Customer::class,
@@ -74,9 +76,9 @@ class CustomerSettings extends BaseSettings
     /**
      * Merges settings from Company to Client
      *
-     * @param  \stdClass $company_settings
-     * @param  \stdClass $client_settings
-     * @return \stdClass of merged settings
+     * @param stdClass $company_settings
+     * @param stdClass $client_settings
+     * @return stdClass of merged settings
      */
     public static function buildCustomerSettings($company_settings, $client_settings)
     {
@@ -88,11 +90,9 @@ class CustomerSettings extends BaseSettings
             /* pseudo code
             if the property exists and is a string BUT has no length, treat it as TRUE
             */
-            if (((property_exists($client_settings,
-                        $key) && is_string($client_settings->{$key}) && (iconv_strlen($client_settings->{$key}) < 1)))
-                || !isset($client_settings->{$key})
-                && property_exists($company_settings, $key)
-            ) {
+            if (((property_exists($client_settings, $key) && is_string($client_settings->{$key}) &&
+                    (iconv_strlen($client_settings->{$key}) < 1))) ||
+                !isset($client_settings->{$key}) && property_exists($company_settings, $key)) {
                 $client_settings->{$key} = $company_settings->{$key};
             }
         }

@@ -36,5 +36,5 @@ interface CompanyRepositoryInterface extends BaseRepositoryInterface
      */
     public function saveProduct(Product $product);
 
-    public function save(array $data, Company $company) : ?Company;
+    public function save(array $data, Company $company): ?Company;
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Repositories\Base\BaseRepository;
@@ -25,7 +26,7 @@ class CurrencyRepository extends BaseRepository implements CurrencyRepositoryInt
      * @param string $sort
      * @return Collection
      */
-    public function listCurrencies(string $order = 'id', string $sort = 'desc') : Collection
+    public function listCurrencies(string $order = 'id', string $sort = 'desc'): Collection
     {
         return $this->model->get();
     }

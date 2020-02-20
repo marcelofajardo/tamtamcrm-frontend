@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Factory;
 
 use App\Payment;
@@ -13,11 +14,12 @@ class PaymentFactory
      * @param int $account_id
      * @return Payment
      */
-    public static function create(int $customer_id, int $user_id, int $account_id) :Payment
+    public static function create(int $customer_id, int $user_id, int $account_id): Payment
     {
         $payment = new Payment;
 
         $payment->user_id = $user_id;
+        $payment->private_notes = '';
         $payment->customer_id = $customer_id;
         $payment->account_id = $account_id;
         $payment->date = Carbon::now()->format('Y-m-d');

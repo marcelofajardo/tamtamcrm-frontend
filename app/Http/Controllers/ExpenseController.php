@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Factory\ExpenseFactory;
@@ -11,7 +12,10 @@ use App\Traits\CheckEntityStatus;
 use App\Traits\BulkOptions;
 use App\Expense;
 use App\Repositories\ExpenseRepository;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -22,8 +26,7 @@ use Illuminate\Support\Facades\Log;
  */
 class ExpenseController extends Controller
 {
-    use BulkOptions,
-        CheckEntityStatus;
+    use BulkOptions, CheckEntityStatus;
 
     /**
      * @var
@@ -45,16 +48,16 @@ class ExpenseController extends Controller
      */
     public function index(SearchRequest $request)
     {
-        $expenses = (new ExpenseFilter($this->expense_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $expenses =
+            (new ExpenseFilter($this->expense_repo))->filter($request, auth()->user()->account_user()->account_id);
         return response()->json($expenses);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return Response
      *
      *
      */
@@ -86,8 +89,8 @@ class ExpenseController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      *
      *
      */
@@ -102,8 +105,8 @@ class ExpenseController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return Response
      *
      */
     public function destroy(int $id)
@@ -127,8 +130,8 @@ class ExpenseController extends Controller
     /**
      * @param $id
      *
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function archive(int $id)
     {
@@ -141,7 +144,7 @@ class ExpenseController extends Controller
      * Perform bulk actions on the list view
      *
      * @param BulkVendorRequest $request
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      */
     public function bulk()

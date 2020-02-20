@@ -20,14 +20,14 @@ use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\ReverseInvoicePayment;
 use Illuminate\Http\Request;
 use App\Notifications\PaymentCreated;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Notification;
 use App\Traits\CheckEntityStatus;
 
 class PaymentController extends Controller
 {
 
-    use PaymentTransformable,
-        CheckEntityStatus;
+    use PaymentTransformable, CheckEntityStatus;
 
     /**
      * @var PaymentRepositoryInterface
@@ -49,8 +49,8 @@ class PaymentController extends Controller
      */
     public function index(SearchRequest $request)
     {
-        $payments = (new PaymentFilter($this->payment_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $payments =
+            (new PaymentFilter($this->payment_repo))->filter($request, auth()->user()->account_user()->account_id);
         return response()->json($payments);
     }
 
@@ -108,12 +108,12 @@ class PaymentController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy(int $id)
     {
         $payment = $this->payment_repo->findPaymentById($id);
-        ReverseInvoicePayment::dispatchNow($payment, $payment->account);
+        $payment->service()->reversePayment();
 
         $payment->is_deleted = true;
         $payment->save();

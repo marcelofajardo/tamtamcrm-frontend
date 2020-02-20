@@ -6,6 +6,7 @@ use App\Repositories\InvoiceRepository;
 use App\Requests\SearchRequest;
 use App\Invoice;
 use App\Transformations\InvoiceTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class InvoiceFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class InvoiceFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|static
+     * @return LengthAwarePaginator|static
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -91,14 +92,14 @@ class InvoiceFilter extends QueryFilter
         }
         return $this->query->where(function ($query) use ($filter) {
             $query->where('invoices.number', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.po_number', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.date', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.total', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.balance', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('invoices.custom_value4', 'like', '%' . $filter . '%');
+                  ->orWhere('invoices.po_number', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.date', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.total', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.balance', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('invoices.custom_value4', 'like', '%' . $filter . '%');
         });
     }
 
@@ -146,9 +147,10 @@ class InvoiceFilter extends QueryFilter
             //->orWhere('partial_due_date', '>', Carbon::now());
         }
         if (in_array('overdue', $status_parameters)) {
-            $this->query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where('due_date', '<', Carbon::now())
-                ->orWhere('partial_due_date', '<', Carbon::now());
+            $this->query->whereIn('status_id', [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL
+            ])->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
         }
 
         $table = 'invoices';

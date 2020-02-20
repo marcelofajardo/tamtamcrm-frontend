@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Customer;
@@ -40,8 +41,8 @@ class TestInvoiceEmail extends Command
 
     /**
      * Builds the correct template to send
-     * @param  App\Invoice $invoice The Invoice Model
-     * @param  string $reminder_template The template name ie reminder1
+     * @param App\Invoice $invoice The Invoice Model
+     * @param string $reminder_template The template name ie reminder1
      * @return void
      */
     public function handle()
@@ -59,20 +60,19 @@ class TestInvoiceEmail extends Command
         $template_style = 'light';
 
         $invitations = InvoiceInvitation::whereInvoiceId($invoice->id)->get();
-        
-        $invitations->each(function($invitation) use($message_array, $template_style) {
+
+        $invitations->each(function ($invitation) use ($message_array, $template_style) {
             $contact = Customer::find($invitation->customer_id)->first();
 
-            if($contact->send_invoice)
-                if($contact->send_invoice && $contact->email)
-                {
+            if ($contact->send_invoice) {
+                if ($contact->send_invoice && $contact->email) {
                     //there may be template variables left over for the specific contact? need to reparse here
 
                     //change the runtime config of the mail provider here:
 
                     //send message
-                    Mail::to($contact->email)
-                        ->send(new TemplateEmail($message_array, $template_style, $this->user, $this->customer));
+                    Mail::to($contact->email)->send(new TemplateEmail($message_array, $template_style, $this->user,
+                        $this->customer));
                     //fire any events
 
                     die('good');
@@ -80,22 +80,23 @@ class TestInvoiceEmail extends Command
                     //sleep(5);
 
                 }
+            }
 
         });
     }
 
-    
+
     /**
      * Builds the correct template to send
-     * @param  App\Invoice $invoice The Invoice Model
-     * @param  string $reminder_template The template name ie reminder1
-     * @return array                   
+     * @param App\Invoice $invoice The Invoice Model
+     * @param string $reminder_template The template name ie reminder1
+     * @return array
      */
-    private function getEmailData(Invoice $invoice, $reminder_template = null) :array
+    private function getEmailData(Invoice $invoice, $reminder_template = null): array
     {
         //client
         $customer = $invoice->customer;
-        if(!$reminder_template) {
+        if (!$reminder_template) {
             $reminder_template = $this->calculateTemplate($invoice);
         }
         //Need to determine which email template we are producing
@@ -109,48 +110,54 @@ class TestInvoiceEmail extends Command
      * @param string $reminder_template
      * @return array
      */
-    private function generateTemplateData(Invoice $invoice, string $reminder_template) :array
+    private function generateTemplateData(Invoice $invoice, string $reminder_template): array
     {
         $data = [];
         $customer = $invoice->customer;
-        $body_template = $customer->getSetting('email_template_'.$reminder_template);
-        $subject_template = $customer->getSetting('email_subject_'.$reminder_template);
+        $body_template = $customer->getSetting('email_template_' . $reminder_template);
+        $subject_template = $customer->getSetting('email_subject_' . $reminder_template);
         $data['body'] = $this->parseTemplate($invoice, $body_template, false);
         $data['subject'] = $this->parseTemplate($invoice, $subject_template, true);
         return $data;
     }
 
-    private function parseTemplate(Invoice $invoice, string $template_data, bool $is_markdown = true) :string
+    private function parseTemplate(Invoice $invoice, string $template_data, bool $is_markdown = true): string
     {
         $invoice_variables = $invoice->makeValues();
         //process variables
         $data = str_replace(array_keys($invoice_variables), array_values($invoice_variables), $template_data);
         //process markdown
-        if($is_markdown)
+        if ($is_markdown) {
             $data = Parsedown::instance()->line($data);
+        }
         return $data;
     }
 
-    private function calculateTemplate(Invoice $invoice) :string
+    private function calculateTemplate(Invoice $invoice): string
     {
         //if invoice is currently a draft, or being marked as sent, this will be the initial email
         $customer = $invoice->customer;
         //if the invoice
-        if($invoice->status_id == Invoice::STATUS_DRAFT || Carbon::parse($invoice->due_date) > now())
-        {
+        if ($invoice->status_id == Invoice::STATUS_DRAFT || Carbon::parse($invoice->due_date) > now()) {
             return 'invoice';
-        }
-        else if($customer->getSetting('enable_reminder1') !== false && $this->inReminderWindow($invoice, $customer->getSetting('schedule_reminder1'), $customer->getSetting('num_days_reminder1')))
-        {
-            return 'template1';
-        }
-        else if($customer->getSetting('enable_reminder2') !== false && $this->inReminderWindow($invoice, $customer->getSetting('schedule_reminder2'), $customer->getSetting('num_days_reminder2')))
-        {
-            return 'template2';
-        }
-        else if($customer->getSetting('enable_reminder3') !== false && $this->inReminderWindow($invoice, $customer->getSetting('schedule_reminder3'), $customer->getSetting('num_days_reminder3')))
-        {
-            return 'template3';
+        } else {
+            if ($customer->getSetting('enable_reminder1') !== false &&
+                $this->inReminderWindow($invoice, $customer->getSetting('schedule_reminder1'),
+                    $customer->getSetting('num_days_reminder1'))) {
+                return 'template1';
+            } else {
+                if ($customer->getSetting('enable_reminder2') !== false &&
+                    $this->inReminderWindow($invoice, $customer->getSetting('schedule_reminder2'),
+                        $customer->getSetting('num_days_reminder2'))) {
+                    return 'template2';
+                } else {
+                    if ($customer->getSetting('enable_reminder3') !== false &&
+                        $this->inReminderWindow($invoice, $customer->getSetting('schedule_reminder3'),
+                            $customer->getSetting('num_days_reminder3'))) {
+                        return 'template3';
+                    }
+                }
+            }
         }
         //also implement endless reminders here
         //
@@ -161,13 +168,16 @@ class TestInvoiceEmail extends Command
     {
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()
+                                                                                                          ->startOfDay());
                 break;
             case 'before_due_date':
-                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay()->eq(Carbon::now()
+                                                                                                              ->startOfDay());
                 break;
             case 'after_due_date':
-                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()->startOfDay());
+                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay()->eq(Carbon::now()
+                                                                                                              ->startOfDay());
                 break;
             default:
                 # code...

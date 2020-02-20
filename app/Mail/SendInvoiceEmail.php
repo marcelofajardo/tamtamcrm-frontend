@@ -12,9 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class SendInvoiceEmail extends Mailable
 {
 
-    use Queueable,
-        SerializesModels,
-        AddressTransformable;
+    use Queueable, SerializesModels, AddressTransformable;
 
     /**
      * @var Invoice
@@ -54,13 +52,12 @@ class SendInvoiceEmail extends Mailable
      * @param bool $reminder
      * @param mixed $pdfString
      */
-    public function __construct(
-        Invoice $invoice,
+    public function __construct(Invoice $invoice,
         $userId = false,
         $reminder = false,
         $template = false,
-        $proposal = false
-    ) {
+        $proposal = false)
+    {
         $this->invoice = $invoice;
         $this->userId = $userId;
         $this->reminder = $reminder;

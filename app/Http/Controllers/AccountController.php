@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\CompanyToken;
@@ -14,8 +15,10 @@ use App\Account;
 use App\AccountUser;
 use App\Repositories\AccountRepository;
 use App\Transformations\AccountTransformable;
+use Exception;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Requests\Account\UpdateAccountRequest;
 use App\Traits\UploadableTrait;
@@ -26,9 +29,7 @@ use App\Traits\UploadableTrait;
  */
 class AccountController extends Controller
 {
-    use DispatchesJobs,
-        AccountTransformable,
-        UploadableTrait;
+    use DispatchesJobs, AccountTransformable, UploadableTrait;
     protected $account_repo;
     public $forced_includes = [];
 
@@ -44,7 +45,7 @@ class AccountController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -60,7 +61,8 @@ class AccountController extends Controller
     public function store(StoreAccountRequest $request)
     {
         $this->forced_includes = ['account_user'];
-        $account = CreateCompany::dispatchNow($request->all(), auth()->user()->accounts->first()->domains->default_company->id);
+        $account = CreateCompany::dispatchNow($request->all(),
+            auth()->user()->accounts->first()->domains->default_company->id);
         $account = $this->account_repo->save($request->all(), $account);
         $account->saveSettings($request->input('settings'), $account);
         $this->uploadLogo($request->file('company_logo'), $account, $account);
@@ -112,7 +114,7 @@ class AccountController extends Controller
      * Remove the specified resource from storage.
      * @param int $id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(int $id)
     {
@@ -120,17 +122,17 @@ class AccountController extends Controller
         $account->delete();
         return response()->json([], 200);
     }
-    
+
     public function getCustomFields($entity)
     {
 
         $account = $this->account_repo->findAccountById(auth()->user()->account_user()->account_id);
 
-        if(empty($account->custom_fields) || empty($account->custom_fields->{$entity})) {
+        if (empty($account->custom_fields) || empty($account->custom_fields->{$entity})) {
             return response()->json([]);
         }
 
-          $fields = json_decode(json_encode($account->custom_fields), true);
+        $fields = json_decode(json_encode($account->custom_fields), true);
 
         $custom_fields['fields'][0] = $fields[$entity];
 
@@ -154,7 +156,8 @@ class AccountController extends Controller
         return response()->json($objAccount->custom_fields);
     }
 
-    public function changeAccount(Request $request) {
+    public function changeAccount(Request $request)
+    {
 
         $user = auth()->user();
         CompanyToken::where('token', $user->auth_token)->update(['account_id' => $request->account_id]);

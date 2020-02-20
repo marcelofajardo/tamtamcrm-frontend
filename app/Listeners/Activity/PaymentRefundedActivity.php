@@ -3,9 +3,12 @@
 
 namespace App\Listeners\Activity;
 
+use stdClass;
+
 class PaymentRefundedActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -19,12 +22,12 @@ class PaymentRefundedActivity implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
      * @return void
      */
     public function handle($event)
     {
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->customer_id = $event->payment->id;
         $fields->user_id = $event->payment->user_id;

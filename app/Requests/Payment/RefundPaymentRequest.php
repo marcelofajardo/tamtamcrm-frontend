@@ -25,11 +25,10 @@ class RefundPaymentRequest extends BaseFormRequest
 
         $test = [];
 
-        if(isset($input['invoices']))
-        {
-            foreach($input['invoices'] as $key => $invoice) {
+        if (isset($input['invoices'])) {
+            foreach ($input['invoices'] as $key => $invoice) {
 
-                if(!empty($invoice['invoice_id'])) {
+                if (!empty($invoice['invoice_id'])) {
                     $test['invoices'][$key]['invoice_id'] = $invoice['invoice_id'];
                     $test['invoices'][$key]['amount'] = $invoice['amount'];
                 }
@@ -67,8 +66,8 @@ class RefundPaymentRequest extends BaseFormRequest
 
     public function payment(): ?Payment
     {
-         $input = $this->all();
+        $input = $this->all();
 
-         return Payment::whereId($input['id'])->first();
+        return Payment::whereId($input['id'])->first();
     }
 }

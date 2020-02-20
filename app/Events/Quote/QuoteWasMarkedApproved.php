@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\Quote;
 
 use App\Quote;

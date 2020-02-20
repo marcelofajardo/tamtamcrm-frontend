@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Payment;
 
 use App\Account;
@@ -26,10 +27,11 @@ class PaymentNotification implements ShouldQueue
         $this->payment = $payment;
         $this->account = $account;
     }
+
     /**
      * Execute the job.
      *
-     * 
+     *
      * @return void
      */
     public function handle()

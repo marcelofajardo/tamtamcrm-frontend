@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\Invoice;
 
 use App\Invoice;
@@ -7,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class InvoiceWasEmailedAndFailed.
  */
-class InvoiceWasEmailedAndFailed 
+class InvoiceWasEmailedAndFailed
 {
     use SerializesModels;
     /**
@@ -18,6 +19,7 @@ class InvoiceWasEmailedAndFailed
      * @var array
      */
     public $errors;
+
     /**
      * Create a new event instance.
      *
@@ -26,7 +28,7 @@ class InvoiceWasEmailedAndFailed
     public function __construct(Invoice $invoice, array $errors)
     {
         $this->invoice = $invoice;
-        
+
         $this->errors = $errors;
     }
 }

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Jobs\User;
+
 use App\DataMapper\DefaultSettings;
 use App\Events\User\UserWasCreated;
 use App\AccountUser;
@@ -7,6 +9,7 @@ use App\User;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+
 class CreateUser
 {
     use Dispatchable;
@@ -28,12 +31,13 @@ class CreateUser
         $this->account = $account;
         $this->account_owner = $account_owner;
     }
+
     /**
      * Execute the job.
      *
      * @return void
      */
-    public function handle() : ?User
+    public function handle(): ?User
     {
         $user = new User();
         $user->password = bcrypt($this->request['password']);

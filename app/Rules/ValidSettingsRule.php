@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Rules;
 
 use App\Libraries\MultiDB;

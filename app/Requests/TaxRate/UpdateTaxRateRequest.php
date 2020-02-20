@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\TaxRate;
 
 use App\Repositories\Base\BaseFormRequest;

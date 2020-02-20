@@ -3,20 +3,15 @@
 namespace App\Repositories;
 
 use App\Jobs\Credit\ApplyCreditPayment;
-use App\Jobs\Customer\UpdateClientPaidToDate;
 use App\Repositories\Base\BaseRepository;
 use App\Payment;
 use App\Credit;
 use App\Repositories\Interfaces\PaymentRepositoryInterface;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Database\QueryException;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use App\Invoice;
 use App\Events\Payment\PaymentWasCreated;
-use App\Jobs\Invoice\ApplyInvoicePayment;
-use App\Jobs\Invoice\UpdateInvoicePayment;
-use App\Repositories\CreditRepository;
 use App\Traits\GeneratesCounter;
 
 class PaymentRepository extends BaseRepository implements PaymentRepositoryInterface
@@ -57,7 +52,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deletePayment()
     {
@@ -101,8 +96,9 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         $payment->save();
 
 
-        if (!$payment->number)
+        if (!$payment->number) {
             $payment->number = $this->getNextPaymentNumber($payment->customer);
+        }
 
         //we only ever update the ACTUAL amount of money transferred
         $payment->customer->service()->updatePaidToDate($payment->amount)->save();
@@ -141,8 +137,9 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
             foreach ($data['credits'] as $paid_credit) {
                 $credit = Credit::whereId($paid_credit['credit_id'])->first();
 
-                if ($credit)
+                if ($credit) {
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->account);
+                }
             }
 
         }
@@ -153,10 +150,11 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
 
         //$payment->amount = $invoice_totals; //creates problems when setting amount like this.
 
-        if ($invoice_totals == $payment->amount)
+        if ($invoice_totals == $payment->amount) {
             $payment->applied += $payment->amount;
-        elseif ($invoice_totals < $payment->amount)
+        } elseif ($invoice_totals < $payment->amount) {
             $payment->applied += $invoice_totals;
+        }
 
         //UpdateInvoicePayment::dispatchNow($payment);
         $payment->save();

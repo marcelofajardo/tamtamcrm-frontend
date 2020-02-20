@@ -13,65 +13,65 @@ namespace App\Designs;
 
 class Custom extends AbstractDesign
 {
-	
-	private $header;
 
-	private $body;
-	
-	private $table;
-	
-	private $footer;
-	
-	private $table_styles;
+    private $header;
 
-	public function __construct($design) 
-	{
+    private $body;
 
-		$this->header = $design->header;
-		
-		$this->body = $design->body;
-		
-		$this->table = $design->table;
-		
-		$this->footer = $design->footer;
-		
-		$this->table_styles = $design->table_styles;
-	
-	}
+    private $table;
 
-	public function header() 
-	{
+    private $footer;
 
-		return $this->header;
-			
-	}
+    private $table_styles;
 
-	public function body() 
-	{
+    public function __construct($design)
+    {
 
-		return $this->body;	
+        $this->header = $design->header;
 
-	}
+        $this->body = $design->body;
 
-	public function table_styles() 
-	{
+        $this->table = $design->table;
 
-		return $this->table_styles;
+        $this->footer = $design->footer;
 
-	}
+        $this->table_styles = $design->table_styles;
 
-	public function table() 
-	{
+    }
 
-		return $this->table;
+    public function header()
+    {
 
-	}
+        return $this->header;
 
-	public function footer() 
-	{
+    }
 
-		return $this->footer;
+    public function body()
+    {
 
-	}
+        return $this->body;
+
+    }
+
+    public function table_styles()
+    {
+
+        return $this->table_styles;
+
+    }
+
+    public function table()
+    {
+
+        return $this->table;
+
+    }
+
+    public function footer()
+    {
+
+        return $this->footer;
+
+    }
 
 }

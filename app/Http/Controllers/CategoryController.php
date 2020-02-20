@@ -7,10 +7,12 @@ use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Requests\CreateCategoryRequest;
 use App\Requests\UpdateCategoryRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Category;
 use App\Transformations\CategoryTransformable;
 use App\Requests\SearchRequest;
+use Illuminate\Http\Response;
 
 class CategoryController extends Controller
 {
@@ -35,7 +37,7 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(SearchRequest $request)
     {
@@ -64,8 +66,8 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  CreateCategoryRequest $request
-     * @return \Illuminate\Http\Response
+     * @param CreateCategoryRequest $request
+     * @return Response
      */
     public function store(CreateCategoryRequest $request)
     {
@@ -77,9 +79,9 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  UpdateCategoryRequest $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateCategoryRequest $request
+     * @param int $id
+     * @return Response
      */
     public function update(UpdateCategoryRequest $request, int $id)
     {
@@ -91,8 +93,8 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return Response
      */
     public function destroy(int $id)
     {
@@ -103,7 +105,7 @@ class CategoryController extends Controller
 
     /**
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function removeImage(Request $request)
     {

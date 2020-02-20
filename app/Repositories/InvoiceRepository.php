@@ -7,9 +7,9 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Invoice;
 use App\ClientContact;
 use App\InvoiceInvitation;
-use App\Jobs\Company\UpdateCompanyLedgerWithInvoice;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
+use Exception;
 use Illuminate\Support\Collection;
 use App\Task;
 use App\Helpers\Invoice\InvoiceSum;
@@ -32,7 +32,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      * Delete a customer
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteInvoice(): bool
     {
@@ -43,7 +43,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      * @param int $id
      *
      * @return Invoice
-     * @throws \Exception
+     * @throws Exception
      */
     public function findInvoiceById(int $id): Invoice
     {
@@ -51,9 +51,9 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     }
 
     public function getInvitationByKey($key)
- 	{
- 		return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
- 	}
+    {
+        return InvoiceInvitation::whereRaw("BINARY `key`= ?", [$key])->first();
+    }
 
     /**
      * List all the invoices
@@ -61,7 +61,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      * @param string $order
      * @param string $sort
      * @param array $columns
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function listInvoices(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection
     {
@@ -118,10 +118,11 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))->each(function ($invitation
-            ) {
-                InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation])->delete();
-            });
+            collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))
+                                                        ->each(function ($invitation) {
+                                                            InvoiceInvitation::whereRaw("BINARY `key`= ?",
+                                                                [$invitation])->delete();
+                                                        });
 
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
@@ -159,7 +160,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
 
         /**/
         if ($finished_amount != $starting_amount) {
-            UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
+            //UpdateCompanyLedgerWithInvoice::dispatchNow($invoice, ($finished_amount - $starting_amount));
 
         }
 
@@ -181,10 +182,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
      *
      * @return     Invoice|\App\Models\Invoice|null  Return the invoice object
      */
-    public
-    function markSent(
-        Invoice $invoice
-    ): ?Invoice {
+    public function markSent(Invoice $invoice): ?Invoice
+    {
         return $invoice->service()->markSent()->save();
     }
 

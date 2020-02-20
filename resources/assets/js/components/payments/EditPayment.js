@@ -30,6 +30,7 @@ class EditPayment extends React.Component {
             custom_value2: this.props.payment.custom_value2,
             custom_value3: this.props.payment.custom_value3,
             custom_value4: this.props.payment.custom_value4,
+            private_notes: this.props.payment.private_notes,
             invoice_id: this.props.payment.invoice_id,
             amount: this.props.payment.amount,
             date: this.props.payment.date ? this.props.payment.date : moment(new Date()).format('YYYY-MM-DD'),
@@ -125,7 +126,8 @@ class EditPayment extends React.Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            private_notes: this.state.private_notes
         }
     }
 
@@ -306,6 +308,15 @@ class EditPayment extends React.Component {
                             name="invoice_id"
                             errors={this.state.errors}
                         />
+
+                        <FormGroup className="mb-3">
+                            <Label>Notes</Label>
+                            <Input value={this.state.private_notes}
+                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''} type="text"
+                                name="private_notes"
+                                onChange={this.handleInput.bind(this)}/>
+                            {this.renderErrorFor('private_notes')}
+                        </FormGroup>
 
                         {customForm}
                     </ModalBody>

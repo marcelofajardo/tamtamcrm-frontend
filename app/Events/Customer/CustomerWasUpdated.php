@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\Customer;
 
 use App\Customer;

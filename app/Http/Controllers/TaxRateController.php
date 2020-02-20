@@ -12,6 +12,8 @@ use App\Requests\TaxRate\UpdateTaxRateRequest;
 use App\Http\Controllers\Controller;
 use App\TaxRate;
 use App\Transformations\TaxRateTransformable;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TaxRateController extends Controller
 {
@@ -40,8 +42,8 @@ class TaxRateController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(CreateTaxRateRequest $request)
     {
@@ -54,9 +56,9 @@ class TaxRateController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  UpdateCourierRequest $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateCourierRequest $request
+     * @param int $id
+     * @return Response
      */
     public function update(UpdateTaxRateRequest $request, $id)
     {
@@ -68,8 +70,8 @@ class TaxRateController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return Response
      */
     public function archive(int $id)
     {

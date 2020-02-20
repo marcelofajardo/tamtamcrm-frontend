@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 use App\DataMapper\BaseSettings;
@@ -9,7 +10,7 @@ use App\DataMapper\InvoiceItem;
  */
 trait CleanLineItems
 {
-    public function cleanItems($items) :array
+    public function cleanItems($items): array
     {
         if (!isset($items)) {
             return [];
@@ -20,7 +21,7 @@ trait CleanLineItems
         foreach ($items as $item) {
             $cleaned_items[] = $this->cleanLineItem($item);
         }
-        
+
         return $cleaned_items;
     }
 

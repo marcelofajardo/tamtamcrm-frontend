@@ -9,16 +9,13 @@ trait MonthlyPayments
      * @desc    Calculates the monthly payments of a loan
      *             based on the APR and Term.
      *
-     * @param    Float $fLoanAmount The loan amount.
-     * @param    Float $fAPR The annual interest rate.
-     * @param    Integer $iTerm The length of the loan in months.
+     * @param Float $fLoanAmount The loan amount.
+     * @param Float $fAPR The annual interest rate.
+     * @param Integer $iTerm The length of the loan in months.
      * @return    Float    Monthly Payment.
      */
-    public function calcLoanPayments(
-        float $fLoanAmount,
-        float $fAPR,
-        int $iTerm
-    ) {
+    public function calcLoanPayments(float $fLoanAmount, float $fAPR, int $iTerm)
+    {
         //***********************************************************
         //              INTEREST * ((1 + INTEREST) ^ TOTALPAYMENTS)
         // PMT = LOAN * -------------------------------------------
@@ -39,8 +36,8 @@ trait MonthlyPayments
         $RATE = ($INRATE * 1.0) / 100;
         $yrRate = $RATE / $COMPOUND;
         $rdefine = pow((1.0 + $yrRate), $compound) - 1.0;
-        $PAYMENT = ($MORTGAGE * $rdefine * (pow((1.0 + $rdefine), $monTime))) / ((pow((1.0 + $rdefine),
-                    $monTime)) - 1.0);
+        $PAYMENT =
+            ($MORTGAGE * $rdefine * (pow((1.0 + $rdefine), $monTime))) / ((pow((1.0 + $rdefine), $monTime)) - 1.0);
         if ($FREQ == 12) {
             return $PAYMENT;
         }
@@ -54,8 +51,8 @@ trait MonthlyPayments
             $compound2 = $COMPOUND / $FREQ;
             $monTime2 = ($AMORTYEARS * $FREQ) + ($AMORTMONTHS * 2);
             $rdefine2 = pow((1.0 + $yrRate), $compound2) - 1.0;
-            $PAYMENT2 = ($MORTGAGE * $rdefine2 * (pow((1.0 + $rdefine2), $monTime2))) / ((pow((1.0 + $rdefine2),
-                        $monTime2)) - 1.0);
+            $PAYMENT2 = ($MORTGAGE * $rdefine2 * (pow((1.0 + $rdefine2), $monTime2))) /
+                ((pow((1.0 + $rdefine2), $monTime2)) - 1.0);
             return $PAYMENT2;
         }
     }

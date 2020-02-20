@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Repositories\Base\BaseRepository;
 use App\TaxRate;
 use App\Repositories\Interfaces\TaxRateRepositoryInterface;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
@@ -28,12 +30,13 @@ class TaxRateRepository extends BaseRepository implements TaxRateRepositoryInter
      * @return TaxRate
      * @throws CourierNotFoundException
      */
-    public function findTaxRateById(int $id) : TaxRate
+    public function findTaxRateById(int $id): TaxRate
     {
         return $this->findOneOrFail($id);
     }
 
-    public function getModel() {
+    public function getModel()
+    {
         return $this->model;
     }
 
@@ -44,14 +47,14 @@ class TaxRateRepository extends BaseRepository implements TaxRateRepositoryInter
      * @param string $sort
      * @return Collection|mixed
      */
-    public function listTaxRates($columns = ['*'], string $order = 'id', string $sort = 'desc') : Collection
+    public function listTaxRates($columns = ['*'], string $order = 'id', string $sort = 'desc'): Collection
     {
         return $this->all($columns, $order, $sort);
     }
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteTaxRate()
     {
@@ -70,12 +73,12 @@ class TaxRateRepository extends BaseRepository implements TaxRateRepositoryInter
         return $this->model->searchTaxRate($text)->get();
     }
 
-    public function save($data, TaxRate $taxRate) : ?TaxRate
-	{
+    public function save($data, TaxRate $taxRate): ?TaxRate
+    {
 
         $taxRate->fill($data);
         $taxRate->save();
 
-return $taxRate;
-}
+        return $taxRate;
+    }
 }

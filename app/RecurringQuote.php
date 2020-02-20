@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,6 @@ class RecurringQuote extends Model
 {
     use SoftDeletes;
 
-    /**
     /**
      * Invoice Statuses
      */
@@ -53,7 +53,8 @@ class RecurringQuote extends Model
         'line_items',
         'settings',
         'footer',
-        'notes',
+        'public_notes',
+        'private_notes',
         'terms',
         'frequency_id',
         'start_date',

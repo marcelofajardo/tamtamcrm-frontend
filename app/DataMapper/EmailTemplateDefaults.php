@@ -1,4 +1,5 @@
 <?php
+
 namespace App\DataMapper;
 
 use Parsedown;
@@ -7,7 +8,7 @@ class EmailTemplateDefaults
 {
     public static function emailInvoiceSubject()
     {
-        return trans('texts.invoice_subject', ['number'=>'$number', 'account'=>'$company.name']);
+        return trans('texts.invoice_subject', ['number' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailInvoiceTemplate()
@@ -17,7 +18,7 @@ class EmailTemplateDefaults
 
     public static function emailQuoteSubject()
     {
-        return trans('texts.quote_subject', ['number'=>'$number', 'account'=>'$company.name']);
+        return trans('texts.quote_subject', ['number' => '$number', 'account' => '$company.name']);
     }
 
     public static function emailQuoteTemplate()
@@ -47,7 +48,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Subject()
     {
-        return trans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
+        return trans('texts.reminder_subject', ['invoice' => '$invoice.number', 'account' => '$company.name']);
     }
 
     public static function emailReminder2Template()

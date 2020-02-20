@@ -1,9 +1,11 @@
 <?php
+
 namespace App\DataMapper;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Models\Company;
+use stdClass;
 
 /**
  * CompanySettings
@@ -28,7 +30,7 @@ class CompanySettings extends BaseSettings
     public $document_email_attachment = false;
     public $send_portal_password = false;
     public $timezone_id = '';
-    public $portal_design_id    = '1';
+    public $portal_design_id = '1';
     public $date_format_id = '';
     public $military_time = false;
     public $language_id = '';
@@ -351,7 +353,7 @@ class CompanySettings extends BaseSettings
      * prevents missing properties from not being returned
      * and always ensure an up to date class is returned
      *
-     * @return \stdClass
+     * @return stdClass
      */
     public function __construct($obj)
     {
@@ -362,7 +364,7 @@ class CompanySettings extends BaseSettings
      * Provides class defaults on init
      * @return object
      */
-    public static function defaults() : \stdClass
+    public static function defaults(): stdClass
     {
         $data = (object)get_class_vars(CompanySettings::class);
 
@@ -376,7 +378,7 @@ class CompanySettings extends BaseSettings
         $data->date_format_id = (string)config('taskmanager.i18n.date_format_id');
         $data->country_id = (string)config('taskmanager.i18n.country_id');
         $data->translations = (object)[];
-        $data->pdf_variables = (array) self::getEntityVariableDefaults();
+        $data->pdf_variables = (array)self::getEntityVariableDefaults();
 
         /* $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
         $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
@@ -406,7 +408,7 @@ class CompanySettings extends BaseSettings
      *
      * @param object $data The settings object to be checked
      */
-    public static function setProperties($settings) :\stdClass
+    public static function setProperties($settings): stdClass
     {
         $company_settings = (object)get_class_vars(CompanySettings::class);
         foreach ($company_settings as $key => $value) {
@@ -419,66 +421,66 @@ class CompanySettings extends BaseSettings
     }
 
     private static function getEntityVariableDefaults()
-     {
-         $variables = [
-             'client_details' => [
-                 'name',
-                 'id_number',
-                 'vat_number',
-                 'address1',
-                 'address2',
-                 'city_state_postal',
-                 'country',
-                 'email',
-             ],
-             'company_details' => [
-                 'company_name',
-                 'id_number',
-                 'vat_number',
-                 'website',
-                 'email',
-                 'phone',
-             ],
-             'company_address' => [
-                 'address1',
-                 'address2',
-                 'city_state_postal',
-                 'country',
-             ],
-             'invoice_details' => [
-                 'invoice_number',
-                 'po_number',
-                 'date',
-                 'due_date',
-                 'balance_due',
-                 'invoice_total',
-             ],
-             'quote_details' => [
-                 'quote_number',
-                 'po_number',
-                 'date',
-                 'valid_until',
-                 'balance_due',
-                 'quote_total',
-             ],
-             'credit_details' => [
-                 'credit_number',
-                 'po_number',
-                 'date',
-                 'credit_balance',
-                 'credit_amount',
-             ],
-             'table_columns' => [
-                 'product_key',
-                 'notes',
-                 'cost',
-                 'quantity',
-                 'discount',
-                 'tax_name1',
-                 'line_total'
-             ],
-         ];
+    {
+        $variables = [
+            'client_details' => [
+                'name',
+                'id_number',
+                'vat_number',
+                'address1',
+                'address2',
+                'city_state_postal',
+                'country',
+                'email',
+            ],
+            'company_details' => [
+                'company_name',
+                'id_number',
+                'vat_number',
+                'website',
+                'email',
+                'phone',
+            ],
+            'company_address' => [
+                'address1',
+                'address2',
+                'city_state_postal',
+                'country',
+            ],
+            'invoice_details' => [
+                'invoice_number',
+                'po_number',
+                'date',
+                'due_date',
+                'balance_due',
+                'invoice_total',
+            ],
+            'quote_details' => [
+                'quote_number',
+                'po_number',
+                'date',
+                'valid_until',
+                'balance_due',
+                'quote_total',
+            ],
+            'credit_details' => [
+                'credit_number',
+                'po_number',
+                'date',
+                'credit_balance',
+                'credit_amount',
+            ],
+            'table_columns' => [
+                'product_key',
+                'notes',
+                'cost',
+                'quantity',
+                'discount',
+                'tax_name1',
+                'line_total'
+            ],
+        ];
 
-         return $variables;
-     }
+        return $variables;
+    }
 }

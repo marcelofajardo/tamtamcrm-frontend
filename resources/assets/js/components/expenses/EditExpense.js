@@ -43,7 +43,8 @@ class EditExpense extends React.Component {
             customer_id: this.props.expense.customer_id,
             company_id: this.props.expense.company_id,
             category_id: this.props.expense.category_id,
-            notes: this.props.expense.notes,
+            public_notes: this.props.expense.public_notes,
+            private_notes: this.props.expense.private_notes,
             custom_value1: this.props.expense.custom_value1,
             custom_value2: this.props.expense.custom_value2,
             custom_value3: this.props.expense.custom_value3,
@@ -164,7 +165,8 @@ class EditExpense extends React.Component {
             company_id: this.state.company_id,
             payment_type_id: this.state.payment_type_id,
             invoice_category_id: this.state.category_id,
-            notes: this.state.notes,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes,
             expense_currency_id: this.state.expense_currency_id,
             exchange_rate: this.state.exchange_rate,
             expense_date: this.state.expense_date,
@@ -366,12 +368,21 @@ class EditExpense extends React.Component {
                                         </FormGroup>
 
                                         <FormGroup className="mb-3">
-                                            <Label>Notes</Label>
-                                            <Input value={this.state.notes}
-                                                className={this.hasErrorFor('notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="notes"
+                                            <Label>Public Notes</Label>
+                                            <Input value={this.state.public_notes}
+                                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
+                                                type="textarea" name="public_notes"
                                                 onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('notes')}
+                                            {this.renderErrorFor('public_notes')}
+                                        </FormGroup>
+
+                                        <FormGroup className="mb-3">
+                                            <Label>Private Notes</Label>
+                                            <Input value={this.state.private_notes}
+                                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
+                                                type="textarea" name="private_notes"
+                                                onChange={this.handleInput.bind(this)}/>
+                                            {this.renderErrorFor('private_notes')}
                                         </FormGroup>
 
                                         {customForm}

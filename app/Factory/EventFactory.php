@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\Event;
 
 class EventFactory
 {
-    public function create(int $user_id, int $account_id) :Event
+    public function create(int $user_id, int $account_id): Event
     {
         $event = new Event;
         $event->created_by = $user_id;

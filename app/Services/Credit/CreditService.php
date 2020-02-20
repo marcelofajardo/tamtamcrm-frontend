@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Credit;
 
 use App\Credit;
@@ -46,7 +47,7 @@ class CreditService
      * Saves the credit
      * @return Credit object
      */
-    public function save() : ?Credit
+    public function save(): ?Credit
     {
         $this->credit->save();
         return $this->credit;

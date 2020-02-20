@@ -12,6 +12,7 @@ use App\Requests\User\CreateUserRequest;
 use App\Requests\User\UpdateUserRequest;
 use App\Repositories\UserRepository;
 use App\Transformations\UserTransformable;
+use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use App\Repositories\DepartmentRepository;
 use App\Department;
@@ -64,7 +65,7 @@ class UserController extends Controller
      *
      * @param CreateUserRequest $request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function store(CreateUserRequest $request)
     {
@@ -77,7 +78,7 @@ class UserController extends Controller
      *
      * @param int $id
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit(int $id)
     {
@@ -194,7 +195,8 @@ class UserController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $group = User::withTrashed()->where('id', '=', $id)->first();
         $this->user_repo->restore($group);
         return response()->json([], 200);

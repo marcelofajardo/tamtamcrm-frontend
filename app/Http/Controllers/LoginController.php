@@ -47,10 +47,9 @@ class LoginController extends Controller
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
-            return response()
-                ->json(['message' => 'Too many login attempts, you are being throttled'], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.api_version'));
+            return response()->json(['message' => 'Too many login attempts, you are being throttled'], 401)
+                             ->header('X-App-Version', config('ninja.app_version'))
+                             ->header('X-Api-Version', config('ninja.api_version'));
         }
 
         if ($token = auth()->attempt($request->all())) {
@@ -63,15 +62,12 @@ class LoginController extends Controller
 
             $accounts = AccountUser::whereUserId($user->id)->with('account')->get();
 
-            CompanyToken::updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'token' => $token,
-                    'user_id' => $user->id,
-                    'account_id' => $default_account->id,
-                    'domain_id' => $user->accounts->first()->domains->id
-                ]
-            );
+            CompanyToken::updateOrCreate(['user_id' => $user->id], [
+                'token' => $token,
+                'user_id' => $user->id,
+                'account_id' => $default_account->id,
+                'domain_id' => $user->accounts->first()->domains->id
+            ]);
 
             $response = [
                 'success' => true,

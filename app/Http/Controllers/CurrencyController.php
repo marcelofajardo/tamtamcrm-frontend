@@ -5,9 +5,11 @@
  * Date: 23/11/2019
  * Time: 13:46
  */
+
 namespace App\Http\Controllers;
 
 use App\Repositories\Interfaces\CurrencyRepositoryInterface;
+use Illuminate\Http\Response;
 
 class CurrencyController extends Controller
 {
@@ -21,7 +23,7 @@ class CurrencyController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {

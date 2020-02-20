@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\RecurringQuote;
 
 class RecurringQuoteFactory
 {
-    public static function create(int $customer_id, int $account_id, int $total) :RecurringQuote
+    public static function create(int $customer_id, int $account_id, int $total): RecurringQuote
     {
         $quote = new RecurringQuote();
         $quote->account_id = $account_id;
@@ -15,7 +16,8 @@ class RecurringQuoteFactory
         $quote->po_number = '';
         $quote->footer = '';
         $quote->terms = '';
-        $quote->notes = '';
+        $quote->public_notes = '';
+        $quote->private_notes = '';
         $quote->date = null;
         $quote->due_date = null;
         $quote->is_deleted = false;

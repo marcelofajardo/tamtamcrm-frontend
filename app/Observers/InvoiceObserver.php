@@ -11,6 +11,7 @@
 
 namespace App\Observers;
 
+use App\Models\Client;
 use App\Models\Invoice;
 
 class InvoiceObserver
@@ -18,7 +19,7 @@ class InvoiceObserver
     /**
      * Handle the client "created" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Client $client
      * @return void
      */
     public function created(Invoice $invoice)
@@ -29,7 +30,7 @@ class InvoiceObserver
     /**
      * Handle the client "updated" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Client $client
      * @return void
      */
     public function updated(Invoice $invoice)
@@ -40,7 +41,7 @@ class InvoiceObserver
     /**
      * Handle the client "deleted" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Client $client
      * @return void
      */
     public function deleted(Invoice $invoice)
@@ -51,7 +52,7 @@ class InvoiceObserver
     /**
      * Handle the client "restored" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Client $client
      * @return void
      */
     public function restored(Invoice $invoice)
@@ -62,7 +63,7 @@ class InvoiceObserver
     /**
      * Handle the client "force deleted" event.
      *
-     * @param  \App\Models\Client  $client
+     * @param Client $client
      * @return void
      */
     public function forceDeleted(Invoice $invoice)

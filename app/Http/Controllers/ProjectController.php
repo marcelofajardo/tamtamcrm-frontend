@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Factory\ProjectFactory;
 use App\Filters\ProjectFilter;
+use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Project;
 use App\Repositories\Interfaces\ProjectRepositoryInterface;
@@ -64,7 +66,7 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
+     * @param int $id
      * @return Response
      */
     public function show($id)
@@ -81,7 +83,7 @@ class ProjectController extends Controller
         return response()->json('Project updated!');
     }
 
-        /**
+    /**
      * @param int $id
      * @return mixed
      */
@@ -95,8 +97,8 @@ class ProjectController extends Controller
     /**
      * @param $id
      *
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function archive(int $id)
     {

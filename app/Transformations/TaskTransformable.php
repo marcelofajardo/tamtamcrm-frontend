@@ -51,7 +51,7 @@ trait TaskTransformable
         $prop->custom_value2 = $task->custom_value2 ?: '';
         $prop->custom_value3 = $task->custom_value3 ?: '';
         $prop->custom_value4 = $task->custom_value4 ?: '';
-        $prop->task_status_sort_order = (int) $task->task_status_sort_order;
+        $prop->task_status_sort_order = (int)$task->task_status_sort_order;
 
         return $prop;
     }

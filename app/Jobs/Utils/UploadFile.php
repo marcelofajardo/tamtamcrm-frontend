@@ -61,11 +61,10 @@ class UploadFile implements ShouldQueue
      *
      * @return void
      */
-    public function handle() : ?File
+    public function handle(): ?File
     {
-        $instance = Storage::disk($this->disk)->putFileAs(
-            self::PROPERTIES[$this->type]['path'], $this->file, $this->file->hashName()
-        );
+        $instance = Storage::disk($this->disk)
+                           ->putFileAs(self::PROPERTIES[$this->type]['path'], $this->file, $this->file->hashName());
 
         if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
             $image_size = getimagesize($this->file);
@@ -93,17 +92,21 @@ class UploadFile implements ShouldQueue
 
         $notification = NotificationFactory::create($this->account->id, $this->user->id);
         $notification->type = 'App\Notifications\AttachmentCreated';
-        $notification->data = json_encode(['id' => $document->id, 'message' => 'A new file has been uploaded', 'filename' => $document->name]);
+        $notification->data = json_encode([
+            'id' => $document->id,
+            'message' => 'A new file has been uploaded',
+            'filename' => $document->name
+        ]);
         $notification->save();
 
         return $document;
     }
 
-    private function generatePreview($preview_path) : string
+    private function generatePreview($preview_path): string
     {
         $extension = $this->file->getClientOriginalExtension();
 
-        if (empty(File::$types[$extension]) && ! empty(File::$extraExtensions[$extension])) {
+        if (empty(File::$types[$extension]) && !empty(File::$extraExtensions[$extension])) {
             $documentType = File::$extraExtensions[$extension];
         } else {
             $documentType = $extension;
@@ -129,7 +132,7 @@ class UploadFile implements ShouldQueue
             }
 
             if (in_array($documentType, ['bmp', 'tiff', 'psd'])) {
-                if (! class_exists('Imagick')) {
+                if (!class_exists('Imagick')) {
                     // Cant't read this
                     $makePreview = false;
                 } else {
@@ -156,7 +159,7 @@ class UploadFile implements ShouldQueue
 
                 $img->resize($previewWidth, $previewHeight);
 
-                $previewContent = (string) $img->encode($this->file->getClientOriginalExtension());
+                $previewContent = (string)$img->encode($this->file->getClientOriginalExtension());
 
                 Storage::put($preview_path, $previewContent);
 

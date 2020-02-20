@@ -19,7 +19,7 @@ class CreateCustomerRequest extends BaseFormRequest
         return [
             'settings' => new ValidClientGroupSettingsRule(),
             'customer_type' => 'required',
-//            'address_1' => ['required'],
+            //            'address_1' => ['required'],
             'first_name' => ['required'],
             'last_name' => ['required'],
             'email' => ['required', 'email', 'unique:customers'],

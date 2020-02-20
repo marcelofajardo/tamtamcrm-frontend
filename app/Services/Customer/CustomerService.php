@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Customer;
 
 use App\Customer;
@@ -13,25 +14,25 @@ class CustomerService
     }
 
     public function updateBalance(float $amount)
-     {
-         $this->customer->balance += $amount;
+    {
+        $this->customer->balance += $amount;
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function updatePaidToDate(float $amount)
-     {
-         $this->customer->paid_to_date += $amount;
+    public function updatePaidToDate(float $amount)
+    {
+        $this->customer->paid_to_date += $amount;
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function adjustCreditBalance(float $amount)
-     {
-         $this->customer->credit_balance += $amount;
+    public function adjustCreditBalance(float $amount)
+    {
+        $this->customer->credit_balance += $amount;
 
-         return $this;
-     }
+        return $this;
+    }
 
     public function setCustomerType($customer_type)
     {
@@ -40,10 +41,10 @@ class CustomerService
         return $this;
     }
 
-     public function save()
-     {
-     	$this->customer->save();
+    public function save()
+    {
+        $this->customer->save();
 
-     	return $this->customer;
-     }
+        return $this->customer;
+    }
 }

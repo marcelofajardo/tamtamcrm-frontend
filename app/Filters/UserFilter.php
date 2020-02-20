@@ -6,6 +6,7 @@ use App\Repositories\UserRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\UserTransformable;
 use App\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class UserFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -36,9 +37,9 @@ class UserFilter extends QueryFilter
         $orderBy = !$request->column || $request->column === 'name' ? 'first_name' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
-        $this->query = $this->model->select('users.*')->leftJoin('department_user', 'users.id', '=',
-            'department_user.user_id')
-            ->leftJoin('role_user', 'users.id', '=', 'role_user.user_id');
+        $this->query =
+            $this->model->select('users.*')->leftJoin('department_user', 'users.id', '=', 'department_user.user_id')
+                        ->leftJoin('role_user', 'users.id', '=', 'role_user.user_id');
 
         if ($request->has('status')) {
             $this->status($request->status);
@@ -92,8 +93,8 @@ class UserFilter extends QueryFilter
         }
         return $this->query->where(function ($query) use ($filter) {
             $query->where('users.first_name', 'like', '%' . $filter . '%')
-                ->orWhere('users.last_name', 'like', '%' . $filter . '%')
-                ->orWhere('users.email', 'like', '%' . $filter . '%');
+                  ->orWhere('users.last_name', 'like', '%' . $filter . '%')
+                  ->orWhere('users.email', 'like', '%' . $filter . '%');
         });
     }
 

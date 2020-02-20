@@ -106,7 +106,7 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
      * @param string $order
      * @param string $sort
      * @param array $except
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function listCredits(string $order = 'id', string $sort = 'desc', $except = []): Collection
     {

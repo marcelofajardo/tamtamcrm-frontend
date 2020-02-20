@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Repositories;
 
 use App\EventType;
 use App\Repositories\Interfaces\EventTypeRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
+use Exception;
 
 class EventTypeRepository extends BaseRepository implements EventTypeRepositoryInterface
 {
@@ -21,15 +23,14 @@ class EventTypeRepository extends BaseRepository implements EventTypeRepositoryI
 
     public function getAll()
     {
-        return $this->model->orderBy('name', 'asc')
-            ->get();
+        return $this->model->orderBy('name', 'asc')->get();
     }
 
     /**
      * @param int $id
      *
      * @return EventType
-     * @throws \Exception
+     * @throws Exception
      */
     public function findEventTypeById(int $id): EventType
     {

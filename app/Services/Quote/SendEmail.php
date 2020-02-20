@@ -29,7 +29,8 @@ class SendEmail extends AbstractService
     public function run()
     {
         if (!$this->reminder_template) {
-            $this->reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT || Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
+            $this->reminder_template = $this->quote->status_id == Quote::STATUS_DRAFT ||
+            Carbon::parse($this->quote->due_date) > now() ? 'invoice' : $this->quote->calculateTemplate();
         }
 
         $this->quote->invitations->each(function ($invitation) {

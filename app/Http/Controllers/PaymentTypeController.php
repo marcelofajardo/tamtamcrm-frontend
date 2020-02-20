@@ -23,9 +23,8 @@ class PaymentTypeController extends Controller
      *
      * @param PaymentMethodRepositoryInterface $paymentMethodRepo
      */
-    public function __construct(
-        PaymentMethodRepositoryInterface $paymentMethodRepo
-    ) {
+    public function __construct(PaymentMethodRepositoryInterface $paymentMethodRepo)
+    {
         $this->paymentMethodRepo = $paymentMethodRepo;
     }
 

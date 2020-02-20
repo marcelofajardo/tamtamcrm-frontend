@@ -18,6 +18,7 @@ use App\Repositories\ExpenseRepository;
 use App\Requests\SearchRequest;
 use App\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use App\Transformations\ExpenseTransformable;
@@ -44,7 +45,7 @@ class ExpenseFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -125,14 +126,14 @@ class ExpenseFilter extends QueryFilter
 
         return $this->query->where(function ($query) use ($filter) {
             $query->where('expenses.name', 'like', '%' . $filter . '%')
-                ->orWhere('expenses.id_number', 'like', '%' . $filter . '%')
+                  ->orWhere('expenses.id_number', 'like', '%' . $filter . '%')
                 //->orWhere('expense_contacts.first_name', 'like', '%'.$filter.'%')
                 //->orWhere('expense_contacts.last_name', 'like', '%'.$filter.'%')
                 //->orWhere('expense_contacts.email', 'like', '%'.$filter.'%')
-                ->orWhere('expenses.custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('expenses.custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('expenses.custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('expenses.custom_value4', 'like', '%' . $filter . '%');
+                  ->orWhere('expenses.custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('expenses.custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('expenses.custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('expenses.custom_value4', 'like', '%' . $filter . '%');
         });
     }
 

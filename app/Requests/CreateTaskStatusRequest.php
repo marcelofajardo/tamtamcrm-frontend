@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests;
 
 use App\Repositories\Base\BaseFormRequest;

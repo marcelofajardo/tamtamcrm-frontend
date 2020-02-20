@@ -18,6 +18,7 @@ use App\Transformations\InvoiceTransformable;
 use Carbon\Carbon;
 use App\Factory\QuoteFactory;
 use App\Transformations\QuoteTransformable;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use App\Event;
 use App\RecurringQuote;
@@ -32,6 +33,8 @@ use App\Filters\QuoteFilter;
 use App\Repositories\RecurringQuoteRepository;
 use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Traits\CheckEntityStatus;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class QuoteController
@@ -40,9 +43,7 @@ use App\Traits\CheckEntityStatus;
 class QuoteController extends Controller
 {
 
-    use QuoteTransformable,
-        CheckEntityStatus,
-        InvoiceTransformable;
+    use QuoteTransformable, CheckEntityStatus, InvoiceTransformable;
 
     /**
      * @var InvoiceRepositoryInterface
@@ -59,10 +60,8 @@ class QuoteController extends Controller
      * @param InvoiceRepositoryInterface $invoice_repo
      * @param QuoteRepositoryInterface $quote_repo
      */
-    public function __construct(
-        InvoiceRepositoryInterface $invoice_repo,
-        QuoteRepositoryInterface $quote_repo
-    ) {
+    public function __construct(InvoiceRepositoryInterface $invoice_repo, QuoteRepositoryInterface $quote_repo)
+    {
         $this->invoice_repo = $invoice_repo;
         $this->quote_repo = $quote_repo;
     }
@@ -99,7 +98,7 @@ class QuoteController extends Controller
         SaveRecurringQuote::dispatchNow($request, $quote->account, $quote);
         QuoteOrders::dispatchNow($quote);
         $notification = NotificationFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id);
-        (new NotificationRepository(new \App\Notification))->save($notification, [
+        (new NotificationRepository(new Notification))->save($notification, [
             'data' => json_encode(['id' => $quote->id, 'message' => 'A new quote was created']),
             'type' => 'App\Notifications\QuoteCreated'
         ]);
@@ -138,8 +137,8 @@ class QuoteController extends Controller
         switch ($action) {
             case 'clone_to_invoice':
                 $invoice = $this->invoice_repo->save($request->all(),
-                    CloneInvoiceFactory::create($this->quote_repo->findQuoteById($quote->id),
-                        auth()->user()->id, auth()->user()->account_user()->account_id));
+                    CloneQuoteToInvoiceFactory::create($this->quote_repo->findQuoteById($quote->id), auth()->user()->id,
+                        auth()->user()->account_user()->account_id));
                 return response()->json($this->transformInvoice($invoice));
                 break;
             case 'clone_to_quote':
@@ -163,7 +162,9 @@ class QuoteController extends Controller
                 return response()->json($quote);
                 break;
             case 'download':
-                return response()->download(public_path($quote->pdf_file_path()));
+                $disk = config('filesystems.default');
+                $content = Storage::disk($disk)->get($quote->service()->getQuotePdf(null));
+                return response()->json(['data' => base64_encode($content)]);
                 break;
             case 'archive':
                 $this->invoice_repo->archive($quote);
@@ -197,7 +198,7 @@ class QuoteController extends Controller
     /**
      * @param int $task_id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getQuoteLinesForTask(int $task_id)
     {

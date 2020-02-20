@@ -12,6 +12,8 @@ use App\Repositories\UserRepository;
 use App\Repositories\FileRepository;
 use App\Task;
 use App\User;
+use Exception;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\AttachmentCreated;
 use Illuminate\Support\Facades\Auth;
@@ -64,10 +66,10 @@ class UploadController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function destroy($id)
     {

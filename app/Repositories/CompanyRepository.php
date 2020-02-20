@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Company;
 use App\Repositories\Base\BaseRepository;
 use App\Product;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
@@ -39,7 +40,7 @@ class CompanyRepository extends BaseRepository implements CompanyRepositoryInter
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteBrand(): bool
     {
@@ -134,16 +135,11 @@ class CompanyRepository extends BaseRepository implements CompanyRepositoryInter
      */
     public function create($company): ?Company
     {
-        return $this->save(
-            $company,
-            CompanyFactory::create(auth()->user()->company()->id, auth()->user()->id)
-        );
+        return $this->save($company, CompanyFactory::create(auth()->user()->company()->id, auth()->user()->id));
     }
 
-    private
-    function parseCustomFields(
-        $fields
-    ): array {
+    private function parseCustomFields($fields): array
+    {
         foreach ($fields as &$value) {
             $value = (string)$value;
         }

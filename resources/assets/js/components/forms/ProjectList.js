@@ -194,10 +194,6 @@ export default class ProjectList extends Component {
                     <TableSearch onChange={this.filterProjects}/>
                 </Col>
 
-                <Col md={2}>
-                    {columnFilter}
-                </Col>
-
                 <Col md={3}>
                     <CustomerDropdown
                         customer={this.state.filters.customer_id}
@@ -238,6 +234,10 @@ export default class ProjectList extends Component {
                         })}
                     </DropdownMenu>
                 </ButtonDropdown>
+
+                <Col md={8}>
+                    {columnFilter}
+                </Col>
             </Row>
         )
     }

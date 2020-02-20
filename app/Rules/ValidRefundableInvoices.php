@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Rules;
 
 use App\Invoice;
@@ -19,17 +20,19 @@ class ValidRefundableInvoices implements Rule
     private $input;
 
     public function __construct($input)
-     {
-         $this->input = $input;
-     }
+    {
+        $this->input = $input;
+    }
 
     public function passes($attribute, $value)
     {
 
-       $payment = Payment::whereId($this->input['id'])->first();
+        $payment = Payment::whereId($this->input['id'])->first();
 
-        if(request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))){
-            $this->error_msg = "Attempting to refunded more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
+        if (request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))) {
+            $this->error_msg =
+                "Attempting to refunded more than payment amount, enter a value equal to or lower than the payment amount of " .
+                $payment->amount;
             return false;
         }
 
@@ -38,14 +41,14 @@ class ValidRefundableInvoices implements Rule
 
         if (is_array($value)) {
             $invoices = Invoice::whereIn('id', array_column($this->input['invoices'], 'invoice_id'))->get();
-        }
-        else
+        } else {
             return true;
+        }
 
         foreach ($invoices as $invoice) {
 
-            if (! $invoice->isRefundable()) {
-                $this->error_msg = "Invoice id ".$invoice->id ." cannot be refunded";
+            if (!$invoice->isRefundable()) {
+                $this->error_msg = "Invoice id " . $invoice->id . " cannot be refunded";
                 return false;
             }
 
@@ -56,8 +59,9 @@ class ValidRefundableInvoices implements Rule
                     //$pivot_record = $invoice->payments->where('id', $invoice->id)->first();
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
-                    if($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
-                        $this->error_msg = "Attempting to refund ". $val['amount'] ." only ".($pivot_record->amount - $pivot_record->refunded)." available for refund";
+                    if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
+                        $this->error_msg = "Attempting to refund " . $val['amount'] . " only " .
+                            ($pivot_record->amount - $pivot_record->refunded) . " available for refund";
                         return false;
                     }
                 }

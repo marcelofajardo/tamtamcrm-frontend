@@ -7,6 +7,7 @@ use App\RecurringQuote;
 use App\Repositories\RecurringQuoteRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\RecurringQuoteTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RecurringQuoteFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class RecurringQuoteFilter extends QueryFilter
 
     /**
      * @param SearchRequest $request
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -93,9 +94,9 @@ class RecurringQuoteFilter extends QueryFilter
         }
         return $this->query->where(function ($query) use ($filter) {
             $query->where('recurring_quotes.custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('recurring_quotes.custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('recurring_quotes.custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('recurring_quotes.custom_value4', 'like', '%' . $filter . '%');
+                  ->orWhere('recurring_quotes.custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('recurring_quotes.custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('recurring_quotes.custom_value4', 'like', '%' . $filter . '%');
         });
     }
 
@@ -134,9 +135,10 @@ class RecurringQuoteFilter extends QueryFilter
             $this->query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
         }
         if (in_array('overdue', $status_parameters)) {
-            $this->query->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                ->where('due_date', '<', Carbon::now())
-                ->orWhere('partial_due_date', '<', Carbon::now());
+            $this->query->whereIn('status_id', [
+                Invoice::STATUS_SENT,
+                Invoice::STATUS_PARTIAL
+            ])->where('due_date', '<', Carbon::now())->orWhere('partial_due_date', '<', Carbon::now());
         }
 
         $table = 'recurring_quotes';

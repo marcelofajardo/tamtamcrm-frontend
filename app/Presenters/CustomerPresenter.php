@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Presenters;
 
 use App\Country;
@@ -25,7 +26,8 @@ class CustomerPresenter extends EntityPresenter
 
     public function primary_contact_name()
     {
-        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name . ' ' . $this->entity->primary_contact->first()->last_name : 'No primary contact set';
+        return $this->entity->primary_contact->first() !== null ? $this->entity->primary_contact->first()->first_name .
+            ' ' . $this->entity->primary_contact->first()->last_name : 'No primary contact set';
     }
 
     public function email()

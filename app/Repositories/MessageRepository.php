@@ -13,6 +13,7 @@ use App\Repositories\Interfaces\MessageRepositoryInterface;
 use App\Message;
 use App\Customer;
 use App\User;
+use Exception;
 
 /**
  * Description of MessageRepository
@@ -48,7 +49,7 @@ class MessageRepository extends BaseRepository implements MessageRepositoryInter
      * Delete a message
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteMessage(): bool
     {

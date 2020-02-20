@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Quote;
 
 use App\Quote;
@@ -26,7 +27,7 @@ class QuoteService
         $mark_approved = new MarkApproved($this->quote->customer, $this->quote);
         $this->quote = $mark_approved->run();
 
-        if($this->quote->customer->getSetting('auto_convert_quote') === true) {
+        if ($this->quote->customer->getSetting('auto_convert_quote') === true) {
             $convert_quote = new ConvertQuote($this->quote->client, $invoice_repo, $this->quote);
             $this->quote = $convert_quote->run();
         }
@@ -67,7 +68,7 @@ class QuoteService
      * Saves the quote
      * @return Quote|null
      */
-    public function save() : ?Quote
+    public function save(): ?Quote
     {
         $this->quote->save();
         return $this->quote;

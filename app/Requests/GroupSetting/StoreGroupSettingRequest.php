@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\GroupSetting;
 
 use App\DataMapper\CustomerSettings;

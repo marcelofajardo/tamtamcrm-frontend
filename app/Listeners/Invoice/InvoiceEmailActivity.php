@@ -1,42 +1,45 @@
 <?php
+
 namespace App\Listeners\Invoice;
 
- use App\Activity;
- use App\Customer;
- use App\InvoiceInvitation;
- use App\Repositories\NotificationRepository;
- use Illuminate\Contracts\Queue\ShouldQueue;
- use Illuminate\Queue\InteractsWithQueue;
- use Illuminate\Support\Facades\Log;
+use App\Activity;
+use App\Customer;
+use App\InvoiceInvitation;
+use App\Repositories\NotificationRepository;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
+use stdClass;
 
- class InvoiceEmailActivity implements ShouldQueue
- {
-     protected $notification_repo;
-     /**
-      * Create the event listener.
-      *
-      * @return void
-      */
-     public function __construct(NotificationRepository $notification_repo)
-     {
-         $this->notification_repo = $notification_repo;
-     }
+class InvoiceEmailActivity implements ShouldQueue
+{
+    protected $notification_repo;
 
-     /**
-      * Handle the event.
-      *
-      * @param  object  $event
-      * @return void
-      */
-     public function handle($event)
-     {
-         $fields = new \stdClass;
+    /**
+     * Create the event listener.
+     *
+     * @return void
+     */
+    public function __construct(NotificationRepository $notification_repo)
+    {
+        $this->notification_repo = $notification_repo;
+    }
 
-         $fields->invoice_id = $event->invoice->id;
-         $fields->user_id = $event->invoice->user_id;
-         $fields->account_id = $event->invoice->account_id;
-         //$fields->activity_type_id = Activity::EMAIL_INVOICE;
+    /**
+     * Handle the event.
+     *
+     * @param object $event
+     * @return void
+     */
+    public function handle($event)
+    {
+        $fields = new stdClass;
 
-         $this->notification_repo->save($fields, $event->invoice);
-     }
- }
+        $fields->invoice_id = $event->invoice->id;
+        $fields->user_id = $event->invoice->user_id;
+        $fields->account_id = $event->invoice->account_id;
+        //$fields->activity_type_id = Activity::EMAIL_INVOICE;
+
+        $this->notification_repo->save($fields, $event->invoice);
+    }
+}

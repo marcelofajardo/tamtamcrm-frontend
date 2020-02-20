@@ -37,7 +37,7 @@ export default class Payments extends Component {
             dropdownButtonActions: ['download'],
             dropdownButtonOpen: false,
             bulk: [],
-            ignoredColumns: ['paymentables', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
+            ignoredColumns: ['paymentables', 'private_notes', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
             filters: {
                 status_id: 'active',
                 customer_id: '',
@@ -304,13 +304,6 @@ export default class Payments extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter onChange={this.filterPayments} update={this.updateCustomers}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
                         <Input type='select'
                             onChange={this.filterPayments}
                             id="status_id"
@@ -324,12 +317,6 @@ export default class Payments extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={10}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
                 <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
                     <DropdownToggle caret color="primary">
                         Bulk Action
@@ -340,6 +327,19 @@ export default class Payments extends Component {
                         })}
                     </DropdownMenu>
                 </ButtonDropdown>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterPayments} update={this.updateCustomers}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={10}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
+                </Col>
             </Row>
         )
     }

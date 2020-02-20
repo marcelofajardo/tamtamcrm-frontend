@@ -69,9 +69,8 @@ class PaymentMethod extends Model
             'switch' => self::SWITCH,
         ];
         $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
-        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/',
-                $cardName, $matches)
-        ) {
+        if (empty($cardTypes[$cardName]) &&
+            1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
             $cardName = $matches[1];
         }

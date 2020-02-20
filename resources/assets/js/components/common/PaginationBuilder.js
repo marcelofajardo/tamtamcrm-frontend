@@ -45,14 +45,14 @@ export default class PaginationBuilder extends Component {
     render () {
         const { from, to, recordCount, current_page, page, last_page } = this.props
         const counter = from > 0 && to > 0
-            ? <div className="justify-content-start col-7 pl-4">
+            ? <div className="pull-left">
                 Showing {from} to {to} of {recordCount} entries
             </div> : null
 
         return (<div className="row">
             {counter}
 
-            <Pagination listClassName="flex-wrap justify-content-end">
+            <Pagination listClassName="pull-right">
                 {current_page > 1
                     ? <PaginationItem><PaginationLink
                         onClick={() => this.changePage(1)}>

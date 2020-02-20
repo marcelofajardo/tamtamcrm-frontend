@@ -50,12 +50,9 @@ class InvoiceSum
     {
         $this->calculateLineItems()
             //->setTotal($this->invoice->total)
-            ->calculateDiscount()
+             ->calculateDiscount()
             //->calculateInvoiceTaxes()
-            ->setTaxMap()
-            ->calculateTotals()
-            ->calculateBalance()
-            ->calculatePartial();
+             ->setTaxMap()->calculateTotals()->calculateBalance()->calculatePartial();
         return $this;
     }
 
@@ -124,8 +121,8 @@ class InvoiceSum
     private function calculatePartial()
     {
         if (!isset($this->invoice->id) && isset($this->invoice->partial)) {
-            $this->invoice->partial = max(0,
-                min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
+            $this->invoice->partial =
+                max(0, min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
         }
 
         return $this;
@@ -173,7 +170,8 @@ class InvoiceSum
      */
     private function setCalculatedAttributes()
     {
-        $precision = !empty($this->invoice->customer) && !empty($this->invoice->customer->currency) ? $this->invoice->customer->currency->precision : 2;
+        $precision = !empty($this->invoice->customer) &&
+        !empty($this->invoice->customer->currency) ? $this->invoice->customer->currency->precision : 2;
 
         /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
         if ($this->invoice->total != $this->invoice->balance) {

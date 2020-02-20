@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\Invoice;
 
 use App\Invoice;

@@ -4,8 +4,10 @@ namespace App;
 
 use App\AccountUser;
 use App\Util\Jobs\FileUploader;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Event;
 use App\Traits\HasPermissionsTrait;
@@ -23,11 +25,8 @@ class User extends Authenticatable implements JWTSubject
 {
 
     use LaratrustUserTrait;
-    use Notifiable,
-        SoftDeletes,
-        HasPermissionsTrait,
-        PresentableTrait;
-    use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+    use Notifiable, SoftDeletes, HasPermissionsTrait, PresentableTrait;
+    use HasRelationships;
 
     protected $presenter = 'App\Presenters\UserPresenter';
 
@@ -79,7 +78,7 @@ class User extends Authenticatable implements JWTSubject
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function messages()
     {
@@ -170,10 +169,9 @@ class User extends Authenticatable implements JWTSubject
         */
 
         return Account::join('company_tokens', 'company_tokens.account_id', '=', 'accounts.id')
-            ->where('company_tokens.user_id', '=', $this->id)
-            ->where('company_tokens.token', '=', $this->auth_token)
-            ->select('accounts.*', 'accounts.id AS account_id')
-            ->first();
+                      ->where('company_tokens.user_id', '=', $this->id)
+                      ->where('company_tokens.token', '=', $this->auth_token)
+                      ->select('accounts.*', 'accounts.id AS account_id')->first();
     }
 
 
@@ -182,7 +180,7 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return int
      */
-    public function accountId() :int
+    public function accountId(): int
     {
         return $this->account()->id;
 
@@ -195,8 +193,8 @@ class User extends Authenticatable implements JWTSubject
      */
     public function accounts()
     {
-        return $this->belongsToMany(Account::class)->using(AccountUser::class)->withPivot('permissions', 'settings',
-            'is_admin', 'is_owner', 'is_locked');
+        return $this->belongsToMany(Account::class)->using(AccountUser::class)
+                    ->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
     }
 
     // Example, just to showcase the API.
@@ -210,17 +208,12 @@ class User extends Authenticatable implements JWTSubject
     {
         // Maybe even wrapper arround this search/find API won't be bad. This is raw example.
 
-        $avatar = $this->uploads()
-            ->where('type', FileUploader::AVATAR)
-            ->first();
+        $avatar = $this->uploads()->where('type', FileUploader::AVATAR)->first();
 
-        if($avatar) {
+        if ($avatar) {
 
-            $path = sprintf('%s/%s.%s',
-                FileUploader::PROPERTIES[FileUploader::AVATAR]['path'],
-                $avatar->uuid,
-                $avatar->extension
-            );
+            $path = sprintf('%s/%s.%s', FileUploader::PROPERTIES[FileUploader::AVATAR]['path'], $avatar->uuid,
+                $avatar->extension);
 
             return Storage::disk($avatar->disk)->url($path);
         }

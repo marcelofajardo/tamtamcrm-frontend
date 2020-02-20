@@ -6,6 +6,7 @@ use App\Jobs\Quote\ApplyQuoteNumber;
 use App\ClientContact;
 use App\Repositories\Base\BaseRepository;
 use App\Quote;
+use Exception;
 use Illuminate\Support\Collection;
 use App\Repositories\Interfaces\QuoteRepositoryInterface;
 use Illuminate\Http\Request;
@@ -44,7 +45,7 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param int $id
      *
      * @return Quote
-     * @throws \Exception
+     * @throws Exception
      */
     public function findQuoteById(int $id): Quote
     {
@@ -128,14 +129,10 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param string $order
      * @param string $sort
      * @param array $columns
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public
-    function listQuotes(
-        string $order = 'id',
-        string $sort = 'desc',
-        array $columns = ['*']
-    ): Collection {
+    public function listQuotes(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection
+    {
         return $this->all($columns, $order, $sort);
     }
 
@@ -144,10 +141,8 @@ class QuoteRepository extends BaseRepository implements QuoteRepositoryInterface
      * @param int $customerId
      * @return type
      */
-    public
-    function getQuoteForTask(
-        Task $objTask
-    ): Quote {
+    public function getQuoteForTask(Task $objTask): Quote
+    {
         return $this->model->where('task_id', $objTask->id)->first();
     }
 

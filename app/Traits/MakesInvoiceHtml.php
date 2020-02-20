@@ -2,9 +2,12 @@
 
 namespace App\Traits;
 
+use Exception;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\View\Factory;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Throwable;
 
 /**
  * Class MakesInvoiceHtml.
@@ -20,7 +23,7 @@ trait MakesInvoiceHtml
      *
      * @return string           The invoice string in HTML format
      */
-    public function generateInvoiceHtml($design, $invoice, $contact = null) :string
+    public function generateInvoiceHtml($design, $invoice, $contact = null): string
     {
         //$variables = array_merge($invoice->makeLabels(), $invoice->makeValues());
         //$design = str_replace(array_keys($variables), array_values($variables), $design);
@@ -50,13 +53,13 @@ trait MakesInvoiceHtml
      * @return string         The return HTML string
      *
      */
-    public function renderView($string, $data) :string
+    public function renderView($string, $data): string
     {
         if (!$data) {
             $data = [];
         }
 
-        $data['__env'] = app(\Illuminate\View\Factory::class);
+        $data['__env'] = app(Factory::class);
 
         $php = Blade::compileString($string);
 
@@ -66,13 +69,13 @@ trait MakesInvoiceHtml
 
         try {
             eval('?' . '>' . $php);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }
 
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }

@@ -17,8 +17,7 @@ use App\Event;
 class ActivityController extends Controller
 {
 
-    use NotificationTransformable,
-        EventTransformable;
+    use NotificationTransformable, EventTransformable;
 
     /**
      * @var CommentRepositoryInterface
@@ -41,11 +40,10 @@ class ActivityController extends Controller
      * @param CommentRepositoryInterface $commentRepository
      * NotificationRepositoryInterface $notificationRepository
      */
-    public function __construct(
-        CommentRepositoryInterface $commentRepository,
+    public function __construct(CommentRepositoryInterface $commentRepository,
         NotificationRepositoryInterface $notificationRepository,
-        EventRepositoryInterface $eventRepository
-    ) {
+        EventRepositoryInterface $eventRepository)
+    {
         $this->commentRepository = $commentRepository;
         $this->notificationRepository = $notificationRepository;
         $this->eventRepository = $eventRepository;
@@ -66,13 +64,11 @@ class ActivityController extends Controller
             return $this->transformNotification($notification);
         })->all();
 
-        return response()->json(
-            [
-                'notifications' => $notifications,
-                'comments' => $comments,
-                'events' => $events
-            ]
-        );
+        return response()->json([
+            'notifications' => $notifications,
+            'comments' => $comments,
+            'events' => $events
+        ]);
     }
 
 }

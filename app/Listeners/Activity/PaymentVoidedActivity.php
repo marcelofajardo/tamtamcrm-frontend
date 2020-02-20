@@ -15,10 +15,12 @@ use App\Models\Activity;
 use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use stdClass;
 
 class PaymentVoidedActivity implements ShouldQueue
 {
     protected $activity_repo;
+
     /**
      * Create the event listener.
      *
@@ -32,12 +34,12 @@ class PaymentVoidedActivity implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
      * @return void
      */
     public function handle($event)
     {
-        $fields = new \stdClass;
+        $fields = new stdClass;
 
         $fields->client_id = $event->payment->id;
         $fields->user_id = $event->payment->user_id;

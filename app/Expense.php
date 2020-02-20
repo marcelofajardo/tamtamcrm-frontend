@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +21,8 @@ class Expense extends Model
         'amount',
         'foreign_amount',
         'exchange_rate',
-        'notes',
+        'public_notes',
+        'private_notes',
         'bank_id',
         'transaction_id',
         'expense_category_id',

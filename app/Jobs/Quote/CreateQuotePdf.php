@@ -36,7 +36,7 @@ class CreateQuotePdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($quote, Account $account, ClientContact $contact = null, $disk = 'public')
+    public function __construct($quote, Account $account, ClientContact $contact = null)
     {
 
         $this->quote = $quote;
@@ -83,11 +83,7 @@ class CreateQuotePdf implements ShouldQueue
         $pdf = $this->makePdf(null, null, $html);
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
-
-        var_dump($instance);
-
-        echo $file_path;
-        die;
+        
 
 //$instance= Storage::disk($this->disk)->path($file_path);
 

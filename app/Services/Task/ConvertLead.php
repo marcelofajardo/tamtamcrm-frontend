@@ -18,7 +18,7 @@ class ConvertLead
         $this->task = $task;
     }
 
-    public function run() 
+    public function run()
     {
         $customer = $this->task->customer;
         $this->task->service()->setTaskType(Task::TASK_TYPE_DEAL)->save();

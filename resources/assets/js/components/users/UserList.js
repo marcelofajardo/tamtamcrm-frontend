@@ -222,6 +222,17 @@ export default class UserList extends Component {
                     </FormGroup>
                 </Col>
 
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
+
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterUsers} update={this.addUserToState}
@@ -234,17 +245,6 @@ export default class UserList extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
-
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                            Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
             </Row>
         )
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use App\Events\PaymentWasVoided;
@@ -12,6 +13,7 @@ use App\Paymentable;
 use Event;
 use App\Events\PaymentWasRefunded;
 use App\Traits\GeneratesCounter;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
@@ -35,7 +37,8 @@ class Payment extends Model
         'status_id',
         'refunded',
         'transaction_reference',
-        'is_manual'
+        'is_manual',
+        'private_notes'
 
     ];
 
@@ -67,7 +70,7 @@ class Payment extends Model
     const TYPE_CUSTOMER_CREDIT = 2;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function payment_method()
     {
@@ -75,7 +78,7 @@ class Payment extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function payment_status()
     {
@@ -83,12 +86,12 @@ class Payment extends Model
     }
 
     public function paymentables()
-     {
-         return $this->hasMany(Paymentable::class);
-     }
+    {
+        return $this->hasMany(Paymentable::class);
+    }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function customer()
     {
@@ -97,13 +100,13 @@ class Payment extends Model
 
     public function invoice()
     {
-        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
+        return $this->morphedByMany(Invoice::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     /**
      * @return mixed
      */
-    public function getCompletedAmount() :float
+    public function getCompletedAmount(): float
     {
         return $this->amount - $this->refunded;
     }
@@ -116,7 +119,7 @@ class Payment extends Model
         }
 
         //if no refund specified
-        if (! $amount) {
+        if (!$amount) {
             $amount = $this->amount;
         }
 
@@ -125,7 +128,8 @@ class Payment extends Model
 
         if ($refund_change) {
             $this->refunded = $new_refund;
-            $this->status_id = $this->refunded == $this->amount ? self::STATUS_REFUNDED : self::STATUS_PARTIALLY_REFUNDED;
+            $this->status_id =
+                $this->refunded == $this->amount ? self::STATUS_REFUNDED : self::STATUS_PARTIALLY_REFUNDED;
             $this->save();
 
             event(new PaymentWasRefunded($this, $refund_change));
@@ -188,7 +192,7 @@ class Payment extends Model
 
     public function credits()
     {
-        return $this->morphedByMany(Credit::class, 'paymentable')->withPivot('amount','refunded')->withTimestamps();
+        return $this->morphedByMany(Credit::class, 'paymentable')->withPivot('amount', 'refunded')->withTimestamps();
     }
 
     public function account()
@@ -201,7 +205,7 @@ class Payment extends Model
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-    public function refund(array $data) :Payment
+    public function refund(array $data): Payment
     {
         $this->processRefund($data);
 

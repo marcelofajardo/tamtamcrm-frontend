@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Company;
 
 use App\Factory\CompanyLedgerFactory;
@@ -32,10 +33,9 @@ class UpdateCompanyLedgerWithInvoice
     {
 
         $balance = 0;
-        $ledger = CompanyLedger::whereCustomerId($this->invoice->customer_id)
-            ->whereAccountId($this->invoice->account_id)
-            ->orderBy('id', 'DESC')
-            ->first();
+        $ledger =
+            CompanyLedger::whereCustomerId($this->invoice->customer_id)->whereAccountId($this->invoice->account_id)
+                         ->orderBy('id', 'DESC')->first();
         if ($ledger) {
             $balance = $ledger->balance;
         }

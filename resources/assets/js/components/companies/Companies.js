@@ -196,10 +196,6 @@ export default class Companies extends Component {
                     <TableSearch onChange={this.filterCompanies}/>
                 </Col>
 
-                <Col md={6}>
-                    {columnFilter}
-                </Col>
-
                 <Col md={2}>
                     <FormGroup>
                         <Input type='select'
@@ -215,13 +211,6 @@ export default class Companies extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterCompanies} update={this.addUserToState}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
                 <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
                     <DropdownToggle caret color="primary">
                         Bulk Action
@@ -232,6 +221,17 @@ export default class Companies extends Component {
                         })}
                     </DropdownMenu>
                 </ButtonDropdown>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterCompanies} update={this.addUserToState}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={6}>
+                    {columnFilter}
+                </Col>
             </Row>
         )
     }

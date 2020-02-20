@@ -25,6 +25,8 @@ trait InvoiceTransformable
         $customer = $invoice->customer;
         $prop->user_id = (int)$invoice->user_id;
         $prop->company_id = (int)$invoice->company_id ?: null;
+        $prop->public_notes = $invoice->public_notes ?: '';
+        $prop->private_notes = $invoice->private_notes ?: '';
         $prop->number = $invoice->number ?: '';
         $prop->customer_id = (int)$invoice->customer_id;
         $prop->date = $invoice->date ?: '';
@@ -40,7 +42,6 @@ trait InvoiceTransformable
         $prop->status_id = (int)$invoice->status_id;
         $prop->discount_total = (float)$invoice->discount_total;
         $prop->deleted_at = $invoice->deleted_at;
-        $prop->notes = (string)$invoice->notes ?: '';
         $prop->terms = (string)$invoice->terms ?: '';
         $prop->footer = (string)$invoice->footer;
         $prop->line_items = $invoice->line_items ?: (array)[];

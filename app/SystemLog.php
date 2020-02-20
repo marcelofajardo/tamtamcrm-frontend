@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ class SystemLog extends Model
     /* Event IDs*/
     const EVENT_PAYMENT_RECONCILIATION_FAILURE = 10;
     const EVENT_PAYMENT_RECONCILIATION_SUCCESS = 11;
-    
+
     const EVENT_GATEWAY_SUCCESS = 21;
     const EVENT_GATEWAY_FAILURE = 22;
     const EVENT_GATEWAY_ERROR = 23;

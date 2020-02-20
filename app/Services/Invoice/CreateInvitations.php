@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Invoice;
 
 
@@ -22,10 +23,9 @@ class CreateInvitations extends AbstractService
         $contacts = $this->invoice->customer->contacts;
 
         $contacts->each(function ($contact) {
-            $invitation = InvoiceInvitation::whereAccountId($this->invoice->account_id)
-                ->whereClientContactId($contact->id)
-                ->whereInvoiceId($this->invoice->id)
-                ->first();
+            $invitation =
+                InvoiceInvitation::whereAccountId($this->invoice->account_id)->whereClientContactId($contact->id)
+                                 ->whereInvoiceId($this->invoice->id)->first();
 
             if (!$invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->account_id, $this->invoice->user_id);

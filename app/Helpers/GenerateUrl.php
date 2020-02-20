@@ -14,9 +14,13 @@ function generateUrl(File $document, $absolute = false)
 {
     $url = Storage::disk($document->disk)->url($document->path);
 
-    if($url && $absolute) return url($url);
+    if ($url && $absolute) {
+        return url($url);
+    }
 
-    if ($url) return $url;
+    if ($url) {
+        return $url;
+    }
 
     return null;
 }

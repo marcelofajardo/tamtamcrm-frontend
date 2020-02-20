@@ -21,10 +21,13 @@ use App\Requests\SearchRequest;
 use App\Transformations\CreditTransformable;
 use App\Factory\CreditFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use App\Traits\CheckEntityStatus;
 
 class CreditController extends Controller
 {
     use CreditTransformable;
+    use CheckEntityStatus;
 
     protected $credit_repo;
 
@@ -40,12 +43,11 @@ class CreditController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index(SearchRequest $request)
     {
-        $credits = (new CreditFilter($this->credit_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $credits = (new CreditFilter($this->credit_repo))->filter($request, auth()->user()->account_user()->account_id);
 
         return response()->json($credits);
     }
@@ -75,8 +77,8 @@ class CreditController extends Controller
     {
 
         $credit = $this->credit_repo->save($request->all(),
-            CreditFactory::create($request->customer_id, auth()->user()->account_user()->account_id,
-                auth()->user()->id, $request->total));
+            CreditFactory::create($request->customer_id, auth()->user()->account_user()->account_id, auth()->user()->id,
+                $request->total));
         return response()->json($this->transformCredit($credit));
     }
 

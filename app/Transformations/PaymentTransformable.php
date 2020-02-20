@@ -38,7 +38,7 @@ trait PaymentTransformable
         $obj->task_id = (int)$payment->task_id;
         $obj->company_id = (int)$payment->company_id;
         $obj->applied = (float)$payment->applied;
-
+        $obj->private_notes = $payment->private_notes ?: '';
 
         return $obj;
     }

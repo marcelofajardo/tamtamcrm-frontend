@@ -10,6 +10,7 @@ use App\RecurringInvoice;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
 use App\Requests\SearchRequest;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Filters\RecurringInvoiceFilter;
@@ -33,7 +34,7 @@ class RecurringInvoiceController extends Controller
     /**
      * RecurringInvoiceController constructor.
      *
-     * @param \App\Repositories\RecurringInvoiceRepository $recurring_invoice_repo The RecurringInvoice repo
+     * @param RecurringInvoiceRepository $recurring_invoice_repo The RecurringInvoice repo
      */
     public function __construct(RecurringInvoiceRepository $recurring_invoice_repo)
     {
@@ -54,7 +55,7 @@ class RecurringInvoiceController extends Controller
     /**
      * @param StoreRecurringInvoiceRequest $request
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function store(StoreRecurringInvoiceRequest $request)
     {
@@ -75,8 +76,8 @@ class RecurringInvoiceController extends Controller
             'partial' => $invoice->partial
         ), $request->all());
 
-        $recurringInvoice = (new RecurringInvoiceRepository(new RecurringInvoice))->save($arrRecurring
-            , RecurringInvoiceFactory::create($request->customer_id, auth()->user()->account_user()->id,
+        $recurringInvoice = (new RecurringInvoiceRepository(new RecurringInvoice))->save($arrRecurring,
+            RecurringInvoiceFactory::create($request->customer_id, auth()->user()->account_user()->id,
                 $invoice->total));
         return response()->json($recurringInvoice);
     }
@@ -175,7 +176,8 @@ class RecurringInvoiceController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $group = RecurringInvoice::withTrashed()->where('id', '=', $id)->first();
         $this->recurring_invoice_repo->restore($group);
         return response()->json([], 200);

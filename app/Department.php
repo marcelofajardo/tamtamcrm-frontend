@@ -10,8 +10,7 @@ use App\User;
 class Department extends Model
 {
 
-    use SearchableTrait,
-        NodeTrait;
+    use SearchableTrait, NodeTrait;
 
     protected $searchable = [
         /**

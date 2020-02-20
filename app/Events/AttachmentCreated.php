@@ -14,7 +14,7 @@ class AttachmentCreated
     private $user;
     private $account;
     private $file;
-    
+
     public function __construct($user, $account, $file)
     {
         $this->user = $user;

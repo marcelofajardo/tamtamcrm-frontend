@@ -8,6 +8,8 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Invoice;
+
 class InvoiceSumInclusive
 {
     protected $invoice;
@@ -17,7 +19,7 @@ class InvoiceSumInclusive
     /**
      * Constructs the object with Invoice and Settings object
      *
-     * @param \App\Models\Invoice $invoice The invoice
+     * @param Invoice $invoice The invoice
      */
     public function __construct($invoice)
     {
@@ -26,8 +28,7 @@ class InvoiceSumInclusive
 
     public function build()
     {
-        $this->calculateBalance()
-            ->calculatePartial();
+        $this->calculateBalance()->calculatePartial();
 
         return $this;
     }
@@ -48,8 +49,8 @@ class InvoiceSumInclusive
     private function calculatePartial()
     {
         if (!isset($this->invoice->id) && isset($this->invoice->partial)) {
-            $this->invoice->partial = max(0,
-                min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
+            $this->invoice->partial =
+                max(0, min($this->formatValue($this->invoice->partial, 2), $this->invoice->balance));
         }
 
         return $this;
@@ -74,11 +75,11 @@ class InvoiceSumInclusive
         if ($this->invoice->total != $this->invoice->balance) {
             $paid_to_date = $this->invoice->total - $this->invoice->balance;
 
-            $this->invoice->balance = $this->formatValue($this->getTotal(),
-                    $this->invoice->customer->currency->precision) - $paid_to_date;
+            $this->invoice->balance =
+                $this->formatValue($this->getTotal(), $this->invoice->customer->currency->precision) - $paid_to_date;
         } else {
-            $this->invoice->balance = $this->formatValue($this->getTotal(),
-                $this->invoice->customer->currency->precision);
+            $this->invoice->balance =
+                $this->formatValue($this->getTotal(), $this->invoice->customer->currency->precision);
         }
 
         /* Set new calculated total */

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Presenters;
 
 /**
@@ -17,7 +18,8 @@ class CompanyPresenter extends EntityPresenter
 
     public function logo()
     {
-        return iconv_strlen($this->entity->company_logo > 0) ? $this->entity->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        return iconv_strlen($this->entity->company_logo >
+            0) ? $this->entity->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
     }
 
     public function address()

@@ -26,8 +26,8 @@ class SendEmail
         $customer = $task->customer;
         $email_builder = (new OrderEmail())->build($this->order, $customer);
 
-            if ($customer->send_invoice && $customer->email) {
-                EmailOrder::dispatchNow($this->order, $email_builder, $customer);
-            }
+        if ($customer->send_invoice && $customer->email) {
+            EmailOrder::dispatchNow($this->order, $email_builder, $customer);
+        }
     }
 }

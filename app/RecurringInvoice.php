@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -61,7 +62,8 @@ class RecurringInvoice extends Model
         'due_date',
         'line_items',
         'footer',
-        'notes',
+        'public_notes',
+        'private_notes',
         'terms',
         'total',
         'partial',
@@ -110,7 +112,8 @@ class RecurringInvoice extends Model
 
     public function getStatusAttribute()
     {
-        if ($this->status_id == RecurringInvoice::STATUS_ACTIVE && $this->start_date > Carbon::now()) //marked as active, but yet to fire first cycle
+        if ($this->status_id == RecurringInvoice::STATUS_ACTIVE &&
+            $this->start_date > Carbon::now()) //marked as active, but yet to fire first cycle
         {
             return RecurringInvoice::STATUS_PENDING;
         } else {
@@ -122,10 +125,9 @@ class RecurringInvoice extends Model
         }
     }
 
-    public function nextSendDate() :?Carbon
+    public function nextSendDate(): ?Carbon
     {
-        switch ($this->frequency_id)
-        {
+        switch ($this->frequency_id) {
             case RecurringInvoice::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date->addWeek());
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
@@ -151,24 +153,23 @@ class RecurringInvoice extends Model
             default:
                 return null;
         }
-}
-public
-function remainingCycles() : int
-{
-    if ($this->remaining_cycles == 0) {
-        return 0;
-    } else {
-        return $this->remaining_cycles - 1;
     }
-}
 
-public
-function setCompleted() :  void
-{
-    $this->status_id = self::STATUS_COMPLETED;
-    $this->next_send_date = null;
-    $this->remaining_cycles = 0;
-    $this->save();
-}
+    public function remainingCycles(): int
+    {
+        if ($this->remaining_cycles == 0) {
+            return 0;
+        } else {
+            return $this->remaining_cycles - 1;
+        }
+    }
+
+    public function setCompleted(): void
+    {
+        $this->status_id = self::STATUS_COMPLETED;
+        $this->next_send_date = null;
+        $this->remaining_cycles = 0;
+        $this->save();
+    }
 
 }

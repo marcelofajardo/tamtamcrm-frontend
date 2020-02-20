@@ -51,12 +51,8 @@ class EmailOrder implements ShouldQueue
     {
         $email_builder = $this->email_builder;
 
-        Mail::to($this->customer->email, $this->customer->present()->name())
-            ->send(new TemplateEmail($email_builder,
-                    $this->customer->user,
-                    $this->customer
-                )
-            );
+        Mail::to($this->customer->email, $this->customer->present()->name())->send(new TemplateEmail($email_builder,
+            $this->customer->user, $this->customer));
 
         if (count(Mail::failures()) > 0) {
             return $this->logMailError($errors);
@@ -65,12 +61,7 @@ class EmailOrder implements ShouldQueue
 
     private function logMailError($errors)
     {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->invoice->customer
-        );
+        SystemLogger::dispatch($errors, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SEND, SystemLog::TYPE_FAILURE,
+            $this->invoice->customer);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\SourceType;
 use App\Repositories\Interfaces\SourceTypeRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
+use Exception;
 
 class SourceTypeRepository extends BaseRepository implements SourceTypeRepositoryInterface
 {
@@ -22,15 +23,14 @@ class SourceTypeRepository extends BaseRepository implements SourceTypeRepositor
 
     public function getAll()
     {
-        return $this->model->orderBy('name', 'asc')
-            ->get();
+        return $this->model->orderBy('name', 'asc')->get();
     }
 
     /**
      * @param int $id
      *
      * @return SourceType
-     * @throws \Exception
+     * @throws Exception
      */
     public function findSourceById(int $id): SourceType
     {

@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Account;
+use App\Models\Company;
 use App\Repositories\Base\BaseRepository;
 use Illuminate\Http\Request;
 
@@ -42,30 +44,29 @@ class AccountRepository extends BaseRepository
     /**
      * Saves the client and its contacts
      *
-     * @param      array $data The data
-     * @param      \App\Account
+     * @param array $data The data
+     * @param Account
      * $client  The Account
      *
-     * @return     Client|\App\Models\Company|null  Company Object
+     * @return     Client|Company|null  Company Object
      */
-    public function save(array $data, Account $account) : ?Account
-	{
-       if(isset($data['custom_fields']) && is_array($data['custom_fields'])) {
-           $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
+    public function save(array $data, Account $account): ?Account
+    {
+        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+            $data['custom_fields'] = $this->parseCustomFields($data['custom_fields']);
         }
 
-$account->fill($data);
-$account->save();
-return $account;
+        $account->fill($data);
+        $account->save();
+        return $account;
 
-}
-
-private
-function parseCustomFields($fields) :array
-{
-    foreach ($fields as &$value) {
-        $value = (string)$value;
     }
-    return $fields;
-}
+
+    private function parseCustomFields($fields): array
+    {
+        foreach ($fields as &$value) {
+            $value = (string)$value;
+        }
+        return $fields;
+    }
 }

@@ -42,6 +42,8 @@ class AddExpense extends React.Component {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
+            public_notes: '',
+            private_notes: '',
             customer_id: null,
             expense_currency_id: null,
             payment_type_id: null,
@@ -137,7 +139,8 @@ class AddExpense extends React.Component {
             expense_currency_id: this.state.expense_currency_id,
             exchange_rate: this.state.exchange_rate,
             company_id: this.state.company_id,
-            notes: this.state.notes,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes,
             transaction_reference: this.state.transaction_reference,
             invoice_category_id: this.state.category_id,
             expense_date: this.state.expense_date,
@@ -170,7 +173,8 @@ class AddExpense extends React.Component {
                     expense_date: null,
                     company_id: null,
                     category_id: null,
-                    notes: null,
+                    public_notes: null,
+                    private_notes: null,
                     loading: false
                 })
                 this.toggle()
@@ -208,7 +212,8 @@ class AddExpense extends React.Component {
                     expense_date: null,
                     company_id: null,
                     category_id: null,
-                    notes: null,
+                    public_notes: null,
+                    private_notes: null,
                     loading: false
                 }, () => localStorage.removeItem('expenseForm'))
             }
@@ -330,12 +335,21 @@ class AddExpense extends React.Component {
                                         </FormGroup>
 
                                         <FormGroup className="mb-3">
-                                            <Label>Notes</Label>
+                                            <Label>Public Notes</Label>
                                             <Input value={this.state.notes}
-                                                className={this.hasErrorFor('notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="notes"
+                                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
+                                                type="textarea" name="public_notes"
                                                 onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('notes')}
+                                            {this.renderErrorFor('public_notes')}
+                                        </FormGroup>
+
+                                        <FormGroup className="mb-3">
+                                            <Label>Private Notes</Label>
+                                            <Input value={this.state.notes}
+                                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
+                                                type="textarea" name="private_notes"
+                                                onChange={this.handleInput.bind(this)}/>
+                                            {this.renderErrorFor('private_notes')}
                                         </FormGroup>
 
                                         {customForm}
@@ -384,27 +398,27 @@ class AddExpense extends React.Component {
                                             style={{ marginBottom: '1rem' }}>Mark Paid</Button>
                                         <Collapse isOpen={this.state.paymentOpen}>
                                             <Row form>
-                                                <Col md={4}>
+                                                <Col md={6}>
                                                     <FormGroup>
                                                         <Label for="exampleEmail">Payment Type</Label>
                                                         <PaymentTypeDropdown handleInputChanges={this.handleInput}
                                                             name="payment_type_id"/>
                                                     </FormGroup>
                                                 </Col>
-                                                <Col md={4}>
+                                                <Col md={6}>
                                                     <FormGroup>
                                                         <Label for="examplePassword">Date</Label>
                                                         <Input type="date" name="payment_date"
                                                             onChange={this.handleInput} id="examplePassword"
-                                                            placeholder="password placeholder"/>
+                                                            placeholder="payment date"/>
                                                     </FormGroup>
                                                 </Col>
-                                                <Col md={4}>
+                                                <Col md={6}>
                                                     <FormGroup>
                                                         <Label for="examplePassword">Transaction Reference</Label>
                                                         <Input type="text" name="transaction_reference"
                                                             onChange={this.handleInput} id="transaction_reference"
-                                                            placeholder="password placeholder"/>
+                                                            placeholder="transaction reference"/>
                                                     </FormGroup>
                                                 </Col>
                                             </Row>

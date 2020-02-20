@@ -7,6 +7,7 @@ use App\Department;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use App\Exceptions\CreateUserErrorException;
+use Exception;
 use Illuminate\Support\Collection as Support;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
@@ -31,7 +32,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      * @param int $id
      *
      * @return User
-     * @throws \Exception
+     * @throws Exception
      */
     public function findUserById(int $id): User
     {
@@ -40,7 +41,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteUser(): bool
     {
@@ -69,9 +70,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     public function getActiveUsers($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection
     {
 
-        return User::where('is_active', 1)
-            ->orderBy($orderBy, $sortBy)
-            ->get();
+        return User::where('is_active', 1)->orderBy($orderBy, $sortBy)->get();
     }
 
     /**
@@ -106,11 +105,8 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
      */
     public function getUsersForDepartment(Department $objDepartment): Support
     {
-        return $this->model->join('department_user', 'department_user.user_id', '=', 'users.id')
-            ->select('users.*')
-            ->where('department_user.department_id', $objDepartment->id)
-            ->groupBy('users.id')
-            ->get();
+        return $this->model->join('department_user', 'department_user.user_id', '=', 'users.id')->select('users.*')
+                           ->where('department_user.department_id', $objDepartment->id)->groupBy('users.id')->get();
     }
 
     public function getModel()

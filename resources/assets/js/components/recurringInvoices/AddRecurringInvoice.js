@@ -15,6 +15,8 @@ class AddRecurringInvoice extends Component {
             is_recurring: false,
             invoice_id: null,
             customer_id: null,
+            public_notes: '',
+            private_notes: '',
             start_date: moment(new Date()).format('YYYY-MM-DD'),
             end_date: moment(new Date()).format('YYYY-MM-DD'),
             recurring_due_date: moment(new Date()).format('YYYY-MM-DD'),
@@ -63,7 +65,9 @@ class AddRecurringInvoice extends Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes
         })
             .then((response) => {
                 this.toggle()
@@ -81,7 +85,9 @@ class AddRecurringInvoice extends Component {
                     custom_value1: '',
                     custom_value2: '',
                     custom_value3: '',
-                    custom_value4: ''
+                    custom_value4: '',
+                    public_notes: '',
+                    private_notes: ''
                 })
             })
             .catch((error) => {
@@ -137,7 +143,9 @@ class AddRecurringInvoice extends Component {
                     custom_value1: '',
                     custom_value2: '',
                     custom_value3: '',
-                    custom_value4: ''
+                    custom_value4: '',
+                    public_notes: '',
+                    private_notes: ''
                 }, () => localStorage.removeItem('recurringInvoiceForm'))
             }
         })
@@ -223,6 +231,20 @@ class AddRecurringInvoice extends Component {
                                 customers={this.props.customers}
                                 errors={this.state.errors}
                             />
+                        </FormGroup>
+
+                        <FormGroup>
+                            <Label for="end_date">Public Notes(*):</Label>
+                            <Input value={this.state.public_notes} type="text" id="public_notes" name="public_notes"
+                                onChange={this.handleInput}/>
+                            {this.renderErrorFor('public_notes')}
+                        </FormGroup>
+
+                        <FormGroup>
+                            <Label for="private_notes">Private Notes(*):</Label>
+                            <Input value={this.state.private_notes} type="text" id="private_notes" name="private_notes"
+                                onChange={this.handleInput}/>
+                            {this.renderErrorFor('private_notes')}
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>

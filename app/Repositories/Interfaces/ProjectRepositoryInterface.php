@@ -10,7 +10,7 @@ interface ProjectRepositoryInterface extends BaseRepositoryInterface
 {
     public function findProjectById(int $id): Project;
 
-    public function save($data, Project $invoice) : ?Project;
+    public function save($data, Project $invoice): ?Project;
 
     public function deleteProject(): bool;
 

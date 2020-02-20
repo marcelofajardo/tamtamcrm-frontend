@@ -8,6 +8,7 @@ use App\Currency;
 use App\Country;
 use App\User;
 use App\CompanyUser;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -57,7 +58,7 @@ class Company extends Model
     protected $presenter = 'App\Presenters\CompanyPresenter';
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function products()
     {

@@ -184,7 +184,7 @@ trait MakesInvoiceValues
 
         foreach (self::$labels as $label) {
             //$data['$' . $label . '_label'] = ucwords(str_replace('_', ' ', $label));
-            $data['$'.$label . '_label'] = trans('texts.'.$label);
+            $data['$' . $label . '_label'] = trans('texts.' . $label);
         }
 
         if ($custom_fields) {
@@ -215,10 +215,8 @@ trait MakesInvoiceValues
      * @return array returns an array
      * of keyed labels (appended with _label)
      */
-    public
-    function makeValues(
-        $contact = null
-    ): array {
+    public function makeValues($contact = null): array
+    {
         /*if(!$this->customer->currency() || !$this->client){
             throw new Exception(debug_backtrace()[1]['function'], 1);
             exit;
@@ -257,13 +255,6 @@ trait MakesInvoiceValues
         $data['$invoice.line_taxes'] = &$data['$line_taxes'];
         $data['$total_taxes'] = $this->makeTotalTaxes() ?: '&nbsp;';
         $data['$invoice.total_taxes'] = &$data['$total_taxes'];
-        // $data['$tax'] = ;
-        // $data['$item'] = ;
-        // $data['$description'] = ;
-        // $data['$unit_cost'] = ;
-        // $data['$quantity'] = ;
-        // $data['$line_total'] = ;
-        //        $data['$paid_to_date'] = ;
         $data['$discount'] = Number::formatMoney($this->calc()->getTotalDiscount(), $this->customer) ?: '&nbsp;';
         $data['$invoice.discount'] = &$data['$discount'];
         $data['$subtotal'] = Number::formatMoney($this->calc()->getSubTotal(), $this->customer) ?: '&nbsp;';
@@ -288,23 +279,10 @@ trait MakesInvoiceValues
         $data['$invoice2'] = $this->custom_value2 ?: '&nbsp;';
         $data['$invoice3'] = $this->custom_value3 ?: '&nbsp;';
         $data['$invoice4'] = $this->custom_value4 ?: '&nbsp;';
-        $data['$invoice.public_notes'] = $this->notes ?: '&nbsp;';
-        // $data['$your_invoice'] = ;
-        // $data['$quote'] = ;
-        // $data['$your_quote'] = ;
-        // $data['$quote_date'] = ;
-        // $data['$quote_number'] = ;
-        // $data['$invoice_issued_to'] = ;
-        // $data['$quote_issued_to'] = ;
-        // $data['$rate'] = ;
-        // $data['$hours'] = ;
-        // $data['$from'] = ;
-        // $data['$to'] = ;
-        // $data['$invoice_to'] = ;
-        // $data['$quote_to'] = ;
-        // $data['$details'] = ;
+        $data['$invoice.public_notes'] = $this->public_notes ?: '&nbsp;';
         $data['$invoice_no'] = $this->number ?: '&nbsp;';
         $data['$invoice.invoice_no'] = &$data['$invoice_no'];
+        $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
 
 
         $addresses = $this->customer->addresses;
@@ -343,15 +321,16 @@ trait MakesInvoiceValues
         $data['$client.website'] = &$data['$website'];
         $data['$phone'] = $this->customer->present()->phone() ?: '&nbsp;';
         $data['$client.phone'] = &$data['$phone'];
-        $data['$city_state_postal'] = $this->present()->cityStateZip($billing->city, $billing->state_code,
-            $billing->zip, false) ?: '&nbsp;';
+        $data['$city_state_postal'] =
+            $this->present()->cityStateZip($billing->city, $billing->state_code, $billing->zip, false) ?: '&nbsp;';
         $data['$client.city_state_postal'] = &$data['$city_state_postal'];
-        $data['$postal_city_state'] = $this->present()->cityStateZip($billing->city, $billing->state_code,
-            $billing->zip, true) ?: '&nbsp;';
+        $data['$postal_city_state'] =
+            $this->present()->cityStateZip($billing->city, $billing->state_code, $billing->zip, true) ?: '&nbsp;';
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
         $data['$country'] = isset($billing->country->name) ? $billing->country->name : 'No Country Set';
         $data['$client.country'] = &$data['$country'];
-        $data['$email'] = isset($this->customer->primary_contact()->first()->email) ? $this->customer->primary_contact()->first()->email : 'no contact email on record';
+        $data['$email'] = isset($this->customer->primary_contact()->first()->email) ? $this->customer->primary_contact()
+                                                                                                     ->first()->email : 'no contact email on record';
         $data['$client.email'] = &$data['$email'];
 
         if (!$contact) {
@@ -366,9 +345,9 @@ trait MakesInvoiceValues
         $data['$contact4'] = isset($contact) ? $contact->custom_value4 : '&nbsp;';
 
         $data['$company.city_state_postal'] = $this->account->present()->cityStateZip($settings->city, $settings->state,
-            $settings->postal_code, false) ?: '&nbsp;';
+                $settings->postal_code, false) ?: '&nbsp;';
         $data['$company.postal_city_state'] = $this->account->present()->cityStateZip($settings->city, $settings->state,
-            $settings->postal_code, true) ?: '&nbsp;';
+                $settings->postal_code, true) ?: '&nbsp;';
         $data['$company.name'] = $this->account->present()->name() ?: '&nbsp;';
         $data['$company.company_name'] = &$data['$company.name'];
         $data['$company.address1'] = $settings->address1 ?: '&nbsp;';
@@ -400,11 +379,8 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    public
-    function table_header(
-        array $columns,
-        array $css
-    ): ?string {
+    public function table_header(array $columns, array $css): ?string
+    {
 
         /* Table Header */
         //$table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
@@ -414,7 +390,8 @@ trait MakesInvoiceValues
 
         foreach ($column_headers as $column) {
             //$table_header .= '<td class="' . $css['table_header_td_class'] . '">' . $column . '</td>';
-            $table_header .= '<td class="'.$css['table_header_td_class'].'">' . trans('texts.'.$column.'') . '</td>';
+            $table_header .= '<td class="' . $css['table_header_td_class'] . '">' . trans('texts.' . $column . '') .
+                '</td>';
         }
 
 //$table_header .= '</tr></thead>';
@@ -422,11 +399,8 @@ trait MakesInvoiceValues
         return $table_header;
     }
 
-    public
-    function table_body(
-        array $columns,
-        array $css
-    ): ?string {
+    public function table_body(array $columns, array $css): ?string
+    {
         $table_body = '';
 
         /* Table Body */
@@ -512,7 +486,7 @@ trait MakesInvoiceValues
      *
      * @return string[HTML string
      */
-   public function table(array $columns) :?string
+    public function table(array $columns): ?string
     {
         $data = '<table class="table table-striped items">';
         $data .= '<thead><tr class="heading">';
@@ -521,7 +495,7 @@ trait MakesInvoiceValues
 
         foreach ($column_headers as $column) {
 
-            $data .= '<td>' . trans('texts.'.$column.'') . '</td>';
+            $data .= '<td>' . trans('texts.' . $column . '') . '</td>';
         }
 
         $data .= '</tr></thead>';
@@ -534,7 +508,7 @@ trait MakesInvoiceValues
             $data .= '<tr class="item">';
 
             foreach ($columns as $column) {
-                $data .= '<td>'. $item->{$column} . '</td>';
+                $data .= '<td>' . $item->{$column} . '</td>';
             }
             $data .= '</tr>';
         }
@@ -550,21 +524,17 @@ trait MakesInvoiceValues
      * @param array $columns The column header values
      * @return array          The new column header variables
      */
-    private
-    function transformColumnsForHeader(
-        array $columns
-    ): array {
+    private function transformColumnsForHeader(array $columns): array
+    {
         $pre_columns = $columns;
         $columns = array_intersect($columns, self::$master_columns);
         return str_replace([
             'tax_name1',
             'tax_name2'
-        ],
-            [
-                'tax',
-                'tax',
-            ],
-            $columns);
+        ], [
+            'tax',
+            'tax',
+        ], $columns);
 
     }
 
@@ -575,10 +545,8 @@ trait MakesInvoiceValues
      * @param array $columns The column header values
      * @return array          The invoice variables
      */
-    private
-    function transformColumnsForLineItems(
-        array $columns
-    ): array {
+    private function transformColumnsForLineItems(array $columns): array
+    {
         /* Removes any invalid columns the user has entered. */
         $columns = array_intersect($columns, self::$master_columns);
         return str_replace([
@@ -587,15 +555,13 @@ trait MakesInvoiceValues
             'custom_invoice_label3',
             'custom_invoice_label4',
             'tax_name1',
-        ],
-            [
-                'custom_invoice_value1',
-                'custom_invoice_value2',
-                'custom_invoice_value3',
-                'custom_invoice_value4',
-                'unit_tax',
-            ],
-            $columns);
+        ], [
+            'custom_invoice_value1',
+            'custom_invoice_value2',
+            'custom_invoice_value3',
+            'custom_invoice_value4',
+            'unit_tax',
+        ], $columns);
 
     }
 
@@ -604,11 +570,9 @@ trait MakesInvoiceValues
      * @param array $items The array of invoice items
      * @return array        The formatted array of invoice items
      */
-    private
-    function transformLineItems(
-        $items
-    ): array {
-        if(!is_array($items)) {
+    private function transformLineItems($items): array
+    {
+        if (!is_array($items)) {
             return [];
         }
 

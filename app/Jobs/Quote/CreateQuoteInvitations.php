@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Quote;
 
 use App\Factory\QuoteInvitationFactory;
@@ -35,10 +36,8 @@ class CreateQuoteInvitations implements ShouldQueue
         $contacts = $this->quote->customer->contacts;
 
         $contacts->each(function ($contact) {
-            $invitation = QuoteInvitation::whereAccountId($this->quote->account_id)
-                ->whereClientContactId($contact->id)
-                ->whereQuoteId($this->quote->id)
-                ->first();
+            $invitation = QuoteInvitation::whereAccountId($this->quote->account_id)->whereClientContactId($contact->id)
+                                         ->whereQuoteId($this->quote->id)->first();
 
             if (!$invitation && $contact->send) {
                 $ii = QuoteInvitationFactory::create($this->quote->account_id, $this->quote->user_id);

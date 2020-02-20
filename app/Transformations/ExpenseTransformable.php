@@ -39,7 +39,8 @@ trait ExpenseTransformable
         $prop->tax_rate2 = (float)$expense->tax_rate2;
         $prop->tax_name3 = $expense->tax_name3 ? $expense->tax_name3 : '';
         $prop->tax_rate3 = (float)$expense->tax_rate3;
-        $prop->notes = (string)$expense->notes ?: '';
+        $prop->private_notes = (string)$expense->private_notes ?: '';
+        $prop->public_notes = (string)$expense->public_notes ?: '';
         $prop->transaction_reference = (string)$expense->transaction_reference ?: '';
         $prop->transaction_id = (string)$expense->transaction_id ?: '';
         $prop->expense_date = $expense->expense_date ?: '';

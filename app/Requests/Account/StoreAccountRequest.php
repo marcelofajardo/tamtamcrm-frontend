@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\Account;
 
 use App\Rules\ValidSettingsRule;
@@ -12,7 +13,7 @@ class StoreAccountRequest extends BaseFormRequest
      * @return bool
      */
 
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return true;
     }

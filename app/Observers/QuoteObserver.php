@@ -18,7 +18,7 @@ class QuoteObserver
     /**
      * Handle the quote "created" event.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param Quote $quote
      * @return void
      */
     public function created(Quote $quote)
@@ -29,7 +29,7 @@ class QuoteObserver
     /**
      * Handle the quote "updated" event.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param Quote $quote
      * @return void
      */
     public function updated(Quote $quote)
@@ -40,7 +40,7 @@ class QuoteObserver
     /**
      * Handle the quote "deleted" event.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param Quote $quote
      * @return void
      */
     public function deleted(Quote $quote)
@@ -51,7 +51,7 @@ class QuoteObserver
     /**
      * Handle the quote "restored" event.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param Quote $quote
      * @return void
      */
     public function restored(Quote $quote)
@@ -62,7 +62,7 @@ class QuoteObserver
     /**
      * Handle the quote "force deleted" event.
      *
-     * @param  \App\Models\Quote  $quote
+     * @param Quote $quote
      * @return void
      */
     public function forceDeleted(Quote $quote)

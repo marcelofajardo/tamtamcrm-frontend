@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Repositories\Base\BaseRepository;
@@ -20,7 +21,7 @@ class ProductImageRepository extends BaseRepository
     /**
      * @return mixed
      */
-    public function findProduct() : Product
+    public function findProduct(): Product
     {
         return $this->model->product;
     }

@@ -63,7 +63,7 @@ class TaskService
      * Saves the quote
      * @return Quote|null
      */
-    public function save() : ?Task
+    public function save(): ?Task
     {
         $this->task->save();
         return $this->task;

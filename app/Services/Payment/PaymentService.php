@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Services\Payment;
 
 use App\Factory\PaymentFactory;
+use App\Invoice;
 use App\Payment;
 
 
@@ -14,7 +16,7 @@ class PaymentService
         $this->payment = $payment;
     }
 
-    public function manualPayment($invoice) :?Payment
+    public function manualPayment($invoice): ?Payment
     {
         /* Create Payment */
         $payment = PaymentFactory::create($invoice->customer_id, $invoice->user_id, $invoice->account_id);
@@ -33,11 +35,32 @@ class PaymentService
         return $payment;
     }
 
-public
-function sendEmail($contact = null)
-{
-    $send_email = new SendEmail($this->payment, $contact);
+    public function sendEmail($contact = null)
+    {
+        return (new SendEmail($this->payment, $contact))->run();
+    }
 
-    return $send_email->run();
-}
+    public function reversePayment()
+    {
+        $invoices = $this->payment->invoices()->get();
+        $client = $this->payment->customer;
+
+        $invoices->each(function ($invoice) {
+            if ($invoice->pivot->amount > 0) {
+                $invoice->status_id = Invoice::STATUS_SENT;
+                $invoice->balance = $invoice->pivot->amount;
+                $invoice->save();
+            }
+        });
+
+        $this->payment->ledger()->updatePaymentBalance($this->payment->amount);
+
+        $client->service()->updateBalance($this->payment->amount)->updatePaidToDate($this->payment->amount * -1)
+               ->save();
+    }
+
+    public function updateInvoicePayment()
+    {
+        return ((new UpdateInvoicePayment($this->payment)))->run();
+    }
 }

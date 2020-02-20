@@ -46,11 +46,11 @@ interface InvoiceLineRepositoryInterface
     /**
      *
      */
-    public function getInvoiceLinesForTask(Task $objTask, int $finance_type) : Support;
+    public function getInvoiceLinesForTask(Task $objTask, int $finance_type): Support;
 
     /**
      *
      * @param Invoice $objInvoice
      */
-    public function getInvoiceLinesByInvoiceId(Invoice $objInvoice) : Support;
+    public function getInvoiceLinesByInvoiceId(Invoice $objInvoice): Support;
 }

@@ -7,6 +7,7 @@ use App\Task;
 use App\Repositories\Interfaces\CommentRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use App\Exceptions\CreateCommentErrorException;
+use Exception;
 use Illuminate\Support\Collection;
 
 class CommentRepository extends BaseRepository implements CommentRepositoryInterface
@@ -28,7 +29,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
      * @param int $id
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateComment(array $data): bool
     {
@@ -55,7 +56,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
      * @param int $id
      *
      * @return Comment
-     * @throws \Exception
+     * @throws Exception
      */
     public function findCommentById(int $id): Comment
     {
@@ -64,7 +65,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteComment(): bool
     {
@@ -83,26 +84,20 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
         return $this->all($columns, $orderBy, $sortBy);
     }
 
-    public function getAllCommentsForTask(Task $objTask) : Collection
+    public function getAllCommentsForTask(Task $objTask): Collection
     {
         return $this->model->join('comment_task', 'comments.id', '=', 'comment_task.comment_id')
-            ->where('comment_task.task_id', $objTask->id)
-            ->where('comments.parent_type', '=', 1)
-            ->orderBy('created_at', 'desc')
-            ->with('user')
-            ->get();
+                           ->where('comment_task.task_id', $objTask->id)->where('comments.parent_type', '=', 1)
+                           ->orderBy('created_at', 'desc')->with('user')->get();
     }
 
     /**
      *
      * @return Collection
      */
-    public function getCommentsForActivityFeed() : Collection
+    public function getCommentsForActivityFeed(): Collection
     {
-        return $this->model->where('parent_type', 2)
-            ->orderBy('created_at', 'desc')
-            ->with('user')
-            ->get();
+        return $this->model->where('parent_type', 2)->orderBy('created_at', 'desc')->with('user')->get();
     }
 
 }

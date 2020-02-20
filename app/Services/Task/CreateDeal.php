@@ -13,6 +13,8 @@ use App\Repositories\CustomerRepository;
 use App\Repositories\TaskRepository;
 use App\Task;
 use App\Quote;
+use DateInterval;
+use DateTime;
 use Illuminate\Http\Request;
 
 class CreateDeal
@@ -38,12 +40,13 @@ class CreateDeal
         $account_id = 1;
         $factory = (new CustomerFactory())->create($account_id, $this->task->user_id);
 
-        $date = new \DateTime(); // Y-m-d
-        $date->add(new \DateInterval('P30D'));
+        $date = new DateTime(); // Y-m-d
+        $date->add(new DateInterval('P30D'));
         $due_date = $date->format('Y-m-d');
 
-        $customer = $this->customer_repo->save($this->request->except('_token', '_method', 'valued_at',
-            'title', 'description'), $factory);
+        $customer =
+            $this->customer_repo->save($this->request->except('_token', '_method', 'valued_at', 'title', 'description'),
+                $factory);
         if ($this->request->has('address_1') && !empty($this->request->address_1)) {
             $customer->addresses()->create([
                 'company_id' => $this->request->company_id,
@@ -57,19 +60,17 @@ class CreateDeal
             ]);
         }
 
-        $this->task = $this->task_repo->save(
-            [
-                'due_date' => $due_date,
-                'created_by' => $this->task->user_id,
-                'source_type' => $this->request->source_type,
-                'title' => $this->request->title,
-                'description' => $this->request->description,
-                'customer_id' => $customer->id,
-                'valued_at' => $this->request->valued_at,
-                'task_type' => $this->is_deal === true ? 3 : 2,
-                'task_status' => $this->request->task_status
-            ], $this->task
-        );
+        $this->task = $this->task_repo->save([
+            'due_date' => $due_date,
+            'created_by' => $this->task->user_id,
+            'source_type' => $this->request->source_type,
+            'title' => $this->request->title,
+            'description' => $this->request->description,
+            'customer_id' => $customer->id,
+            'valued_at' => $this->request->valued_at,
+            'task_type' => $this->is_deal === true ? 3 : 2,
+            'task_status' => $this->request->task_status
+        ], $this->task);
 
         if ($this->request->has('contributors')) {
             $this->task->users()->sync($this->request->input('contributors'));

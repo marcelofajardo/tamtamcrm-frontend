@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\TaskStatus;
@@ -14,13 +15,13 @@ interface TaskStatusRepositoryInterface
      */
     public function getAllStatusForTaskType(int $task_type);
 
-    public function createTaskStatus(array $orderStatusData) : TaskStatus;
+    public function createTaskStatus(array $orderStatusData): TaskStatus;
 
-    public function updateTaskStatus(array $data) : bool;
+    public function updateTaskStatus(array $data): bool;
 
     public function listTaskStatuses(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection;
 
-    public function deleteTaskStatus() : bool;
+    public function deleteTaskStatus(): bool;
 
     public function findTasks(): Collection;
 

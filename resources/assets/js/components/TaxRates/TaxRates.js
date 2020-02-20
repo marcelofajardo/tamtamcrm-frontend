@@ -173,12 +173,6 @@ export default class TaxRates extends Component {
                 </Col>
 
                 <Col md={2}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
                     <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
                         <Input type='select'
                             onChange={this.filterTaxRates}
@@ -193,13 +187,6 @@ export default class TaxRates extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterTaxRates} update={this.addUserToState}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
                 <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
                     <DropdownToggle caret color="primary">
                         Bulk Action
@@ -210,6 +197,19 @@ export default class TaxRates extends Component {
                         })}
                     </DropdownMenu>
                 </ButtonDropdown>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterTaxRates} update={this.addUserToState}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={2}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
+                </Col>
             </Row>
         )
     }

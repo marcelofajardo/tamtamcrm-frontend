@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Base;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Input;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Input;
 class BaseRepository implements BaseRepositoryInterface
 {
 
-   protected $model;
+    protected $model;
 
     /**
      * BaseRepository constructor.
@@ -98,14 +99,14 @@ class BaseRepository implements BaseRepositoryInterface
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete(): bool
     {
         return $this->model->delete();
     }
 
-      /**
+    /**
      * @param $entity
      */
     public function archive($entity)
@@ -113,15 +114,16 @@ class BaseRepository implements BaseRepositoryInterface
         if ($entity->trashed()) {
             return;
         }
-        
+
         $entity->delete();
     }
+
     /**
      * @param $entity
      */
     public function restore($entity)
     {
-        if (! $entity->trashed()) {
+        if (!$entity->trashed()) {
             return;
         }
         $fromDeleted = false;
@@ -132,6 +134,7 @@ class BaseRepository implements BaseRepositoryInterface
             $entity->save();
         }
     }
+
     /**
      * @param $entity
      */
@@ -156,12 +159,11 @@ class BaseRepository implements BaseRepositoryInterface
     {
         $page = Input::get('page', 1);
         $offset = ($page * $perPage) - $perPage;
-        return new LengthAwarePaginator(
-            array_values(array_slice($data, $offset, $perPage, true)), count($data), $perPage, $page, [
+        return new LengthAwarePaginator(array_values(array_slice($data, $offset, $perPage, true)), count($data),
+            $perPage, $page, [
                 'path' => app('request')->url(),
                 'query' => app('request')->query()
-            ]
-        );
+            ]);
     }
 
     public function paginateCollection($items, $perPage = 15, $options = [])
@@ -170,16 +172,11 @@ class BaseRepository implements BaseRepositoryInterface
         //$items = $items->forPage($page, $perPage); //Filter the page var
 
 
-        return new LengthAwarePaginator(
-            $items->forPage($page, $perPage),
-            count($items) ?: $this->count(),
-            $perPage,
-            $page,
-            [
+        return new LengthAwarePaginator($items->forPage($page, $perPage), count($items) ?: $this->count(), $perPage,
+            $page, [
                 'path' => app('request')->url(),
                 'query' => app('request')->query(),
-            ]
-        );
+            ]);
     }
 
 }

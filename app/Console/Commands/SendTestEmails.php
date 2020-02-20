@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use App\Mail\TemplateEmail;
@@ -53,16 +54,14 @@ class SendTestEmails extends Command
         ];
         $user = User::whereEmail('michaelhamptondesign@yahoo.com')->first();
         if (!$user) {
-            $user = factory(\App\User::class)->create();
+            $user = factory(User::class)->create();
         }
 
         $test_email = 'michaelhamptondesign@yahoo.com';
 
         $cc_emails = [$test_email];
         $bcc_emails = [$test_email];
-        Mail::to($test_email)
-            ->cc($cc_emails)
-            ->bcc($bcc_emails)
+        Mail::to($test_email)->cc($cc_emails)->bcc($bcc_emails)
             //->replyTo(also_available_if_needed)
             ->send(new TemplateEmail($message, $template, $user));
     }

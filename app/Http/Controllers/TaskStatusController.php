@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Transformations\TaskStatusTransformable;
 use App\TaskStatus;
 use App\Requests\SearchRequest;
+use Illuminate\Http\Response;
 
 class TaskStatusController extends Controller
 {
@@ -63,8 +64,8 @@ class TaskStatusController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  CreateTaskStatusRequest $request
-     * @return \Illuminate\Http\Response
+     * @param CreateTaskStatusRequest $request
+     * @return Response
      */
     public function store(CreateTaskStatusRequest $request)
     {
@@ -75,9 +76,9 @@ class TaskStatusController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  UpdateTaskStatusRequest $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateTaskStatusRequest $request
+     * @param int $id
+     * @return Response
      */
     public function update(UpdateTaskStatusRequest $request, int $id)
     {
@@ -93,8 +94,8 @@ class TaskStatusController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return Response
      */
     public function destroy(int $id)
     {

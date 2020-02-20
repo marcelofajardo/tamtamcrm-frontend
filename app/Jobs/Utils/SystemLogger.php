@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Utils;
 
 use App\Customer;
@@ -36,7 +37,7 @@ class SystemLogger implements ShouldQueue
         $this->client = $client;
     }
 
-    public function handle() :void
+    public function handle(): void
     {
         $sl = [
             'customer_id' => $this->client->id,

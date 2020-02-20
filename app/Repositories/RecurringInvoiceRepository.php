@@ -53,12 +53,8 @@ class RecurringInvoiceRepository extends BaseRepository
      * @param array $columns
      * @return \Illuminate\Support\Collection
      */
-    public
-    function listInvoices(
-        string $order = 'id',
-        string $sort = 'desc',
-        array $columns = ['*']
-    ): Collection {
+    public function listInvoices(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection
+    {
         return $this->all($columns, $order, $sort);
     }
 
@@ -70,10 +66,8 @@ class RecurringInvoiceRepository extends BaseRepository
      * @return Product
      * @throws ProductNotFoundException
      */
-    public
-    function findInvoiceById(
-        int $id
-    ): RecurringInvoice {
+    public function findInvoiceById(int $id): RecurringInvoice
+    {
         return $this->findOneOrFail($id);
     }
 

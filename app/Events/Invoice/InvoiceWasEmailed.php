@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\Invoice;
 
 use App\Invoice;
@@ -7,13 +8,14 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Class InvoiceWasEmailed.
  */
-class InvoiceWasEmailed 
+class InvoiceWasEmailed
 {
     use SerializesModels;
     /**
      * @var Invoice
      */
     public $invoice;
+
     /**
      * Create a new event instance.
      *

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\Invoice;
@@ -15,12 +16,12 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
      * @param string $orderBy
      * @param string $sortBy
      */
-    public function listUsers($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') : Collection;
+    public function listUsers($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection;
 
     /**
      *
      */
-    public function deleteUser() : bool;
+    public function deleteUser(): bool;
 
     /**
      *
@@ -32,7 +33,7 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
      *
      * @param int $id
      */
-    public function findUserById(int $id) : User;
+    public function findUserById(int $id): User;
 
     /**
      *
@@ -40,13 +41,13 @@ interface UserRepositoryInterface extends BaseRepositoryInterface
      */
     //public function createUser(array $data) : User;
 
-    public function save(array $data, User $user) : ?User;
+    public function save(array $data, User $user): ?User;
 
     /**
      *
      * @param string $username
      */
-    public function findUserByUsername(string $username) : User;
+    public function findUserByUsername(string $username): User;
 
     /**
      *

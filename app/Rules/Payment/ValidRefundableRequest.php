@@ -24,10 +24,10 @@ class ValidRefundableRequest implements Rule
     private $input;
 
 
-     public function __construct($input)
-     {
-         $this->input = $input;
-     }
+    public function __construct($input)
+    {
+        $this->input = $input;
+    }
 
     public function passes($attribute, $value)
     {
@@ -83,7 +83,7 @@ class ValidRefundableRequest implements Rule
     {
         $invoice = Invoice::whereId($invoice['invoice_id'])->whereAccountId($payment->account_id)->first();
 
-        if(empty($invoice)) {
+        if (empty($invoice)) {
             return true;
         }
 
@@ -134,14 +134,16 @@ class ValidRefundableRequest implements Rule
 
                     $invoice = $paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for invoice id " . $invoice->id . ", maximum refundable amount is " . $refundable_amount;
+                    $this->error_msg = "Attempting to refund more than allowed for invoice id " . $invoice->id .
+                        ", maximum refundable amount is " . $refundable_amount;
                     return false;
                 }
             }
         }
 
         if (!$record_found) {
-            $this->error_msg = "Attempting to refund a payment with invoices attached, please specify valid invoice/s to be refunded.";
+            $this->error_msg =
+                "Attempting to refund a payment with invoices attached, please specify valid invoice/s to be refunded.";
             return false;
         }
     }
@@ -161,7 +163,8 @@ class ValidRefundableRequest implements Rule
 
                     $credit = $paymentable;
 
-                    $this->error_msg = "Attempting to refund more than allowed for credit " . $credit->number . ", maximum refundable amount is " . $refundable_amount;
+                    $this->error_msg = "Attempting to refund more than allowed for credit " . $credit->number .
+                        ", maximum refundable amount is " . $refundable_amount;
                     return false;
                 }
 
@@ -170,7 +173,8 @@ class ValidRefundableRequest implements Rule
         }
 
         if (!$record_found) {
-            $this->error_msg = "Attempting to refund a payment with credits attached, please specify valid credit/s to be refunded.";
+            $this->error_msg =
+                "Attempting to refund a payment with credits attached, please specify valid credit/s to be refunded.";
             return false;
         }
 

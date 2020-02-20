@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\File;
@@ -9,11 +10,11 @@ interface FileRepositoryInterface
 {
     public function getFilesForEntity($entity);
 
-    public function createFile(array $data) : File;
+    public function createFile(array $data): File;
 
-    public function findFileById(int $id) : File;
+    public function findFileById(int $id): File;
 
-    public function deleteFile() : bool;
+    public function deleteFile(): bool;
 
-    public function listFiles($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') : Collection;
+    public function listFiles($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection;
 }

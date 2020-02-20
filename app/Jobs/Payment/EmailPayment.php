@@ -69,12 +69,7 @@ class EmailPayment implements ShouldQueue
 
     private function logMailError($errors)
     {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->payment->customer
-        );
+        SystemLogger::dispatch($errors, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SEND, SystemLog::TYPE_FAILURE,
+            $this->payment->customer);
     }
 }

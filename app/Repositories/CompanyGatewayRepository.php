@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\CompanyGateway;
@@ -34,7 +35,8 @@ class CompanyGatewayRepository extends BaseRepository
      * @param $gateway_key
      * @return mixed
      */
-    public function getCompanyGatewayByGatewayKey(string $gateway_key) : ?CompanyGateway {
+    public function getCompanyGatewayByGatewayKey(string $gateway_key): ?CompanyGateway
+    {
         return $this->model->where('gateway_key', '=', $gateway_key)->first();
     }
 }

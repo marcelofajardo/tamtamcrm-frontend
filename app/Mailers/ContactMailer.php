@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Mailers;
 
 use App\Events\InvoiceWasEmailed;
@@ -8,6 +9,8 @@ use App\Payment;
 use App\Services\TemplateService;
 use App\Jobs\ConvertInvoiceToUbl;
 use Event;
+use HTMLUtils;
+use Laracasts\Presenter\Exceptions\PresenterException;
 use Utils;
 use Cache;
 use Mail;
@@ -56,8 +59,10 @@ class ContactMailer extends Mailer
             return trans('texts.email_error_inactive_invoice');
         }
         //$account->loadLocalizationSettings($client);
-        $emailTemplate = !empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
+        $emailTemplate =
+            !empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
+        $emailSubject =
+            !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
         $sent = false;
         $pdfString = false;
         $ublString = false;
@@ -93,8 +98,8 @@ class ContactMailer extends Mailer
                 'ublString' => $ublString,
                 'proposal' => $proposal,
             ];
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $reminder, $isFirst,
-                $data);
+            $response =
+                $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $reminder, $isFirst, $data);
             $isFirst = false;
             if ($response === true) {
                 $sent = true;
@@ -123,19 +128,12 @@ class ContactMailer extends Mailer
      * @param $documentStrings
      * @param mixed $reminder
      *
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     *
      * @return bool|string
+     * @throws PresenterException
+     *
      */
-    private function sendInvitation(
-        $invitation,
-        Invoice $invoice,
-        $body,
-        $subject,
-        $reminder,
-        $isFirst,
-        $extra
-    ) {
+    private function sendInvitation($invitation, Invoice $invoice, $body, $subject, $reminder, $isFirst, $extra)
+    {
         $client = $invoice->client;
         $account = $invoice->account;
         $user = $invitation->user;
@@ -163,7 +161,8 @@ class ContactMailer extends Mailer
             if ($client->autoBillLater()) {
                 $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
             }
-            if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
+            if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() &&
+                $account->send_portal_password) {
                 // The contact needs a password
                 $variables['password'] = $password = $this->generatePassword();
                 $invitation->contact->password = bcrypt($password);
@@ -172,7 +171,7 @@ class ContactMailer extends Mailer
         }
         $body = $this->templateService->processVariables($body, $variables);
         if (Utils::isNinja()) {
-            $body = \HTMLUtils::sanitizeHTML($body);
+            $body = HTMLUtils::sanitizeHTML($body);
         }
         $data = [
             'body' => $body,
@@ -203,8 +202,8 @@ class ContactMailer extends Mailer
         $subject = $this->templateService->processVariables($subject, $variables);
         $fromEmail = $account->getReplyToEmail() ?: $user->email;
         $view = $account->getTemplateView(ENTITY_INVOICE);
-        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view,
-            $data);
+        $response =
+            $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
         if ($response === true) {
             return true;
         } else {
@@ -372,9 +371,8 @@ class ContactMailer extends Mailer
             if ($errorEmail && !Cache::get("throttle_notified:{$key}")) {
                 Mail::raw('Account Throttle: ' . $account->account_key,
                     function ($message) use ($errorEmail, $account) {
-                        $message->to($errorEmail)
-                            ->from(CONTACT_EMAIL)
-                            ->subject("Email throttle triggered for account " . $account->id);
+                        $message->to($errorEmail)->from(CONTACT_EMAIL)
+                                ->subject("Email throttle triggered for account " . $account->id);
                     });
             }
             Cache::put("throttle_notified:{$key}", true, 60 * 24);

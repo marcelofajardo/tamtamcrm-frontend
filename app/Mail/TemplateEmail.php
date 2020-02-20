@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Mail;
 
 use App\Helpers\Email\BuildEmail;
@@ -20,7 +21,8 @@ class TemplateEmail extends Mailable
     public function __construct($build_email, User $user, Customer $customer)
     {
         $this->build_email = $build_email;
-        $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
+        $this->user =
+            $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
         $this->customer = $customer;
     }
 
@@ -41,23 +43,24 @@ class TemplateEmail extends Mailable
 
         $message = $this->from($this->user->email,
             $this->user->present()->name())//todo this needs to be fixed to handle the hosted version
-        ->subject($this->build_email->getSubject())
-            ->text('email.template.plain', ['body' => $this->build_email->getBody(), 'footer' => $this->build_email->getFooter()])
-            ->view($template_name, [
-                'body' => $this->build_email->getBody(),
-                'footer' => $this->build_email->getFooter(),
-                'title' => $this->build_email->getSubject(),
-                'settings' => $settings,
-                'company' => $company
-            ]);
+                        ->subject($this->build_email->getSubject())->text('email.template.plain', [
+            'body' => $this->build_email->getBody(),
+            'footer' => $this->build_email->getFooter()
+        ])->view($template_name, [
+            'body' => $this->build_email->getBody(),
+            'footer' => $this->build_email->getFooter(),
+            'title' => $this->build_email->getSubject(),
+            'settings' => $settings,
+            'company' => $company
+        ]);
 
-         //conditionally attach files
+        //conditionally attach files
 //         if($settings->pdf_email_attachment !== false && !empty($this->build_email->getAttachments())){
 //
 //             foreach($this->build_email->getAttachments() as $file)
 //                 $message->attach($file);
 //         }
 
-         return $message;
+        return $message;
     }
 }

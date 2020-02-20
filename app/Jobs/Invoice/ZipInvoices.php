@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Invoice;
 
 use App\Mail\DownloadInvoices;
@@ -23,10 +24,10 @@ class ZipInvoices implements ShouldQueue
     private $account;
 
     /**
+     * @return void
      * @deprecated confirm to be deleted
      * Create a new job instance.
      *
-     * @return void
      */
     public function __construct($invoices, Account $account)
     {
@@ -50,7 +51,7 @@ class ZipInvoices implements ShouldQueue
         $options->setOutputStream($tempStream);
 
         # create a new zipstream object
-        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')).".zip";
+        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . ".zip";
 
         $path = $this->invoices->first()->customer->invoice_filepath();
 

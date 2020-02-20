@@ -14,12 +14,14 @@ namespace App\Designs;
 class CreativeRed extends AbstractDesign
 {
 
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
-	public function header() {
+    public function header()
+    {
 
-		return '
+        return '
 			<!DOCTYPE html>
 			<html lang="en">
 			    <head>
@@ -53,9 +55,10 @@ class CreativeRed extends AbstractDesign
                     </div>
 			';
 
-	}
+    }
 
-	public function body() {
+    public function body()
+    {
 
         return '
         <div class="flex mt-8">
@@ -90,17 +93,19 @@ class CreativeRed extends AbstractDesign
         </div>
         ';
 
-	}
+    }
 
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left rounded-lg",
-			'table_header_td_class'    => "font-medium uppercase text-pink-700 text-xl px-4 py-5",
-			'table_body_td_class'      => "px-4 py-4",
-		];
-	}
+    public function table_styles()
+    {
+        return [
+            'table_header_thead_class' => "text-left rounded-lg",
+            'table_header_td_class' => "font-medium uppercase text-pink-700 text-xl px-4 py-5",
+            'table_body_td_class' => "px-4 py-4",
+        ];
+    }
 
-	public function table() {
+    public function table()
+    {
 
         return '
         <table class="w-full table-auto mt-20 border-t-4 border-b-4 border-pink-700 bg-white">
@@ -130,9 +135,10 @@ class CreativeRed extends AbstractDesign
             </tr>
         </tbody>
     </table>';
-	}
+    }
 
-	public function footer() {
+    public function footer()
+    {
 
         return '
         <div class="w-full flex justify-end mt-4">
@@ -145,6 +151,6 @@ class CreativeRed extends AbstractDesign
         </html>
         ';
 
-	}
+    }
 
 }

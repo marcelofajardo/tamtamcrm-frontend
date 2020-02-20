@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Notifications;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -49,10 +51,8 @@ class PushFactory
     public function message($token, $message, $device)
     {
         try {
-            PushNotification::app($device)
-                ->to($token)
-                ->send($message);
-        } catch (\Exception $e) {
+            PushNotification::app($device)->to($token)->send($message);
+        } catch (Exception $e) {
             Log::error($e->getMessage());
         }
     }
@@ -73,9 +73,7 @@ class PushFactory
      */
     public function getFeedback($token, $message, $device)
     {
-        $feedback = PushNotification::app($device)
-            ->to($token)
-            ->send($message);
+        $feedback = PushNotification::app($device)->to($token)->send($message);
         return $feedback->getFeedback();
     }
 }

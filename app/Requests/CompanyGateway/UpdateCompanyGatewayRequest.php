@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\CompanyGateway;
 
 use App\Rules\ValidSettingsRule;
@@ -15,7 +16,7 @@ class UpdateCompanyGatewayRequest extends BaseFormRequest
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return true;
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\GroupSetting;
@@ -34,7 +35,7 @@ class GroupSettingRepository extends BaseRepository
         return $this->findOneOrFail($id);
     }
 
-    public function save($data, GroupSetting $group_setting) :?GroupSetting
+    public function save($data, GroupSetting $group_setting): ?GroupSetting
     {
         $group_setting->fill($data);
         $group_setting->save();

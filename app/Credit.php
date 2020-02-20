@@ -1,11 +1,14 @@
 <?php
+
 namespace App;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Services\Credit\CreditService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Credit extends Model
 {
     use SoftDeletes;
@@ -24,7 +27,10 @@ class Credit extends Model
         'credit_date',
         'number',
         'terms',
-        'footer'
+        'footer',
+        'public_notes',
+        'private_notes'
+
     ];
 
     protected $casts = [
@@ -34,16 +40,16 @@ class Credit extends Model
     ];
 
     const STATUS_DRAFT = 1;
-    const STAUS_PARTIAL =  2;
+    const STAUS_PARTIAL = 2;
     const STATUS_APPLIED = 3;
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class ,'assigned_user_id', 'id');
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function account()
     {
@@ -92,7 +98,7 @@ class Credit extends Model
 
     public function invoices()
     {
-         return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
+        return $this->belongsToMany(Invoice::class)->using(Paymentable::class);
     }
 
     public function company_ledger()
@@ -100,25 +106,25 @@ class Credit extends Model
         return $this->morphMany(CompanyLedger::class, 'company_ledgerable');
     }
 
-     /**
-      * Access the invoice calculator object
-      *
-      * @return object The invoice calculator object getters
-      */
-     public function calc()
-     {
-         $credit_calc = null;
+    /**
+     * Access the invoice calculator object
+     *
+     * @return object The invoice calculator object getters
+     */
+    public function calc()
+    {
+        $credit_calc = null;
 
-         if ($this->uses_inclusive_taxes) {
-             $credit_calc = new InvoiceSumInclusive($this);
-         } else {
-             $credit_calc = new InvoiceSum($this);
-         }
+        if ($this->uses_inclusive_taxes) {
+            $credit_calc = new InvoiceSumInclusive($this);
+        } else {
+            $credit_calc = new InvoiceSum($this);
+        }
 
-         return $credit_calc->build();
-     }
+        return $credit_calc->build();
+    }
 
-     /**
+    /**
      * @param float $balance_adjustment
      */
     public function updateBalance($balance_adjustment)

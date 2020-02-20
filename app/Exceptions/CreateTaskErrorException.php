@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Exceptions;
 
-class CreateTaskErrorException extends \Exception
+use Exception;
+
+class CreateTaskErrorException extends Exception
 {
 }

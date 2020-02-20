@@ -1,9 +1,11 @@
 <?php
+
 namespace App;
 
 use App\Account;
 use App\Company;
 use App\User;
+
 //use App\Notifications\ClientContactResetPassword as ResetPasswordNotification;
 //use App\Notifications\ClientContactResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -21,7 +23,7 @@ class CompanyContact extends Model
     use Notifiable;
     use PresentableTrait;
     use SoftDeletes;
-    
+
     protected $dates = [
         'deleted_at'
     ];

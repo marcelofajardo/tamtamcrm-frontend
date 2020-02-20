@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\Payment;
 
 use App\Repositories\Base\BaseFormRequest;
@@ -34,11 +35,10 @@ class CreatePaymentRequest extends BaseFormRequest
 
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
-                if(array_key_exists('credit_id', $input['credits'][$key]))
-                 {
-                     $input['credits'][$key]['credit_id'] = $value['credit_id'];
-                     $credits_total += $value['amount'];
-                 }
+                if (array_key_exists('credit_id', $input['credits'][$key])) {
+                    $input['credits'][$key]['credit_id'] = $value['credit_id'];
+                    $credits_total += $value['amount'];
+                }
             }
         }
 

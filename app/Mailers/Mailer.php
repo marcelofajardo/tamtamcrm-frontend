@@ -1,9 +1,13 @@
 <?php
+
 namespace App\Mailers;
 
+use App;
 use App\Invoice;
 use Exception;
+use Illuminate\Mail\TransportManager;
 use Mail;
+use Swift_Mailer;
 use Utils;
 
 /**
@@ -73,11 +77,11 @@ class Mailer
                         }
                     }
                     $fromEmail = config('mail.from.address');
-                    $app = \App::getInstance();
+                    $app = App::getInstance();
                     $app->singleton('swift.transport', function ($app) {
-                        return new \Illuminate\Mail\TransportManager($app);
+                        return new TransportManager($app);
                     });
-                    $mailer = new \Swift_Mailer($app['swift.transport']->driver());
+                    $mailer = new Swift_Mailer($app['swift.transport']->driver());
                     Mail::setSwiftMailer($mailer);
                 }
             }
@@ -85,10 +89,8 @@ class Mailer
         try {
             $response = Mail::send($views, $data,
                 function ($message) use ($toEmail, $fromEmail, $fromName, $replyEmail, $subject, $data) {
-                    $message->to($toEmail)
-                        ->from($fromEmail, $fromName)
-                        ->replyTo($replyEmail, $fromName)
-                        ->subject($subject);
+                    $message->to($toEmail)->from($fromEmail, $fromName)->replyTo($replyEmail, $fromName)
+                            ->subject($subject);
                     // Optionally BCC the email
                     if (!empty($data['bccEmail'])) {
                         $message->bcc($data['bccEmail']);
@@ -121,19 +123,23 @@ class Mailer
             $account = $data['account'];
             $logoName = $account->getLogoName();
             if (strpos($htmlBody, 'cid:' . $logoName) !== false && $account->hasLogo()) {
-                $attachments[] = PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null,
-                    'cid:' . $logoName);
+                $attachments[] =
+                    PostmarkAttachment::fromFile($account->getLogoPath(), $logoName, null, 'cid:' . $logoName);
             }
         }
         if (strpos($htmlBody, 'cid:invoiceninja-logo.png') !== false) {
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/invoiceninja-logo.png'),
-                'invoiceninja-logo.png', null, 'cid:invoiceninja-logo.png');
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-facebook.png'),
-                'icon-facebook.png', null, 'cid:icon-facebook.png');
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-twitter.png'),
-                'icon-twitter.png', null, 'cid:icon-twitter.png');
-            $attachments[] = PostmarkAttachment::fromFile(public_path('images/emails/icon-github.png'),
-                'icon-github.png', null, 'cid:icon-github.png');
+            $attachments[] =
+                PostmarkAttachment::fromFile(public_path('images/invoiceninja-logo.png'), 'invoiceninja-logo.png', null,
+                    'cid:invoiceninja-logo.png');
+            $attachments[] =
+                PostmarkAttachment::fromFile(public_path('images/emails/icon-facebook.png'), 'icon-facebook.png', null,
+                    'cid:icon-facebook.png');
+            $attachments[] =
+                PostmarkAttachment::fromFile(public_path('images/emails/icon-twitter.png'), 'icon-twitter.png', null,
+                    'cid:icon-twitter.png');
+            $attachments[] =
+                PostmarkAttachment::fromFile(public_path('images/emails/icon-github.png'), 'icon-github.png', null,
+                    'cid:icon-github.png');
         }
         // Handle invoice attachments
         if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {

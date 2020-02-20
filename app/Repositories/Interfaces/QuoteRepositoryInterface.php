@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\Quote;
@@ -9,5 +10,5 @@ use Illuminate\Support\Collection;
 interface QuoteRepositoryInterface extends BaseRepositoryInterface
 {
 
-    public function save($data, Quote $quote) : ?Quote;
+    public function save($data, Quote $quote): ?Quote;
 }

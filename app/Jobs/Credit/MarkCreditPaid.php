@@ -15,7 +15,10 @@ use App\Factory\CreditFactory;
 use App\Factory\PaymentFactory;
 use App\Jobs\Customer\UpdateClientBalance;
 use App\Jobs\Customer\UpdateClientPaidToDate;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;;
+use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+
+;
+
 use App\Account;
 use App\Credit;
 use Illuminate\Bus\Queueable;
@@ -31,6 +34,7 @@ class MarkCreditPaid implements ShouldQueue
     public $credit;
 
     private $account;
+
     /**
      * Create a new job instance.
      *
@@ -51,12 +55,13 @@ class MarkCreditPaid implements ShouldQueue
     public function handle()
     {
 
-        if($this->credit->status_id == Credit::STATUS_DRAFT) {
+        if ($this->credit->status_id == Credit::STATUS_DRAFT) {
             $this->credit->markSent();
         }
 
         /* Create Payment */
-        $payment = PaymentFactory::create($this->credit->customer_id, $this->credit->user_id, $this->credit->account_id);
+        $payment =
+            PaymentFactory::create($this->credit->customer_id, $this->credit->user_id, $this->credit->account_id);
 
         $payment->amount = $this->credit->balance;
         $payment->status_id = Credit::STATUS_COMPLETED;
@@ -69,10 +74,9 @@ class MarkCreditPaid implements ShouldQueue
             'amount' => $payment->amount
         ]);
 
-        $this->credit->updateBalance($payment->amount*-1);
+        $this->credit->updateBalance($payment->amount * -1);
 
-        /* Update Credit balance */
-        //event(new PaymentWasCreated($payment, $payment->company));
+        /* Update Credit balance */ //event(new PaymentWasCreated($payment, $payment->company));
 
         // UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount*-1), $this->company);
         // UpdateClientBalance::dispatchNow($payment->client, $payment->amount*-1, $this->company);

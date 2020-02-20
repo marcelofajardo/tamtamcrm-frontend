@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Transformations;
 
 use App\ClientContact;
@@ -18,7 +19,7 @@ class ContactTransformable
         $prop->first_name = $contact->first_name ?: '';
         $prop->last_name = $contact->last_name ?: '';
         $prop->email = $contact->email ?: '';
-        $prop->is_primary = (bool) $contact->is_primary;
+        $prop->is_primary = (bool)$contact->is_primary;
         $prop->phone = $contact->phone ?: '';
         $prop->custom_value1 = $contact->custom_value1 ?: '';
         $prop->custom_value2 = $contact->custom_value2 ?: '';

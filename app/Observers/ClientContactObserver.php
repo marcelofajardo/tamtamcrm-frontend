@@ -18,7 +18,7 @@ class ClientContactObserver
     /**
      * Handle the client contact "created" event.
      *
-     * @param  \App\Models\ClientContact  $clientContact
+     * @param ClientContact $clientContact
      * @return void
      */
     public function created(ClientContact $clientContact)
@@ -29,7 +29,7 @@ class ClientContactObserver
     /**
      * Handle the client contact "updated" event.
      *
-     * @param  \App\Models\ClientContact  $clientContact
+     * @param ClientContact $clientContact
      * @return void
      */
     public function updated(ClientContact $clientContact)
@@ -40,7 +40,7 @@ class ClientContactObserver
     /**
      * Handle the client contact "deleted" event.
      *
-     * @param  \App\Models\ClientContact  $clientContact
+     * @param ClientContact $clientContact
      * @return void
      */
     public function deleted(ClientContact $clientContact)
@@ -51,7 +51,7 @@ class ClientContactObserver
     /**
      * Handle the client contact "restored" event.
      *
-     * @param  \App\Models\ClientContact  $clientContact
+     * @param ClientContact $clientContact
      * @return void
      */
     public function restored(ClientContact $clientContact)
@@ -62,7 +62,7 @@ class ClientContactObserver
     /**
      * Handle the client contact "force deleted" event.
      *
-     * @param  \App\Models\ClientContact  $clientContact
+     * @param ClientContact $clientContact
      * @return void
      */
     public function forceDeleted(ClientContact $clientContact)

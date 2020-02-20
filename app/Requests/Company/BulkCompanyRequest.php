@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Requests\Company;
@@ -16,12 +15,12 @@ class BulkCompanyRequest extends BaseFormRequest
     public function rules()
     {
 
-         $rules = [];
-        
-         /** We don't require IDs on bulk storing. */
-         if ($this->action !== self::$STORE_METHOD) {
-             $rules['ids'] = ['required'];
-         }
+        $rules = [];
+
+        /** We don't require IDs on bulk storing. */
+        if ($this->action !== self::$STORE_METHOD) {
+            $rules['ids'] = ['required'];
+        }
 
         return $rules;
     }

@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\TaxRate;
 
 class TaxRateFactory
 {
-    public static function create(int $account_id, int $user_id) :TaxRate
+    public static function create(int $account_id, int $user_id): TaxRate
     {
         $tax_rate = new TaxRate;
         $tax_rate->name = '';

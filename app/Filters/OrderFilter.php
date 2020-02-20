@@ -4,6 +4,7 @@ namespace App\Filters;
 
 use App\Order;
 use App\Repositories\OrderRepository;
+use App\Repositories\Support;
 use App\Task;
 use App\Transformations\OrderTransformable;
 
@@ -39,7 +40,7 @@ class OrderFilter
     private function baseQuery()
     {
         $this->query = $this->model->join('products', 'products.id', '=', 'product_task.product_id')
-            ->select('product_task.*', 'products.price', 'product_task.id as order_id');
+                                   ->select('product_task.*', 'products.price', 'product_task.id as order_id');
     }
 
     /**
@@ -69,7 +70,7 @@ class OrderFilter
 
     /**
      * @param Task $task
-     * @return \App\Repositories\Support
+     * @return Support
      */
     public function filterByTask(Task $task)
     {

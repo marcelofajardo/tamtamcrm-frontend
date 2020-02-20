@@ -6,6 +6,7 @@ use App\Customer;
 use App\Repositories\CustomerRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CustomerTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CustomerFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class CustomerFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -89,13 +90,11 @@ class CustomerFilter extends QueryFilter
             return $this->query;
         }
         return $this->query->where(function ($query) use ($filter) {
-            $query->where('first_name', 'like', '%' . $filter . '%')
-                ->orWhere('last_name', 'like', '%' . $filter . '%')
-                ->orWhere('email', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value4', 'like', '%' . $filter . '%');
+            $query->where('first_name', 'like', '%' . $filter . '%')->orWhere('last_name', 'like', '%' . $filter . '%')
+                  ->orWhere('email', 'like', '%' . $filter . '%')->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value4', 'like', '%' . $filter . '%');
         });
     }
 

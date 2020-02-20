@@ -1,7 +1,9 @@
 <?php
+
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExpenseCategory extends Model
@@ -14,7 +16,7 @@ class ExpenseCategory extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function expense()
     {

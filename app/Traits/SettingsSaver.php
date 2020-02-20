@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Traits;
 
 use App\DataMapper\CompanySettings;
+use stdClass;
 
 /**
  * Class SettingsSaver
@@ -13,8 +15,8 @@ trait SettingsSaver
      * Saves a setting object
      *
      * Works for groups|clients|companies
-     * @param  array $settings The request input settings array
-     * @param  object $entity The entity which the settings belongs to
+     * @param array $settings The request input settings array
+     * @param object $entity The entity which the settings belongs to
      * @return void
      */
     public function saveSettings($settings, $entity)
@@ -42,7 +44,7 @@ trait SettingsSaver
      *
      * Returns an array of errors, or boolean TRUE
      * on successful validation
-     * @param  array $settings The request() settings array
+     * @param array $settings The request() settings array
      * @return array|bool      Array on failure, boolean TRUE on success
      */
     public function validateSettings($settings)
@@ -65,9 +67,8 @@ trait SettingsSaver
                 continue;
             }
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings,
-                    $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''
-            ) {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
+                $settings->{$key} == '') {
                 continue;
             }
 
@@ -88,10 +89,10 @@ trait SettingsSaver
      * the object and will also settype() the property
      * so that it can be saved cleanly
      *
-     * @param  array $settings The settings request() array
+     * @param array $settings The settings request() array
      * @return object          stdClass object
      */
-    private function checkSettingType($settings) : \stdClass
+    private function checkSettingType($settings): stdClass
     {
         $settings = (object)$settings;
         $casts = CompanySettings::$casts;
@@ -116,9 +117,8 @@ trait SettingsSaver
                 continue;
             }
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings,
-                    $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''
-            ) {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
+                $settings->{$key} == '') {
                 continue;
             }
             /*Catch all filter */
@@ -136,11 +136,11 @@ trait SettingsSaver
 
     /**
      * Type checks a object property.
-     * @param  string $key The type
-     * @param  string $value The object property
+     * @param string $key The type
+     * @param string $value The object property
      * @return bool        TRUE if the property is the expected type
      */
-    private function checkAttribute($key, $value) :bool
+    private function checkAttribute($key, $value): bool
     {
         switch ($key) {
             case 'int':

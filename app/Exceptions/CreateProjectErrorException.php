@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Exceptions;
 
-class CreateProjectErrorException extends \Exception
+use Exception;
+
+class CreateProjectErrorException extends Exception
 {
 }

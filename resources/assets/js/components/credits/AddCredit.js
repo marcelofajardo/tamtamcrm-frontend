@@ -26,6 +26,8 @@ class AddCredit extends React.Component {
             custom_value1: '',
             custom_value2: '',
             custom_value3: '',
+            private_notes: '',
+            public_notes: '',
             custom_value4: '',
             loading: false,
             errors: [],
@@ -99,6 +101,8 @@ class AddCredit extends React.Component {
     handleClick () {
         axios.post('/api/credit', {
             total: this.state.total,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes,
             customer_id: this.state.customer_id,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
@@ -117,6 +121,8 @@ class AddCredit extends React.Component {
                     customer_id: null,
                     custom_value1: '',
                     custom_value2: '',
+                    public_notes: '',
+                    private_notes: '',
                     custom_value3: '',
                     custom_value4: '',
                     loading: false,
@@ -147,6 +153,8 @@ class AddCredit extends React.Component {
                     customer_id: null,
                     custom_value1: '',
                     custom_value2: '',
+                    public_notes: '',
+                    private_notes: '',
                     custom_value3: '',
                     custom_value4: '',
                     loading: false,
@@ -216,6 +224,29 @@ class AddCredit extends React.Component {
                                     </FormGroup>
                                 ))
                                 }
+                            </CardBody>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>Notes</CardHeader>
+                            <CardBody>
+                                <FormGroup className="mb-3">
+                                    <Label>Public Notes</Label>
+                                    <Input value={this.state.public_notes}
+                                        className={this.hasErrorFor('total') ? 'is-invalid' : ''}
+                                        type="textarea" name="public_notes"
+                                        onChange={this.handleInput.bind(this)}/>
+                                    {this.renderErrorFor('public_notes')}
+                                </FormGroup>
+
+                                <FormGroup className="mb-3">
+                                    <Label>Private Notes</Label>
+                                    <Input value={this.state.private_notes}
+                                        className={this.hasErrorFor('total') ? 'is-invalid' : ''}
+                                        type="textarea" name="private_notes"
+                                        onChange={this.handleInput.bind(this)}/>
+                                    {this.renderErrorFor('private_notes')}
+                                </FormGroup>
                             </CardBody>
                         </Card>
                     </ModalBody>

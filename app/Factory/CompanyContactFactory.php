@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\CompanyContact;
 
 class CompanyContactFactory
 {
-    public static function create(int $account_id, int $user_id) :CompanyContact
+    public static function create(int $account_id, int $user_id): CompanyContact
     {
         $vendor_contact = new CompanyContact;
         $vendor_contact->first_name = "";

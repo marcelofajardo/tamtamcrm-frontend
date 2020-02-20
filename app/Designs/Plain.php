@@ -14,12 +14,14 @@ namespace App\Designs;
 class Plain extends AbstractDesign
 {
 
-	public function __construct() {
-	}
+    public function __construct()
+    {
+    }
 
-	public function header() {
+    public function header()
+    {
 
-		return '
+        return '
 			<!DOCTYPE html>
 			<html lang="en">
 			    <head>
@@ -38,7 +40,7 @@ class Plain extends AbstractDesign
                     <div class="px-12 py-8">
                         <div class="flex">
                             <div class="w-1/3">
-                                $invoice_label
+                                $entity_label
                             </div>
                             <div class="w-1/3 flex flex-col">
                                 $company_details
@@ -61,9 +63,10 @@ class Plain extends AbstractDesign
                         </div>
 			';
 
-	}
+    }
 
-	public function body() {
+    public function body()
+    {
 
         return '
             <div class="flex flex-col">
@@ -71,17 +74,19 @@ class Plain extends AbstractDesign
             </div>
         ';
 
-	}
+    }
 
-	public function table_styles() {
-		return [
-			'table_header_thead_class' => "text-left bg-gray-300",
-			'table_header_td_class'    => "px-4 py-2",
-			'table_body_td_class'      => "border-t-2 border-b border-gray-300 px-4 py-4",
-		];
-	}
+    public function table_styles()
+    {
+        return [
+            'table_header_thead_class' => "text-left bg-gray-300",
+            'table_header_td_class' => "px-4 py-2",
+            'table_body_td_class' => "border-t-2 border-b border-gray-300 px-4 py-4",
+        ];
+    }
 
-	public function table() {
+    public function table()
+    {
 
         return '
         <table class="w-full table-auto mt-8">
@@ -98,7 +103,7 @@ class Plain extends AbstractDesign
         <div class="flex justify-between mt-8">
             <div class="w-1/2">
                 <div class="flex flex-col">
-                    <p>$invoice.public_notes</p>
+                    <p>$entity.public_notes</p>
                     <div class="pt-4">
                         <p class="font-bold">$terms_label</p>
                         <p>$terms</p>
@@ -121,15 +126,16 @@ class Plain extends AbstractDesign
                     <p class="text-right w-1/2">$balance_due</p>
                 </section>
             </div>';
-	}
+    }
 
-	public function footer() {
+    public function footer()
+    {
 
         return '
                 </div>
             </body>
         </html>';
 
-	}
+    }
 
 }

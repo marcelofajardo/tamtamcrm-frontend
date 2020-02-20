@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use App\Account;
@@ -8,6 +9,7 @@ use App\Customer;
 use App\Quote;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuoteInvitation extends Model
@@ -16,14 +18,14 @@ class QuoteInvitation extends Model
     use SoftDeletes;
 
     protected $fillable = [
-         'id',
-         'client_contact_id',
-     ];
+        'id',
+        'client_contact_id',
+    ];
 
-     public function entityType()
-     {
-         return Quote::class;
-     }
+    public function entityType()
+    {
+        return Quote::class;
+    }
 
     /**
      * @return mixed
@@ -58,7 +60,7 @@ class QuoteInvitation extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function account()
     {

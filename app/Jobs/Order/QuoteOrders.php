@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Order;
 
 use App\Order;

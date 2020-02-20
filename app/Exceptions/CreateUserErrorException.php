@@ -1,6 +1,9 @@
 <?php
+
 namespace App\Exceptions;
 
-class CreateUserErrorException extends \Exception
+use Exception;
+
+class CreateUserErrorException extends Exception
 {
 }

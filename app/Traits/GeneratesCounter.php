@@ -1,13 +1,16 @@
 <?php
+
 namespace App\Traits;
 
 use App\Customer;
 use App\Credit;
 use App\Invoice;
+use App\Models\Client;
 use App\Quote;
 use App\Payment;
 use App\RecurringInvoice;
 use App\RecurringQuote;
+use Exception;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,9 +25,9 @@ trait GeneratesCounter
      * Gets the next invoice number.
      * @param Customer $customer
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getNextInvoiceNumber(Customer $customer) : string
+    public function getNextInvoiceNumber(Customer $customer): string
     {
         //Reset counters if enabled
         $this->resetCounters($customer);
@@ -57,9 +60,9 @@ trait GeneratesCounter
      *  Gets the next invoice number.
      * @param Customer $customer
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getNextQuoteNumber(Customer $customer) : string
+    public function getNextQuoteNumber(Customer $customer): string
     {
         //Reset counters if enabled
         $this->resetCounters($customer);
@@ -101,9 +104,9 @@ trait GeneratesCounter
      * Gets the next credit number.
      * @param Customer $customer
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getNextCreditNumber(Customer $customer) :string
+    public function getNextCreditNumber(Customer $customer): string
     {
         //Reset counters if enabled
         $this->resetCounters($customer);
@@ -136,7 +139,7 @@ trait GeneratesCounter
     /**
      * @param Customer $client
      * @return int|string
-     * @throws \Exception
+     * @throws Exception
      */
     public function getNextRecurringInvoiceNumber(Customer $customer)
     {
@@ -170,51 +173,43 @@ trait GeneratesCounter
      * Gets the next quote number.
      * @param Customer $customer
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getNextRecurringQuoteNumber(Customer $customer) : string
+    public function getNextRecurringQuoteNumber(Customer $customer): string
     {
         //Reset counters if enabled
         $this->resetCounters($customer);
-
-        $used_counter = 'recurring_quote_number_counter';
-
-        if ($this->hasSharedCounter($customer)) {
-            $used_counter = 'recurring_quote_number_counter';
-        }
-
+        $is_client_counter = false;
         //todo handle if we have specific client patterns in the future
-        $pattern = trim($customer->getSetting('quote_number_pattern'));
-
+        $pattern = $customer->account->settings->quote_number_pattern;
         //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter')) {
-            $counter = $customer->getSetting($used_counter);
-            $counter_entity = $customer;
-        } elseif (strpos($pattern, 'groupCounter')) {
-            $counter = $customer->group_settings->{$used_counter};
-            $counter_entity = $customer->group_settings;
+        if (strpos($pattern, 'client_counter') === false) {
+            $counter = $customer->account->settings->recurring_quote_number_counter;
         } else {
-            $counter = $customer->account->settings->{$used_counter};
-            $counter_entity = $customer->account;
+            $counter = $customer->settings->recurring_quote_number_counter;
+            $is_client_counter = true;
         }
-
         //Return a valid counter
-        $pattern = $customer->getSetting('quote_number_pattern');
+        $pattern = '';
         $padding = $customer->getSetting('counter_padding');
-        $quote_number = $this->checkEntityNumber(RecurringQuote::class, $customer, $counter, $padding, $pattern);
-
-        $this->incrementCounter($counter_entity, $used_counter);
-
-        return $quote_number;
+        $invoice_number = $this->checkEntityNumber(RecurringQuote::class, $customer, $counter, $padding, $pattern);
+        $invoice_number = $this->prefixCounter($invoice_number, $customer->getSetting('recurring_number_prefix'));
+        //increment the correct invoice_number Counter (company vs client)
+        if ($is_client_counter) {
+            $this->incrementCounter($customer, 'recurring_quote_number_counter');
+        } else {
+            $this->incrementCounter($customer->account, 'recurring_quote_number_counter');
+        }
+        return $invoice_number;
 
     }
 
     /**
      * @param Customer $customer
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getNextPaymentNumber(Customer $customer) :string
+    public function getNextPaymentNumber(Customer $customer): string
     {
         //Reset counters if enabled
         $this->resetCounters($customer);
@@ -244,11 +239,11 @@ trait GeneratesCounter
     /**
      * Gets the next client number.
      *
-     * @param      \App\Models\Client  $client  The client
+     * @param Client $client The client
      *
      * @return     string              The next client number.
      */
-    public function getNextClientNumber(Customer $client) :string
+    public function getNextClientNumber(Customer $client): string
     {
         //Reset counters if enabled
         $this->resetCounters($client);
@@ -256,7 +251,9 @@ trait GeneratesCounter
         $counter = $client->getSetting('client_number_counter');
         $setting_entity = $client->getSettingEntity('client_number_counter');
 
-        $client_number = $this->checkEntityNumber(Customer::class, $client, $counter, $client->getSetting('counter_padding'), $client->getSetting('client_number_pattern'));
+        $client_number =
+            $this->checkEntityNumber(Customer::class, $client, $counter, $client->getSetting('counter_padding'),
+                $client->getSetting('client_number_pattern'));
 
         $this->incrementCounter($setting_entity, 'client_number_counter');
 
@@ -305,7 +302,7 @@ trait GeneratesCounter
      * @param $entity
      * @param string $counter_name
      */
-    private function incrementCounter($entity, string $counter_name) :void
+    private function incrementCounter($entity, string $counter_name): void
     {
         $settings = $entity->settings;
         $settings->{$counter_name} = $settings->{$counter_name} + 1;
@@ -313,7 +310,7 @@ trait GeneratesCounter
         $entity->save();
     }
 
-    private function prefixCounter($counter, $prefix) : string
+    private function prefixCounter($counter, $prefix): string
     {
         if (strlen($prefix) == 0) {
             return $counter;
@@ -324,12 +321,12 @@ trait GeneratesCounter
     /**
      * Pads a number with leading 000000's
      *
-     * @param      int $counter The counter
-     * @param      int $padding The padding
+     * @param int $counter The counter
+     * @param int $padding The padding
      *
      * @return     int  the padded counter
      */
-    private function padCounter($counter, $padding) :string
+    private function padCounter($counter, $padding): string
     {
         return str_pad($counter, $padding, '0', STR_PAD_LEFT);
     }
@@ -339,7 +336,7 @@ trait GeneratesCounter
      * check if we need to reset here
      * @param Customer $client
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     private function resetCounters(Customer $client)
     {
@@ -391,13 +388,13 @@ trait GeneratesCounter
     /**
      * { function_description }
      *
-     * @param      \App\Models\Client $client The client
-     * @param      string $counter The counter
-     * @param      null|string $pattern The pattern
+     * @param Client $client The client
+     * @param string $counter The counter
+     * @param null|string $pattern The pattern
      *
      * @return     string              ( description_of_the_return_value )
      */
-    private function applyNumberPattern(Customer $customer, string $counter, $pattern) :string
+    private function applyNumberPattern(Customer $customer, string $counter, $pattern): string
     {
 
         if (!$pattern) {
@@ -443,9 +440,9 @@ trait GeneratesCounter
      *  Determines if it has shared counter.
      * @param Customer $customer
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function hasSharedCounter(Customer $customer) : bool
+    public function hasSharedCounter(Customer $customer): bool
     {
         return (bool)$customer->getSetting('shared_invoice_quote_counter');
     }

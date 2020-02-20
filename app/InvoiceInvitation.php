@@ -3,6 +3,8 @@
 namespace App;
 
 use App\ClientContact;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use App\Traits\Inviteable;
@@ -10,7 +12,7 @@ use App\Traits\Inviteable;
 /**
  * Class Invitation.
  */
-class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
+class InvoiceInvitation extends Model
 {
 
     use SoftDeletes;
@@ -26,9 +28,8 @@ class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
         'client_contact_id'
     ];
 
-    protected $with = [
-         //'account',
-     ];
+    protected $with = [//'account',
+    ];
 
     /**
      * @return mixed
@@ -86,7 +87,7 @@ class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function account()
     {
@@ -95,10 +96,12 @@ class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
 
     public function signatureDiv()
     {
-        if (! $this->signature_base64) {
+        if (!$this->signature_base64) {
             return false;
         }
-        return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, ctrans('texts.signed'), $this->createClientDate($this->signature_date, $this->contact->client->timezone()->name));
+        return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64,
+            ctrans('texts.signed'),
+            $this->createClientDate($this->signature_date, $this->contact->client->timezone()->name));
     }
 
     public function getName()
@@ -112,7 +115,8 @@ class InvoiceInvitation extends \Illuminate\Database\Eloquent\Model
         $this->save();
     }
 
-    public function entityType() {
+    public function entityType()
+    {
         return Invoice::class;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Invoice;
 
 use App\Invoice;
@@ -29,7 +30,7 @@ class InvoiceService
 
     }
 
-        /**
+    /**
      * Marks as invoice as paid
      * and executes child sub functions
      * @return $this InvoiceService object
@@ -49,11 +50,11 @@ class InvoiceService
     }
 
     public function getInvoicePdf($contact)
-     {
-         $get_invoice_pdf = new GetInvoicePdf($this->invoice, $contact);
+    {
+        $get_invoice_pdf = new GetInvoicePdf($this->invoice, $contact);
 
-         return $get_invoice_pdf->run();
-     }
+        return $get_invoice_pdf->run();
+    }
 
     /**
      * Applies the invoice number
@@ -68,20 +69,20 @@ class InvoiceService
         return $this;
     }
 
-      /**
-      * Apply a payment amount to an invoice.
-      * @param  Payment $payment        The Payment
-      * @param  float   $payment_amount The Payment amount
-      * @return InvoiceService          Parent class object
-      */
+    /**
+     * Apply a payment amount to an invoice.
+     * @param Payment $payment The Payment
+     * @param float $payment_amount The Payment amount
+     * @return InvoiceService          Parent class object
+     */
     public function applyPayment(Payment $payment, float $payment_amount)
-     {
-         $apply_payment = new ApplyPayment($this->invoice, $payment, $payment_amount);
+    {
+        $apply_payment = new ApplyPayment($this->invoice, $payment, $payment_amount);
 
-         $this->invoice = $apply_payment->run();
+        $this->invoice = $apply_payment->run();
 
-         return $this;
-     }
+        return $this;
+    }
 
     public function createInvitations()
     {
@@ -92,60 +93,60 @@ class InvoiceService
         return $this;
     }
 
-      /**
-      * Update an invoice balance
-      * @param  float $balance_adjustment The amount to adjust the invoice by
-      * a negative amount will REDUCE the invoice balance, a positive amount will INCREASE
-      * the invoice balance
-      * @return InvoiceService                     Parent class object
-      */
-     public function updateBalance($balance_adjustment)
-     {
-         $update_balance = new UpdateBalance($this->invoice, $balance_adjustment);
+    /**
+     * Update an invoice balance
+     * @param float $balance_adjustment The amount to adjust the invoice by
+     * a negative amount will REDUCE the invoice balance, a positive amount will INCREASE
+     * the invoice balance
+     * @return InvoiceService                     Parent class object
+     */
+    public function updateBalance($balance_adjustment)
+    {
+        $update_balance = new UpdateBalance($this->invoice, $balance_adjustment);
 
-         $this->invoice = $update_balance->run();
+        $this->invoice = $update_balance->run();
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function markSent()
-     {
-         $mark_sent = new MarkSent($this->invoice->customer, $this->invoice);
+    public function markSent()
+    {
+        $mark_sent = new MarkSent($this->invoice->customer, $this->invoice);
 
-         $this->invoice = $mark_sent->run();
+        $this->invoice = $mark_sent->run();
 
-         return $this;
-     }
+        return $this;
+    }
 
-     /* One liners */
-     public function setDueDate()
-     {
-         $this->invoice->due_date = Carbon::now()->addDays($this->invoice->customer->getSetting('payment_terms'));
+    /* One liners */
+    public function setDueDate()
+    {
+        $this->invoice->due_date = Carbon::now()->addDays($this->invoice->customer->getSetting('payment_terms'));
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function setStatus($status)
-     {
-         $this->invoice->status_id = $status;
+    public function setStatus($status)
+    {
+        $this->invoice->status_id = $status;
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function clearPartial()
-     {
-         $this->invoice->partial = null;
-         $this->invoice->partial_due_date = null;
+    public function clearPartial()
+    {
+        $this->invoice->partial = null;
+        $this->invoice->partial_due_date = null;
 
-         return $this;
-     }
+        return $this;
+    }
 
-     public function updatePartial($amount)
-     {
-         $this->invoice->partial += $amount;
+    public function updatePartial($amount)
+    {
+        $this->invoice->partial += $amount;
 
-         return $this;
-     }
+        return $this;
+    }
 
     public function sendEmail($contact = null)
     {
@@ -158,7 +159,7 @@ class InvoiceService
      * Saves the invoice
      * @return Invoice object
      */
-    public function save() : ?Invoice
+    public function save(): ?Invoice
     {
         $this->invoice->save();
         return $this->invoice;

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\RecurringInvoice;
 
 use App\Factory\RecurringInvoiceToInvoiceFactory;
@@ -33,7 +34,7 @@ class SendRecurring
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice);
@@ -41,7 +42,7 @@ class SendRecurring
         $invoice->status_id = Invoice::STATUS_SENT;
         $invoice->save();
 
-        // Queue: Emails for invoice  
+        // Queue: Emails for invoice
         // foreach invoice->invitations
 
         // Fire Payment if auto-bill is enabled

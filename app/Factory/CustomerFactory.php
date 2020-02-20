@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\Customer;
 
 class CustomerFactory
 {
-    public static function create(int $account_id, int $user_id, int $company_id = null) :Customer
+    public static function create(int $account_id, int $user_id, int $company_id = null): Customer
     {
         $client = new Customer;
         $client->currency_id = 2;

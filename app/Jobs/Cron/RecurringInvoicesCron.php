@@ -8,6 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace App\Jobs\Cron;
 
 use App\Jobs\RecurringInvoice\SendRecurring;
@@ -32,10 +33,11 @@ class RecurringInvoicesCron
      *
      * @return void
      */
-    public function handle() : void
+    public function handle(): void
     {
         $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', Carbon::now()->addMinutes(30))->get();
-        Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = ' . $recurring_invoices->count());
+        Log::info(Carbon::now()->addMinutes(30) . ' Sending Recurring Invoices. Count = ' .
+            $recurring_invoices->count());
         $recurring_invoices->each(function ($recurring_invoice, $key) {
             dispatch(new SendRecurring($recurring_invoice));
         });

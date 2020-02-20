@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\RecurringInvoice;
 
 class RecurringInvoiceFactory
 {
-    public static function create(int $customer_id, int $account_id, $total) :RecurringInvoice
+    public static function create(int $customer_id, int $account_id, $total): RecurringInvoice
     {
         $invoice = new RecurringInvoice();
         $invoice->account_id = $account_id;
@@ -19,7 +20,8 @@ class RecurringInvoiceFactory
         $invoice->number = '';
         $invoice->footer = '';
         $invoice->terms = '';
-        $invoice->notes = '';
+        $invoice->public_notes = '';
+        $invoice->private_notes = '';
         $invoice->date = null;
         $invoice->due_date = null;
         $invoice->is_deleted = false;

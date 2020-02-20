@@ -17,7 +17,7 @@ class InvoiceInvitationTransformable
 
         $prop->id = (int)$invitation->id;
         $prop->client_contact_id = (int)$invitation->client_contact_id;
-        $prop->customer_id = (int) $invitation->customer_id;
+        $prop->customer_id = (int)$invitation->customer_id;
         $prop->key = $invitation->key;
         //$prop->link = $invitation->getLink() ?: '';
         $prop->sent_date = $invitation->sent_date ?: '';

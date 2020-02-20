@@ -9,6 +9,7 @@
 namespace App\Traits;
 
 use App\DataMapper\CustomerSettings;
+use stdClass;
 
 trait CustomerSettingsSaver
 {
@@ -16,8 +17,8 @@ trait CustomerSettingsSaver
      * Saves a setting object
      *
      * Works for groups|clients|companies
-     * @param  array $settings The request input settings array
-     * @param  object $entity The entity which the settings belongs to
+     * @param array $settings The request input settings array
+     * @param object $entity The entity which the settings belongs to
      * @return void
      */
     public function saveSettings($settings, $entity)
@@ -52,13 +53,10 @@ trait CustomerSettingsSaver
      * the object and will also settype() the property
      * so that it can be saved cleanly
      *
-     * @param  array $settings The settings request() array
+     * @param array $settings The settings request() array
      * @return object          stdClass object
      */
-    private
-    function checkSettingType(
-        $settings
-    ) : \stdClass
+    private function checkSettingType($settings): stdClass
     {
         $settings = (object)$settings;
         $casts = CustomerSettings::$casts;
@@ -83,9 +81,8 @@ trait CustomerSettingsSaver
                 continue;
             }
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings,
-                    $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == ''
-            ) {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
+                $settings->{$key} == '') {
                 continue;
             }
             /*Catch all filter */
@@ -103,15 +100,11 @@ trait CustomerSettingsSaver
 
     /**
      * Type checks a object property.
-     * @param  string $key The type
-     * @param  string $value The object property
+     * @param string $key The type
+     * @param string $value The object property
      * @return bool        TRUE if the property is the expected type
      */
-    private
-    function checkAttribute(
-        $key,
-        $value
-    ) :bool
+    private function checkAttribute($key, $value): bool
     {
         switch ($key) {
             case 'int':

@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Repositories\Base\BaseRepository;
 use App\Category;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
 Use Illuminate\Support\Facades\DB;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Product;
@@ -33,7 +35,7 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
      * @param string $order
      * @param string $sort
      * @param array $except
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     public function listCategories(string $order = 'id', string $sort = 'desc', $except = []): Collection
     {
@@ -43,17 +45,14 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
     /**
      * List all root categories
      *
-     * @param  string $order
-     * @param  string $sort
-     * @param  array $except
-     * @return \Illuminate\Support\Collection
+     * @param string $order
+     * @param string $sort
+     * @param array $except
+     * @return Collection
      */
     public function rootCategories(string $order = 'id', string $sort = 'desc', $except = []): Collection
     {
-        return $this->model->whereIsRoot()
-            ->orderBy($order, $sort)
-            ->get()
-            ->except($except);
+        return $this->model->whereIsRoot()->orderBy($order, $sort)->get()->except($except);
     }
 
     /**
@@ -127,7 +126,7 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
      * Delete a category
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteCategory(): bool
     {
@@ -138,7 +137,7 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
      * Associate a product in a category
      *
      * @param Product $product
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return Model
      */
     public function associateProduct(Product $product)
     {

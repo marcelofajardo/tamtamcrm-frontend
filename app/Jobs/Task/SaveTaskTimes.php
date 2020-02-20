@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Task;
 
 //use App\Events\Account\AccountCreated;
@@ -39,18 +40,15 @@ class SaveTaskTimes
      *
      * @return void
      */
-    public function handle() : ?Task
+    public function handle(): ?Task
     {
-        if ( isset($this->data['time_log']) ) {
-            $timeLog = json_decode ( $this->data['time_log'] );
+        if (isset($this->data['time_log'])) {
+            $timeLog = json_decode($this->data['time_log']);
+        } elseif ($this->task->time_log) {
+            $timeLog = json_decode($this->task->time_log);
+        } else {
+            $timeLog = [];
         }
-
-elseif
-($this->task->time_log) {
-    $timeLog = json_decode($this->task->time_log);
-} else {
-    $timeLog = [];
-}
         array_multisort($timeLog);
         if (isset($this->data['action'])) {
             if ($this->data['action'] == 'start') {

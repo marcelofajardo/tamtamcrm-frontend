@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Rules;
+
 use App\User;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -15,9 +17,10 @@ class PaymentAmountsBalanceRule implements Rule
      * @return bool
      */
     public function passes($attribute, $value)
-    { 
-        return $this->calculateAmounts(); 
+    {
+        return $this->calculateAmounts();
     }
+
     /**
      * @return string
      */
@@ -25,34 +28,30 @@ class PaymentAmountsBalanceRule implements Rule
     {
         return 'Amounts do not balance correctly.';
     }
-    
-    private function calculateAmounts() :bool
+
+    private function calculateAmounts(): bool
     {
-         $payment_amounts = 0;
-         $invoice_amounts = 0;
+        $payment_amounts = 0;
+        $invoice_amounts = 0;
 
-         $payment_amounts += request()->input('amount');
+        $payment_amounts += request()->input('amount');
 
-         if(request()->input('credits') && is_array(request()->input('credits')))
-         {
-             foreach(request()->input('credits') as $credit)
-             {
-                 $payment_amounts += $credit['amount'];
-             }
-         }
+        if (request()->input('credits') && is_array(request()->input('credits'))) {
+            foreach (request()->input('credits') as $credit) {
+                $payment_amounts += $credit['amount'];
+            }
+        }
 
-         if(request()->input('invoices') && is_array(request()->input('invoices')))
-         {
-             foreach(request()->input('invoices') as $invoice)
-             {
-                 $invoice_amounts += $invoice['amount'];
+        if (request()->input('invoices') && is_array(request()->input('invoices'))) {
+            foreach (request()->input('invoices') as $invoice) {
+                $invoice_amounts += $invoice['amount'];
 
-             }
-         }
-         else
-             return true; // if no invoices are present, then this is an unapplied payment, let this pass validation!
-        
-         return  $payment_amounts >= $invoice_amounts;
+            }
+        } else {
+            return true;
+        } // if no invoices are present, then this is an unapplied payment, let this pass validation!
 
-     }
+        return $payment_amounts >= $invoice_amounts;
+
+    }
 }

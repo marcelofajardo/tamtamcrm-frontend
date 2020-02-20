@@ -5,10 +5,12 @@ namespace App;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Invoice\CreateInvoicePdf;
+use App\Services\Ledger\LedgerService;
 use Illuminate\Database\Eloquent\Model;
 use App\Task;
 use App\InvoiceStatus;
 use App\PaymentMethod;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -23,10 +25,7 @@ use App\Services\Invoice\InvoiceService;
 class Invoice extends Model
 {
 
-    use PresentableTrait,
-        SoftDeletes,
-        MakesInvoiceValues,
-        MakesReminders;
+    use PresentableTrait, SoftDeletes, MakesInvoiceValues, MakesReminders;
 
     protected $presenter = 'App\Presenters\InvoicePresenter';
 
@@ -65,7 +64,8 @@ class Invoice extends Model
         'end_date',
         'frequency',
         'recurring_due_date',
-        'notes',
+        'public_notes',
+        'private_notes',
         'terms',
         'footer',
         'partial',
@@ -157,7 +157,7 @@ class Invoice extends Model
      * @return string Either the template view, OR the template HTML string
      * @todo  this needs attention, invoice->settings needs clarification
      */
-    public function design() :string
+    public function design(): string
     {
         if ($this->client->getSetting('design')) {
             return File::exists(resource_path($this->customer->getSetting('design'))) ? File::get(resource_path($this->customer->getSetting('design'))) : File::get(resource_path('views/pdf/design1.blade.php'));
@@ -240,8 +240,8 @@ class Invoice extends Model
 
     public function credits()
     {
-        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount',
-            'refunded')->withTimestamps();
+        return $this->belongsToMany(Credit::class)->using(Paymentable::class)->withPivot('amount', 'refunded')
+                    ->withTimestamps();
     }
 
     public function payments()
@@ -250,7 +250,7 @@ class Invoice extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function invoiceStatus()
     {
@@ -258,7 +258,7 @@ class Invoice extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function paymentType()
     {
@@ -337,5 +337,10 @@ class Invoice extends Model
         }
 
         return true;
+    }
+
+    public function ledger()
+    {
+        return new LedgerService($this);
     }
 }

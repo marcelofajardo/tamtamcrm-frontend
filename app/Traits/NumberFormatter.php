@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 /**
@@ -8,7 +9,7 @@ namespace App\Traits;
 trait NumberFormatter
 {
 
-    private function formatValue($value, $precision) : string
+    private function formatValue($value, $precision): string
     {
         return number_format($this->parseFloat($value), $precision, '.', '');
     }
@@ -16,11 +17,11 @@ trait NumberFormatter
     /**
      * Parse a float value that may be delimited with either a comma or decimal point
      *
-     * @param      string $value The value
+     * @param string $value The value
      *
      * @return     float   Consumable float value
      */
-    private function parseFloat($value) : float
+    private function parseFloat($value): float
     {
         // check for comma as decimal separator
         if (preg_match('/,[\d]{1,2}$/', $value)) {

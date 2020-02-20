@@ -24,12 +24,12 @@ class Gateway extends Model
         'default_gateway_type_id' => 'string',
         'fields' => 'json',
     ];
-    
+
     /**
      * Test if gateway is custom
      * @return boolean TRUE|FALSE
      */
-    public function isCustom() :bool
+    public function isCustom(): bool
     {
         return in_array($this->id, [62, 67, 68]); //static table ids of the custom gateways
     }

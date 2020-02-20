@@ -7,6 +7,7 @@ use App\Factory\EventFactory;
 use App\Filters\EventFilter;
 use App\Notifications\EventCreated;
 use App\Requests\SearchRequest;
+use Exception;
 use Illuminate\Http\Request;
 use App\Requests\Event\CreateEventRequest;
 use App\Requests\Event\UpdateEventRequest;
@@ -18,6 +19,7 @@ use App\Repositories\UserRepository;
 use App\User;
 use App\Repositories\EventTypeRepository;
 use App\EventType;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Notification;
 
 class EventController extends Controller
@@ -38,8 +40,7 @@ class EventController extends Controller
 
     public function index(SearchRequest $request)
     {
-        $events = (new EventFilter($this->event_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $events = (new EventFilter($this->event_repo))->filter($request, auth()->user()->account_user()->account_id);
         return collect($events)->toJson();
     }
 
@@ -47,7 +48,7 @@ class EventController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show(int $id)
     {
@@ -113,7 +114,7 @@ class EventController extends Controller
     /**
      * @param int $task_id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getEventsForTask(int $task_id)
     {
@@ -126,7 +127,7 @@ class EventController extends Controller
     /**
      * @param int $user_id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getEventsForUser(int $user_id)
     {
@@ -163,14 +164,15 @@ class EventController extends Controller
         $this->event_repo->updateInvitationResponseForUser($event, $user, $request->all());
     }
 
-      /**
-         * @param int $id
-         * @return mixed
-         */
-        public function restore(int $id) {
-            $invoice = Event::withTrashed()->where('id', '=', $id)->first();
-            $this->event_repo->restore($invoice);
-            return response()->json([], 200);
-        }
+    /**
+     * @param int $id
+     * @return mixed
+     */
+    public function restore(int $id)
+    {
+        $invoice = Event::withTrashed()->where('id', '=', $id)->first();
+        $this->event_repo->restore($invoice);
+        return response()->json([], 200);
+    }
 
 }

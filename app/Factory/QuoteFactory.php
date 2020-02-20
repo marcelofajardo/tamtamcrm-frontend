@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Factory;
 
 use App\Quote;
@@ -13,7 +14,7 @@ class QuoteFactory
      * @param $total
      * @return Quote
      */
-    public static function create(int $customer_id, int $account_id, int $user_id, $total) :Quote
+    public static function create(int $customer_id, int $account_id, int $user_id, $total): Quote
     {
         $quote = new Quote();
         $quote->account_id = $account_id;
@@ -22,7 +23,8 @@ class QuoteFactory
         $quote->tax_total = 0;
         $quote->footer = '';
         $quote->terms = '';
-        $quote->notes = '';
+        $quote->public_notes = '';
+        $quote->private_notes = '';
         $quote->number = null;
         $quote->date = null;
         $quote->partial_due_date = null;

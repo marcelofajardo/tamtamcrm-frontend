@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 class QuoteWasArchived
 {
     use SerializesModels;
-    
+
     public $quote;
 
     /**

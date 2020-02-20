@@ -4,6 +4,7 @@ namespace App;
 
 use App\Product;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductAttribute extends Model
 {
@@ -18,7 +19,7 @@ class ProductAttribute extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function product()
     {

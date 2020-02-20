@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Factory;
 
 use App\Order;
@@ -14,7 +15,7 @@ class OrderFactory
      * @param int $account_id
      * @return Order
      */
-    public function create(int $user_id, int $account_id, int $task_id, int $quantity) :Order
+    public function create(int $user_id, int $account_id, int $task_id, int $quantity): Order
     {
         $order = new Order;
         $order->name = '';

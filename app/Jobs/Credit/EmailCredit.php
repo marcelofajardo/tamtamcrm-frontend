@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Credit;
 
 use App\Jobs\Utils\SystemLogger;
@@ -52,13 +53,14 @@ class EmailCredit implements ShouldQueue
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 $message_array = $this->credit->getEmailData('', $invitation->contact);
                 $message_array['title'] = &$message_array['subject'];
-                $message_array['footer'] = "Sent to ".$invitation->contact->present()->name();
+                $message_array['footer'] = "Sent to " . $invitation->contact->present()->name();
 
                 //change the runtime config of the mail provider here:
 
                 //send message
                 Mail::to($invitation->contact->email, $invitation->contact->present()->name())
-                    ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user, $invitation->contact->customer));
+                    ->send(new TemplateEmail($message_array, $template_style, $invitation->contact->user,
+                        $invitation->contact->customer));
 
                 if (count(Mail::failures()) > 0) {
                     //event(new CreditWasEmailedAndFailed($this->credit, Mail::failures()));
@@ -76,12 +78,7 @@ class EmailCredit implements ShouldQueue
 
     private function logMailError($errors)
     {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->credit->customer
-        );
+        SystemLogger::dispatch($errors, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SEND, SystemLog::TYPE_FAILURE,
+            $this->credit->customer);
     }
 }

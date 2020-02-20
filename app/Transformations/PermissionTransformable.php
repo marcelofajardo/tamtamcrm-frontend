@@ -4,6 +4,9 @@ namespace App\Transformations;
 
 use App\Permission;
 use App\Repositories\PermissionRepository;
+use App\Shop\Cities\Exceptions\CityNotFoundException;
+use App\Shop\Countries\Exceptions\CountryNotFoundException;
+use App\Shop\Customers\Exceptions\CustomerNotFoundException;
 
 trait PermissionTransformable
 {
@@ -14,9 +17,9 @@ trait PermissionTransformable
      * @param Address $address
      *
      * @return Address
-     * @throws \App\Shop\Cities\Exceptions\CityNotFoundException
-     * @throws \App\Shop\Countries\Exceptions\CountryNotFoundException
-     * @throws \App\Shop\Customers\Exceptions\CustomerNotFoundException
+     * @throws CityNotFoundException
+     * @throws CountryNotFoundException
+     * @throws CustomerNotFoundException
      */
     public function transformPermission(Permission $permission)
     {

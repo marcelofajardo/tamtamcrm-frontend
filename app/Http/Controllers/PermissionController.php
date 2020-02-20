@@ -9,6 +9,11 @@ use App\Permission;
 use App\Requests\CreatePermissionRequest;
 use App\Requests\UpdatePermissionRequest;
 use App\Requests\SearchRequest;
+use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class PermissionController extends Controller
 {
@@ -31,7 +36,7 @@ class PermissionController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index(SearchRequest $request)
     {
@@ -61,7 +66,7 @@ class PermissionController extends Controller
     /**
      * @param CreateRoleRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreatePermissionRequest $request)
     {
@@ -86,10 +91,10 @@ class PermissionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function destroy(int $id)
     {

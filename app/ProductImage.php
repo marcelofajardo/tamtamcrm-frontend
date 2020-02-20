@@ -13,8 +13,10 @@ namespace App;
  *
  * @author michael.hampton
  */
+
 use App\Product;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductImage extends Model
 {
@@ -26,7 +28,7 @@ class ProductImage extends Model
     public $timestamps = false;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function product()
     {

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Utils;
 
 use App\Traits\BulkOptions;

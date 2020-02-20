@@ -61,7 +61,8 @@ export default class Expenses extends Component {
                     'invoice_category_id',
                     'should_be_invoiced',
                     'invoice_documents',
-                    'notes',
+                    'public_notes',
+                    'private_notes',
                     'archived_at',
                     'created_at',
                     'updated_at',
@@ -237,19 +238,6 @@ export default class Expenses extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterExpenses} update={this.updateExpenses}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={10}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
                 <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
                     <DropdownToggle caret color="primary">
                         Bulk Action
@@ -260,6 +248,19 @@ export default class Expenses extends Component {
                         })}
                     </DropdownMenu>
                 </ButtonDropdown>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterExpenses} update={this.updateExpenses}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={8}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
+                </Col>
             </Row>
         )
     }

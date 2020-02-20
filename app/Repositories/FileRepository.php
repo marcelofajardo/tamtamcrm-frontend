@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\File;
@@ -6,6 +7,7 @@ use App\Task;
 use App\Repositories\Interfaces\FileRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use App\Exceptions\CreateFileErrorException;
+use Exception;
 use Illuminate\Support\Collection;
 
 class FileRepository extends BaseRepository implements FileRepositoryInterface
@@ -27,7 +29,7 @@ class FileRepository extends BaseRepository implements FileRepositoryInterface
      * @return File
      * @throws CreateFileErrorException
      */
-    public function createFile(array $data) : File
+    public function createFile(array $data): File
     {
         try {
             return $this->create($data);
@@ -40,18 +42,18 @@ class FileRepository extends BaseRepository implements FileRepositoryInterface
      * @param int $id
      *
      * @return File
-     * @throws \Exception
+     * @throws Exception
      */
-    public function findFileById(int $id) : File
+    public function findFileById(int $id): File
     {
         return $this->findOneOrFail($id);
     }
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function deleteFile() : bool
+    public function deleteFile(): bool
     {
         return $this->delete();
     }
@@ -63,7 +65,7 @@ class FileRepository extends BaseRepository implements FileRepositoryInterface
      *
      * @return Collection
      */
-    public function listFiles($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') : Collection
+    public function listFiles($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection
     {
         return $this->all($columns, $orderBy, $sortBy);
     }
@@ -71,10 +73,7 @@ class FileRepository extends BaseRepository implements FileRepositoryInterface
     public function getFilesForEntity($entity)
     {
 
-        return File::where('documentable_id', $entity->id)
-            ->where('documentable_type', get_class($entity))
-            ->orderBy('created_at', 'desc')
-            ->with('user')
-            ->get();
+        return File::where('documentable_id', $entity->id)->where('documentable_type', get_class($entity))
+                   ->orderBy('created_at', 'desc')->with('user')->get();
     }
 }

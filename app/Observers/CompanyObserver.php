@@ -18,7 +18,7 @@ class CompanyObserver
     /**
      * Handle the company "created" event.
      *
-     * @param  \App\Models\Company  $company
+     * @param Company $company
      * @return void
      */
     public function created(Company $company)
@@ -29,7 +29,7 @@ class CompanyObserver
     /**
      * Handle the company "updated" event.
      *
-     * @param  \App\Models\Company  $company
+     * @param Company $company
      * @return void
      */
     public function updated(Company $company)
@@ -40,7 +40,7 @@ class CompanyObserver
     /**
      * Handle the company "deleted" event.
      *
-     * @param  \App\Models\Company  $company
+     * @param Company $company
      * @return void
      */
     public function deleted(Company $company)
@@ -51,7 +51,7 @@ class CompanyObserver
     /**
      * Handle the company "restored" event.
      *
-     * @param  \App\Models\Company  $company
+     * @param Company $company
      * @return void
      */
     public function restored(Company $company)
@@ -62,7 +62,7 @@ class CompanyObserver
     /**
      * Handle the company "force deleted" event.
      *
-     * @param  \App\Models\Company  $company
+     * @param Company $company
      * @return void
      */
     public function forceDeleted(Company $company)

@@ -19,18 +19,18 @@ use App\Requests\Customer\CreateCustomerRequest;
 use App\Requests\SearchRequest;
 use App\Repositories\CustomerTypeRepository;
 use App\CustomerType;
+use Exception;
 use Illuminate\Http\Request;
 use App\Factory\CustomerFactory;
 use App\Filters\CustomerFilter;
 use App\Traits\BulkOptions;
 use App\Traits\CheckEntityStatus;
+use Illuminate\Http\Response;
 
 class CustomerController extends Controller
 {
 
-    use CustomerTransformable,
-        BulkOptions,
-        CheckEntityStatus;
+    use CustomerTransformable, BulkOptions, CheckEntityStatus;
 
     /**
      * @var CustomerRepositoryInterface
@@ -41,9 +41,8 @@ class CustomerController extends Controller
      * CustomerController constructor.
      * @param CustomerRepositoryInterface $customer_repo
      */
-    public function __construct(
-        CustomerRepositoryInterface $customer_repo
-    ) {
+    public function __construct(CustomerRepositoryInterface $customer_repo)
+    {
         $this->customer_repo = $customer_repo;
     }
 
@@ -53,17 +52,17 @@ class CustomerController extends Controller
      */
     public function index(SearchRequest $request)
     {
-        $customers = (new CustomerFilter($this->customer_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $customers =
+            (new CustomerFilter($this->customer_repo))->filter($request, auth()->user()->account_user()->account_id);
         return response()->json($customers);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  UpdateCustomerRequest $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateCustomerRequest $request
+     * @param int $id
+     * @return Response
      */
     public function update(UpdateCustomerRequest $request, $id)
     {
@@ -93,8 +92,8 @@ class CustomerController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  CreateCustomerRequest $request
-     * @return \Illuminate\Http\Response
+     * @param CreateCustomerRequest $request
+     * @return Response
      */
     public function store(CreateCustomerRequest $request)
     {
@@ -114,10 +113,10 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function archive(int $id)
     {
@@ -165,7 +164,8 @@ class CustomerController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $group = Customer::withTrashed()->where('id', '=', $id)->first();
         $this->customer_repo->restore($group);
         return response()->json([], 200);

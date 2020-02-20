@@ -86,10 +86,7 @@ class AddressRepository extends BaseRepository implements AddressRepositoryInter
      */
     public function findCustomerAddressById(int $id, Customer $customer): Address
     {
-        return $customer
-            ->addresses()
-            ->whereId($id)
-            ->firstOrFail();
+        return $customer->addresses()->whereId($id)->firstOrFail();
     }
 
     /**

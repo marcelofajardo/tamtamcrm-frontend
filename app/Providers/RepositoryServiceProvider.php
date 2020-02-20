@@ -83,113 +83,59 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(
-            ProjectRepositoryInterface::class, ProjectRepository::class
-        );
+        $this->app->bind(ProjectRepositoryInterface::class, ProjectRepository::class);
 
-        $this->app->bind(
-            TaskRepositoryInterface::class, TaskRepository::class
-        );
+        $this->app->bind(TaskRepositoryInterface::class, TaskRepository::class);
 
-        $this->app->bind(
-            TaskStatusRepositoryInterface::class, TaskStatusRepository::class
-        );
+        $this->app->bind(TaskStatusRepositoryInterface::class, TaskStatusRepository::class);
 
-        $this->app->bind(
-            UserRepositoryInterface::class, UserRepository::class
-        );
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
 
-        $this->app->bind(
-            CommentRepositoryInterface::class, CommentRepository::class
-        );
+        $this->app->bind(CommentRepositoryInterface::class, CommentRepository::class);
 
-        $this->app->bind(
-            FileRepositoryInterface::class, FileRepository::class
-        );
+        $this->app->bind(FileRepositoryInterface::class, FileRepository::class);
 
-        $this->app->bind(
-            InvoiceRepositoryInterface::class, InvoiceRepository::class
-        );
+        $this->app->bind(InvoiceRepositoryInterface::class, InvoiceRepository::class);
 
-        $this->app->bind(
-            QuoteRepositoryInterface::class, QuoteRepository::class
-        );
+        $this->app->bind(QuoteRepositoryInterface::class, QuoteRepository::class);
 
-        $this->app->bind(
-            InvoiceLineRepositoryInterface::class, InvoiceLineRepository::class
-        );
+        $this->app->bind(InvoiceLineRepositoryInterface::class, InvoiceLineRepository::class);
 
-        $this->app->bind(
-            AddressRepositoryInterface::class, AddressRepository::class
-        );
+        $this->app->bind(AddressRepositoryInterface::class, AddressRepository::class);
 
-        $this->app->bind(
-            RoleRepositoryInterface::class, RoleRepository::class
-        );
+        $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
 
-        $this->app->bind(
-            DepartmentRepositoryInterface::class, DepartmentRepository::class
-        );
+        $this->app->bind(DepartmentRepositoryInterface::class, DepartmentRepository::class);
 
-        $this->app->bind(
-            EventRepositoryInterface::class, EventRepository::class
-        );
+        $this->app->bind(EventRepositoryInterface::class, EventRepository::class);
 
-        $this->app->bind(
-            CustomerRepositoryInterface::class, CustomerRepository::class
-        );
+        $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
 
-        $this->app->bind(
-            PermissionRepositoryInterface::class, PermissionRepository::class
-        );
+        $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
 
-        $this->app->bind(
-            CountryRepositoryInterface::class, CountryRepository::class
-        );
+        $this->app->bind(CountryRepositoryInterface::class, CountryRepository::class);
 
-        $this->app->bind(
-            MessageRepositoryInterface::class, MessageRepository::class
-        );
+        $this->app->bind(MessageRepositoryInterface::class, MessageRepository::class);
 
-        $this->app->bind(
-            ProductRepositoryInterface::class, ProductRepository::class
-        );
+        $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
 
-        $this->app->bind(
-            CompanyRepositoryInterface::class, CompanyRepository::class
-        );
+        $this->app->bind(CompanyRepositoryInterface::class, CompanyRepository::class);
 
-        $this->app->bind(
-            CategoryRepositoryInterface::class, CategoryRepository::class
-        );
+        $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
 
-        $this->app->bind(
-            NotificationRepositoryInterface::class, NotificationRepository::class
-        );
+        $this->app->bind(NotificationRepositoryInterface::class, NotificationRepository::class);
 
-        $this->app->bind(
-            TaxRateRepositoryInterface::class, TaxRateRepository::class
-        );
+        $this->app->bind(TaxRateRepositoryInterface::class, TaxRateRepository::class);
 
-        $this->app->bind(
-            PaymentMethodRepositoryInterface::class, PaymentMethodRepository::class
-        );
+        $this->app->bind(PaymentMethodRepositoryInterface::class, PaymentMethodRepository::class);
 
-        $this->app->bind(
-            PaymentRepositoryInterface::class, PaymentRepository::class
-        );
+        $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
 
-        $this->app->bind(
-            CreditRepositoryInterface::class, CreditRepository::class
-        );
+        $this->app->bind(CreditRepositoryInterface::class, CreditRepository::class);
 
-        $this->app->bind(
-            CurrencyRepositoryInterface::class, CurrencyRepository::class
-        );
+        $this->app->bind(CurrencyRepositoryInterface::class, CurrencyRepository::class);
 
-        $this->app->bind(
-            TaskServiceInterface::class, TaskService::class
-        );
+        $this->app->bind(TaskServiceInterface::class, TaskService::class);
     }
 
 }

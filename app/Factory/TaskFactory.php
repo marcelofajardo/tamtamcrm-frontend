@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Factory;
 
 use App\Task;
 
 class TaskFactory
 {
-    public static function create(int $user_id, int $account_id) :Task
+    public static function create(int $user_id, int $account_id): Task
     {
         $task = new Task;
         $task->title = '';

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Factory;
 
 use App\Company;
@@ -9,7 +10,7 @@ class CompanyFactory
      * @param int $user_id
      * @return Company
      */
-    public function create(int $user_id, int $account_id) :Company
+    public function create(int $user_id, int $account_id): Company
     {
         $company = new Company;
         $company->name = '';

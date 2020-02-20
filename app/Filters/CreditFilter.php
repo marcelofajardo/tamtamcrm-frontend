@@ -8,6 +8,7 @@ use App\Repositories\CompanyRepository;
 use App\Repositories\CreditRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\CreditTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CreditFilter extends QueryFilter
 {
@@ -30,7 +31,7 @@ class CreditFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -84,14 +85,14 @@ class CreditFilter extends QueryFilter
         }
         return $this->query->where(function ($query) use ($filter) {
             $query->where('credits.number', 'like', '%' . $filter . '%')
-                ->orWhere('credits.number', 'like', '%' . $filter . '%')
-                ->orWhere('credits.date', 'like', '%' . $filter . '%')
-                ->orWhere('credits.amount', 'like', '%' . $filter . '%')
-                ->orWhere('credits.balance', 'like', '%' . $filter . '%')
-                ->orWhere('credits.custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('credits.custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('credits.custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('credits.custom_value4', 'like', '%' . $filter . '%');
+                  ->orWhere('credits.number', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.date', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.amount', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.balance', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('credits.custom_value4', 'like', '%' . $filter . '%');
         });
     }
 

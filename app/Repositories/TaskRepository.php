@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Models\Invoice;
 use App\Task;
 use App\Project;
 use App\Repositories\ProjectRepository;
@@ -10,6 +11,7 @@ use App\Repositories\UserRepository;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use App\Exceptions\CreateTaskErrorException;
+use Exception;
 use Illuminate\Support\Collection as Support;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +63,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
      * @param int $id
      *
      * @return Task
-     * @throws \Exception
+     * @throws Exception
      */
     public function findTaskById(int $id): Task
     {
@@ -70,7 +72,7 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteTask(): bool
     {
@@ -100,14 +102,11 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     public function getTasksForProject(Project $objProject, User $objUser = null): Support
     {
 
-        $query = $this->model->select('tasks.*')
-            ->where('project_id', $objProject->id)
-            ->where('is_completed', 0)
-            ->where('parent_id', 0);
+        $query = $this->model->select('tasks.*')->where('project_id', $objProject->id)->where('is_completed', 0)
+                             ->where('parent_id', 0);
 
         if ($objUser !== null) {
-            $query->join('task_user', 'tasks.id', '=', 'task_user.task_id')
-                ->where('task_user.user_id', $objUser->id);
+            $query->join('task_user', 'tasks.id', '=', 'task_user.task_id')->where('task_user.user_id', $objUser->id);
         }
 
 
@@ -122,16 +121,12 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
      */
     public function getLeads($limit = null, User $objUser = null, int $account_id): Support
     {
-        $query = $this->model->where('task_type', 2)
-            ->where('is_completed', 0)
-            ->where('parent_id', 0)
-            ->where('account_id', $account_id)
-            ->orderBy('tasks.created_at', 'desc');
+        $query = $this->model->where('task_type', 2)->where('is_completed', 0)->where('parent_id', 0)
+                             ->where('account_id', $account_id)->orderBy('tasks.created_at', 'desc');
 
 
         if ($objUser !== null) {
-            $query->join('task_user', 'tasks.id', '=', 'task_user.task_id')
-                ->where('task_user.user_id', $objUser->id);
+            $query->join('task_user', 'tasks.id', '=', 'task_user.task_id')->where('task_user.user_id', $objUser->id);
         }
 
         if ($limit !== null) {
@@ -143,14 +138,11 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
 
     public function getDeals($limit = null, User $objUser = null): Support
     {
-        $query = $this->model->where('task_type', 3)
-            ->where('is_completed', 0)
-            ->where('parent_id', 0)
-            ->orderBy('tasks.created_at', 'desc');
+        $query = $this->model->where('task_type', 3)->where('is_completed', 0)->where('parent_id', 0)
+                             ->orderBy('tasks.created_at', 'desc');
 
         if ($objUser !== null) {
-            $query->join('task_user', 'tasks.id', '=', 'task_user.task_id')
-                ->where('task_user.user_id', $objUser->id);
+            $query->join('task_user', 'tasks.id', '=', 'task_user.task_id')->where('task_user.user_id', $objUser->id);
         }
 
         if ($limit !== null) {
@@ -178,10 +170,8 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     public function getTasksWithProducts(): Support
     {
 
-        return $this->model->join('product_task', 'product_task.task_id', '=', 'tasks.id')
-            ->select('tasks.*')
-            ->groupBy('tasks.id')
-            ->get();
+        return $this->model->join('product_task', 'product_task.task_id', '=', 'tasks.id')->select('tasks.*')
+                           ->groupBy('tasks.id')->get();
     }
 
     /**
@@ -201,11 +191,8 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     public function getSourceTypeCounts(int $task_type, $account_id): Support
     {
         return $this->model->join('source_type', 'source_type.id', '=', 'tasks.source_type')
-            ->select('source_type.name', DB::raw('count(*) as value'))
-            ->where('task_type', $task_type)
-            ->where('tasks.account_id', $account_id)
-            ->groupBy('source_type.name')
-            ->get();
+                           ->select('source_type.name', DB::raw('count(*) as value'))->where('task_type', $task_type)
+                           ->where('tasks.account_id', $account_id)->groupBy('source_type.name')->get();
     }
 
     /**
@@ -215,12 +202,10 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     public function getStatusCounts(int $task_type, int $account_id): Support
     {
         return $this->model->join('task_statuses', 'task_statuses.id', '=', 'tasks.task_status')
-            ->select('task_statuses.title AS name',
-                DB::raw('CEILING(count(*) * 100 / (select count(*) from tasks)) as value'))
-            ->where('tasks.task_type', $task_type)
-            ->where('tasks.account_id', $account_id)
-            ->groupBy('task_statuses.title')
-            ->get();
+                           ->select('task_statuses.title AS name',
+                               DB::raw('CEILING(count(*) * 100 / (select count(*) from tasks)) as value'))
+                           ->where('tasks.task_type', $task_type)->where('tasks.account_id', $account_id)
+                           ->groupBy('task_statuses.title')->get();
     }
 
     /**
@@ -233,11 +218,8 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     {
 
         $date = Carbon::today()->subDays($number_of_days);
-        $result = $this->model->select(DB::raw('count(*) as total'))
-            ->where('created_at', '>=', $date)
-            ->where('task_type', $task_type)
-            ->where('account_id', $account_id)
-            ->get();
+        $result = $this->model->select(DB::raw('count(*) as total'))->where('created_at', '>=', $date)
+                              ->where('task_type', $task_type)->where('account_id', $account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }
@@ -250,10 +232,8 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
     public function getNewDeals(int $task_type, int $account_id)
     {
 
-        $result = $this->model->select(DB::raw('count(*) as total'))
-            ->where('task_type', $task_type)
-            ->where('account_id', $account_id)
-            ->get();
+        $result = $this->model->select(DB::raw('count(*) as total'))->where('task_type', $task_type)
+                              ->where('account_id', $account_id)->get();
 
         return !empty($result[0]) ? $result[0]['total'] : 0;
     }
@@ -289,9 +269,9 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
      * Saves the invoices
      *
      * @param array .                                        $data     The invoice data
-     * @param InvoiceSum|\App\Models\Invoice $invoice The invoice
+     * @param InvoiceSum|Invoice $invoice The invoice
      *
-     * @return     Invoice|InvoiceSum|\App\Models\Invoice|null  Returns the invoice object
+     * @return     Invoice|InvoiceSum|Invoice|null  Returns the invoice object
      */
     public function save($data, Task $task): ?Task
     {
@@ -301,19 +281,19 @@ class TaskRepository extends BaseRepository implements TaskRepositoryInterface
             $data['customer_id'] = $project->customer_id;
         }
 
-$data['source_type'] = empty($data['source_type']) ? 1 : $data['source_type'];
+        $data['source_type'] = empty($data['source_type']) ? 1 : $data['source_type'];
 
 //        if (isset($data['task_type']) && $data['task_type'] == 1 && !empty($data['project_id']) ) {
 //           return $this->saveProjectTask($data, $task);
 //        }
-$task->fill($data);
-$task->save();
+        $task->fill($data);
+        $task->save();
 
-if (isset ($data['contributors']) && !empty($data['contributors'])) {
-    $this->syncUsers($task, $data['contributors']);
-}
+        if (isset ($data['contributors']) && !empty($data['contributors'])) {
+            $this->syncUsers($task, $data['contributors']);
+        }
 
-return $task->fresh();
-}
+        return $task->fresh();
+    }
 
 }

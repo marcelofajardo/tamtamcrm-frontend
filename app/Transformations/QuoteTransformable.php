@@ -20,8 +20,9 @@ trait QuoteTransformable
 
         $prop->id = (int)$quote->id;
         $prop->number = $quote->number ?: '';
-        $customer = $quote->customer;
         $prop->company_id = $quote->company_id ?: null;
+        $prop->public_notes = $quote->public_notes ?: '';
+        $prop->private_notes = $quote->private_notes ?: '';
         $prop->customer_id = $quote->customer_id;
         $prop->date = $quote->date ?: '';
         $prop->due_date = $quote->due_date ?: '';
@@ -35,8 +36,6 @@ trait QuoteTransformable
         $prop->created_at = $quote->created_at;
         $prop->tax_total = $quote->tax_total;
         $prop->discount_total = $quote->discount_total;
-        $prop->notes = $quote->notes;
-
 
         $prop->terms = $quote->terms;
         $prop->footer = $quote->footer ?: '';

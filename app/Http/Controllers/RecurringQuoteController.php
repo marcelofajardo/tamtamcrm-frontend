@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Factory\CloneRecurringQuoteFactory;
@@ -17,6 +18,7 @@ use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringQuoteRepository;
 use App\Requests\SearchRequest;
 use App\Requests\RecurringQuote\StoreRecurringQuoteRequest;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Traits\CheckEntityStatus;
@@ -37,7 +39,7 @@ class RecurringQuoteController extends Controller
     /**
      * RecurringQuoteController constructor.
      *
-     * @param      \App\Repositories\RecurringQuoteRepository $recurring_quote_repo The RecurringQuote repo
+     * @param RecurringQuoteRepository $recurring_quote_repo The RecurringQuote repo
      */
     public function __construct(RecurringQuoteRepository $recurring_quote_repo)
     {
@@ -59,7 +61,7 @@ class RecurringQuoteController extends Controller
     /**
      * @param StoreRecurringQuoteRequest $request
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function store(StoreRecurringQuoteRequest $request)
     {
@@ -81,8 +83,8 @@ class RecurringQuoteController extends Controller
             'partial' => $quote->partial
         ), $request->all());
 
-        $recurringQuote = (new RecurringQuoteRepository(new RecurringQuote))->save($arrRecurring
-            , RecurringQuoteFactory::create($request->customer_id, auth()->user()->account_user()->id, $quote->total));
+        $recurringQuote = (new RecurringQuoteRepository(new RecurringQuote))->save($arrRecurring,
+            RecurringQuoteFactory::create($request->customer_id, auth()->user()->account_user()->id, $quote->total));
         return response()->json($recurringQuote);
     }
 
@@ -95,7 +97,7 @@ class RecurringQuoteController extends Controller
     {
         $recurring_quote = $this->recurring_quote_repo->findQuoteById($id);
 
-        if($this->entityIsDeleted($recurring_quote)) {
+        if ($this->entityIsDeleted($recurring_quote)) {
             return $this->disallowUpdate();
         }
 
@@ -184,7 +186,8 @@ class RecurringQuoteController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $group = RecurringQuote::withTrashed()->where('id', '=', $id)->first();
         $this->recurring_quote_repo->restore($group);
         return response()->json([], 200);

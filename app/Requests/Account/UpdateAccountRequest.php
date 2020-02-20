@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\Account;
 
 use App\Rules\ValidSettingsRule;
@@ -27,7 +28,7 @@ class UpdateAccountRequest extends BaseFormRequest
     {
         $input = $this->all();
 
-        if(isset($input['settings'])) {
+        if (isset($input['settings'])) {
             $input['settings'] = json_decode($input['settings'], true);
         }
 

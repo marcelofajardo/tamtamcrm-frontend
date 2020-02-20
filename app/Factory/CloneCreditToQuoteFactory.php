@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Factory;
 
 use App\Credit;
@@ -6,7 +7,7 @@ use App\Quote;
 
 class CloneCreditToQuoteFactory
 {
-    public static function create(Credit $credit, $user_id) : ?Quote
+    public static function create(Credit $credit, $user_id): ?Quote
     {
         $quote = new Quote();
         $quote->customer_id = $credit->customer_id;
@@ -15,7 +16,8 @@ class CloneCreditToQuoteFactory
         $quote->discount = 0;
         $quote->is_deleted = false;
         $quote->footer = $credit->footer;
-        $quote->notes = $credit->notes;
+        $quote->public_notes = $credit->public_notes;
+        $quote->private_notes = $credit->private_notes;
         $quote->terms = $credit->terms;
         $quote->custom_value1 = $credit->custom_value1;
         $quote->custom_value2 = $credit->custom_value2;

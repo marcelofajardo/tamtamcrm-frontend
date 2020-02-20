@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\Invoice;
@@ -15,7 +16,7 @@ interface InvoiceRepositoryInterface
      */
     public function listInvoices(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection;
 
-    public function save($data, Invoice $invoice) : ?Invoice;
+    public function save($data, Invoice $invoice): ?Invoice;
 
     /**
      *
@@ -31,6 +32,6 @@ interface InvoiceRepositoryInterface
 
     public function deleteInvoice(): bool;
 
-    public function findInvoicesByStatus(int $status) : Collection;
+    public function findInvoicesByStatus(int $status): Collection;
 
 }

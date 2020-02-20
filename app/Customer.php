@@ -4,8 +4,11 @@ namespace App;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\CustomerSettings;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use App\Message;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\PaymentMethod;
 use App\CustomerType;
@@ -19,9 +22,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
 class Customer extends Model implements HasLocalePreference
 {
 
-    use CustomerSettingsSaver,
-        SoftDeletes,
-        PresentableTrait;
+    use CustomerSettingsSaver, SoftDeletes, PresentableTrait;
 
     protected $presenter = 'App\Presenters\CustomerPresenter';
 
@@ -66,7 +67,7 @@ class Customer extends Model implements HasLocalePreference
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function addresses()
     {
@@ -128,9 +129,7 @@ class Customer extends Model implements HasLocalePreference
     public function processUnappliedPayment($amount): Customer
     {
 
-        return $this->service()->updatePaidToDate($amount)
-            ->adjustCreditBalance($amount)
-            ->save();
+        return $this->service()->updatePaidToDate($amount)->adjustCreditBalance($amount)->save();
     }
 
     public function updateBalance($amount): CustomerService
@@ -143,14 +142,11 @@ class Customer extends Model implements HasLocalePreference
      */
     public function getTotalCredit()
     {
-        return DB::table('credits')
-            ->where('customer_id', '=', $this->id)
-            ->whereNull('deleted_at')
-            ->sum('balance');
+        return DB::table('credits')->where('customer_id', '=', $this->id)->whereNull('deleted_at')->sum('balance');
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return BelongsToMany
      */
     public function messages()
     {
@@ -173,7 +169,7 @@ class Customer extends Model implements HasLocalePreference
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function creditsWithBalance()
     {
@@ -197,7 +193,7 @@ class Customer extends Model implements HasLocalePreference
 
     public function locale()
     {
-        return $this->language()->locale ?:  'en';
+        return $this->language()->locale ?: 'en';
     }
 
     public function preferredLocale()
@@ -226,9 +222,8 @@ class Customer extends Model implements HasLocalePreference
     {
 
         /*Client Settings*/
-        if ($this->settings && (property_exists($this->settings,
-                    $setting) !== false) && (isset($this->settings->{$setting}) !== false)
-        ) {
+        if ($this->settings && (property_exists($this->settings, $setting) !== false) &&
+            (isset($this->settings->{$setting}) !== false)) {
             /*need to catch empty string here*/
             if (iconv_strlen($this->settings->{$setting}) >= 1) {
                 return $this->settings->{$setting};
@@ -236,42 +231,43 @@ class Customer extends Model implements HasLocalePreference
         }
 
         /*Group Settings*/
-        if ($this->group_settings && (property_exists($this->group_settings->settings,
-                    $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)
-        ) {
+        if ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) &&
+            (isset($this->group_settings->settings->{$setting}) !== false)) {
             echo $setting . ' b';
             return $this->group_settings->settings->{$setting};
         }
         /*Company Settings*/
-        if ((property_exists($this->account->settings,
-                    $setting) != false) && (isset($this->account->settings->{$setting}) !== false)
-        ) {
+        if ((property_exists($this->account->settings, $setting) != false) &&
+            (isset($this->account->settings->{$setting}) !== false)) {
             return $this->account->settings->{$setting};
         }
-        throw new \Exception("Settings corrupted", 1);
+        throw new Exception("Settings corrupted", 1);
     }
 
     public function getSettingEntity($setting)
     {
         /*Client Settings*/
-        if ($this->settings && (property_exists($this->settings, $setting) !== false) && (isset($this->settings->{$setting}) !== false)) {
+        if ($this->settings && (property_exists($this->settings, $setting) !== false) &&
+            (isset($this->settings->{$setting}) !== false)) {
             /*need to catch empty string here*/
-            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >=1)) {
+            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
                 return $this;
             }
         }
 
         /*Group Settings*/
-        if ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) && (isset($this->group_settings->settings->{$setting}) !== false)) {
+        if ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) &&
+            (isset($this->group_settings->settings->{$setting}) !== false)) {
             return $this->group_settings;
         }
 
         /*Company Settings*/
-        if ((property_exists($this->account->settings, $setting) != false) && (isset($this->account->settings->{$setting}) !== false)) {
+        if ((property_exists($this->account->settings, $setting) != false) &&
+            (isset($this->account->settings->{$setting}) !== false)) {
             return $this->account;
         }
 
-        throw new \Exception("Could not find a settings object", 1);
+        throw new Exception("Could not find a settings object", 1);
     }
 
     /**
@@ -289,16 +285,14 @@ class Customer extends Model implements HasLocalePreference
         }
 
         if ($this->group_settings !== null) {
-            $group_settings = CustomerSettings::buildCustomerSettings($this->group_settings->settings,
-                $this->settings);
+            $group_settings = CustomerSettings::buildCustomerSettings($this->group_settings->settings, $this->settings);
             return CustomerSettings::buildCustomerSettings($this->account->settings, $group_settings);
         }
         return CompanySettings::setProperties(CustomerSettings::buildCustomerSettings($this->account->settings,
             $this->settings));
     }
 
-    public
-    function getCountryId(): ?Country
+    public function getCountryId(): ?Country
     {
         $address = Address::where('address_type', '=', 1)->where('customer_id', '=', $this->id)->first();
 
@@ -355,7 +349,8 @@ class Customer extends Model implements HasLocalePreference
 
         $payment_methods_collections = collect($payment_methods);
         //** Plucks the remaining keys into its own collection
-        $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
+        $payment_methods_intersect =
+            $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
         $payment_urls = [];
         foreach ($payment_methods_intersect as $key => $child_array) {
             foreach ($child_array as $gateway_id => $gateway_type_id) {
@@ -426,9 +421,7 @@ class Customer extends Model implements HasLocalePreference
      */
     public function gateway_token($company_gateway_id, $payment_method_id)
     {
-        return $this->gateway_tokens()
-            ->whereCompanyGatewayId($company_gateway_id)
-            ->whereGatewayTypeId($payment_method_id)
-            ->first();
+        return $this->gateway_tokens()->whereCompanyGatewayId($company_gateway_id)
+                    ->whereGatewayTypeId($payment_method_id)->first();
     }
 }

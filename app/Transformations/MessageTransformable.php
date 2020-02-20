@@ -19,7 +19,8 @@ trait MessageTransformable
     {
 
         $prop = new Message;
-        $author = $message->direction === 1 ? $currentUser->first_name . ' ' . $currentUser->last_name : $customer->first_name . ' ' . $customer->last_name;
+        $author = $message->direction === 1 ? $currentUser->first_name . ' ' .
+            $currentUser->last_name : $customer->first_name . ' ' . $customer->last_name;
 
         $prop->author = $author;
         $prop->avatar = '';

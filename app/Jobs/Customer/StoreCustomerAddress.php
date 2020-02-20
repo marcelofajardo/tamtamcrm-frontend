@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Customer;
 
 use App\Customer;
@@ -29,24 +30,27 @@ class StoreCustomerAddress
      *
      * @return void
      */
-    public function handle(CustomerRepository $client_repo) : ?Customer {
+    public function handle(CustomerRepository $client_repo): ?Customer
+    {
 
         $this->customer->addresses()->forceDelete();
 
         if (isset($this->data['addresses'][0])) {
             $addresses = $this->data['addresses'][0];
 
-            if (isset($addresses['billing']) && !empty($addresses['billing']) && !empty($addresses['billing']['address_1'])) {
+            if (isset($addresses['billing']) && !empty($addresses['billing']) &&
+                !empty($addresses['billing']['address_1'])) {
                 $addresses['billing']['address_type'] = 1;
                 $this->customer->addresses()->create($addresses['billing']);
             }
 
-if (isset($addresses['shipping']) && !empty($addresses['shipping']) && !empty($addresses['shipping']['address_1'])) {
-    $addresses['shipping']['address_type'] = 2;
-    $this->customer->addresses()->create($addresses['shipping']);
-}
-}
+            if (isset($addresses['shipping']) && !empty($addresses['shipping']) &&
+                !empty($addresses['shipping']['address_1'])) {
+                $addresses['shipping']['address_type'] = 2;
+                $this->customer->addresses()->create($addresses['shipping']);
+            }
+        }
 
-return $this->customer;
-}
+        return $this->customer;
+    }
 }

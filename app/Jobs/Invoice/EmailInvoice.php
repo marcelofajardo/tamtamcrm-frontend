@@ -51,11 +51,8 @@ class EmailInvoice implements ShouldQueue
     {
 
         Mail::to($this->invoice_invitation->contact->email, $this->invoice_invitation->contact->present()->name())
-            ->send(new TemplateEmail($this->email_builder,
-                    $this->invoice_invitation->contact->user,
-                    $this->invoice_invitation->contact->customer
-                )
-            );
+            ->send(new TemplateEmail($this->email_builder, $this->invoice_invitation->contact->user,
+                $this->invoice_invitation->contact->customer));
 
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures());
@@ -64,12 +61,7 @@ class EmailInvoice implements ShouldQueue
 
     private function logMailError($errors)
     {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->invoice->customer
-        );
+        SystemLogger::dispatch($errors, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SEND, SystemLog::TYPE_FAILURE,
+            $this->invoice->customer);
     }
 }

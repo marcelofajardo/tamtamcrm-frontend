@@ -20,9 +20,7 @@ trait UploadableTrait
     public function uploadOne(UploadedFile $file, $folder = null, $disk = 'public', $filename = null)
     {
         $name = !is_null($filename) ? $filename : str_random(25);
-        return $file->storeAs(
-            $folder, $name . "." . $file->getClientOriginalExtension(), $disk
-        );
+        return $file->storeAs($folder, $name . "." . $file->getClientOriginalExtension(), $disk);
     }
 
     /**
@@ -43,7 +41,7 @@ trait UploadableTrait
         if ($file) {
             $path = UploadAvatar::dispatchNow($file, $account->id);
 
-            if($path){
+            if ($path) {
                 $settings = $entity->settings;
                 $settings->company_logo = $path;
                 $entity->settings = $settings;

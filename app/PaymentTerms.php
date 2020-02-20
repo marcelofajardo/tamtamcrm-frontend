@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -31,10 +32,7 @@ class PaymentTerm extends BaseModel
         $terms->map(function ($term) {
             return $term['num_days'];
         });
-        $default_terms->merge($terms)
-            ->sort()
-            ->values()
-            ->all();
+        $default_terms->merge($terms)->sort()->values()->all();
 
         return $default_terms;
     }

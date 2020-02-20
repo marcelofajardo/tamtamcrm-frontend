@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Domain;
 
 use App\Events\Domain\DomainCreated;
@@ -35,7 +36,7 @@ class CreateDomain
      *
      * @return void
      */
-    public function handle() : ?Domain
+    public function handle(): ?Domain
     {
         /*
          * Create domain
@@ -58,24 +59,24 @@ class CreateDomain
         /*
          * Required dependencies
          */
-        if($user)
-            auth()->login($user, false); 
+        if ($user) {
+            auth()->login($user, false);
+        }
         $user->setAccount($account);
         /*
          * Create token
-         */
-        //$user_agent = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
+         */ //$user_agent = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
         //$company_token = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
         /*
          * Fire related events
          */
-        if($user) {
+        if ($user) {
             event(new DomainCreated($user));
-}
+        }
 
-$user->fresh();
-/*Notification::route('slack', config('ninja.notification.slack'))
-            ->notify(new NewAccountCreated($user, $company));*/
-return $domain;
-}
+        $user->fresh();
+        /*Notification::route('slack', config('ninja.notification.slack'))
+                    ->notify(new NewAccountCreated($user, $company));*/
+        return $domain;
+    }
 }

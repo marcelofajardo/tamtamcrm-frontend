@@ -31,7 +31,7 @@ class RecurringQuoteRepository extends BaseRepository
         $quote->fill($data);
 
         $quote->save();
-        $quote_calc  = new InvoiceSum($quote);
+        $quote_calc = new InvoiceSum($quote);
         $quote = $quote_calc->build()->getQuote();
 
         if (!$quote->number) {
@@ -54,10 +54,8 @@ class RecurringQuoteRepository extends BaseRepository
      * @return Product
      * @throws ProductNotFoundException
      */
-    public
-    function findQuoteById(
-        int $id
-    ): RecurringQuote {
+    public function findQuoteById(int $id): RecurringQuote
+    {
         return $this->findOneOrFail($id);
     }
 
@@ -70,12 +68,8 @@ class RecurringQuoteRepository extends BaseRepository
      * @param array $columns
      * @return \Illuminate\Support\Collection
      */
-    public
-    function listQuotes(
-        string $order = 'id',
-        string $sort = 'desc',
-        array $columns = ['*']
-    ): Collection {
+    public function listQuotes(string $order = 'id', string $sort = 'desc', array $columns = ['*']): Collection
+    {
         return $this->all($columns, $order, $sort);
     }
 

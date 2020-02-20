@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories;
 
 use App\Repositories\Base\BaseRepository;
@@ -25,7 +26,7 @@ class CountryRepository extends BaseRepository implements CountryRepositoryInter
      * @param string $sort
      * @return Collection
      */
-    public function listCountries(string $order = 'id', string $sort = 'desc') : Collection
+    public function listCountries(string $order = 'id', string $sort = 'desc'): Collection
     {
         return $this->model->where('status', 1)->get();
     }

@@ -32,6 +32,8 @@ class EditCredit extends React.Component {
             total: this.props.credit.total,
             customer_id: this.props.credit.customer_id,
             custom_value1: this.props.credit.custom_value1,
+            public_notes: this.props.credit.public_notes,
+            private_notes: this.props.credit.private_notes,
             custom_value2: this.props.credit.custom_value2,
             custom_value3: this.props.credit.custom_value3,
             custom_value4: this.props.credit.custom_value4,
@@ -106,7 +108,9 @@ class EditCredit extends React.Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes
         }
 
         return data
@@ -227,6 +231,28 @@ class EditCredit extends React.Component {
                                 customers={this.props.customers}
                             />
                             {this.renderErrorFor('customer_id')}
+                        </InputGroup>
+
+                        <Label>Public Notes</Label>
+                        <InputGroup className="mb-3">
+                            <InputGroupAddon addonType="prepend">
+                                <InputGroupText><i className="fa fa-user-o"/></InputGroupText>
+                            </InputGroupAddon>
+                            <Input value={this.state.public_notes} className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
+                                type="text" name="public_notes"
+                                onChange={this.handleInput.bind(this)}/>
+                            {this.renderErrorFor('public_notes')}
+                        </InputGroup>
+
+                        <Label>Private Notes</Label>
+                        <InputGroup className="mb-3">
+                            <InputGroupAddon addonType="prepend">
+                                <InputGroupText><i className="fa fa-user-o"/></InputGroupText>
+                            </InputGroupAddon>
+                            <Input value={this.state.private_notes} className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
+                                type="text" name="private_notes"
+                                onChange={this.handleInput.bind(this)}/>
+                            {this.renderErrorFor('private_notes')}
                         </InputGroup>
 
                         {customForm}

@@ -34,6 +34,7 @@ class AddPayment extends React.Component {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
+            private_notes: '',
             errors: [],
             send_email: true,
             selectedInvoices: [],
@@ -105,7 +106,8 @@ class AddPayment extends React.Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            private_notes: this.state.private_notes
         })
             .then((response) => {
                 this.toggle()
@@ -118,7 +120,8 @@ class AddPayment extends React.Component {
                     transaction_reference: null,
                     invoice_id: null,
                     customer_id: null,
-                    amount: null
+                    amount: null,
+                    private_notes: ''
                 })
             })
             .catch((error) => {
@@ -148,7 +151,8 @@ class AddPayment extends React.Component {
                     type_id: null,
                     customer_id: null,
                     payable_invoices: [],
-                    transaction_reference: null
+                    transaction_reference: null,
+                    private_notes: ''
                 }, () => localStorage.removeItem('paymentForm'))
             }
         })
@@ -228,6 +232,15 @@ class AddPayment extends React.Component {
                         <InvoiceLine status={2} handleAmountChange={this.setAmount} errors={this.state.errors}
                             invoices={this.props.invoices}
                             customerChange={this.handleCustomerChange} onChange={this.setInvoices}/>
+
+                        <FormGroup className="mb-3">
+                            <Label>Notes</Label>
+                            <Input className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''} type="text"
+                                value={this.state.private_notes}
+                                name="private_notes"
+                                onChange={this.handleInput.bind(this)}/>
+                            {this.renderErrorFor('private_notes')}
+                        </FormGroup>
 
                         <FormGroup check>
                             <Label check>

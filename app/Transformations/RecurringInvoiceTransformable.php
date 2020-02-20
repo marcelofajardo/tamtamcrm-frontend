@@ -26,7 +26,6 @@ trait RecurringInvoiceTransformable
         $prop->date = $invoice->date;
         $prop->due_date = $invoice->due_date;
         $prop->start_date = $invoice->start_date;
-        $customer = $invoice->customer;
         $prop->total = $invoice->total;
         $prop->sub_total = $invoice->sub_total;
         $prop->tax_total = $invoice->tax_total;
@@ -34,7 +33,8 @@ trait RecurringInvoiceTransformable
         $prop->deleted_at = $invoice->deleted_at;
         $prop->created_at = $invoice->created_at;
         $prop->status_id = $invoice->status_id;
-        $prop->notes = $invoice->notes;
+        $prop->public_notes = $invoice->public_notes ?: '';
+        $prop->private_notes = $invoice->private_notes ?: '';
         $prop->terms = $invoice->terms;
 
         $prop->footer = $invoice->footer;

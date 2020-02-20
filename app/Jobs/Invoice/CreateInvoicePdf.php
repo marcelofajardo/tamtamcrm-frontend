@@ -34,7 +34,7 @@ class CreateInvoicePdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($invoice, Account $account, ClientContact $contact = null)
+    public function __construct($invoice, Account $account, ClientContact $contact = null, $disk = 'public')
     {
         $this->invoice = $invoice;
         $this->account = $account;
@@ -56,13 +56,14 @@ class CreateInvoicePdf implements ShouldQueue
 
         $design = Design::find($this->invoice->customer->getSetting('invoice_design_id'));
 
- 		if($design->is_custom){
- 			$invoice_design = new Custom($design->design);
- 		}
- 		else{
- 			$class = 'App\Designs\\'.$design->name;
- 			$invoice_design = new $class();
- 		}
+        if ($design->is_custom) {
+            $invoice_design = new Custom($design->design);
+        } else {
+            $class = 'App\Designs\\' . $design->name;
+            $invoice_design = new $class();
+        }
+
+        die('mike');
 
         $designer = new Designer($invoice_design, $this->invoice->customer->getSetting('pdf_variables'), 'invoice');
 
@@ -75,6 +76,9 @@ class CreateInvoicePdf implements ShouldQueue
         //\Log::error($html);
         //create pdf
         $pdf = $this->makePdf(null, null, $html);
+
+        echo $file_path;
+        die;
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 

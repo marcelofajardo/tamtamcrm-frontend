@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\PaymentMethod;
@@ -13,10 +14,8 @@ interface PaymentMethodRepositoryInterface
      * @param string $orderBy
      * @param string $sortBy
      */
-    public function listPaymentMethods(
-        $columns = array('*'),
+    public function listPaymentMethods($columns = array('*'),
         string $orderBy = 'id',
-        string $sortBy = 'asc'
-    ) : Collection;
+        string $sortBy = 'asc'): Collection;
 
 }

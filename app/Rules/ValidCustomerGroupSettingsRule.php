@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Rules;
 
 use App\User;
@@ -17,8 +18,9 @@ class ValidCustomerGroupSettingsRule implements Rule
      * @param mixed $value
      * @return bool
      */
-    
+
     public $return_data;
+
     public function passes($attribute, $value)
     {
         $data = $this->validateSettings($value);
@@ -29,11 +31,12 @@ class ValidCustomerGroupSettingsRule implements Rule
             return true;
         }
     }
+
     /**
      * @return string
      */
     public function message()
     {
-        return $this->return_data[0]." is not a valid ".$this->return_data[1];
+        return $this->return_data[0] . " is not a valid " . $this->return_data[1];
     }
 }

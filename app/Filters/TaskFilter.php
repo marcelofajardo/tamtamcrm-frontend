@@ -6,6 +6,7 @@ use App\Task;
 use App\Repositories\TaskRepository;
 use App\Requests\SearchRequest;
 use App\Transformations\TaskTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskFilter extends QueryFilter
 {
@@ -28,7 +29,7 @@ class TaskFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {
@@ -36,8 +37,8 @@ class TaskFilter extends QueryFilter
         $orderBy = !$request->column ? 'title' : $request->column;
         $orderDir = !$request->order ? 'asc' : $request->order;
 
-        $this->query = $this->model->select('*', 'tasks.id as id')->leftJoin('task_user', 'tasks.id', '=',
-            'task_user.task_id');
+        $this->query =
+            $this->model->select('*', 'tasks.id as id')->leftJoin('task_user', 'tasks.id', '=', 'task_user.task_id');
 
         if ($request->has('search_term') && !empty($request->search_term)) {
             $this->query = $this->searchFilter($request->search_term);
@@ -83,13 +84,12 @@ class TaskFilter extends QueryFilter
             return $this->query;
         }
         return $this->query->where(function ($query) use ($filter) {
-            $query->where('title', 'like', '%' . $filter . '%')
-                ->orWhere('content', 'like', '%' . $filter . '%')
-                ->orWhere('rating', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value1', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value2', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value3', 'like', '%' . $filter . '%')
-                ->orWhere('custom_value4', 'like', '%' . $filter . '%');
+            $query->where('title', 'like', '%' . $filter . '%')->orWhere('content', 'like', '%' . $filter . '%')
+                  ->orWhere('rating', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value4', 'like', '%' . $filter . '%');
         });
     }
 
@@ -125,10 +125,8 @@ class TaskFilter extends QueryFilter
     public function filterBySearchCriteria($filters, int $task_type, int $account_id)
     {
         $this->query = $this->model->select('tasks.id as id', 'tasks.*')
-            ->leftJoin('task_user', 'tasks.id', '=', 'task_user.task_id');
-        $this->query = $this->query->where('is_completed', 0)
-            ->where('task_type', $task_type)
-            ->where('parent_id', 0);
+                                   ->leftJoin('task_user', 'tasks.id', '=', 'task_user.task_id');
+        $this->query = $this->query->where('is_completed', 0)->where('task_type', $task_type)->where('parent_id', 0);
 
         foreach ($filters as $column => $value) {
 

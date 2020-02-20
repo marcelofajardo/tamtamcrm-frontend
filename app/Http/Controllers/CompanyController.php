@@ -12,19 +12,23 @@ use App\Repositories\Interfaces\CompanyRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Requests\Company\CreateCompanyRequest;
 use App\Requests\Company\UpdateCompanyRequest;
+use App\Shop\Brands\Exceptions\UpdateBrandErrorException;
 use App\Transformations\CompanyTransformable;
 use App\Industry;
 use App\Filters\CompanyFilter;
 use App\Traits\UploadableTrait;
 use App\Requests\SearchRequest;
+use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Jobs\Company\CreateCompany;
+use Illuminate\View\View;
 
 class CompanyController extends Controller
 {
 
-    use CompanyTransformable,
-        UploadableTrait;
+    use CompanyTransformable, UploadableTrait;
 
     /**
      * @var CompanyRepositoryInterface
@@ -35,26 +39,25 @@ class CompanyController extends Controller
      * CompanyController constructor.
      * @param CompanyRepositoryInterface $company_repo
      */
-    public function __construct(
-        CompanyRepositoryInterface $company_repo
-    ) {
+    public function __construct(CompanyRepositoryInterface $company_repo)
+    {
         $this->company_repo = $company_repo;
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index(SearchRequest $request)
     {
-        $brands = (new CompanyFilter($this->company_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $brands =
+            (new CompanyFilter($this->company_repo))->filter($request, auth()->user()->account_user()->account_id);
         return response()->json($brands);
     }
 
     /**
      * @param CreateBrandRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateCompanyRequest $request)
     {
@@ -82,8 +85,8 @@ class CompanyController extends Controller
      * @param UpdateBrandRequest $request
      * @param $id
      *
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \App\Shop\Brands\Exceptions\UpdateBrandErrorException
+     * @return RedirectResponse
+     * @throws UpdateBrandErrorException
      */
     public function update(UpdateCompanyRequest $request, $id)
     {
@@ -123,8 +126,8 @@ class CompanyController extends Controller
     /**
      * @param $id
      *
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function archive(int $id)
     {

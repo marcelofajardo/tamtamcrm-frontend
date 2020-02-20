@@ -42,7 +42,8 @@ export default class Credits extends Component {
                 'type_id',
                 'terms',
                 'footer',
-                'notes',
+                'private_notes',
+                'public_notes',
                 'invoice_id',
                 'user_id',
                 'created_at'
@@ -244,17 +245,6 @@ export default class Credits extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterCredits} update={this.updateCustomers}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
-                </Col>
-
                 <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
                     <DropdownToggle caret color="primary">
                         Bulk Action
@@ -265,6 +255,17 @@ export default class Credits extends Component {
                         })}
                     </DropdownMenu>
                 </ButtonDropdown>
+
+                <Col md={2}>
+                    <FormGroup>
+                        <DateFilter onChange={this.filterCredits} update={this.updateCustomers}
+                            data={this.state.cachedData}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={8}>
+                    {columnFilter}
+                </Col>
             </Row>
         )
     }
@@ -354,7 +355,7 @@ export default class Credits extends Component {
                             columnMapping={{ customer_id: 'Customer' }}
                             ignore={this.state.ignoredColumns}
                             disableSorting={['id']}
-                            defaultColumn='total'
+                            defaultColumn='number'
                             userList={this.customerList}
                             fetchUrl={fetchUrl}
                             updateState={this.updateCustomers}

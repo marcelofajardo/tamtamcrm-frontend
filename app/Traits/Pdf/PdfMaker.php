@@ -25,9 +25,9 @@ trait PdfMaker
         return $pdf->stream();
 
 //        return Browsershot::html($html)
-            //->showBrowserHeaderAndFooter()
-            //->headerHtml($header)
-            //->footerHtml($footer)
+        //->showBrowserHeaderAndFooter()
+        //->headerHtml($header)
+        //->footerHtml($footer)
 //            ->deviceScaleFactor(1)
 //            ->showBackground()
 //            ->waitUntilNetworkIdle(true)->pdf();

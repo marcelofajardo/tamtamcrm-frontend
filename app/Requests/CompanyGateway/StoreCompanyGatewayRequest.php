@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Requests\CompanyGateway;
 
 use App\Repositories\Base\BaseFormRequest;
@@ -8,7 +9,7 @@ use App\Traits\CompanyGatewayFeesAndLimitsSaver;
 class StoreCompanyGatewayRequest extends BaseFormRequest
 {
     use CompanyGatewayFeesAndLimitsSaver;
-    
+
     public function rules()
     {
 

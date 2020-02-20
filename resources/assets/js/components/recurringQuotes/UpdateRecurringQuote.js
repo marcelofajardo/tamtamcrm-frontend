@@ -22,7 +22,9 @@ class UpdateRecurringQuote extends Component {
             custom_value1: this.props.invoice.custom_value1,
             custom_value2: this.props.invoice.custom_value2,
             custom_value3: this.props.invoice.custom_value3,
-            custom_value4: this.props.invoice.custom_value4
+            custom_value4: this.props.invoice.custom_value4,
+            public_notes: this.props.invoice.public_notes,
+            private_notes: this.props.invoice.private_notes,
         }
 
         this.initialState = this.state
@@ -57,17 +59,15 @@ class UpdateRecurringQuote extends Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes
         })
             .then((response) => {
                 this.toggle()
                 const newUser = response.data
                 this.props.categories.push(newUser)
                 this.props.action(this.props.categories)
-                this.setState({
-                    name: null,
-                    description: null
-                })
             })
             .catch((error) => {
                 alert(error)
@@ -148,6 +148,20 @@ class UpdateRecurringQuote extends Component {
                         <option value="3">Weekly</option>
                         <option value="2">Daily</option>
                     </Input>
+                </FormGroup>
+
+                <FormGroup>
+                    <Label for="public_notes">Public Notes(*):</Label>
+                    <Input value={this.state.public_notes} type="text" id="public_notes" name="public_notes"
+                        onChange={this.handleInput}/>
+                    {this.renderErrorFor('public_notes')}
+                </FormGroup>
+
+                <FormGroup>
+                    <Label for="private_notes">Private Notes(*):</Label>
+                    <Input value={this.state.private_notes} type="text" id="private_notes" name="private_notes"
+                        onChange={this.handleInput}/>
+                    {this.renderErrorFor('private_notes')}
                 </FormGroup>
 
                 {customForm}

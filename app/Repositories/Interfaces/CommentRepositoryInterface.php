@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Interfaces;
 
 use App\Comment;
@@ -17,18 +18,18 @@ interface CommentRepositoryInterface
      *
      * @param array $data
      */
-    public function createComment(array $data) : Comment;
+    public function createComment(array $data): Comment;
 
     /**
      *
      * @param int $id
      */
-    public function findCommentById(int $id) : Comment;
+    public function findCommentById(int $id): Comment;
 
     /**
      *
      */
-    public function deleteComment() : bool;
+    public function deleteComment(): bool;
 
     /**
      *
@@ -36,11 +37,11 @@ interface CommentRepositoryInterface
      * @param string $orderBy
      * @param string $sortBy
      */
-    public function listComments($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc') : Collection;
+    public function listComments($columns = array('*'), string $orderBy = 'id', string $sortBy = 'asc'): Collection;
 
     /**
      *
      */
-    public function getCommentsForActivityFeed() : Collection;
+    public function getCommentsForActivityFeed(): Collection;
 
 }

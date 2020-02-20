@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Factory;
 
 use App\Invoice;
@@ -6,7 +7,7 @@ use App\RecurringInvoice;
 
 class RecurringInvoiceToInvoiceFactory
 {
-    public static function create(RecurringInvoice $recurring_invoice) :Invoice
+    public static function create(RecurringInvoice $recurring_invoice): Invoice
     {
         $invoice = new Invoice();
         $invoice->status_id = Invoice::STATUS_DRAFT;
@@ -17,7 +18,8 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->po_number = $recurring_invoice->po_number;
         $invoice->footer = $recurring_invoice->footer;
         $invoice->terms = $recurring_invoice->terms;
-        $invoice->notes = $recurring_invoice->notes;
+        $invoice->public_notes = $recurring_invoice->public_notes;
+        $invoice->private_notes = $recurring_invoice->private_notes;
         $invoice->date = date_create()->format("Y/m/d");
         $invoice->due_date = $recurring_invoice->due_date; //todo calculate based on terms
         $invoice->is_deleted = $recurring_invoice->is_deleted;

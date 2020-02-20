@@ -2,6 +2,9 @@
 
 namespace App\Transformations;
 
+use App\Shop\Cities\Exceptions\CityNotFoundException;
+use App\Shop\Countries\Exceptions\CountryNotFoundException;
+use App\Shop\Customers\Exceptions\CustomerNotFoundException;
 use App\TaskStatus;
 use App\Customer;
 use App\Repositories\TaskStatusRepository;
@@ -15,9 +18,9 @@ trait TaskStatusTransformable
      * @param Address $address
      *
      * @return Address
-     * @throws \App\Shop\Cities\Exceptions\CityNotFoundException
-     * @throws \App\Shop\Countries\Exceptions\CountryNotFoundException
-     * @throws \App\Shop\Customers\Exceptions\CustomerNotFoundException
+     * @throws CityNotFoundException
+     * @throws CountryNotFoundException
+     * @throws CustomerNotFoundException
      */
     public function transformTaskStatus(TaskStatus $taskStatus)
     {

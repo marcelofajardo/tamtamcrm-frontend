@@ -8,6 +8,7 @@ use App\Repositories\TaxRateRepository;
 use App\Requests\SearchRequest;
 use App\TaxRate;
 use App\Transformations\TaxRateTransformable;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaxRateFilter extends QueryFilter
 {
@@ -30,7 +31,7 @@ class TaxRateFilter extends QueryFilter
     /**
      * @param SearchRequest $request
      * @param int $account_id
-     * @return \Illuminate\Pagination\LengthAwarePaginator|mixed
+     * @return LengthAwarePaginator|mixed
      */
     public function filter(SearchRequest $request, int $account_id)
     {

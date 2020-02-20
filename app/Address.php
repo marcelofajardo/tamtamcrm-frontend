@@ -21,8 +21,7 @@ use App\Customer;
 class Address extends Model
 {
 
-    use SoftDeletes,
-        SearchableTrait;
+    use SoftDeletes, SearchableTrait;
 
     /**
      * The attributes that are mass assignable.

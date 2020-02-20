@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\Payment;
 
 use App\Payment;

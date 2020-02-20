@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\TaskStatus;
 use App\Repositories\Interfaces\TaskStatusRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
+use Exception;
 use Illuminate\Support\Collection;
 
 class TaskStatusRepository extends BaseRepository implements TaskStatusRepositoryInterface
@@ -23,9 +24,7 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
 
     public function getAll()
     {
-        return $this->model->where('is_active', 1)
-            ->orderBy('id', 'asc')
-            ->get();
+        return $this->model->where('is_active', 1)->orderBy('id', 'asc')->get();
     }
 
     /**
@@ -35,10 +34,7 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
      */
     public function getAllStatusForTaskType(int $task_type)
     {
-        return $this->model->where('is_active', 1)
-            ->where('task_type', $task_type)
-            ->orderBy('id', 'asc')
-            ->get();
+        return $this->model->where('is_active', 1)->where('task_type', $task_type)->orderBy('id', 'asc')->get();
     }
 
     /**
@@ -86,7 +82,7 @@ class TaskStatusRepository extends BaseRepository implements TaskStatusRepositor
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteTaskStatus(): bool
     {

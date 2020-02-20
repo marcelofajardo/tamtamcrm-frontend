@@ -13,7 +13,7 @@ class NotificationFactory
      * @param int $user_id
      * @return Notification
      */
-    public static function create(int $account_id, int $user_id) :Notification
+    public static function create(int $account_id, int $user_id): Notification
     {
         $notification = new Notification();
         $notification->type = '';

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Payment;
 
 use App\Invoice;
@@ -40,7 +41,7 @@ class ApplyPaymentNumber implements ShouldQueue
     /**
      * @return Payment
      */
-    public function handle() : Payment
+    public function handle(): Payment
     {
         //return early
         if ($this->payment->number != '' || empty($this->settings)) {

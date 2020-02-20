@@ -17,6 +17,7 @@ use App\Repositories\NotificationRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
 use App\Repositories\Interfaces\InvoiceLineRepositoryInterface;
@@ -24,6 +25,7 @@ use App\Transformations\InvoiceTransformable;
 use App\Invoice;
 use App\Requests\SearchRequest;
 use App\Requests\Invoice\CreateInvoiceRequest;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use App\Jobs\Invoice\MarkInvoicePaid;
 use App\Factory\InvoiceFactory;
@@ -43,8 +45,7 @@ use App\Traits\CheckEntityStatus;
 class InvoiceController extends Controller
 {
 
-    use InvoiceTransformable,
-        CheckEntityStatus;
+    use InvoiceTransformable, CheckEntityStatus;
 
     private $invoiceRepository;
     private $invoiceLineRepository;
@@ -53,9 +54,8 @@ class InvoiceController extends Controller
      * InvoiceController constructor.
      * @param InvoiceRepositoryInterface $invoice_repo
      */
-    public function __construct(
-        InvoiceRepositoryInterface $invoice_repo
-    ) {
+    public function __construct(InvoiceRepositoryInterface $invoice_repo)
+    {
         $this->invoice_repo = $invoice_repo;
     }
 
@@ -66,8 +66,8 @@ class InvoiceController extends Controller
      */
     public function index(SearchRequest $request)
     {
-        $invoices = (new InvoiceFilter($this->invoice_repo))->filter($request,
-            auth()->user()->account_user()->account_id);
+        $invoices =
+            (new InvoiceFilter($this->invoice_repo))->filter($request, auth()->user()->account_user()->account_id);
         return response()->json($invoices);
     }
 
@@ -86,8 +86,7 @@ class InvoiceController extends Controller
         $invoice = $this->invoice_repo->save($request->all(),
             InvoiceFactory::create($request->customer_id, auth()->user()->id,
                 auth()->user()->account_user()->account_id, $request->total));
-        $invoice = StoreInvoice::dispatchNow($invoice,
-            $request->all(),
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(),
             $invoice->account); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
         InvoiceOrders::dispatchNow($invoice);
         $notification = NotificationFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id);
@@ -117,7 +116,7 @@ class InvoiceController extends Controller
     /**
      * @param int $task_id
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInvoiceLinesForTask(int $task_id)
     {
@@ -177,13 +176,14 @@ class InvoiceController extends Controller
                 // todo build the quote transformer and return response here
                 break;
             case 'history':
-                # code...
                 break;
             case 'delivery_note':
                 # code...
                 break;
             case 'mark_paid':
-                if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
+                if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID ||
+                    $invoice->is_deleted === true
+                ) {
                     return response()->json('Invoice cannot be marked as paid', 400);
                 }
                 $invoice = $invoice->service()->markPaid();
@@ -198,9 +198,7 @@ class InvoiceController extends Controller
                 }
                 break;
             case 'download':
-                $headers = array('Content-Type: pdf');
-                $contents = file_get_contents(public_path($invoice->service()->getInvoicePdf(null)));
-                //$contents = file_get_contents(public_path($invoice->pdf_file_path()));
+                $contents = File::get(public_path($invoice->service()->getInvoicePdf(null)));
                 return response()->json(['data' => base64_encode($contents)]);
                 //return response()->download(public_path($invoice->pdf_file_path()), 'test.pdf', $headers);
                 break;

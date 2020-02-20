@@ -6,6 +6,7 @@ use App\Event;
 use App\Notification;
 use App\Repositories\Interfaces\EventRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
+use Exception;
 use Illuminate\Support\Collection;
 use App\Repositories\UserRepository;
 use App\User;
@@ -25,7 +26,8 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
         $this->model = $event;
     }
 
-    public function getModel() {
+    public function getModel()
+    {
         return $this->model;
     }
 
@@ -33,7 +35,7 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
      * @param int $id
      *
      * @return User
-     * @throws \Exception
+     * @throws Exception
      */
     public function findEventById(int $id): Event
     {
@@ -42,7 +44,7 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteEvent(): bool
     {
@@ -99,11 +101,8 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
     public function getEventsForTask(Task $objTask): Collection
     {
 
-        return $this->model->join('event_task', 'event_task.event_id', '=', 'events.id')
-            ->select('events.*')
-            ->where('event_task.task_id', $objTask->id)
-            ->groupBy('events.id')
-            ->get();
+        return $this->model->join('event_task', 'event_task.event_id', '=', 'events.id')->select('events.*')
+                           ->where('event_task.task_id', $objTask->id)->groupBy('events.id')->get();
     }
 
     /**
@@ -114,9 +113,7 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
     public function getEventsForUser(User $objUser): Collection
     {
         return $this->model->join('event_user', 'event_user.event_id', '=', 'events.id')
-            ->select('events.*', 'event_user.status')
-            ->where('event_user.user_id', $objUser->id)
-            ->get();
+                           ->select('events.*', 'event_user.status')->where('event_user.user_id', $objUser->id)->get();
     }
 
     /**
@@ -133,22 +130,22 @@ class EventRepository extends BaseRepository implements EventRepositoryInterface
      * @param array $data
      * @param Event $event
      */
-    public function save(array $data, Event $event) : ?Event
+    public function save(array $data, Event $event): ?Event
     {
-        $event->fill ($data);
-        $event->save ();
+        $event->fill($data);
+        $event->save();
 
-if(isset($data['users']) && !empty($data['users'])) {
+        if (isset($data['users']) && !empty($data['users'])) {
             //attach invited users
-        $this->attachUsers ($event, $data['users']);
-}
+            $this->attachUsers($event, $data['users']);
+        }
 
 
-if (!empty($data['task_id'])) {
-    $this->syncTask($event, $data['task_id']);
-}
+        if (!empty($data['task_id'])) {
+            $this->syncTask($event, $data['task_id']);
+        }
 
-return $event->fresh();
+        return $event->fresh();
 
-}
+    }
 }

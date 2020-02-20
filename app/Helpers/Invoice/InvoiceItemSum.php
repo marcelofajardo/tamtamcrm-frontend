@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers\Invoice;
 
 use App\DataMapper\BaseSettings;
@@ -47,7 +48,8 @@ class InvoiceItemSum
 
     public function process()
     {
-        if (!$this->invoice->line_items || !isset($this->invoice->line_items) || !is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
+        if (!$this->invoice->line_items || !isset($this->invoice->line_items) ||
+            !is_array($this->invoice->line_items) || count($this->invoice->line_items) == 0) {
             $this->items = [];
             return $this;
         }
@@ -60,11 +62,7 @@ class InvoiceItemSum
     private function calcLineItems()
     {
         foreach ($this->invoice->line_items as $this->item) {
-            $this->cleanLineItem()
-                ->sumLineItem()
-                ->setDiscount()
-                ->calcTaxes()
-                ->push();
+            $this->cleanLineItem()->sumLineItem()->setDiscount()->calcTaxes()->push();
         }
 
         return $this;
@@ -74,8 +72,8 @@ class InvoiceItemSum
     {
         $precision = !empty($this->currency) && !empty($this->currency->precision) ? $this->currency->precision : 2;
 
-        $this->sub_total += $this->formatValue($this->item->unit_price,
-                $precision) * $this->formatValue($this->item->quantity, $precision);
+        $this->sub_total += $this->formatValue($this->item->unit_price, $precision) *
+            $this->formatValue($this->item->quantity, $precision);
 
         $this->line_items[] = $this->item;
 
@@ -85,8 +83,8 @@ class InvoiceItemSum
     private function sumLineItem()
     {
         $precision = !empty($this->currency) && !empty($this->currency->precision) ? $this->currency->precision : 2;
-        $this->setLineTotal($this->formatValue($this->item->unit_price,
-                $precision) * $this->formatValue($this->item->quantity, $precision));
+        $this->setLineTotal($this->formatValue($this->item->unit_price, $precision) *
+            $this->formatValue($this->item->quantity, $precision));
 
         return $this;
     }
@@ -96,11 +94,10 @@ class InvoiceItemSum
         $precision = !empty($this->currency) && !empty($this->currency->precision) ? $this->currency->precision : 2;
 
         if ($this->invoice->is_amount_discount) {
-            $this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->unit_discount,
-                    $precision));
+            $this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->unit_discount, $precision));
         } else {
-            $this->setLineTotal($this->getLineTotal() - $this->formatValue(round($this->item->sub_total * ($this->item->unit_discount / 100),
-                    2), $precision));
+            $this->setLineTotal($this->getLineTotal() -
+                $this->formatValue(round($this->item->sub_total * ($this->item->unit_discount / 100), 2), $precision));
         }
 
         $this->item->is_amount_discount = $this->invoice->is_amount_discount;
@@ -209,17 +206,18 @@ class InvoiceItemSum
         $item_tax = 0;
 
         foreach ($this->line_items as $this->item) {
-            if ($this->item->line_total == 0) {
+            if ($this->item->sub_total == 0) {
                 continue;
             }
 
-            $amount = $this->item->sub_total - ($this->item->sub_total * ($this->invoice->unit_discount / $this->sub_total));
+            $amount =
+                $this->item->sub_total - ($this->item->sub_total * ($this->invoice->unit_discount / $this->sub_total));
             $item_tax_rate1_total = $this->calcAmountLineTax($this->item->unit_tax, $amount);
 
             $item_tax += $item_tax_rate1_total;
 
             if ($item_tax_rate1_total > 0) {
-                $this->groupTax($this->item->unit_tax_name, $this->item->unit_tax, $item_tax_rate1_total);
+                $this->groupTax($this->item->tax_rate_name, $this->item->unit_tax, $item_tax_rate1_total);
             }
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services\Quote;
 
 use App\Quote;
@@ -21,8 +22,9 @@ class ApplyNumber extends AbstractService
     public function run()
     {
 
-        if ($this->quote->number != '')
+        if ($this->quote->number != '') {
             return $this->quote;
+        }
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':

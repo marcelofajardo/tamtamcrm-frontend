@@ -12,7 +12,7 @@ class ExpenseFactory
      * @param int $user_id
      * @return Expense
      */
-    public static function create(int $account_id, int $user_id) :Expense
+    public static function create(int $account_id, int $user_id): Expense
     {
         $expense = new Expense();
         $expense->user_id = $user_id;
@@ -27,6 +27,8 @@ class ExpenseFactory
         $expense->tax_rate3 = 0;
         $expense->expense_date = null;
         $expense->payment_date = null;
+        $expense->public_notes = '';
+        $expense->private_notes = '';
 
         return $expense;
     }

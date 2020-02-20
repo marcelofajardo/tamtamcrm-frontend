@@ -20,8 +20,8 @@ class NewUniqueUser implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string $attribute
-     * @param  mixed $value
+     * @param string $attribute
+     * @param mixed $value
      * @return bool
      */
     public function passes($attribute, $value)
@@ -33,7 +33,7 @@ class NewUniqueUser implements Rule
      * @param $email
      * @return bool
      */
-    private function checkIfEmailExists($email) : bool
+    private function checkIfEmailExists($email): bool
     {
 
         return User::whereEmail($email)->count() > 0;

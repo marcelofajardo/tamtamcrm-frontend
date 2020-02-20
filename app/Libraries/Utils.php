@@ -2,6 +2,7 @@
 
 namespace App\Libraries;
 
+use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -64,7 +65,7 @@ class Utils
             return;
         }
         $format = "Y-m-d";
-        $dateTime = \DateTime::createFromFormat($format, $date);
+        $dateTime = DateTime::createFromFormat($format, $date);
         if (!$dateTime) {
             return $date;
         } else {

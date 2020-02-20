@@ -11,13 +11,13 @@ use App\Transformations\MessageUserTransformable;
 use App\Transformations\MessageTransformable;
 use App\Customer;
 use App\Message;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
 
-    use MessageUserTransformable,
-        MessageTransformable;
+    use MessageUserTransformable, MessageTransformable;
 
     /**
      * @var MessageRepositoryInterface
@@ -40,11 +40,10 @@ class MessageController extends Controller
      * CustomerRepositoryInterface $customerRepository
      * UserRepositoryInterface $userRepository
      */
-    public function __construct(
-        MessageRepositoryInterface $messageRepository,
+    public function __construct(MessageRepositoryInterface $messageRepository,
         CustomerRepositoryInterface $customerRepository,
-        UserRepositoryInterface $userRepository
-    ) {
+        UserRepositoryInterface $userRepository)
+    {
         $this->messageRepo = $messageRepository;
         $this->customerRepo = $customerRepository;
         $this->userRepo = $userRepository;
@@ -85,8 +84,8 @@ class MessageController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  CreateCustomerRequest $request
-     * @return \Illuminate\Http\Response
+     * @param CreateCustomerRequest $request
+     * @return Response
      */
     public function store(CreateMessageRequest $request)
     {

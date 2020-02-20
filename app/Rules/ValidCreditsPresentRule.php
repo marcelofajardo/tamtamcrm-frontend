@@ -30,22 +30,20 @@ class ValidCreditsPresentRule implements Rule
         return 'Insufficient balance on credit.';
     }
 
-    private function validCreditsPresent() :bool
+    private function validCreditsPresent(): bool
     {
         //todo need to ensure the clients credits are here not random ones!
 
-         if(request()->input('credits') && is_array(request()->input('credits')))
-         {
-             foreach(request()->input('credits') as $credit)
-             {
-                 $cred = Credit::find($credit['credit_id']);
+        if (request()->input('credits') && is_array(request()->input('credits'))) {
+            foreach (request()->input('credits') as $credit) {
+                $cred = Credit::find($credit['credit_id']);
 
-                 if($cred->balance == 0) {
-                 	return false;
-                 }
-             }
-         }
+                if ($cred->balance == 0) {
+                    return false;
+                }
+            }
+        }
 
-         return  true;
+        return true;
     }
 }

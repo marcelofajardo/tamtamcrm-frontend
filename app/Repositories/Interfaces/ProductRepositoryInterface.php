@@ -38,7 +38,7 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
      */
     //public function updateProduct(array $params): bool;
 
-    public function save($data, Product $product) : ?Product;
+    public function save($data, Product $product): ?Product;
 
     /**
      *
@@ -96,7 +96,7 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
      * @param ProductAttribute $productAttribute
      */
     public function removeProductAttribute(ProductAttribute $productAttribute, Product $product): ?bool;
-    
+
     /**
      *
      * @param Category $category

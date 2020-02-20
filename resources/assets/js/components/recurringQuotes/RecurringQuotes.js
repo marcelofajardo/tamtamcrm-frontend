@@ -46,7 +46,7 @@ export default class RecurringQuotes extends Component {
                 end_date: ''
             },
             showRestoreButton: false,
-            ignoredColumns: ['id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
+            ignoredColumns: ['id', 'custom_value1', 'invoice_id', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'public_notes', 'private_notes', 'use_inclusive_taxes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total']
 
         }
 
@@ -299,6 +299,17 @@ export default class RecurringQuotes extends Component {
                     </FormGroup>
                 </Col>
 
+                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                    <DropdownToggle caret color="primary">
+                        Bulk Action
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {this.state.dropdownButtonActions.map(e => {
+                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
+                        })}
+                    </DropdownMenu>
+                </ButtonDropdown>
+
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
@@ -311,17 +322,6 @@ export default class RecurringQuotes extends Component {
                         {columnFilter}
                     </FormGroup>
                 </Col>
-
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
             </Row>
         )
     }

@@ -45,7 +45,6 @@ class EditInvoice extends Component {
             due_date: this.props.invoice && this.props.invoice.due_date && this.props.invoice.due_date.length ? moment(this.props.invoice.due_date).format('YYYY-MM-DD') : moment(new Date()).format('YYYY-MM-DD'),
             quantity: '',
             finance_type: this.props.finance_type ? this.props.finance_type : 1,
-            invoice_id: this.props.invoice_id,
             lines: [],
             invitations: this.props.invoice && this.props.invoice.invitations && this.props.invoice.invitations.length ? this.props.invoice.invitations : [],
             contacts: [],
@@ -65,7 +64,8 @@ class EditInvoice extends Component {
             data: [],
             date: this.props.invoice && this.props.invoice.date ? this.props.invoice.date : moment(new Date()).format('YYYY-MM-DD'),
             partial: this.props.invoice && this.props.invoice.partial ? this.props.invoice.partial : 0,
-            notes: this.props.invoice && this.props.invoice.notes ? this.props.invoice.notes : null,
+            public_notes: this.props.invoice && this.props.invoice.public_notes ? this.props.invoice.public_notes : null,
+            private_notes: this.props.invoice && this.props.invoice.private_notes ? this.props.invoice.private_notes : null,
             terms: this.props.invoice && this.props.invoice.terms ? this.props.invoice.terms : null,
             footer: this.props.invoice && this.props.invoice.footer ? this.props.invoice.footer : null,
             invoice_id: this.props.invoice && this.props.invoice.id ? this.props.invoice.id : null,
@@ -265,7 +265,8 @@ class EditInvoice extends Component {
                         invoice_id: r.data.id,
                         customer_id: r.data.customer_id,
                         company_id: r.data.company_id,
-                        notes: r.data.notes,
+                        public_notes: r.data.public_notes,
+                        private_notes: r.data.private_notes,
                         terms: r.data.terms,
                         footer: r.data.footer,
                         status: r.data.status_id
@@ -322,7 +323,8 @@ class EditInvoice extends Component {
         }, () => {
             if (!this.state.modal) {
                 this.setState({
-                    notes: '',
+                    public_notes: '',
+                    private_notes: '',
                     terms: '',
                     footer: '',
                     partial: 0,
@@ -501,7 +503,8 @@ class EditInvoice extends Component {
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
-            notes: this.state.notes,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes,
             terms: this.state.terms,
             footer: this.state.footer,
             date: this.state.date,
@@ -588,7 +591,7 @@ class EditInvoice extends Component {
                     Email</DropdownItem> : null
 
         const downloadButton = <DropdownItem className="primary"
-                onClick={() => this.changeStatus('download')}>Download</DropdownItem>
+            onClick={() => this.changeStatus('download')}>Download</DropdownItem>
 
         const cloneInvoiceButton = <DropdownItem className="primary"
             onClick={() => this.changeStatus('clone_to_invoice').bind(this)}>Convert
@@ -807,12 +810,23 @@ class EditInvoice extends Component {
             <CardHeader>Notes</CardHeader>
             <CardBody>
                 <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>Notes</Label>
+                    <Label>Public Notes</Label>
                     <Input
-                        value={this.state.notes}
+                        value={this.state.public_notes}
                         type='textarea'
-                        name='notes'
-                        id='notes'
+                        name='public_notes'
+                        id='public_notes'
+                        onChange={this.handleInput}
+                    />
+                </FormGroup>
+
+                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                    <Label>Private Notes</Label>
+                    <Input
+                        value={this.state.private_notes}
+                        type='textarea'
+                        name='private_notes'
+                        id='private_notes'
                         onChange={this.handleInput}
                     />
                 </FormGroup>
@@ -823,7 +837,7 @@ class EditInvoice extends Component {
                         value={this.state.terms}
                         type='textarea'
                         name='terms'
-                        id='notes'
+                        id='terms'
                         onChange={this.handleInput}
                     />
                 </FormGroup>

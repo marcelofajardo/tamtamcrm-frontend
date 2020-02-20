@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Invoice;
 
 use App\Events\Invoice\InvoiceWasPaid;
@@ -63,7 +64,8 @@ class ApplyPaymentToInvoice implements ShouldQueue
                 $this->invoice->partial = $partial;
             }
             if (!$this->invoice->due_date) {
-                $this->invoice->due_date = Carbon::now()->addDays(PaymentTerm::find($this->invoice->settings->payment_terms)->num_days);
+                $this->invoice->due_date =
+                    Carbon::now()->addDays(PaymentTerm::find($this->invoice->settings->payment_terms)->num_days);
             }
         }
         /* Update Invoice Balance */

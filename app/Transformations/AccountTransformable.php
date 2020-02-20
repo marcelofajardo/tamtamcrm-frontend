@@ -3,6 +3,7 @@
 namespace App\Transformations;
 
 use App\Account;
+use stdClass;
 
 trait AccountTransformable
 {
@@ -15,7 +16,7 @@ trait AccountTransformable
     {
         $obj = new Account;
         $obj->id = (int)$account->id;
-        $std = new \stdClass;
+        $std = new stdClass;
 
         $obj->update_products = (bool)$account->update_products;
         $obj->fill_products = (bool)$account->fill_products;

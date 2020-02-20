@@ -27,26 +27,25 @@ trait SearchableTrait
     /**
      * Creates the search scope.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $q
+     * @param Builder $q
      * @param string $search
      * @param float|null $threshold
-     * @param  boolean $entireText
-     * @param  boolean $entireTextOnly
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param boolean $entireText
+     * @param boolean $entireTextOnly
+     * @return Builder
      */
     public function scopeSearch(Builder $q, $search, $threshold = null, $entireText = false, $entireTextOnly = false)
     {
         return $this->scopeSearchRestricted($q, $search, null, $threshold, $entireText, $entireTextOnly);
     }
 
-    public function scopeSearchRestricted(
-        Builder $q,
+    public function scopeSearchRestricted(Builder $q,
         $search,
         $restriction,
         $threshold = null,
         $entireText = false,
-        $entireTextOnly = false
-    ) {
+        $entireTextOnly = false)
+    {
         $query = clone $q;
         $query->select($this->getTable() . '.*');
         $this->makeJoins($query);
@@ -162,7 +161,7 @@ trait SearchableTrait
     /**
      * Adds the sql joins to the query.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
     protected function makeJoins(Builder $query)
     {
@@ -179,7 +178,7 @@ trait SearchableTrait
     /**
      * Makes the query not repeat the results.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      */
     protected function makeGroupBy(Builder $query)
     {
@@ -207,7 +206,7 @@ trait SearchableTrait
     /**
      * Puts all the select clauses to the main query.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param array $selects
      */
     protected function addSelectsToQuery(Builder $query, array $selects)
@@ -221,7 +220,7 @@ trait SearchableTrait
     /**
      * Adds the relevance filter to the query.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param array $selects
      * @param float $relevance_count
      */
@@ -242,7 +241,7 @@ trait SearchableTrait
     /**
      * Returns the search queries for the specified column.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param string $column
      * @param float $relevance
      * @param array $words
@@ -260,7 +259,7 @@ trait SearchableTrait
     /**
      * Returns the sql string for the given parameters.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Builder $query
      * @param string $column
      * @param string $relevance
      * @param array $words
@@ -270,15 +269,14 @@ trait SearchableTrait
      * @param string $post_word
      * @return string
      */
-    protected function getSearchQuery(
-        Builder $query,
+    protected function getSearchQuery(Builder $query,
         $column,
         $relevance,
         array $words,
         $relevance_multiplier,
         $pre_word = '',
-        $post_word = ''
-    ) {
+        $post_word = '')
+    {
         $like_comparator = $this->getDatabaseDriver() == 'pgsql' ? 'ILIKE' : 'LIKE';
         $cases = [];
         foreach ($words as $word) {
@@ -310,8 +308,8 @@ trait SearchableTrait
     /**
      * Merge our cloned query builder with the original one.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $clone
-     * @param \Illuminate\Database\Eloquent\Builder $original
+     * @param Builder $clone
+     * @param Builder $original
      */
     protected function mergeQueries(Builder $clone, Builder $original)
     {
@@ -322,9 +320,7 @@ trait SearchableTrait
             $original->from(DB::connection($this->connection)->raw("({$clone->toSql()}) as `{$tableName}`"));
         }
         // First create a new array merging bindings
-        $mergedBindings = array_merge_recursive(
-            $clone->getBindings(), $original->getBindings()
-        );
+        $mergedBindings = array_merge_recursive($clone->getBindings(), $original->getBindings());
         // Then apply bindings WITHOUT global scopes which are already included. If not, there is a strange behaviour
         // with some scope's bindings remaning
         $original->withoutGlobalScopes()->setBindings($mergedBindings);

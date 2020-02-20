@@ -6,6 +6,7 @@ use App\Project;
 use App\Repositories\Interfaces\ProjectRepositoryInterface;
 use App\Repositories\Base\BaseRepository;
 use App\Exceptions\CreateProjectErrorException;
+use Exception;
 use Illuminate\Support\Collection as Support;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -32,7 +33,7 @@ class ProjectRepository extends BaseRepository implements ProjectRepositoryInter
      * @param int $id
      *
      * @return Project
-     * @throws \Exception
+     * @throws Exception
      */
     public function findProjectById(int $id): Project
     {
@@ -41,7 +42,7 @@ class ProjectRepository extends BaseRepository implements ProjectRepositoryInter
 
     /**
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteProject(): bool
     {

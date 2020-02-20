@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Factory\GroupSettingFactory;
 use App\Filters\GroupSettingFilter;
+use App\Http\Requests\SignupRequest;
 use App\Requests\GroupSetting\StoreGroupSettingRequest;
 use App\Requests\GroupSetting\UpdateGroupSettingRequest;
 use App\GroupSetting;
@@ -12,6 +14,7 @@ use App\Transformations\GroupSettingTransformable;
 use App\Traits\UploadableTrait;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class GroupSettingController extends Controller
 {
@@ -33,7 +36,7 @@ class GroupSettingController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      *
      *
      *
@@ -49,8 +52,8 @@ class GroupSettingController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\SignupRequest $request
-     * @return \Illuminate\Http\Response
+     * @param SignupRequest $request
+     * @return Response
      *
      *
      */
@@ -69,8 +72,8 @@ class GroupSettingController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @return Response
      *
      */
     public function show(ShowGroupSettingRequest $request, GroupSetting $group_setting)
@@ -81,15 +84,15 @@ class GroupSettingController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return Response
      *
      *
      */
     public function update(int $id, UpdateGroupSettingRequest $request)
     {
-       $group_setting = $this->group_setting_repo->findGroupSettingById($id);
+        $group_setting = $this->group_setting_repo->findGroupSettingById($id);
         $group_setting = $this->group_setting_repo->save($request->all(), $group_setting);
 
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
@@ -99,9 +102,9 @@ class GroupSettingController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function archive(int $id)
     {
@@ -136,7 +139,8 @@ class GroupSettingController extends Controller
      * @param int $id
      * @return mixed
      */
-    public function restore(int $id) {
+    public function restore(int $id)
+    {
         $group = GroupSetting::withTrashed()->where('id', '=', $id)->first();
         $this->group_setting_repo->restore($group);
         return response()->json([], 200);

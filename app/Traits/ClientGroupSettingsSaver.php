@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Traits;
 
 use \App\DataMapper\CompanySettings;
+use stdClass;
 
 trait ClientGroupSettingsSaver
 {
@@ -33,7 +35,8 @@ trait ClientGroupSettingsSaver
          * we unset it from the settings object
          */
         foreach ($settings as $key => $value) {
-            if (!isset($settings->{$key}) || empty($settings->{$key}) || (!is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
+            if (!isset($settings->{$key}) || empty($settings->{$key}) ||
+                (!is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
                 unset($settings->{$key});
             }
         }
@@ -69,7 +72,8 @@ trait ClientGroupSettingsSaver
         ksort($casts);
 
         foreach ($settings as $key => $value) {
-            if (!isset($settings->{$key}) || empty($settings->{$key}) || (!is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
+            if (!isset($settings->{$key}) || empty($settings->{$key}) ||
+                (!is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
                 unset($settings->{$key});
             }
         }
@@ -90,8 +94,8 @@ trait ClientGroupSettingsSaver
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings,
-                    $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
+                $settings->{$key} == '') {
                 continue;
             }
 
@@ -116,7 +120,7 @@ trait ClientGroupSettingsSaver
      * @param array $settings The settings request() array
      * @return object          stdClass object
      */
-    private function checkSettingType($settings): \stdClass
+    private function checkSettingType($settings): stdClass
     {
         $settings = (object)$settings;
         $casts = CompanySettings::$casts;
@@ -143,8 +147,8 @@ trait ClientGroupSettingsSaver
             }
 
             /* Handles unset settings or blank strings */
-            if (!property_exists($settings,
-                    $key) || is_null($settings->{$key}) || !isset($settings->{$key}) || $settings->{$key} == '') {
+            if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
+                $settings->{$key} == '') {
                 continue;
             }
 

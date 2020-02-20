@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Requests\CommentRequest;
 use App\Repositories\Interfaces\CommentRepositoryInterface;
 use App\Repositories\Interfaces\TaskRepositoryInterface;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\CommentCreated;
 use App\Repositories\CommentRepository;
@@ -94,9 +95,9 @@ class CommentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param int $id
+     * @return Response
      */
     public function update(Request $request, $id)
     {

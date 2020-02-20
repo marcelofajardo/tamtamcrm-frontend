@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Utils;
 
 use App\Currency;
@@ -15,7 +16,7 @@ class Number
      *
      * @return float
      */
-    public static function roundValue(float $value, int $precision = 2) : float
+    public static function roundValue(float $value, int $precision = 2): float
     {
         return round($value, $precision, PHP_ROUND_HALF_UP);
     }
@@ -23,12 +24,12 @@ class Number
     /**
      * Formats a given value based on the clients currency
      *
-     * @param  float $value The number to be formatted
-     * @param  object $currency The client currency object
+     * @param float $value The number to be formatted
+     * @param object $currency The client currency object
      *
      * @return float           The formatted value
      */
-    public static function formatValue($value, $currency) : float
+    public static function formatValue($value, $currency): float
     {
         $value = floatval($value);
         $thousand = $currency->thousand_separator;
@@ -40,13 +41,13 @@ class Number
     /**
      * Formats a given value based on the clients currency AND country
      *
-     * @param  floatval $value The number to be formatted
-     * @param  object $currency The client currency object
-     * @param  object $country The client country
+     * @param floatval $value The number to be formatted
+     * @param object $currency The client currency object
+     * @param object $country The client country
      *
      * @return string           The formatted value
      */
-    public static function formatMoney($value, $client) :string
+    public static function formatMoney($value, $client): string
     {
         $currency = $client->currency;
 

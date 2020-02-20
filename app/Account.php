@@ -11,6 +11,8 @@ namespace App;
 
 use App\Traits\CompanySettingsSaver;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laracasts\Presenter\PresentableTrait;
 use App\Credit;
 use App\Quote;
@@ -24,8 +26,7 @@ use App\Design;
 
 class Account extends Model
 {
-    use PresentableTrait,
-        CompanySettingsSaver;
+    use PresentableTrait, CompanySettingsSaver;
 
     protected $presenter = 'App\Presenters\AccountPresenter';
 
@@ -68,36 +69,36 @@ class Account extends Model
 
     public function designs()
     {
-        return $this->hasMany(Design::class)->whereAccountId($this->id)->orWhere('account_id',null);
+        return $this->hasMany(Design::class)->whereAccountId($this->id)->orWhere('account_id', null);
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function invoices()
     {
         return $this->hasMany(Invoice::class)->withTrashed();
     }
 
-        /**
-      * @return \Illuminate\Database\Eloquent\Relations\HasMany
-      */
-     public function quotes()
-     {
-         return $this->hasMany(Quote::class)->withTrashed();
-     }
+    /**
+     * @return HasMany
+     */
+    public function quotes()
+    {
+        return $this->hasMany(Quote::class)->withTrashed();
+    }
 
 
-     /**
-      * @return \Illuminate\Database\Eloquent\Relations\HasMany
-      */
-     public function credits()
-     {
-         return $this->hasMany(Credit::class)->withTrashed();
-     }
+    /**
+     * @return HasMany
+     */
+    public function credits()
+    {
+        return $this->hasMany(Credit::class)->withTrashed();
+    }
 
-     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * @return HasMany
      */
     public function customers()
     {
@@ -120,14 +121,15 @@ class Account extends Model
 
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function tax_rates()
     {
         return $this->hasMany(TaxRate::class);
     }
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function products()
     {
@@ -135,7 +137,7 @@ class Account extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function country()
     {
@@ -144,7 +146,7 @@ class Account extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function currency()
     {
@@ -162,7 +164,7 @@ class Account extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function companies()
     {

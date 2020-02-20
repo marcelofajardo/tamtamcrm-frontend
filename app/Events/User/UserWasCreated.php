@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events\User;
 
 use Illuminate\Broadcasting\Channel;
@@ -40,7 +41,7 @@ class UserWasCreated
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

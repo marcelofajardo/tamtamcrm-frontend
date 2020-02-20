@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 use App\DataMapper\CompanySettings;
@@ -23,9 +24,8 @@ trait CompanyGatewayFeesAndLimitsSaver
             $fee_and_limit = (object)$fee_and_limit;
             foreach ($casts as $key => $value) {
                 /* Handles unset settings or blank strings */
-                if (!property_exists($fee_and_limit,
-                        $key) || is_null($fee_and_limit->{$key}) || !isset($fee_and_limit->{$key}) || $fee_and_limit->{$key} == ''
-                ) {
+                if (!property_exists($fee_and_limit, $key) || is_null($fee_and_limit->{$key}) ||
+                    !isset($fee_and_limit->{$key}) || $fee_and_limit->{$key} == '') {
                     continue;
                 }
 
@@ -42,11 +42,11 @@ trait CompanyGatewayFeesAndLimitsSaver
 
     /**
      * Type checks a object property.
-     * @param  string $key The type
-     * @param  string $value The object property
+     * @param string $key The type
+     * @param string $value The object property
      * @return bool        TRUE if the property is the expected type
      */
-    private function checkAttribute($key, $value) :bool
+    private function checkAttribute($key, $value): bool
     {
         switch ($key) {
             case 'int':

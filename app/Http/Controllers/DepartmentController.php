@@ -10,6 +10,11 @@ use App\Requests\UpdateDepartmentRequest;
 use App\Department;
 use App\Transformations\DepartmentTransformable;
 use App\Requests\SearchRequest;
+use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class DepartmentController extends Controller
 {
@@ -26,14 +31,13 @@ class DepartmentController extends Controller
      *
      * @param DepartmentRepositoryInterface $departmentRepository
      */
-    public function __construct(
-        DepartmentRepositoryInterface $departmentRepository
-    ) {
+    public function __construct(DepartmentRepositoryInterface $departmentRepository)
+    {
         $this->departmentRepo = $departmentRepository;
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index(SearchRequest $request)
     {
@@ -62,7 +66,7 @@ class DepartmentController extends Controller
     /**
      * @param CreateDepartmentRequest $request
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(CreateDepartmentRequest $request)
     {
@@ -75,7 +79,7 @@ class DepartmentController extends Controller
      * @param UpdateDepartmentRequest $request
      * @param $id
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function update(UpdateDepartmentRequest $request, $id)
     {
@@ -94,10 +98,10 @@ class DepartmentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int $id
+     * @param int $id
      *
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
+     * @return Response
+     * @throws Exception
      */
     public function destroy($id)
     {

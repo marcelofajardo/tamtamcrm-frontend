@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs\Company;
 
 use App\DataMapper\CompanySettings;
@@ -21,7 +22,7 @@ class CreateCompany
     public function __construct(array $request, $domain = null)
     {
         $this->request = $request;
-        $this->domain =  $domain;
+        $this->domain = $domain;
 
     }
 
@@ -30,11 +31,11 @@ class CreateCompany
      *
      * @return void
      */
-    public function handle() : ?Account
+    public function handle(): ?Account
     {
         $settings = CompanySettings::defaults();
 
-        $settings->name = isset($this->request['name']) ? $this->request['name'] :  '';
+        $settings->name = isset($this->request['name']) ? $this->request['name'] : '';
         $company = new Account();
         $company->domain_id = $this->domain->id ?? 1;
         $company->ip = request()->ip();

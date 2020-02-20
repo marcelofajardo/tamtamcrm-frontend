@@ -41,11 +41,8 @@ class EmailQuote implements ShouldQueue
     public function handle()
     {
         Mail::to($this->quote_invitation->contact->email, $this->quote_invitation->contact->present()->name())
-            ->send(new TemplateEmail($this->email_builder,
-                    $this->quote_invitation->contact->user,
-                    $this->quote_invitation->contact->customer
-                )
-            );
+            ->send(new TemplateEmail($this->email_builder, $this->quote_invitation->contact->user,
+                $this->quote_invitation->contact->customer));
 
         if (count(Mail::failures()) > 0) {
             return $this->logMailError(Mail::failures());
@@ -54,12 +51,7 @@ class EmailQuote implements ShouldQueue
 
     private function logMailError($errors)
     {
-        SystemLogger::dispatch(
-            $errors,
-            SystemLog::CATEGORY_MAIL,
-            SystemLog::EVENT_MAIL_SEND,
-            SystemLog::TYPE_FAILURE,
-            $this->quote->customer
-        );
+        SystemLogger::dispatch($errors, SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SEND, SystemLog::TYPE_FAILURE,
+            $this->quote->customer);
     }
 }

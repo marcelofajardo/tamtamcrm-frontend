@@ -6,7 +6,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Customer\UpdateCustomerBalance;
 use App\Jobs\Customer\UpdateCustomerPaidToDate;
-use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
+//use App\Jobs\Company\UpdateCompanyLedgerWithPayment;
 use App\Invoice;
 use App\Payment;
 use App\Services\AbstractService;
@@ -32,7 +32,8 @@ class MarkPaid extends AbstractService
         }
 
         /* Create Payment */
-        $payment = PaymentFactory::create($this->invoice->customer_id, $this->invoice->user_id, $this->invoice->account_id);
+        $payment =
+            PaymentFactory::create($this->invoice->customer_id, $this->invoice->user_id, $this->invoice->account_id);
 
         $payment->amount = $this->invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
@@ -45,20 +46,14 @@ class MarkPaid extends AbstractService
             'amount' => $payment->amount
         ]);
 
-        $this->invoice->service()
-            ->updateBalance($payment->amount * -1)
-            ->setStatus(Invoice::STATUS_PAID)
-            ->save();
+        $this->invoice->service()->updateBalance($payment->amount * -1)->setStatus(Invoice::STATUS_PAID)->save();
 
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->account));
 
-        UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount * -1), $payment->account);
+        //UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount * -1), $payment->account);
 
-        $this->customer_service
-            ->updateBalance($payment->amount * -1)
-            ->updatePaidToDate($payment->amount)
-            ->save();
+        $this->customer_service->updateBalance($payment->amount * -1)->updatePaidToDate($payment->amount)->save();
 
         return $this->invoice;
     }

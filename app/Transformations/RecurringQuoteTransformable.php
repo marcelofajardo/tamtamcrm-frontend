@@ -20,7 +20,6 @@ trait RecurringQuoteTransformable
 
         $prop->id = (int)$quote->id;
         $prop->number = $quote->number ?: '';
-        $customer = $quote->customer;
         $prop->customer_id = $quote->customer_id;
         $prop->date = $quote->date;
         $prop->due_date = $quote->due_date;
@@ -32,8 +31,8 @@ trait RecurringQuoteTransformable
         $prop->sub_total = $quote->sub_total;
         $prop->tax_total = $quote->tax_total;
         $prop->discount_total = $quote->discount_total;
-        $prop->notes = $quote->notes;
-
+        $prop->public_notes = $quote->public_notes ?: '';
+        $prop->private_notes = $quote->private_notes ?: '';
         $prop->status_id = $quote->status_id;
         $prop->terms = $quote->terms;
         $prop->footer = $quote->footer;
