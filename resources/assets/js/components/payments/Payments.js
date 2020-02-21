@@ -20,6 +20,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import PaymentPresenter from '../presenters/PaymentPresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Payments extends Component {
     constructor (props) {
@@ -35,7 +37,6 @@ export default class Payments extends Component {
             cachedData: [],
             custom_fields: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             bulk: [],
             ignoredColumns: ['paymentables', 'private_notes', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
             filters: {
@@ -60,7 +61,6 @@ export default class Payments extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -72,12 +72,6 @@ export default class Payments extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer', 'invoices') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -283,6 +277,7 @@ export default class Payments extends Component {
     }
 
     getFilters () {
+        const { status_id, searchText, customer_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.payments.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns}
                 columns={Object.keys(this.state.payments[0]).concat(this.state.ignoredColumns)}
@@ -317,16 +312,16 @@ export default class Payments extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <CsvImporter filename="payments.csv"
+                        url={`/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -335,7 +330,7 @@ export default class Payments extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={10}>
+                <Col md={8}>
                     <FormGroup>
                         {columnFilter}
                     </FormGroup>

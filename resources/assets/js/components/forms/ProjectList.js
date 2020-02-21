@@ -18,6 +18,8 @@ import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class ProjectList extends Component {
     constructor (props) {
@@ -29,7 +31,6 @@ export default class ProjectList extends Component {
             errors: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             error: '',
             view: {
                 viewMode: false,
@@ -74,7 +75,6 @@ export default class ProjectList extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -85,12 +85,6 @@ export default class ProjectList extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('settings') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -185,6 +179,7 @@ export default class ProjectList extends Component {
     }
 
     getFilters () {
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
         const columnFilter = this.state.projects.length
             ? <DisplayColumns onChange={this.updateIgnoredColumns} columns={Object.keys(this.state.projects[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -217,23 +212,23 @@ export default class ProjectList extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
+
+                <Col>
+                    <CsvImporter filename="project.csv"
+                        url={`/api/projects?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterProjects} update={this.addUserToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
-
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
 
                 <Col md={8}>
                     {columnFilter}

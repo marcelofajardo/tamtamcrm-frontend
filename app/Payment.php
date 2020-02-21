@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Events\PaymentWasVoided;
+use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
 use Illuminate\Database\Eloquent\Model;
 use App\PaymentMethod;
@@ -215,5 +216,10 @@ class Payment extends Model
     public function service(): PaymentService
     {
         return new PaymentService($this);
+    }
+
+    public function ledger()
+    {
+        return new LedgerService($this);
     }
 }

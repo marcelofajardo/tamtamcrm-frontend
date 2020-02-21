@@ -19,6 +19,8 @@ import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class ProductList extends Component {
     constructor (props) {
@@ -31,12 +33,11 @@ export default class ProductList extends Component {
                 title: null
             },
             products: [],
-            brands: [],
+            companies: [],
             cachedData: [],
             categories: [],
             custom_fields: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             bulk: [],
             filters: {
                 status: 'active',
@@ -82,12 +83,12 @@ export default class ProductList extends Component {
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
+        this.getCompanies = this.getCompanies.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
-        this.getBrands()
+        this.getCompanies()
         this.getCategories()
         this.getCustomFields()
     }
@@ -95,12 +96,6 @@ export default class ProductList extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -200,6 +195,7 @@ export default class ProductList extends Component {
 
     getFilters () {
         const { categories } = this.state
+        const { status, searchText, category_id, company_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.products.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.products[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -229,7 +225,7 @@ export default class ProductList extends Component {
                         company_id={this.state.filters.company_id}
                         renderErrorFor={this.renderErrorFor}
                         handleInputChanges={this.filterProducts}
-                        // companies={this.state.brands}
+                        companies={this.state.companies}
                         name="company_id"
                     />
                 </Col>
@@ -243,16 +239,16 @@ export default class ProductList extends Component {
                     />
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
+
+                <Col>
+                    <CsvImporter filename="products.csv"
+                        url={`/api/products?search_term=${searchText}&status=${status}&category_id=${category_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -261,7 +257,7 @@ export default class ProductList extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={10}>
+                <Col md={8}>
                     <FormGroup>
                         {columnFilter}
                     </FormGroup>
@@ -270,11 +266,11 @@ export default class ProductList extends Component {
         )
     }
 
-    getBrands () {
-        axios.get('/api/brands')
+    getCompanies () {
+        axios.get('/api/companies')
             .then((r) => {
                 this.setState({
-                    brands: r.data
+                    companies: r.data
                 })
             })
             .catch((e) => {
@@ -310,7 +306,7 @@ export default class ProductList extends Component {
     }
 
     userList () {
-        const { products, custom_fields, brands, categories, ignoredColumns } = this.state
+        const { products, custom_fields, companies, categories, ignoredColumns } = this.state
 
         if (products && products.length) {
             return products.map(product => {
@@ -321,7 +317,7 @@ export default class ProductList extends Component {
                     ? <DeleteModal deleteFunction={this.deleteProduct} id={product.id}/> : null
                 const editButton = !product.deleted_at ? <EditProduct
                     custom_fields={custom_fields}
-                    brands={brands}
+                    companies={companies}
                     categories={categories}
                     product={product}
                     products={products}
@@ -370,13 +366,13 @@ export default class ProductList extends Component {
     }
 
     render () {
-        const { products, custom_fields, brands, categories, view } = this.state
+        const { products, custom_fields, companies, categories, view } = this.state
         const { status, searchText, category_id, company_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/products?search_term=${searchText}&status=${status}&category_id=${category_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = categories.length ? this.getFilters() : 'Loading filters'
-        const addButton = brands.length && categories.length ? <AddProduct
+        const filters = categories.length && companies.length ? this.getFilters() : 'Loading filters'
+        const addButton = companies.length && categories.length ? <AddProduct
             custom_fields={custom_fields}
-            brands={brands}
+            companies={companies}
             categories={categories}
             products={products}
             action={this.addProductToState}

@@ -10,15 +10,6 @@
     {{-- Body --}}
     {{ $message }}
 
-    {!! str_replace('\n', '<br>', $system_info) !!}
-
-    <details>
-        <summary>{{ ctrans('texts.display_log') }}</summary>
-        @foreach($laravel_log as $log_line)
-            <small>{{ $log_line }}</small> <br>
-        @endforeach
-    </details>
-
     {{-- Subcopy --}}
     @isset($subcopy)
         @slot('subcopy')

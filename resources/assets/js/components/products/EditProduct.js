@@ -328,7 +328,7 @@ class EditProduct extends React.Component {
                                     company_id={this.state.company_id}
                                     errors={this.state.errors}
                                     handleInputChanges={this.handleInput}
-                                    // companies={this.props.brands}
+                                    companies={this.props.companies}
                                 />
 
                                 <CategoryDropdown

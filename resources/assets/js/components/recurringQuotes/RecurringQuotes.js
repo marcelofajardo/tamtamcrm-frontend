@@ -19,6 +19,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import RecurringQuotePresenter from '../presenters/RecurringQuotePresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class RecurringQuotes extends Component {
     constructor (props) {
@@ -37,7 +39,6 @@ export default class RecurringQuotes extends Component {
             allQuotes: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             filters: {
                 status_id: 'Draft',
                 customer_id: '',
@@ -62,7 +63,6 @@ export default class RecurringQuotes extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -73,12 +73,6 @@ export default class RecurringQuotes extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('line_items') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -258,6 +252,7 @@ export default class RecurringQuotes extends Component {
     }
 
     getFilters () {
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
         const { customers } = this.state
         const columnFilter = this.state.invoices.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns}
@@ -299,16 +294,16 @@ export default class RecurringQuotes extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <CsvImporter filename="recurringQuotes.csv"
+                        url={`/api/recurring-quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>

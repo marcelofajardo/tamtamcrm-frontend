@@ -18,6 +18,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import QuotePresenter from '../presenters/QuotePresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Quotes extends Component {
     constructor (props) {
@@ -35,7 +37,6 @@ export default class Quotes extends Component {
             custom_fields: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             filters: {
                 status_id: 'active',
                 customer_id: '',
@@ -57,7 +58,6 @@ export default class Quotes extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -76,12 +76,6 @@ export default class Quotes extends Component {
         this.setState({
             quotes: quotes,
             cachedData: cachedData
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -240,6 +234,7 @@ export default class Quotes extends Component {
     }
 
     getFilters () {
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
         const { customers } = this.state
         const columnFilter = this.state.quotes.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns}
@@ -280,16 +275,16 @@ export default class Quotes extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
+
+                <Col>
+                    <CsvImporter filename="quotes.csv"
+                        url={`/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -298,7 +293,7 @@ export default class Quotes extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={10}>
+                <Col md={8}>
                     <FormGroup>
                         {columnFilter}
                     </FormGroup>

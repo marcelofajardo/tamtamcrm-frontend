@@ -41,6 +41,7 @@ use App\Jobs\Invoice\EmailInvoice;
 use App\Repositories\TaskRepository;
 use App\Task;
 use App\Traits\CheckEntityStatus;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -182,8 +183,7 @@ class InvoiceController extends Controller
                 break;
             case 'mark_paid':
                 if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID ||
-                    $invoice->is_deleted === true
-                ) {
+                    $invoice->is_deleted === true) {
                     return response()->json('Invoice cannot be marked as paid', 400);
                 }
                 $invoice = $invoice->service()->markPaid();
@@ -198,9 +198,9 @@ class InvoiceController extends Controller
                 }
                 break;
             case 'download':
-                $contents = File::get(public_path($invoice->service()->getInvoicePdf(null)));
-                return response()->json(['data' => base64_encode($contents)]);
-                //return response()->download(public_path($invoice->pdf_file_path()), 'test.pdf', $headers);
+                $disk = config('filesystems.default');
+                $content = Storage::disk($disk)->get($invoice->service()->getInvoicePdf(null));
+                return response()->json(['data' => base64_encode($content)]);
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);

@@ -2,6 +2,8 @@
 
 namespace App\Services\Invoice;
 
+use App\ClientContact;
+use App\Invoice;
 use App\Jobs\Invoice\CreateInvoicePdf;
 use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +13,7 @@ class GetInvoicePdf extends AbstractService
     private $contact;
     private $invoice;
 
-    public function __construct($invoice, $contact = null)
+    public function __construct(Invoice $invoice, ClientContact $contact = null)
     {
         $this->contact = $contact;
         $this->invoice = $invoice;
@@ -32,7 +34,7 @@ class GetInvoicePdf extends AbstractService
             $file_path = CreateInvoicePdf::dispatchNow($this->invoice, $this->invoice->account, $this->contact);
         }
 
-        return Storage::disk($disk)->url($file_path);
+        return $file_path;
     }
 
 }

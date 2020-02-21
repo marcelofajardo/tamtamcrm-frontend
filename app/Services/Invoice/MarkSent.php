@@ -36,7 +36,7 @@ class MarkSent extends AbstractService
 
         $this->invoice->service()->setStatus(Invoice::STATUS_SENT)->applyNumber()->save();
 
-        UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->balance, $this->invoice->account);
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
 
         return $this->invoice;
 

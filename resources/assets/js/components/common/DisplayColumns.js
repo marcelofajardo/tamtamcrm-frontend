@@ -80,8 +80,7 @@ export default class DisplayColumns extends Component {
 
         return <Select
             closeMenuOnSelect={false}
-            className="flex-grow-1"
-            classNamePrefix="select"
+            classNamePrefix="Select-multi"
             isMulti
             value={this.state.selected}
             options={this.state.values}

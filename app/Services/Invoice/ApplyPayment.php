@@ -24,9 +24,7 @@ class ApplyPayment extends AbstractService
 
     public function run()
     {
-
-        //UpdateCompanyLedgerWithPayment::dispatchNow($this->payment, ($this->payment_amount * -1),
-            //$this->payment->account);
+        $this->payment->ledger()->updatePaymentBalance($this->payment_amount * -1);
 
         $this->payment->customer->service()->updateBalance($this->payment_amount * -1)->save();
 

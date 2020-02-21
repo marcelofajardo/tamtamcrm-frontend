@@ -17,6 +17,8 @@ import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class TaxRates extends Component {
     constructor (props) {
@@ -25,6 +27,7 @@ export default class TaxRates extends Component {
         this.state = {
             taxRates: [],
             cachedData: [],
+            dropdownButtonActions: ['download'],
             filters: {
                 status_id: 'active',
                 searchText: '',
@@ -53,7 +56,6 @@ export default class TaxRates extends Component {
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     addUserToState (taxRates) {
@@ -61,12 +63,6 @@ export default class TaxRates extends Component {
         this.setState({
             taxRates: taxRates,
             cachedData: cachedData
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -163,6 +159,7 @@ export default class TaxRates extends Component {
     }
 
     getFilters () {
+        const { searchText, status_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.taxRates.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.taxRates[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -187,16 +184,16 @@ export default class TaxRates extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <CsvImporter filename="taxRates.csv"
+                        url={`/api/taxRates?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>

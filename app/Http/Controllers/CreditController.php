@@ -23,6 +23,7 @@ use App\Factory\CreditFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Traits\CheckEntityStatus;
+use Illuminate\Support\Facades\Storage;
 
 class CreditController extends Controller
 {
@@ -196,7 +197,9 @@ class CreditController extends Controller
                 }
                 break;
             case 'download':
-                return response()->download(public_path($credit->pdf_file_path()));
+                $disk = config('filesystems.default');
+                $content = Storage::disk($disk)->get($credit->service()->getCreditPdf(null));
+                return response()->json(['data' => base64_encode($content)]);
                 break;
             case 'archive':
                 $this->credit_repo->archive($credit);

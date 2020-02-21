@@ -11,11 +11,7 @@ import {
     Card,
     CardBody,
     Row,
-    Col,
-    ButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
+    Col
 } from 'reactstrap'
 import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
@@ -24,6 +20,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import CompanyPresenter from '../presenters/CompanyPresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Companies extends Component {
     constructor (props) {
@@ -36,7 +34,6 @@ export default class Companies extends Component {
             cachedData: [],
             errors: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             error: '',
             view: {
                 viewMode: false,
@@ -80,7 +77,6 @@ export default class Companies extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -103,12 +99,6 @@ export default class Companies extends Component {
                 title: title
             }
         }, () => console.log('view', this.state.view))
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
-        })
     }
 
     addUserToState (brands) {
@@ -187,6 +177,7 @@ export default class Companies extends Component {
     }
 
     getFilters () {
+        const { searchText, status_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.brands.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.brands[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -211,16 +202,16 @@ export default class Companies extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
+
+                <Col>
+                    <CsvImporter filename="companies.csv"
+                        url={`/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -229,7 +220,7 @@ export default class Companies extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={6}>
+                <Col md={8}>
                     {columnFilter}
                 </Col>
             </Row>
@@ -331,7 +322,7 @@ export default class Companies extends Component {
     render () {
         const { custom_fields, users, error, view } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
-        const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date} `
+        const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = users.length
             ? <AddCompany users={users} action={this.addUserToState}

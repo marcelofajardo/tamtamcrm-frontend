@@ -53,6 +53,7 @@ class LoginController extends Controller
         }
 
         if ($token = auth()->attempt($request->all())) {
+            $token = $this->getToken($request->email, $request->password);
             $user = auth()->user();
             $user->auth_token = $token;
             $user->save();

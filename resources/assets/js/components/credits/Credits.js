@@ -19,6 +19,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import CreditPresenter from '../presenters/CreditPresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Credits extends Component {
     constructor (props) {
@@ -35,7 +37,6 @@ export default class Credits extends Component {
             customers: [],
             custom_fields: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             bulk: [],
             ignoredColumns: [
                 'id',
@@ -67,7 +68,6 @@ export default class Credits extends Component {
         this.getFilters = this.getFilters.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -78,12 +78,6 @@ export default class Credits extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer', 'notes', 'terms', 'footer', 'user_id', 'invoice_id') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -245,16 +239,16 @@ export default class Credits extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
+
+                <Col>
+                    <CsvImporter filename="credits.csv"
+                        url={`/api/credits?status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}&page=1&per_page=5000`}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -299,7 +293,7 @@ export default class Credits extends Component {
                 return (
                     <tr key={credit.id}>
                         <td>
-                            <Input value={credit.id} type="checkbox" onChange={this.onChangeBulk} />
+                            <Input value={credit.id} type="checkbox" onChange={this.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>
@@ -335,7 +329,7 @@ export default class Credits extends Component {
 
     render () {
         const { customers, credits, custom_fields, view } = this.state
-        const fetchUrl = `/api/credits?status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date} `
+        const fetchUrl = `/api/credits?status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
         const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <AddCredit
             custom_fields={custom_fields}

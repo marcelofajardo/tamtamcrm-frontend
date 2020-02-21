@@ -6,7 +6,6 @@ use App\Factory\PaymentFactory;
 use App\Invoice;
 use App\Payment;
 
-
 class PaymentService
 {
     private $payment;
@@ -24,7 +23,7 @@ class PaymentService
         $payment->amount = $invoice->balance;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->customer_id = $invoice->customer_id;
-        $payment->transaction_reference = 'manual_entry';
+        $payment->transaction_reference = trans('texts.manual_entry');
         /* Create a payment relationship to the invoice entity */
         $payment->save();
 
@@ -43,7 +42,7 @@ class PaymentService
     public function reversePayment()
     {
         $invoices = $this->payment->invoices()->get();
-        $client = $this->payment->customer;
+        $customer = $this->payment->customer;
 
         $invoices->each(function ($invoice) {
             if ($invoice->pivot->amount > 0) {
@@ -55,8 +54,8 @@ class PaymentService
 
         $this->payment->ledger()->updatePaymentBalance($this->payment->amount);
 
-        $client->service()->updateBalance($this->payment->amount)->updatePaidToDate($this->payment->amount * -1)
-               ->save();
+        $customer->service()->updateBalance($this->payment->amount)->updatePaidToDate($this->payment->amount * -1)
+                 ->save();
     }
 
     public function updateInvoicePayment()

@@ -2,8 +2,9 @@
 
 namespace App\Services\Quote;
 
-use App\Jobs\Invoice\CreateInvoicePdf;
+use App\ClientContact;
 use App\Jobs\Quote\CreateQuotePdf;
+use App\Quote;
 use App\Services\AbstractService;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,7 +13,7 @@ class GetQuotePdf extends AbstractService
     private $contact;
     private $quote;
 
-    public function __construct($quote, $contact = null)
+    public function __construct(Quote $quote, ClientContact $contact = null)
     {
         $this->contact = $contact;
         $this->quote = $quote;

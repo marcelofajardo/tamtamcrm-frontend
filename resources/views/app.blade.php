@@ -49,8 +49,6 @@
         <script src="{{ asset('js/test2.js') }}"></script>
          <script src="{{ asset('js/test3.js') }}"></script>
         <script src="{{ asset('js/vector.js') }}"></script>
-        <script src="{{ asset('js/echart.js') }}"></script>
-        <script src="{{ asset('js/dashboard.js') }}"></script>
 
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13" type="e9e5abddf22916310e683d1f-text/javascript"></script>
         <script type="e9e5abddf22916310e683d1f-text/javascript">

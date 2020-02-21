@@ -345,9 +345,9 @@ trait MakesInvoiceValues
         $data['$contact4'] = isset($contact) ? $contact->custom_value4 : '&nbsp;';
 
         $data['$company.city_state_postal'] = $this->account->present()->cityStateZip($settings->city, $settings->state,
-                $settings->postal_code, false) ?: '&nbsp;';
+            $settings->postal_code, false) ?: '&nbsp;';
         $data['$company.postal_city_state'] = $this->account->present()->cityStateZip($settings->city, $settings->state,
-                $settings->postal_code, true) ?: '&nbsp;';
+            $settings->postal_code, true) ?: '&nbsp;';
         $data['$company.name'] = $this->account->present()->name() ?: '&nbsp;';
         $data['$company.company_name'] = &$data['$company.name'];
         $data['$company.address1'] = $settings->address1 ?: '&nbsp;';

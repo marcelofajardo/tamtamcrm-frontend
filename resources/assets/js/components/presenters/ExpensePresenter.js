@@ -29,10 +29,15 @@ export default function ExpensePresenter (props) {
             return <td onClick={() => props.toggleViewedEntity(entity, entity.transaction_reference)}
                 data-label="Status">{status}</td>
         case 'customer_id':
-            const index = props.customers.findIndex(customer => customer.id === entity[field])
-            const customer = props.customers[index]
+            const customerIndex = props.customers.findIndex(customer => customer.id === entity[field])
+            const customer = props.customers[customerIndex]
             return <td onClick={() => this.toggleViewedEntity(entity, entity.number)}
                 data-label="Customer">{`${customer.first_name} ${customer.last_name}`}</td>
+        case 'company_id':
+            const companyIndex = props.companies.findIndex(company => company.id === entity[field])
+            const company = props.companies[companyIndex]
+            return <td onClick={() => this.toggleViewedEntity(entity, entity.number)}
+                data-label="Company">{company.name}</td>
 
         case 'invoices':
             return <td data-label="Invoices">{paymentInvoices}</td>

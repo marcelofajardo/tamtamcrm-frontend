@@ -18,6 +18,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import InvoicePresenter from '../presenters/InvoicePresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Invoice extends Component {
     constructor (props) {
@@ -34,7 +36,6 @@ export default class Invoice extends Component {
             customers: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             custom_fields: [],
             ignoredColumns: ['invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'public_notes', 'private_notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
             filters: {
@@ -45,7 +46,6 @@ export default class Invoice extends Component {
                 end_date: ''
             },
             showRestoreButton: false
-            // columns: ['Number', 'Customer', 'Due Date', 'Total', 'Balance', 'Status']
         }
 
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
@@ -59,7 +59,6 @@ export default class Invoice extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -70,12 +69,6 @@ export default class Invoice extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('line_items') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -242,6 +235,7 @@ export default class Invoice extends Component {
     }
 
     getFilters () {
+        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
         const { customers } = this.state
         const columnFilter = this.state.invoices.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns}
@@ -283,25 +277,25 @@ export default class Invoice extends Component {
                     </FormGroup>
                 </Col>
 
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
+
+                <Col>
+                    <CsvImporter filename="invoices.csv"
+                        url={`/api/invoice?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
-                            data={this.state.cachedData}/>
+                                    data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
-
-                <Col md={10}>
+                <Col md={8}>
                     <FormGroup>
                         {columnFilter}
                     </FormGroup>

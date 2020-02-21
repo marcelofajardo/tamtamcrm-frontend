@@ -63,8 +63,6 @@ class CreateInvoicePdf implements ShouldQueue
             $invoice_design = new $class();
         }
 
-        die('mike');
-
         $designer = new Designer($invoice_design, $this->invoice->customer->getSetting('pdf_variables'), 'invoice');
 
         //get invoice design
@@ -76,9 +74,6 @@ class CreateInvoicePdf implements ShouldQueue
         //\Log::error($html);
         //create pdf
         $pdf = $this->makePdf(null, null, $html);
-
-        echo $file_path;
-        die;
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\Quote;
+namespace App\Jobs\Credit;
 
 use App\Designs\Custom;
 use App\Designs\Designer;
@@ -18,12 +18,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
-class CreateQuotePdf implements ShouldQueue
+class CreateCreditPdf implements ShouldQueue
 {
 
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker;
 
-    public $quote;
+    public $credit;
 
     public $account;
 
@@ -36,10 +36,10 @@ class CreateQuotePdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($quote, Account $account, ClientContact $contact = null)
+    public function __construct($credit, Account $account, ClientContact $contact = null)
     {
 
-        $this->quote = $quote;
+        $this->credit = $credit;
 
         $this->account = $account;
 
@@ -58,23 +58,23 @@ class CreateQuotePdf implements ShouldQueue
 
         App::setLocale($this->contact->preferredLocale());
 
-        $path = $this->quote->customer->quote_filepath();
+        $path = $this->credit->customer->credit_filepath();
 
-        $file_path = $path . $this->quote->number . '.pdf';
+        $file_path = $path . $this->credit->number . '.pdf';
 
-        $design = Design::find($this->quote->customer->getSetting('quote_design_id'));
+        $design = Design::find($this->credit->customer->getSetting('credit_design_id'));
 
         if ($design->is_custom) {
-            $quote_design = new Custom($design->design);
+            $credit_design = new Custom($design->design);
         } else {
             $class = 'App\Designs\\' . $design->name;
-            $quote_design = new $class();
+            $credit_design = new $class();
         }
 
-        $designer = new Designer($quote_design, $this->quote->customer->getSetting('pdf_variables'), 'quote');
+        $designer = new Designer($credit_design, $this->credit->customer->getSetting('pdf_variables'), 'credit');
 
 //get invoice design
-        $html = $this->generateInvoiceHtml($designer->build($this->quote)->getHtml(), $this->quote, $this->contact);
+        $html = $this->generateInvoiceHtml($designer->build($this->credit)->getHtml(), $this->credit, $this->contact);
 
 //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
@@ -83,9 +83,6 @@ class CreateQuotePdf implements ShouldQueue
         $pdf = $this->makePdf(null, null, $html);
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
-
-
-//$instance= Storage::disk($this->disk)->path($file_path);
 
         return $file_path;
     }

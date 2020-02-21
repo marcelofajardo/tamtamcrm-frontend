@@ -53,6 +53,8 @@ class CustomerFilter extends QueryFilter
 
         if ($request->filled('customer_type')) {
             $this->query->whereCustomerType($request->customer_type);
+        } else {
+            $this->query->whereCustomerType(1);
         }
 
         if ($request->has('search_term') && !empty($request->search_term)) {

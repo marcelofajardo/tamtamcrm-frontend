@@ -21,6 +21,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import CustomerPresenter from '../presenters/CustomerPresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Customers extends Component {
     constructor (props) {
@@ -37,7 +39,6 @@ export default class Customers extends Component {
             companies: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             filters: {
                 status: 'active',
                 company_id: '',
@@ -91,7 +92,6 @@ export default class Customers extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -104,12 +104,6 @@ export default class Customers extends Component {
         this.setState({
             customers: customers,
             cachedData: cachedData
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -222,6 +216,7 @@ export default class Customers extends Component {
     }
 
     getFilters () {
+        const { searchText, status, company_id, customer_type, group_settings_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.customers.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.customers[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -269,16 +264,16 @@ export default class Customers extends Component {
                     />
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <CsvImporter filename="customers.csv"
+                        url={`/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&customer_type=${customer_type}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -287,7 +282,7 @@ export default class Customers extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col md={9}>
+                <Col md={8}>
                     <FormGroup>
                         {columnFilter}
                     </FormGroup>
@@ -336,7 +331,7 @@ export default class Customers extends Component {
                 return (
                     <tr key={customer.id}>
                         <td>
-                            <Input value={customer.id} type="checkbox" onChange={this.onChangeBulk} />
+                            <Input value={customer.id} type="checkbox" onChange={this.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>

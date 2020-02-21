@@ -8,16 +8,12 @@
     @endslot
 
     {{-- Body --}}
-    {{ $message }}
+    {{ $user }}
+    trans('texts.confirmation_message')
 
-    {!! str_replace('\n', '<br>', $system_info) !!}
-
-    <details>
-        <summary>{{ ctrans('texts.display_log') }}</summary>
-        @foreach($laravel_log as $log_line)
-            <small>{{ $log_line }}</small> <br>
-        @endforeach
-    </details>
+    @component('mail::button', ['url' => url("/user/confirm/{$user->confirmation_code}")])
+        trans('texts.confirm')
+    @endcomponent
 
     {{-- Subcopy --}}
     @isset($subcopy)

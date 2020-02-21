@@ -20,6 +20,8 @@ import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import UserPresenter from '../presenters/UserPresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class UserList extends Component {
     constructor (props) {
@@ -31,7 +33,6 @@ export default class UserList extends Component {
             custom_fields: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             error: '',
             view: {
                 viewMode: false,
@@ -73,7 +74,6 @@ export default class UserList extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
     }
 
     componentDidMount () {
@@ -84,12 +84,6 @@ export default class UserList extends Component {
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -181,6 +175,7 @@ export default class UserList extends Component {
 
     getFilters () {
         const { departments } = this.state
+        const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
         const columnFilter = this.state.users.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.users[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -222,16 +217,16 @@ export default class UserList extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <CsvImporter filename="users.csv"
+                        url={`/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -310,7 +305,7 @@ export default class UserList extends Component {
 
                 return <tr key={user.id}>
                     <td>
-                        <Input value={user.id} type="checkbox" onChange={this.onChangeBulk} />
+                        <Input value={user.id} type="checkbox" onChange={this.onChangeBulk}/>
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

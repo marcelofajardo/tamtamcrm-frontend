@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Input, InputGroup } from 'reactstrap'
+import { Button, Input, InputGroup, UncontrolledTooltip } from 'reactstrap'
 
 export default class TableSearch extends Component {
     constructor (props) {
@@ -36,14 +36,24 @@ export default class TableSearch extends Component {
         const { query } = this.state
 
         return (
-            <InputGroup className="mb-3">
-                <Input id="searchText" name="searchText" type="text" placeholder="Search..." value={query} onChange={this.handleSearchChange}/>
-                <Button color="link" className="bg-transparent"
-                    style={{ marginLeft: '-40px', zIndex: 100, color: '#e4e7ea' }}
-                    onClick={() => this.reset()}>
-                    <i className="fa fa-times"/>
-                </Button>
-            </InputGroup>
+            <React.Fragment>
+                <UncontrolledTooltip placement="right" target="clearSearch">
+                    Clear Search
+                </UncontrolledTooltip>
+
+                <UncontrolledTooltip placement="top-left" target="searchText">
+                    Search
+                </UncontrolledTooltip>
+
+                <InputGroup className="mb-3">
+                    <Input id="searchText" name="searchText" type="text" placeholder="Search..." value={query} onChange={this.handleSearchChange}/>
+                    <Button color="link" className="bg-transparent"
+                        style={{ marginLeft: '-40px', zIndex: 100, color: '#e4e7ea' }}
+                        onClick={() => this.reset()}>
+                        <i id="clearSearch" className="fa fa-times"/>
+                    </Button>
+                </InputGroup>
+            </React.Fragment>
         )
     }
 }

@@ -51,7 +51,7 @@ class MarkPaid extends AbstractService
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->account));
 
-        //UpdateCompanyLedgerWithPayment::dispatchNow($payment, ($payment->amount * -1), $payment->account);
+        $payment->ledger()->updatePaymentBalance($payment->amount * -1);
 
         $this->customer_service->updateBalance($payment->amount * -1)->updatePaidToDate($payment->amount)->save();
 

@@ -231,6 +231,7 @@ class AddProduct extends React.Component {
                                 </FormGroup>
 
                                 <CompanyDropdown
+                                    companies={this.props.companies}
                                     company_id={this.state.company_id}
                                     name="company_id"
                                     hasErrorFor={this.hasErrorFor}

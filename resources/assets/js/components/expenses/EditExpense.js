@@ -300,6 +300,7 @@ class EditExpense extends React.Component {
                                     Details
                                 </NavLink>
                             </NavItem>
+
                             <NavItem>
                                 <NavLink
                                     className={this.state.activeTab === '2' ? 'active' : ''}
@@ -309,13 +310,22 @@ class EditExpense extends React.Component {
                                     Settings
                                 </NavLink>
                             </NavItem>
+
+                            <NavItem>
+                                <NavLink
+                                    className={this.state.activeTab === '3' ? 'active' : ''}
+                                    onClick={() => {
+                                        this.toggleTab('3')
+                                    }}>
+                                    Notes
+                                </NavLink>
+                            </NavItem>
                         </Nav>
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
                                 <Card>
                                     <CardHeader>Details</CardHeader>
                                     <CardBody>
-
                                         <FormGroup className="mb-3">
                                             <Label>Amount</Label>
                                             <Input value={this.state.amount}
@@ -360,29 +370,12 @@ class EditExpense extends React.Component {
                                         <FormGroup className="mb-3">
                                             <Label>Company</Label>
                                             <CompanyDropdown
+                                                companies={this.props.companies}
                                                 company_id={this.state.company_id}
                                                 renderErrorFor={this.renderErrorFor}
                                                 handleInputChanges={this.handleInput}
                                             />
                                             {this.renderErrorFor('company_id')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Public Notes</Label>
-                                            <Input value={this.state.public_notes}
-                                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="public_notes"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('public_notes')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Private Notes</Label>
-                                            <Input value={this.state.private_notes}
-                                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="private_notes"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('private_notes')}
                                         </FormGroup>
 
                                         {customForm}
@@ -391,7 +384,6 @@ class EditExpense extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="2">
-
                                 <Card>
                                     <CardHeader>
                                         Settings
@@ -459,6 +451,31 @@ class EditExpense extends React.Component {
                                                 </Col>
                                             </Row>
                                         </Collapse>
+                                    </CardBody>
+                                </Card>
+                            </TabPane>
+
+                            <TabPane tabId="1">
+                                <Card>
+                                    <CardHeader>Notes</CardHeader>
+                                    <CardBody>
+                                        <FormGroup className="mb-3">
+                                            <Label>Public Notes</Label>
+                                            <Input value={this.state.public_notes}
+                                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
+                                                type="textarea" name="public_notes"
+                                                onChange={this.handleInput.bind(this)}/>
+                                            {this.renderErrorFor('public_notes')}
+                                        </FormGroup>
+
+                                        <FormGroup className="mb-3">
+                                            <Label>Private Notes</Label>
+                                            <Input value={this.state.private_notes}
+                                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
+                                                type="textarea" name="private_notes"
+                                                onChange={this.handleInput.bind(this)}/>
+                                            {this.renderErrorFor('private_notes')}
+                                        </FormGroup>
                                     </CardBody>
                                 </Card>
                             </TabPane>

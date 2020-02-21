@@ -2,11 +2,9 @@
 
 namespace App\Services\Payment;
 
-
 use App\Invoice;
 use App\Jobs\Utils\SystemLogger;
 use App\SystemLog;
-use Exception;
 
 class UpdateInvoicePayment
 {
@@ -56,8 +54,8 @@ class UpdateInvoicePayment
 
                         $this->payment->ledger()->updatePaymentBalance($this->payment, ($invoice->partial * -1));
 
-                        $this->payment->customer->service()->updateBalance($invoice->partial * -1)
-                                                ->updatePaidToDate($invoice->partial)->save();
+                        $this->payment->client->service()->updateBalance($invoice->partial * -1)
+                                              ->updatePaidToDate($invoice->partial)->save();
 
                         $invoice->pivot->amount = $invoice->partial;
                         $invoice->pivot->save();
@@ -68,8 +66,8 @@ class UpdateInvoicePayment
 
                         $this->payment->ledger()->updatePaymentBalance($this->payment, ($invoice->balance * -1));
 
-                        $this->payment->customer->service()->updateBalance($invoice->balance * -1)
-                                                ->updatePaidToDate($invoice->balance)->save();
+                        $this->payment->client->service()->updateBalance($invoice->balance * -1)
+                                              ->updatePaidToDate($invoice->balance)->save();
 
                         $invoice->pivot->amount = $invoice->balance;
                         $invoice->pivot->save();
@@ -85,9 +83,9 @@ class UpdateInvoicePayment
                     'payment_amount' => $this->payment->amount,
                     'partial_check_amount' => $total,
                 ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE,
-                    SystemLog::TYPE_LEDGER, $this->payment->customer);
+                    SystemLog::TYPE_LEDGER, $this->payment->client);
 
-                throw new Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total} reversing payment");
+                throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total} reversing payment");
 
                 $this->payment->invoice()->delete();
                 $this->payment->is_deleted = true;

@@ -130,7 +130,8 @@ class QuoteController extends Controller
      * @param Request $request
      * @param Quote $quote
      * @param $action
-     * @return mixed
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function action(Request $request, Quote $quote, $action)
     {

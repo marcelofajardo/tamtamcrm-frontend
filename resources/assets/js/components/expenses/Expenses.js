@@ -6,10 +6,7 @@ import EditExpense from './EditExpense'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import {
-    Card, CardBody, FormGroup, Input, Row, Col, ButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
+    Card, CardBody, FormGroup, Input, Row, Col
 } from 'reactstrap'
 import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
@@ -20,6 +17,8 @@ import CustomerDropdown from '../common/CustomerDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import ExpensePresenter from '../presenters/ExpensePresenter'
 import DateFilter from '../common/DateFilter'
+import CsvImporter from '../common/CsvImporter'
+import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class Expenses extends Component {
     constructor (props) {
@@ -32,10 +31,10 @@ export default class Expenses extends Component {
                 title: null
             },
             expenses: [],
+            companies: [],
             cachedData: [],
             bulk: [],
             dropdownButtonActions: ['download'],
-            dropdownButtonOpen: false,
             filters: {
                 status_id: 'active',
                 searchText: '',
@@ -93,23 +92,18 @@ export default class Expenses extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
-        this.toggleDropdownButton = this.toggleDropdownButton.bind(this)
+        this.getCompanies = this.getCompanies.bind(this)
     }
 
     componentDidMount () {
         this.getCustomers()
         this.getCustomFields()
+        this.getCompanies()
     }
 
     updateIgnoredColumns (columns) {
         this.setState({ ignoredColumns: columns.concat('customer') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleDropdownButton (event) {
-        this.setState({
-            dropdownButtonOpen: !this.state.dropdownButtonOpen
         })
     }
 
@@ -122,6 +116,18 @@ export default class Expenses extends Component {
                 title: title
             }
         }, () => console.log('view', this.state.view))
+    }
+
+    getCompanies () {
+        axios.get('/api/companies')
+            .then((r) => {
+                this.setState({
+                    companies: r.data
+                })
+            })
+            .catch((e) => {
+                console.error(e)
+            })
     }
 
     filterExpenses (event) {
@@ -196,12 +202,13 @@ export default class Expenses extends Component {
     }
 
     getFilters () {
+        const { searchText, status_id, customer_id, company_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.expenses.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.expenses[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
         return (
             <Row form>
-                <Col md={3}>
+                <Col md={2}>
                     <TableSearch onChange={this.filterExpenses}/>
                 </Col>
 
@@ -216,6 +223,7 @@ export default class Expenses extends Component {
 
                 <Col md={3}>
                     <CompanyDropdown
+                        companies={this.state.companies}
                         company={this.state.filters.company_id}
                         renderErrorFor={this.renderErrorFor}
                         handleInputChanges={this.filterExpenses}
@@ -238,16 +246,16 @@ export default class Expenses extends Component {
                     </FormGroup>
                 </Col>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
-                    <DropdownToggle caret color="primary">
-                        Bulk Action
-                    </DropdownToggle>
-                    <DropdownMenu>
-                        {this.state.dropdownButtonActions.map(e => {
-                            return <DropdownItem id={e} key={e} onClick={this.saveBulk}>{e}</DropdownItem>
-                        })}
-                    </DropdownMenu>
-                </ButtonDropdown>
+                <Col>
+                    <CsvImporter filename="expenses.csv"
+                        url={`/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col>
+                    <BulkActionDropdown
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        saveBulk={this.saveBulk}/>
+                </Col>
 
                 <Col md={2}>
                     <FormGroup>
@@ -286,8 +294,7 @@ export default class Expenses extends Component {
     }
 
     expenseList () {
-        const { expenses, customers, custom_fields, ignoredColumns } = this.state
-        console.log('custom_fields', custom_fields)
+        const { expenses, customers, custom_fields, ignoredColumns, companies } = this.state
         if (expenses && expenses.length && customers.length) {
             return expenses.map(expense => {
                 const restoreButton = expense.deleted_at
@@ -298,6 +305,7 @@ export default class Expenses extends Component {
                 const deleteButton = !expense.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteExpense} id={expense.id}/> : null
                 const editButton = !expense.deleted_at ? <EditExpense
+                    companies={companies}
                     custom_fields={custom_fields}
                     expense={expense}
                     action={this.updateExpenses}
@@ -309,14 +317,15 @@ export default class Expenses extends Component {
                 const columnList = Object.keys(expense).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <ExpensePresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                    return <ExpensePresenter companies={companies} customers={customers}
+                        toggleViewedEntity={this.toggleViewedEntity}
                         field={key} entity={expense}/>
                 })
 
                 return (
                     <tr key={expense.id}>
                         <td>
-                            <Input value={expense.id} type="checkbox" onChange={this.onChangeBulk} />
+                            <Input value={expense.id} type="checkbox" onChange={this.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>
@@ -366,13 +375,14 @@ export default class Expenses extends Component {
     }
 
     render () {
-        const { expenses, customers, custom_fields, view } = this.state
+        const { expenses, customers, custom_fields, view, companies } = this.state
         const { searchText, status_id, customer_id, company_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
+        const filters = this.state.customers.length && this.state.companies.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <AddExpense
             custom_fields={custom_fields}
             customers={customers}
+            companies={companies}
             action={this.updateExpenses}
             expenses={expenses}
         /> : null
