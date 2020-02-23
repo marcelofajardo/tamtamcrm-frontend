@@ -247,8 +247,6 @@ class Dashboard extends Component {
         this.setDates = this.setDates.bind(this)
         this.onRadioBtnClick = this.onRadioBtnClick.bind(this)
         this.fetchData = this.fetchData.bind(this)
-
-        alert('mike')
     }
 
     componentDidMount () {

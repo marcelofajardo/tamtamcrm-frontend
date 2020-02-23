@@ -56,9 +56,7 @@ export default class ResetPassword extends Component {
             this.setState({ error: 'Please ensure that you complete both password fields and that they match' })
             return false
         }
-
-        alert('mike')
-
+        
         axios.post('/api/passwordReset/reset', {
             email: this.state.email,
             token: this.state.code,

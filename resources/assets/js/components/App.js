@@ -59,5 +59,5 @@ axios.interceptors.response.use(
 )
 
 function userSignOut () {
-    //window.location.href = '/Login#/login'
+    window.location.href = '/Login#/login'
 }

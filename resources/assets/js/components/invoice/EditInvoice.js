@@ -52,6 +52,7 @@ class EditInvoice extends Component {
             lines: [],
             address: {},
             customerName: '',
+            tax_rate_name: '',
             company_id: this.props.invoice && this.props.invoice.company_id ? this.props.invoice.company_id : null,
             status_id: this.props.invoice && this.props.invoice.status_id ? parseInt(this.props.invoice.status_id) : 1,
             customers: this.props.customers,
@@ -190,6 +191,18 @@ class EditInvoice extends Component {
             }
         }
 
+        if(e.target.name === 'tax') {
+            const name = e.target.options[e.target.selectedIndex].getAttribute('data-name')
+            const rate = e.target.options[e.target.selectedIndex].getAttribute('data-rate')
+
+            this.setState({
+                tax: rate,
+                tax_rate_name: name
+            }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+
+            return
+        }
+
         this.setState({
             [e.target.name]: e.target.value
         }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
@@ -304,6 +317,8 @@ class EditInvoice extends Component {
             if (!this.state.modal) {
                 this.setState({
                     public_notes: '',
+                    tax: null,
+                    tax_rate_name: '',
                     private_notes: '',
                     terms: '',
                     footer: '',
@@ -471,6 +486,8 @@ class EditInvoice extends Component {
 
     getFormData () {
         const data = {
+            tax_rate: this.state.tax,
+            tax_rate_name: this.state.tax_rate_name,
             invoice_id: this.state.invoice_id,
             task_id: this.props.task_id,
             due_date: this.state.due_date,

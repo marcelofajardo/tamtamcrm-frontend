@@ -1,20 +1,25 @@
-@component('mail::layout')
+@component('email.components.layout')
 
-    {{-- Header --}}
-    @slot('header')
-        @component('mail::header', ['url' => config('app.url')])
-            Download
-        @endcomponent
-    @endslot
+@slot('header')
+    @component('email.components.header', ['p' => ''])
+        @lang('texts.download')
+    @endcomponent
+@endslot
 
-    {{-- Body --}}
-    {{ $file_path }}
+@lang('texts.download_timeframe')
 
-    {{-- Footer --}}
-    @slot('footer')
-        @component('mail::footer')
-            © {{ date('Y') }} {{ config('taskmanager.app_name') }}.
-        @endcomponent
-    @endslot
+@component('email.components.button', ['url' => $url])
+    @lang('texts.download')
+@endcomponent
+
+@slot('signature')
+    TamTam
+@endslot
+
+@slot('footer')
+    @component('email.components.footer', ['url' => 'https://tamtam.com', 'url_text' => '&copy; TamTam'])
+        For any info, please visit InvoiceNinja.
+    @endcomponent
+@endslot
 
 @endcomponent

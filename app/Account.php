@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Notifications\Notification;
+use App\Services\Notification\NotificationService;
 use App\Credit;
 use App\Quote;
 use App\Invoice;
@@ -171,4 +173,18 @@ class Account extends Model
         return $this->hasMany(Company::class)->withTrashed();
     }
 
+    public function notification(Notification $notification)
+     {
+         return new NotificationService($this, $notification);
+     }
+
+     public function routeNotificationForSlack($notification)
+     {
+         //todo need to return the company channel here for hosted users
+         //else the env variable for selfhosted
+         if(config('taskmanager.environment') == 'selfhosted')
+             return config('taskmanager.notification.slack');
+         else
+             return $this->settings->system_notifications_slack;
+     }
 }

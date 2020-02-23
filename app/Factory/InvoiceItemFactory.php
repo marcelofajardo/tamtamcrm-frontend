@@ -42,7 +42,7 @@ class InvoiceItemFactory
             $item->is_amount_discount = true;
             $item->unit_discount = $faker->numberBetween(1, 10);
             $item->unit_tax = 10.00;
-            $item->notes = $faker->realText(20);
+            $item->notes = $faker->realText(50);
 
             $data[] = $item;
         }

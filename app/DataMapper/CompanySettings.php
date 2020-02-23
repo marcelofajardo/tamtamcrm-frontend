@@ -116,10 +116,12 @@ class CompanySettings extends BaseSettings
     public $email_subject_invoice = '';
     public $email_subject_quote = '';
     public $email_subject_payment = '';
+    public $email_subject_order = '';
     public $email_subject_statement = '';
     public $email_template_invoice = '';
     public $email_template_quote = '';
     public $email_template_payment = '';
+    public $email_template_order = '';
     public $email_template_statement = '';
     public $email_subject_reminder1 = '';
     public $email_subject_reminder2 = '';
@@ -177,9 +179,14 @@ class CompanySettings extends BaseSettings
     public $all_pages_header = true;
     public $all_pages_footer = true;
 
+    public $system_notifications_slack = '';
+    public $system_notifications_email = '';
+
     public $pdf_variables = [];
 
     public static $casts = [
+         'system_notifications_slack' => 'string',
+        'system_notifications_email' => 'string',
         'portal_design_id' => 'string',
         'fill_products' => 'bool',
         'update_products' => 'bool',
@@ -273,9 +280,11 @@ class CompanySettings extends BaseSettings
         'email_subject_invoice' => 'string',
         'email_subject_quote' => 'string',
         'email_subject_payment' => 'string',
+        'email_subject_order' => 'string',
         'email_template_invoice' => 'string',
         'email_template_quote' => 'string',
         'email_template_payment' => 'string',
+        'email_template_order' => 'string',
         'email_subject_reminder1' => 'string',
         'email_subject_reminder2' => 'string',
         'email_subject_reminder3' => 'string',

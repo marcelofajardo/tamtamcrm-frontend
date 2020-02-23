@@ -3,6 +3,7 @@
 namespace App\Jobs\Invoice;
 
 use App\Mail\DownloadInvoices;
+use App\Jobs\Utils\UnlinkFile;
 use App\Account;
 use App\Invoice;
 use Illuminate\Bus\Queueable;
@@ -10,18 +11,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use Illuminate\Support\Facades\Mail;
 
 class ZipInvoices implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoices;
+    private $invoices;
 
     private $account;
+
+    private $email;
 
     /**
      * @return void
@@ -29,11 +32,11 @@ class ZipInvoices implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct($invoices, Account $account)
+    public function __construct($invoices, Account $account, $email)
     {
         $this->invoices = $invoices;
-
         $this->account = $account;
+        $this->email = $email;
     }
 
     /**
@@ -68,8 +71,10 @@ class ZipInvoices implements ShouldQueue
         fclose($tempStream);
 
         //fire email here
-        Mail::to(config('taskmanager.contact.ninja_official_contact'))
+        Mail::to($this->email)
             ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path . $file_name)));
+
+        UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
 
     }
 }

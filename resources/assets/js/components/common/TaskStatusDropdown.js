@@ -22,7 +22,6 @@ export default class TaskStatusDropdown extends Component {
 
     renderErrorFor (field) {
         if (this.hasErrorFor(field)) {
-            alert('yes')
             return (
                 <span className='invalid-feedback d-block'>
                     <strong>{this.props.errors[field][0]}</strong>

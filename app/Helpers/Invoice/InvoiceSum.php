@@ -14,6 +14,7 @@ class InvoiceSum
 {
     use NumberFormatter;
     use Discounter;
+    use Taxer;
 
     protected $invoice;
 
@@ -49,7 +50,6 @@ class InvoiceSum
     public function build()
     {
         $this->calculateLineItems()
-            //->setTotal($this->invoice->total)
              ->calculateDiscount()
             //->calculateInvoiceTaxes()
              ->setTaxMap()->calculateTotals()->calculateBalance()->calculatePartial();
@@ -71,7 +71,9 @@ class InvoiceSum
     {
         if ($this->invoice->unit_tax > 0) {
             $tax = $this->taxer($this->total, $this->invoice->unit_tax);
+
             $this->total_taxes += $tax;
+
             $this->total_tax_map[] = [
                 'name' => $this->invoice->tax_rate_name . ' ' . $this->invoice->unit_tax . '%',
                 'total' => $tax

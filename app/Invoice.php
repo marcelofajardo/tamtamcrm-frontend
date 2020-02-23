@@ -52,6 +52,8 @@ class Invoice extends Model
         'total',
         'sub_total',
         'tax_total',
+        'tax_rate',
+        'tax_rate_name',
         'discount_total',
         'payment_type',
         'due_date',
@@ -174,6 +176,7 @@ class Invoice extends Model
     public function calc()
     {
         $invoice_calc = null;
+        
         if ($this->uses_inclusive_taxes) {
             $invoice_calc = new InvoiceSumInclusive($this);
         } else {

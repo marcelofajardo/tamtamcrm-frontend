@@ -132,7 +132,15 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getAccount()
     {
-        return $this->account;
+        if($this->account) {
+             return $this->account;
+        }
+
+         $account = Account::find($this->account);
+
+         if($account) {
+             return $account;
+         }
     }
 
     /**
@@ -174,6 +182,20 @@ class User extends Authenticatable implements JWTSubject
                       ->select('accounts.*', 'accounts.id AS account_id')->first();
     }
 
+    /**
+     * Returns a boolean of the administrator status of the user
+     *
+     * @return bool
+     */
+    public function isAdmin() : bool
+    {
+        return $this->account_user->is_admin;
+    }
+
+    public function isOwner() : bool
+    {
+        return $this->account_user->is_owner;
+    }
 
     /**
      * Returns the currently set company id for the user
@@ -219,5 +241,23 @@ class User extends Authenticatable implements JWTSubject
         }
 
         return '404. Provide some generic gravatar or default image.';
+    }
+
+    public function routeNotificationForSlack($notification)
+    {
+        //todo need to return the company channel here for hosted users
+        //else the env variable for selfhosted
+        if(config('taskmanager.environment') == 'selfhosted')
+            return config('taskmanager.notification.slack');
+
+        return $this->account()->settings->system_notifications_slack;
+
+        
+    }
+
+
+    public function routeNotificationForMail($notification)
+    {
+        return $this->email;
     }
 }

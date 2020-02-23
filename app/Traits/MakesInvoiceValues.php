@@ -447,7 +447,7 @@ trait MakesInvoiceValues
         }
 
         foreach ($this->calc()->getTotalTaxMap() as $tax) {
-            $data .= '<span>' . Number::formatMoney($tax['total'], $this->client) . '</span>';
+            $data .= '<span>' . Number::formatMoney($tax['total'], $this->customer) . '</span>';
         }
 
         return $data;
@@ -645,7 +645,7 @@ trait MakesInvoiceValues
         foreach ($this->calc()->getTotalTaxMap() as $tax) {
             $data .= '<tr class="total_taxes">';
             $data .= '<td>' . $tax['name'] . '</td>';
-            $data .= '<td>' . Number::formatMoney($tax['total'], $this->client) . '</td></tr>';
+            $data .= '<td>' . Number::formatMoney($tax['total'], $this->customer) . '</td></tr>';
         }
 
         return $data;

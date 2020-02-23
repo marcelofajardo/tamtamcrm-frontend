@@ -80,7 +80,9 @@ class CreditRepository extends BaseRepository implements CreditRepositoryInterfa
         $credit = $credit->calc()->getCredit();
         $credit->save();
 
-        $credit = $credit->service()->applyNumber()->save();
+        if(!$credit->number) {
+            $credit = $credit->service()->applyNumber()->save();
+        }
 
         return $credit->fresh();
     }

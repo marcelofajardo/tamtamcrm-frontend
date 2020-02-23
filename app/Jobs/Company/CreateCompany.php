@@ -43,6 +43,8 @@ class CreateCompany
         $company->subdomain = isset($this->request['domain']) ? $this->request['domain'] : config('ninja.site_url');
         $company->save();
 
+        //$company->notification(new NewAccountCreated($user, $company))->run();
+
         return $company;
     }
 }
