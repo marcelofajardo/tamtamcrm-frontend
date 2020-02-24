@@ -141,7 +141,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                         unset($invitation['id']);
                     }
 
-                    $new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+                    $new_invitation = InvoiceInvitationFactory::create($invoice->account_id, $invoice->user_id);
                     //$new_invitation->fill($invitation);
                     $new_invitation->invoice_id = $invoice->id;
                     $new_invitation->client_contact_id = $invitation['client_contact_id'];
