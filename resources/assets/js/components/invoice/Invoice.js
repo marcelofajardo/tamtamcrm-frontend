@@ -291,7 +291,7 @@ export default class Invoice extends Component {
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
-                                    data={this.state.cachedData}/>
+                            data={this.state.cachedData}/>
                     </FormGroup>
                 </Col>
 

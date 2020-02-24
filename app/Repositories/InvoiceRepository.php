@@ -118,18 +118,21 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
             $invitations = collect($data['invitations']);
 
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
-            collect($invoice->invitations->pluck('key'))->diff($invitations->pluck('key'))
-                                                        ->each(function ($invitation) {
-                                                            InvoiceInvitation::whereRaw("BINARY `key`= ?",
-                                                                [$invitation])->delete();
-                                                        });
+            $invoice->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) {
+
+                $invite = $this->getInvitationByKey($invitation);
+
+                if ($invite) {
+                    $invite->forceDelete();
+                }
+
+            });
 
             foreach ($data['invitations'] as $invitation) {
                 $inv = false;
 
                 if (array_key_exists('key', $invitation)) {
-                    // $inv = InvoiceInvitation::whereKey($invitation['key'])->first();
-                    $inv = InvoiceInvitation::whereRaw("BINARY `key`= ?", [$invitation['key']])->first();
+                    $inv = $this->getInvitationByKey($invitation['key']);
                 }
 
                 if (!$inv) {
@@ -138,7 +141,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                         unset($invitation['id']);
                     }
 
-                    $new_invitation = InvoiceInvitationFactory::create($invoice->account_id, $invoice->user_id);
+                    $new_invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
                     //$new_invitation->fill($invitation);
                     $new_invitation->invoice_id = $invoice->id;
                     $new_invitation->client_contact_id = $invitation['client_contact_id'];
@@ -147,6 +150,7 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 }
             }
         }
+
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($invoice->invitations->count() == 0) {
             $invoice->service()->createInvitations();

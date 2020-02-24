@@ -50,6 +50,8 @@ class Quote extends Model
         'total',
         'sub_total',
         'tax_total',
+        'tax_rate',
+        'tax_rate_name',
         'discount_total',
         'payment_type',
         'due_date',

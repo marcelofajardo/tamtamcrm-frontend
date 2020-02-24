@@ -2,18 +2,18 @@
 
 namespace App\Transformations;
 
-use App\Invoice;
-use App\InvoiceInvitation;
+use App\CreditInvitation;
 
-class InvoiceInvitationTransformable
+class CreditInvitationTransformable
 {
+
     /**
-     * @param InvoiceInvitation $invitation
-     * @return InvoiceInvitation
+     * @param CreditInvitation $invitation
+     * @return CreditInvitation
      */
-    public function transformInvoiceInvitation(InvoiceInvitation $invitation)
+    public function transformCreditInvitation(CreditInvitation $invitation)
     {
-        $prop = new InvoiceInvitation;
+        $prop = new CreditInvitation;
 
         $prop->id = (int)$invitation->id;
         $prop->client_contact_id = (int)$invitation->client_contact_id;

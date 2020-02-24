@@ -53,6 +53,8 @@ class CreateRecurringInvoicesTable extends Migration {
 			$table->string('custom_value3')->nullable();
 			$table->string('custom_value4')->nullable();
 			$table->text('private_notes', 65535)->nullable();
+            $table->decimal('tax_rate', 13, 3)->default(0.000);
+            $table->string('tax_rate_name')->nullable();
 		});
 	}
 

@@ -45,6 +45,8 @@ class CreateCreditsTable extends Migration {
 			$table->decimal('discount_total', 16, 4)->default(0.0000);
 			$table->decimal('tax_total', 16, 4)->default(0.0000);
 			$table->text('private_notes', 65535)->nullable();
+            $table->decimal('tax_rate', 13, 3)->default(0.000);
+            $table->string('tax_rate_name')->nullable();
 			$table->unique(['account_id','number']);
 		});
 	}

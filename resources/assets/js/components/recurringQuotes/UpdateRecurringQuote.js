@@ -24,7 +24,7 @@ class UpdateRecurringQuote extends Component {
             custom_value3: this.props.invoice.custom_value3,
             custom_value4: this.props.invoice.custom_value4,
             public_notes: this.props.invoice.public_notes,
-            private_notes: this.props.invoice.private_notes,
+            private_notes: this.props.invoice.private_notes
         }
 
         this.initialState = this.state

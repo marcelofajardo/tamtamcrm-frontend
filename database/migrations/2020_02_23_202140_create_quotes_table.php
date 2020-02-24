@@ -55,6 +55,8 @@ class CreateQuotesTable extends Migration {
 			$table->string('custom_value4')->nullable();
 			$table->date('last_sent_date')->nullable();
 			$table->integer('invoice_id')->unsigned()->nullable();
+            $table->decimal('tax_rate', 13, 3)->default(0.000);
+            $table->string('tax_rate_name')->nullable();
 		});
 	}
 
