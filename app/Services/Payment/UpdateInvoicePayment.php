@@ -4,13 +4,15 @@ namespace App\Services\Payment;
 
 use App\Invoice;
 use App\Jobs\Utils\SystemLogger;
+use App\Payment;
 use App\SystemLog;
+use Exception;
 
 class UpdateInvoicePayment
 {
     public $payment;
 
-    public function __construct($payment)
+    public function __construct(Payment $payment)
     {
         $this->payment = $payment;
     }
@@ -85,7 +87,7 @@ class UpdateInvoicePayment
                 ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_PAYMENT_RECONCILIATION_FAILURE,
                     SystemLog::TYPE_LEDGER, $this->payment->customer);
 
-                throw new \Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total} reversing payment");
+                throw new Exception("payment amount {$this->payment->amount} does not match invoice totals {$invoices_total} reversing payment");
 
                 $this->payment->invoice()->delete();
                 $this->payment->is_deleted = true;

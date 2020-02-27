@@ -16,6 +16,7 @@ use App\Repositories\ProjectRepository;
 use App\Repositories\TaskRepository;
 use App\User;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Task;
@@ -113,6 +114,20 @@ class TaskController extends Controller
     {
         $task = $this->task_repo->findTaskById($task_id);
         $task = SaveTaskTimes::dispatchNow($request->all(), $task);
+        return response()->json($task);
+    }
+
+    /**
+     * @param int $task_id
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function updateLead(int $task_id, Request $request)
+    {
+        $task = $this->task_repo->findTaskById($task_id);
+        $task = $task->service()->updateLead($request,
+            new CustomerRepository(new Customer, new ClientContactRepository(new ClientContact)), $this->task_repo,
+            true);
         return response()->json($task);
     }
 

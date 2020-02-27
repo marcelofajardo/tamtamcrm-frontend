@@ -8,6 +8,7 @@ use App\Helpers\Invoice\Discounter;
 use App\Helpers\Invoice\InvoiceItemSum;
 use App\Helpers\Invoice\InvoiceItemSumInclusive;
 use App\Helpers\Invoice\Taxer;
+use App\Models\Invoice;
 use App\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
 
@@ -41,7 +42,7 @@ class InvoiceSumInclusive
     /**
      * Constructs the object with Invoice and Settings object
      *
-     * @param \App\Models\Invoice $invoice The invoice
+     * @param Invoice $invoice The invoice
      */
     public function __construct($invoice)
     {
@@ -170,6 +171,21 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    public function getQuote()
+    {
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
+
+        return $this->invoice;
+    }
+
+    public function getCredit()
+    {
+        $this->setCalculatedAttributes();
+        $this->invoice->save();
+
+        return $this->invoice;
+    }
 
     /**
      * Build $this->invoice variables after

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { func } from 'prop-types'
 import ContactInputs from './ContactInputs'
 import { Button } from 'reactstrap'
 
@@ -13,11 +12,6 @@ export default class Contact extends Component {
         this.handleChange = this.handleChange.bind(this)
         this.addContact = this.addContact.bind(this)
         this.removeContact = this.removeContact.bind(this)
-    }
-
-    componentDidMount () {
-        // console.log('contacts', this.props.contacts)
-        // this.props.onChange(this.props.contacts)
     }
 
     handleChange (e) {

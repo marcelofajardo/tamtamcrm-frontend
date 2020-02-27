@@ -75,6 +75,7 @@ class RecurringInvoice extends Model
         'custom_value4',
         'tax_rate_name',
         'tax_rate',
+        'settings',
     ];
     protected $casts = [
         'settings' => 'object',

@@ -366,9 +366,13 @@ export default class Invoice extends Component {
                     </CardBody>
                 </Card>
 
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
+                <ViewEntity
+                    ignore={[]} toggle={this.toggleViewedEntity}
+                    title={view.title}
                     viewed={view.viewMode}
-                    entity={view.viewedId}/>
+                    entity={view.viewedId}
+                    entity_type="Invoice"
+                />
             </div>
         )
     }

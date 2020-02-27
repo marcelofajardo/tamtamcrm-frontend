@@ -100,6 +100,12 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
     {
         /* Always carry forward the initial invoice amount this is important for tracking client balance changes later......*/
         $starting_amount = $invoice->total;
+
+        if (!$invoice->id) {
+            $customer = Customer::find($data['customer_id']);
+            $invoice->uses_inclusive_taxes = $customer->getSetting('inclusive_taxes');
+        }
+
         $invoice->fill($data);
 
         $invoice->save();
@@ -150,6 +156,8 @@ class InvoiceRepository extends BaseRepository implements InvoiceRepositoryInter
                 }
             }
         }
+
+        $invoice->load('invitations');
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($invoice->invitations->count() == 0) {

@@ -31,4 +31,13 @@ class UpdateCustomerRequest extends BaseFormRequest
         $input = $this->all();
     }
 
+    public function messages()
+    {
+        return [
+            'unique' => trans('validation.unique', ['attribute' => 'email']),
+            'email' => trans('validation.email', ['attribute' => 'email']),
+            'name.required' => trans('validation.required', ['attribute' => 'name']),
+            'required' => trans('validation.required', ['attribute' => 'email']),
+        ];
+    }
 }

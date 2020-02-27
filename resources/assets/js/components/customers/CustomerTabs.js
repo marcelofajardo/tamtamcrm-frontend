@@ -9,6 +9,7 @@ import {
     Card, CardBody, CardHeader
 } from 'reactstrap'
 import Contact from '../common/Contact'
+import NotesForm from './NotesForm'
 
 export default function CustomerTabs (props) {
     const setBilling = e => {
@@ -17,12 +18,6 @@ export default function CustomerTabs (props) {
             [e.target.name]: e.target.value
         })
     }
-
-    // const setContacts = contacts => {
-    //     setContactValues({ contacts: contacts })
-    // }
-
-    console.log('contacts', contacts)
 
     const setShipping = e => {
         setShippingValues({
@@ -53,96 +48,7 @@ export default function CustomerTabs (props) {
 
     const [errors, setErrors] = useState({})
 
-    const updateForm = event => {
-        const addresses = []
-        var innerObj = {}
-        innerObj.billing = billing
-        innerObj.shipping = shipping
-        addresses.push(innerObj)
-
-        axios.put(`/api/customers/${props.customer.id}`,
-            {
-                first_name: customer.first_name,
-                last_name: customer.last_name,
-                email: customer.email,
-                phone: customer.phone,
-                job_title: customer.job_title,
-                company_id: customer.company_id,
-                description: customer.description,
-                customer_type: customer.customer_type,
-                currency_id: customer.currency_id,
-                assigned_user: customer.assigned_user,
-                default_payment_method: customer.default_payment_method,
-                group_settings_id: customer.group_settings_id,
-                custom_value1: customer.custom_value1,
-                custom_value2: customer.custom_value2,
-                custom_value3: customer.custom_value3,
-                custom_value4: customer.custom_value4,
-                addresses: addresses,
-                contacts: contacts,
-                settings: settings
-            }
-        ).then(response => {
-            if (props.customers && props.customers.length) {
-                const index = props.customers.findIndex(customer => parseInt(customer.id) === props.customer.id)
-                props.customers[index] = response.data
-                props.action(props.customers)
-                props.toggle()
-            }
-        })
-            .catch((error) => {
-                setErrors(error.response.data.errors)
-            })
-    }
-
-    const submitForm = e => {
-        const addresses = []
-        var innerObj = {}
-        innerObj.billing = billing
-        innerObj.shipping = shipping
-        addresses.push(innerObj)
-
-        axios.post('/api/customers', {
-            first_name: customer.first_name,
-            group_settings_id: customer.group_settings_id,
-            last_name: customer.last_name,
-            email: customer.email,
-            phone: customer.phone,
-            job_title: customer.job_title,
-            company_id: customer.company_id,
-            description: customer.description,
-            customer_type: customer.customer_type,
-            currency_id: customer.currency_id,
-            assigned_user: customer.assigned_user,
-            default_payment_method: customer.default_payment_method,
-            custom_value1: customer.custom_value1,
-            custom_value2: customer.custom_value2,
-            custom_value3: customer.custom_value3,
-            custom_value4: customer.custom_value4,
-            addresses: addresses,
-            contacts: contacts,
-            settings: settings
-        })
-            .then((response) => {
-                const newCustomer = response.data
-                props.customers.push(newCustomer)
-                props.action(props.customers)
-                toast.success('user mappings updated successfully')
-                props.toggle()
-            })
-            .catch((error) => {
-                setErrors(error.response.data.errors)
-                toast.error('Unable to update user mappings')
-            })
-    }
-
     const [activeTab, setActiveTab] = useState('1')
-
-    // const [contacts, setContactValues] = useState({
-    //     contacts: props.customer && props.customer.contacts ? props.customer.contacts : []
-    // }, () => {
-    //     console.log('contacts 22', contacts)
-    // })
 
     const [contacts, setContacts] = useState(props.customer && props.customer.contacts ? props.customer.contacts : [])
 
@@ -161,7 +67,12 @@ export default function CustomerTabs (props) {
         custom_value1: props.customer ? props.customer.custom_value1 : '',
         custom_value2: props.customer ? props.customer.custom_value2 : '',
         custom_value3: props.customer ? props.customer.custom_value3 : '',
-        custom_value4: props.customer ? props.customer.custom_value4 : ''
+        custom_value4: props.customer ? props.customer.custom_value4 : '',
+        public_notes: props.customer ? props.customer.public_notes : '',
+        private_notes: props.customer ? props.customer.private_notes : '',
+        website: props.customer ? props.customer.website : '',
+        size_id: props.customer ? props.customer.size_id : null,
+        industry_id: props.customer ? props.customer.industry_id : null
     })
 
     const [settings, setSettingValues] = useState({
@@ -184,6 +95,86 @@ export default function CustomerTabs (props) {
         country_id: props.customer && props.customer.shipping ? props.customer.shipping.country_id : 225
     })
 
+    const cleanContacts = contacts => {
+        const removeEmpty = (obj) => {
+            Object.keys(obj).forEach(k =>
+                ((obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k])) ||
+                ((!obj[k] && obj[k] !== undefined) && delete obj[k])
+            )
+            return obj
+        }
+
+        return removeEmpty(contacts).filter(value => Object.keys(value).length >= 4)
+    }
+
+    const getFormData = () => {
+        const addresses = []
+        const innerObj = {}
+        innerObj.billing = billing
+        innerObj.shipping = shipping
+        addresses.push(innerObj)
+
+        // eslint-disable-next-line no-use-before-define
+        const contacts = contacts[0] && Object.keys(contacts[0]).length ? cleanContacts(contacts) : []
+
+        return {
+            first_name: customer.first_name,
+            last_name: customer.last_name,
+            email: customer.email,
+            phone: customer.phone,
+            job_title: customer.job_title,
+            company_id: customer.company_id,
+            description: customer.description,
+            public_notes: customer.public_notes,
+            private_notes: customer.private_notes,
+            website: customer.website,
+            customer_type: customer.customer_type,
+            currency_id: customer.currency_id,
+            size_id: customer.size_id,
+            industry_id: customer.industry_id,
+            assigned_user: customer.assigned_user,
+            default_payment_method: customer.default_payment_method,
+            group_settings_id: customer.group_settings_id,
+            custom_value1: customer.custom_value1,
+            custom_value2: customer.custom_value2,
+            custom_value3: customer.custom_value3,
+            custom_value4: customer.custom_value4,
+            addresses: addresses,
+            contacts: contacts,
+            settings: settings
+        }
+    }
+
+    const updateForm = () => {
+        axios.put(`/api/customers/${props.customer.id}`, getFormData()
+        ).then(response => {
+            if (props.customers && props.customers.length) {
+                const index = props.customers.findIndex(customer => parseInt(customer.id) === props.customer.id)
+                props.customers[index] = response.data
+                props.action(props.customers)
+                props.toggle()
+            }
+        })
+            .catch((error) => {
+                setErrors(error.response.data.errors)
+            })
+    }
+
+    const submitForm = () => {
+        axios.post('/api/customers', getFormData())
+            .then((response) => {
+                const newCustomer = response.data
+                props.customers.push(newCustomer)
+                props.action(props.customers)
+                toast.success('user mappings updated successfully')
+                props.toggle()
+            })
+            .catch((error) => {
+                setErrors(error.response.data.errors)
+                toast.error('Unable to update user mappings')
+            })
+    }
+
     const method = props.type === 'add' ? submitForm : updateForm
 
     return (
@@ -203,37 +194,58 @@ export default function CustomerTabs (props) {
 
                 <NavItem>
                     <NavLink className={activeTab === '3' ? 'active' : ''} onClick={() => setActiveTab('3')}>
-                        Settings
+                        Notes
                     </NavLink>
                 </NavItem>
 
                 <NavItem>
                     <NavLink className={activeTab === '4' ? 'active' : ''} onClick={() => setActiveTab('4')}>
+                        Settings
+                    </NavLink>
+                </NavItem>
+
+                <NavItem>
+                    <NavLink className={activeTab === '5' ? 'active' : ''} onClick={() => setActiveTab('5')}>
                         Billing Address
                     </NavLink>
                 </NavItem>
 
                 <NavItem>
-                    <NavLink className={activeTab == '5' ? 'active' : ''} onClick={() => setActiveTab('5')}>
-                       Shipping Address
+                    <NavLink className={activeTab == '6' ? 'active' : ''} onClick={() => setActiveTab('6')}>
+                        Shipping Address
                     </NavLink>
                 </NavItem>
             </Nav>
 
             <TabContent activeTab={activeTab}>
                 <TabPane tabId="1">
-                    <CustomerForm custom_fields={props.custom_fields} errors={errors} onChange={setCustomer} customer={customer}/>
+                    <CustomerForm custom_fields={props.custom_fields} errors={errors} onChange={setCustomer}
+                        customer={customer}/>
                 </TabPane>
 
                 <TabPane tabId="2">
-                    <Contact errors={errors} onChange={setContacts} contacts={contacts}/>
+                    <Card>
+                        <CardHeader>Contacts</CardHeader>
+                        <CardBody>
+                            <Contact errors={errors} onChange={setContacts} contacts={contacts}/>
+                        </CardBody>
+                    </Card>
                 </TabPane>
 
                 <TabPane tabId="3">
-                    <SettingsForm onChange={setSettings} customer={customer} settings={settings}/>
+                    <Card>
+                        <CardHeader>Notes</CardHeader>
+                        <CardBody>
+                            <NotesForm errors={errors} onChange={setCustomer} customer={customer}/>
+                        </CardBody>
+                    </Card>
                 </TabPane>
 
                 <TabPane tabId="4">
+                    <SettingsForm onChange={setSettings} customer={customer} settings={settings}/>
+                </TabPane>
+
+                <TabPane tabId="5">
                     <Card>
                         <CardHeader>Addresses</CardHeader>
                         <CardBody>
@@ -241,7 +253,7 @@ export default function CustomerTabs (props) {
                         </CardBody>
                     </Card>
                 </TabPane>
-                <TabPane tabId="5">
+                <TabPane tabId="6">
                     <Card>
                         <CardHeader>Addresses</CardHeader>
                         <CardBody>
