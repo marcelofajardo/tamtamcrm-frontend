@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\CompanySettings;
 use App\Factory\UserFactory;
 use App\Filters\UserFilter;
 use App\User;
@@ -113,8 +114,8 @@ class UserController extends Controller
 
     public function destroy(int $id)
     {
-        $user = User::withTrashed()->where('id', '=', $id)->first();
-        $this->user_repo->newDelete($user);
+        $user = $this->user_repo->findUserById($id);
+        $this->user_repo->destroy($user);
         return response()->json([], 200);
     }
 
@@ -202,4 +203,17 @@ class UserController extends Controller
         return response()->json([], 200);
     }
 
+    public function attach(AttachCompanyUserRequest $request, User $user)
+    {
+        $company = auth()->user()->account_user()->account;
+
+        $user->companies()->attach($company->id, array_merge($request->all(), [
+            'domain_id' => $company->domain->id,
+            'notifications' => CompanySettings::notificationDefaults(),
+        ]));
+
+        //$ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
+
+        return response()->json($user->fresh());
+    }
 }

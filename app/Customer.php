@@ -4,6 +4,9 @@ namespace App;
 
 use App\DataMapper\CompanySettings;
 use App\DataMapper\CustomerSettings;
+use App\Factory\CreditFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\QuoteFactory;
 use App\Traits\GeneratesCounter;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -36,12 +39,10 @@ class Customer extends Model implements HasLocalePreference
      */
     protected $fillable = [
         'id_number',
-        'first_name',
+        'name',
         'credits',
         'last_name',
-        'email',
         'status',
-        'job_title',
         'company_id',
         'currency_id',
         'phone',
@@ -239,10 +240,9 @@ class Customer extends Model implements HasLocalePreference
     {
 
         /*Client Settings*/
-        if ($this->settings && (property_exists($this->settings, $setting) !== false) &&
-            (isset($this->settings->{$setting}) !== false)) {
+        if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
             /*need to catch empty string here*/
-            if (iconv_strlen($this->settings->{$setting}) >= 1) {
+            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
                 return $this->settings->{$setting};
             }
         }
@@ -251,13 +251,14 @@ class Customer extends Model implements HasLocalePreference
         if ($this->group_settings && (property_exists($this->group_settings->settings, $setting) !== false) &&
             (isset($this->group_settings->settings->{$setting}) !== false)) {
             return $this->group_settings->settings->{$setting};
+        } /*Company Settings*/ else {
+            if ((property_exists($this->account->settings, $setting) != false) &&
+                (isset($this->account->settings->{$setting}) !== false)) {
+                return $this->account->settings->{$setting};
+            }
         }
-        /*Company Settings*/
-        if ((property_exists($this->account->settings, $setting) != false) &&
-            (isset($this->account->settings->{$setting}) !== false)) {
-            return $this->account->settings->{$setting};
-        }
-        throw new Exception("Settings corrupted", 1);
+
+        throw new \Exception("Settings corrupted", 1);
     }
 
     public function getSettingEntity($setting)
@@ -411,17 +412,22 @@ class Customer extends Model implements HasLocalePreference
 
     public function invoice_filepath()
     {
-        return $this->id . '/invoices/';
+        return $this->account->id . '/' . $this->id . '/invoices/';
     }
 
     public function quote_filepath()
     {
-        return $this->id . '/quotes/';
+        return $this->account->id . '/' . $this->id . '/quotes/';
     }
 
     public function credit_filepath()
     {
-        return $this->id . '/credits/';
+        return $this->account->id . '/' . $this->id . '/credits/';
+    }
+
+    public function company_filepath()
+    {
+        return $this->account->id . '/';
     }
 
     /**
@@ -439,5 +445,28 @@ class Customer extends Model implements HasLocalePreference
     {
         return $this->gateway_tokens()->whereCompanyGatewayId($company_gateway_id)
                     ->whereGatewayTypeId($payment_method_id)->first();
+    }
+
+    public function setCompanyDefaults($data, $entity_name): array
+    {
+        $defaults = [];
+
+        if (!(array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
+            $defaults['terms'] = $this->getSetting($entity_name . '_terms');
+        } elseif (array_key_exists('terms', $data)) {
+            $defaults['terms'] = $data['terms'];
+        }
+
+        if (!(array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
+            $defaults['footer'] = $this->getSetting($entity_name . '_footer');
+        } elseif (array_key_exists('footer', $data)) {
+            $defaults['footer'] = $data['footer'];
+        }
+
+        if (strlen($this->public_notes) >= 1) {
+            $defaults['public_notes'] = $this->public_notes;
+        }
+
+        return $defaults;
     }
 }

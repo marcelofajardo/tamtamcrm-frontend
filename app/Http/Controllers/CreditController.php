@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Credit\CreditWasCreated;
 use App\Factory\CloneCreditFactory;
 use App\Factory\CloneCreditToQuoteFactory;
 use App\Filters\CreditFilter;
@@ -20,6 +21,7 @@ use App\Repositories\Interfaces\CreditRepositoryInterface;
 use App\Requests\SearchRequest;
 use App\Transformations\CreditTransformable;
 use App\Factory\CreditFactory;
+use App\Transformations\QuoteTransformable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Traits\CheckEntityStatus;
@@ -29,6 +31,7 @@ class CreditController extends Controller
 {
     use CreditTransformable;
     use CheckEntityStatus;
+    use QuoteTransformable;
 
     protected $credit_repo;
 
@@ -77,9 +80,11 @@ class CreditController extends Controller
     public function store(CreateCreditRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-        $credit = $this->credit_repo->save($request->all(),
-            CreditFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id, $request->total,
-                $customer, $customer->getMergedSettings()));
+        $company_defaults = $customer->setCompanyDefaults($request->all(), 'credit');
+        $data = array_merge($company_defaults, $request->all());
+        $credit = $this->credit_repo->save($data,
+            CreditFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id, $customer));
+        event(new CreditWasCreated($credit, $credit->account));
         return response()->json($this->transformCredit($credit));
     }
 
@@ -170,7 +175,7 @@ class CreditController extends Controller
             case 'clone_to_quote':
                 $quote = CloneCreditToQuoteFactory::create($credit, auth()->user()->id);
                 (new QuoteRepository(new Quote))->save($request->all(), $quote);
-                // todo build the quote transformer and return response here
+                return response()->json($this->transformQuote($quote));
                 break;
             case 'history':
                 # code...
@@ -190,10 +195,10 @@ class CreditController extends Controller
                 }
                 break;
             case 'mark_sent':
-                $credit->markSent();
+                $credit->service()->markSent()->save();
 
                 if (!$bulk) {
-                    return $this->itemResponse($credit);
+                    return response()->json($this->transformCredit($credit));
                 }
                 break;
             case 'download':
@@ -226,5 +231,17 @@ class CreditController extends Controller
                 return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
                 break;
         }
+    }
+
+    public function downloadPdf($invitation_key)
+    {
+        $invitation = $this->credit_repo->getInvitationByKey($invitation_key);
+        $contact = $invitation->contact;
+        $credit = $invitation->credit;
+
+        $file_path = $credit->service()->getCreditPdf($contact);
+
+        return response()->download($file_path);
+
     }
 }

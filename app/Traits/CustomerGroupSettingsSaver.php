@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Traits;
 
@@ -11,6 +20,7 @@ use stdClass;
  */
 trait CustomerGroupSettingsSaver
 {
+
     /**
      * Saves a setting object
      *
@@ -24,11 +34,15 @@ trait CustomerGroupSettingsSaver
         if (!$settings) {
             return;
         }
+
         $entity_settings = $this->settings;
+
         //unset protected properties.
         foreach (CompanySettings::$protected_fields as $field) {
             unset($settings[$field]);
         }
+
+
         /**
          * for clients and group settings, if a field is not set or is set to a blank value,
          * we unset it from the settings object
@@ -39,13 +53,18 @@ trait CustomerGroupSettingsSaver
                 unset($settings->{$key});
             }
         }
+
+
         $settings = $this->checkSettingType($settings);
+
         //iterate through set properties with new values;
         foreach ($settings as $key => $value) {
             $entity_settings->{$key} = $value;
         }
+
         $entity->settings = $entity_settings;
         $entity->save();
+
         return $entity_settings;
     }
 
@@ -62,36 +81,53 @@ trait CustomerGroupSettingsSaver
     {
         $settings = (object)$settings;
         $casts = CompanySettings::$casts;
+
         ksort($casts);
+
         foreach ($settings as $key => $value) {
             if (!isset($settings->{$key}) || empty($settings->{$key}) ||
                 (!is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
                 unset($settings->{$key});
             }
         }
+
         foreach ($casts as $key => $value) {
-            /*Separate loop if it is a _id field which is an integer cast as a string*/
-            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            if (in_array($key, SettingsSaver::$string_casts)) {
+                $value = "string";
+
+                if (!property_exists($settings, $key)) {
+                    continue;
+                } elseif (!$this->checkAttribute($value, $settings->{$key})) {
+                    return [$key, $value, $settings->{$key}];
+                }
+
+                continue;
+            } /*Separate loop if it is a _id field which is an integer cast as a string*/ elseif (substr($key, -3) ==
+                '_id' || substr($key, -14) == 'number_counter') {
                 $value = "integer";
 
                 if (!property_exists($settings, $key)) {
                     continue;
                 } elseif (!$this->checkAttribute($value, $settings->{$key})) {
-                    return [$key, $value];
+                    return [$key, $value, $settings->{$key}];
                 }
+
                 continue;
             }
+
             /* Handles unset settings or blank strings */
             if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
                 $settings->{$key} == '') {
                 continue;
             }
 
+
             /*Catch all filter */
             if (!$this->checkAttribute($value, $settings->{$key})) {
-                return [$key, $value];
+                return [$key, $value, $settings->{$key}];
             }
         }
+
         return true;
     }
 
@@ -106,12 +142,13 @@ trait CustomerGroupSettingsSaver
      * @param array $settings The settings request() array
      * @return object          stdClass object
      */
-    private function checkSettingType($settings): stdClass
+    private function checkSettingType($settings): \stdClass
     {
         $settings = (object)$settings;
         $casts = CompanySettings::$casts;
 
         foreach ($casts as $key => $value) {
+
             /*Separate loop if it is a _id field which is an integer cast as a string*/
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = "integer";
@@ -127,18 +164,22 @@ trait CustomerGroupSettingsSaver
                 } else {
                     unset($settings->{$key});
                 }
+
                 continue;
             }
+
             /* Handles unset settings or blank strings */
             if (!property_exists($settings, $key) || is_null($settings->{$key}) || !isset($settings->{$key}) ||
                 $settings->{$key} == '') {
                 continue;
             }
+
             /*Catch all filter */
             if ($this->checkAttribute($value, $settings->{$key})) {
                 if ($value == 'string' && is_null($settings->{$key})) {
                     $settings->{$key} = '';
                 }
+
                 settype($settings->{$key}, $value);
             } else {
                 unset($settings->{$key});
@@ -146,6 +187,7 @@ trait CustomerGroupSettingsSaver
         }
         return $settings;
     }
+
 
     /**
      * Type checks a object property.

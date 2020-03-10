@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\CloneInvoiceFactory;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Factory\CloneInvoiceToQuoteFactory;
@@ -10,9 +11,12 @@ use App\Factory\NotificationFactory;
 use App\Jobs\Order\InvoiceOrders;
 use App\Jobs\RecurringInvoice\SaveRecurringInvoice;
 use App\Notification;
+use App\Payment;
 use App\Quote;
 use App\Repositories\NotificationRepository;
 use App\Repositories\QuoteRepository;
+use App\Transformations\QuoteTransformable;
+use App\Utils\Number;
 use Exception;
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\InvoiceRepositoryInterface;
@@ -28,15 +32,16 @@ use App\Filters\InvoiceFilter;
 use App\Repositories\TaskRepository;
 use App\Task;
 use App\Traits\CheckEntityStatus;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
 
-    use InvoiceTransformable, CheckEntityStatus;
+    use InvoiceTransformable, CheckEntityStatus, QuoteTransformable;
 
-    private $invoiceRepository;
-    private $invoiceLineRepository;
+    private $invoice_repo;
 
     /**
      * InvoiceController constructor.
@@ -72,24 +77,20 @@ class InvoiceController extends Controller
     public function store(CreateInvoiceRequest $request)
     {
         $customer = Customer::find($request->input('customer_id'));
-
-        $invoice = $this->invoice_repo->save($request->all(),
-            InvoiceFactory::create(auth()->user()->id, auth()->user()->account_user()->account_id, $customer,
-                $request->total, $customer->getMergedSettings()));
+        $company_defaults = $customer->setCompanyDefaults($request->all(), 'invoice');
+        $data = array_merge($company_defaults, $request->all());
+        $invoice = $this->invoice_repo->save($data,
+            InvoiceFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id, $customer));
         $invoice = StoreInvoice::dispatchNow($invoice, $request->all(),
             $invoice->account); //todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
         InvoiceOrders::dispatchNow($invoice);
-        $notification = NotificationFactory::create(auth()->user()->account_user()->account_id, auth()->user()->id);
-        (new NotificationRepository(new Notification))->save($notification, [
-            'data' => json_encode(['id' => $invoice->id, 'message' => 'A new invoice was created']),
-            'type' => 'App\Notifications\InvoiceCreated'
-        ]);
 
-
+        $invoice = StoreInvoice::dispatchNow($invoice, $request->all(),
+            $invoice->account);//todo potentially this may return mixed ie PDF/$invoice... need to revisit when we implement UI
+        event(new InvoiceWasCreated($invoice));
         SaveRecurringInvoice::dispatchNow($request, $invoice->account, $invoice);
 
-        $invoiceTransformed = $this->transformInvoice($invoice);
-        return $invoiceTransformed->toJson();
+        return response()->json($this->transformInvoice($invoice));
     }
 
     /**
@@ -148,10 +149,10 @@ class InvoiceController extends Controller
 
     public function action(Request $request, Invoice $invoice, $action)
     {
-        return $this->performAction($invoice, $request, $action);
+        return $this->performAction($request, $invoice, $action);
     }
 
-    private function performAction(Invoice $invoice, Request $request, $action, $bulk = false)
+    private function performAction(Request $request, Invoice $invoice, $action, $bulk = false)
     {
         switch ($action) {
             case 'clone_to_invoice':
@@ -163,7 +164,7 @@ class InvoiceController extends Controller
             case 'clone_to_quote':
                 $quote = CloneInvoiceToQuoteFactory::create($invoice, auth()->user()->id);
                 (new QuoteRepository(new Quote))->save($request->all(), $quote);
-                // todo build the quote transformer and return response here
+                return response()->json($this->transformQuote($quote));
                 break;
             case 'history':
                 break;
@@ -189,7 +190,8 @@ class InvoiceController extends Controller
             case 'download':
                 $disk = config('filesystems.default');
                 $content = Storage::disk($disk)->get($invoice->service()->getInvoicePdf(null));
-                return response()->json(['data' => base64_encode($content)]);
+                echo json_encode(['data' => base64_encode($content)]);
+                exit;
                 break;
             case 'archive':
                 $this->invoice_repo->archive($invoice);
@@ -255,9 +257,8 @@ class InvoiceController extends Controller
         return response()->json([], 200);
     }
 
-    public function bulk()
+    public function bulk(Request $request)
     {
-
         /*
          * WIP!
          */
@@ -288,8 +289,8 @@ class InvoiceController extends Controller
         }
 
 
-        $invoices->each(function ($invoice, $key) use ($action) {
-            $this->performAction($invoice, $action, true);
+        $invoices->each(function ($invoice, $key) use ($action, $request) {
+            $this->performAction($request, $invoice, $action, true);
         });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */

@@ -38,22 +38,17 @@ class CreateCreditPdf implements ShouldQueue
      */
     public function __construct($credit, Account $account, ClientContact $contact = null)
     {
-
         $this->credit = $credit;
-
         $this->account = $account;
-
         $this->contact = $contact;
-
         $this->disk = $disk ?? config('filesystems.default');
 
     }
 
     public function handle()
     {
-
         if (!$this->contact) {
-            $this->contact = $this->quote->customer->primary_contact()->first();
+            $this->contact = $this->credit->customer->primary_contact()->first();
         }
 
         App::setLocale($this->contact->preferredLocale());
@@ -64,26 +59,23 @@ class CreateCreditPdf implements ShouldQueue
 
         $design = Design::find($this->credit->customer->getSetting('credit_design_id'));
 
-        if ($design->is_custom) {
-            $credit_design = new Custom($design->design);
-        } else {
-            $class = 'App\Designs\\' . $design->name;
-            $credit_design = new $class();
-        }
+        $designer =
+            new Designer($this->credit, $design, $this->credit->customer->getSetting('pdf_variables'), 'credit');
 
-        $designer = new Designer($credit_design, $this->credit->customer->getSetting('pdf_variables'), 'credit');
+        //get invoice design
+        $html = $this->generateEntityHtml($designer, $this->credit, $this->contact);
 
-//get invoice design
-        $html = $this->generateInvoiceHtml($designer->build($this->credit)->getHtml(), $this->credit, $this->contact);
-
-//todo - move this to the client creation stage so we don't keep hitting this unnecessarily
+        //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
         Storage::makeDirectory($path, 0755);
 
-//\Log::error($html);
+        //\Log::error($html);
         $pdf = $this->makePdf(null, null, $html);
 
         $instance = Storage::disk($this->disk)->put($file_path, $pdf);
 
+        //$instance= Storage::disk($this->disk)->path($file_path);
+        //
         return $file_path;
     }
+
 }

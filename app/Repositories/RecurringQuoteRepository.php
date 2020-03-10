@@ -40,8 +40,8 @@ class RecurringQuoteRepository extends BaseRepository
 
         $quote->save();
 
-        //fire events here that cascading from the saving of an invoice
-        //ie. client balance update...
+//fire events here that cascading from the saving of an invoice
+//ie. client balance update...
 
         return $quote;
     }

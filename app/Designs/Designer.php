@@ -1,14 +1,24 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Designs;
 
 use App\Account;
-use App\Invoice;
 
 class Designer
 {
 
-    protected $design;
+    public $design;
+
+    public $design_name;
 
     protected $input_variables;
 
@@ -17,6 +27,8 @@ class Designer
     protected $html;
 
     protected $entity_string;
+
+    protected $entity;
 
     private static $custom_fields = [
         'invoice1',
@@ -41,10 +53,13 @@ class Designer
         'company4',
     ];
 
-    public function __construct($design, $input_variables, $entity_string)
+    public function __construct($entity, $design, $input_variables, $entity_string)
     {
+        $this->entity = $entity;
 
-        $this->design = $design;
+        $this->design = $design->design;
+
+        $this->design_name = property_exists($design, 'name') ? lcfirst($design->name) : 'custom';
 
         $this->input_variables = (array)$input_variables;
 
@@ -57,24 +72,76 @@ class Designer
      * formatted HTML
      * @return string The HTML design built
      */
-    public function build($entity): Designer
+    public function build(): Designer
     {
 
-        $this->exportVariables($entity)->setDesign($this->getSection('header'))->setDesign($this->getSection('body'))
-             ->setDesign($this->getTable($entity))->setDesign($this->getSection('footer'));
+        $this->setHtml()->exportVariables()->setDesign($this->getSection('includes'))
+             ->setDesign($this->getSection('header'))->setDesign($this->getSection('body'))
+             ->setDesign($this->getProductTable($this->entity))->setDesign($this->getSection('footer'));
 
         return $this;
 
     }
 
-    public function getTable($entity): string
+    public function init()
+    {
+        $this->setHtml()->exportVariables();
+
+        return $this;
+    }
+
+    public function getIncludes()
+    {
+        $this->setDesign($this->getSection('includes'));
+
+        return $this;
+    }
+
+    public function getHeader()
     {
 
-        $table_header = $entity->table_header($this->input_variables['table_columns'], $this->design->table_styles());
-        $table_body = $entity->table_body($this->input_variables['table_columns'], $this->design->table_styles());
+        $this->setDesign($this->getSection('header'));
 
-        $data = str_replace('$table_header', $table_header, $this->getSection('table'));
-        $data = str_replace('$table_body', $table_body, $data);
+        return $this;
+    }
+
+    public function getFooter()
+    {
+
+        $this->setDesign($this->getSection('footer'));
+
+        return $this;
+    }
+
+    public function getBody()
+    {
+
+        $this->setDesign($this->getSection('body'));
+
+        return $this;
+    }
+
+    public function getProductTable(): string
+    {
+
+        $table_header = $this->entity->table_header($this->input_variables['product_columns']);
+        $table_body = $this->entity->table_body($this->input_variables['product_columns']);
+
+        $data = str_replace('$product_table_header', $table_header, $this->getSection('product'));
+        $data = str_replace('$product_table_body', $table_body, $data);
+
+        return $data;
+
+    }
+
+    public function getTaskTable(): string
+    {
+
+        $table_header = $this->entity->table_header($this->input_variables['task_columns']);
+        $table_body = $this->entity->table_body($this->input_variables['task_columns']);
+
+        $data = str_replace('$task_table_header', $table_header, $this->getSection('task'));
+        $data = str_replace('$task_table_body', $table_body, $data);
 
         return $data;
 
@@ -83,6 +150,13 @@ class Designer
     public function getHtml(): string
     {
         return $this->html;
+    }
+
+    public function setHtml()
+    {
+        $this->html = '';
+
+        return $this;
     }
 
     private function setDesign($section)
@@ -103,45 +177,45 @@ class Designer
     public function getSection($section): string
     {
         return str_replace(array_keys($this->exported_variables), array_values($this->exported_variables),
-            $this->design->{$section}());
+            $this->design->{$section});
     }
 
-    private function exportVariables($entity)
+    private function exportVariables()
     {
 
-        $company = $entity->account;
+        $account = $this->entity->account;
 
         $this->exported_variables['$client_details'] =
-            $this->processVariables($this->processInputVariables($company, $this->input_variables['client_details']),
-                $this->clientDetails($company));
+            $this->processVariables($this->processInputVariables($account, $this->input_variables['client_details']),
+                $this->clientDetails($account));
         $this->exported_variables['$company_details'] =
-            $this->processVariables($this->processInputVariables($company, $this->input_variables['company_details']),
-                $this->companyDetails($company));
+            $this->processVariables($this->processInputVariables($account, $this->input_variables['company_details']),
+                $this->companyDetails($account));
         $this->exported_variables['$company_address'] =
-            $this->processVariables($this->processInputVariables($company, $this->input_variables['company_address']),
-                $this->companyAddress($company));
+            $this->processVariables($this->processInputVariables($account, $this->input_variables['company_address']),
+                $this->companyAddress($account));
 
         if ($this->entity_string == 'invoice') {
             $this->exported_variables['$entity_labels'] =
-                $this->processLabels($this->processInputVariables($company, $this->input_variables['invoice_details']),
-                    $this->invoiceDetails($company));
+                $this->processLabels($this->processInputVariables($account, $this->input_variables['invoice_details']),
+                    $this->invoiceDetails($account));
             $this->exported_variables['$entity_details'] =
-                $this->processVariables($this->processInputVariables($company,
-                    $this->input_variables['invoice_details']), $this->invoiceDetails($company));
+                $this->processVariables($this->processInputVariables($account,
+                    $this->input_variables['invoice_details']), $this->invoiceDetails($account));
         } elseif ($this->entity_string == 'credit') {
             $this->exported_variables['$entity_labels'] =
-                $this->processLabels($this->processInputVariables($company, $this->input_variables['credit_details']),
-                    $this->creditDetails($company));
+                $this->processLabels($this->processInputVariables($account, $this->input_variables['credit_details']),
+                    $this->creditDetails($account));
             $this->exported_variables['$entity_details'] =
-                $this->processVariables($this->processInputVariables($company,
-                    $this->input_variables['credit_details']), $this->creditDetails($company));
+                $this->processVariables($this->processInputVariables($account,
+                    $this->input_variables['credit_details']), $this->creditDetails($account));
         } elseif ($this->entity_string == 'quote') {
             $this->exported_variables['$entity_labels'] =
-                $this->processLabels($this->processInputVariables($company, $this->input_variables['quote_details']),
-                    $this->quoteDetails($company));
+                $this->processLabels($this->processInputVariables($account, $this->input_variables['quote_details']),
+                    $this->quoteDetails($account));
             $this->exported_variables['$entity_details'] =
-                $this->processVariables($this->processInputVariables($company, $this->input_variables['quote_details']),
-                    $this->quoteDetails($company));
+                $this->processVariables($this->processInputVariables($account, $this->input_variables['quote_details']),
+                    $this->quoteDetails($account));
         }
         return $this;
     }
@@ -173,36 +247,7 @@ class Designer
         return $output;
     }
 
-    // private function exportVariables()
-    // {
-    // 	/*
-    // 	 * $entity_labels
-    // 	 * $entity_details
-    // 	 */
-    // 	$header = $this->design->header();
-
-    // 	/*
-    // 	 * $company_logo - full URL
-    // 	 * $client_details
-    // 	 */
-    // 	$body = $this->design->body();
-
-    // 	/*
-    // 	 * $table_header
-    // 	 * $table_body
-    // 	 * $total_labels
-    // 	 * $total_values
-    // 		 */
-    // 	$table = $this->design->table();
-
-    // 	/*
-    // 	 * $company_details
-    // 	 * $company_address
-    // 	 */
-    // 	$footer = $this->design->footer();
-    // }
-
-    private function clientDetails(Account $company)
+    private function clientDetails(Account $account)
     {
 
         $data = [
@@ -225,49 +270,49 @@ class Designer
             'contact4' => '<p>$contact4</p>',
         ];
 
-        return $this->processCustomFields($company, $data);
+        return $this->processCustomFields($account, $data);
     }
 
-    private function companyDetails(Account $company)
+    private function companyDetails(Account $account)
     {
 
         $data = [
-            'company_name' => '<span>$company.company_name</span>',
-            'id_number' => '<span>$company.id_number</span>',
-            'vat_number' => '<span>$company.vat_number</span>',
-            'website' => '<span>$company.website</span>',
-            'email' => '<span>$company.email</span>',
-            'phone' => '<span>$company.phone</span>',
+            'company_name' => '<span>$account.company_name</span>',
+            'id_number' => '<span>$account.id_number</span>',
+            'vat_number' => '<span>$account.vat_number</span>',
+            'website' => '<span>$account.website</span>',
+            'email' => '<span>$account.email</span>',
+            'phone' => '<span>$account.phone</span>',
             'company1' => '<span>$company1</span>',
             'company2' => '<span>$company2</span>',
             'company3' => '<span>$company3</span>',
             'company4' => '<span>$company4</span>',
         ];
 
-        return $this->processCustomFields($company, $data);
+        return $this->processCustomFields($account, $data);
 
     }
 
-    private function companyAddress(Account $company)
+    private function companyAddress(Account $account)
     {
 
         $data = [
-            'address1' => '<span>$company.address1</span>',
-            'address2' => '<span>$company.address1</span>',
-            'city_state_postal' => '<span>$company.city_state_postal</span>',
-            'postal_city_state' => '<span>$company.postal_city_state</span>',
-            'country' => '<span>$company.country</span>',
+            'address1' => '<span>$account.address1</span>',
+            'address2' => '<span>$account.address1</span>',
+            'city_state_postal' => '<span>$account.city_state_postal</span>',
+            'postal_city_state' => '<span>$account.postal_city_state</span>',
+            'country' => '<span>$account.country</span>',
             'company1' => '<span>$company1</span>',
             'company2' => '<span>$company2</span>',
             'company3' => '<span>$company3</span>',
             'company4' => '<span>$company4</span>',
         ];
 
-        return $this->processCustomFields($company, $data);
+        return $this->processCustomFields($account, $data);
 
     }
 
-    private function invoiceDetails(Account $company)
+    private function invoiceDetails(Account $account)
     {
 
         $data = [
@@ -288,11 +333,11 @@ class Designer
             'surcharge4' => '<span>$surcharge4</span>',
         ];
 
-        return $this->processCustomFields($company, $data);
+        return $this->processCustomFields($account, $data);
 
     }
 
-    private function quoteDetails(Account $company)
+    private function quoteDetails(Account $account)
     {
 
         $data = [
@@ -313,11 +358,11 @@ class Designer
             'surcharge4' => '<span>$surcharge4</span>',
         ];
 
-        return $this->processCustomFields($company, $data);
+        return $this->processCustomFields($account, $data);
 
     }
 
-    private function creditDetails(Account $company)
+    private function creditDetails(Account $account)
     {
 
         $data = [
@@ -337,17 +382,17 @@ class Designer
             'surcharge4' => '<span>$surcharge4</span>',
         ];
 
-        return $this->processCustomFields($company, $data);
+        return $this->processCustomFields($account, $data);
 
     }
 
-    private function processCustomFields(Account $company, $data)
+    private function processCustomFields(Account $account, $data)
     {
 
-        $custom_fields = $company->custom_fields;
+        $custom_fields = $account->custom_fields;
 
         if (!$custom_fields) {
-            return [];
+            return $data;
         }
 
         foreach (self::$custom_fields as $cf) {
@@ -362,10 +407,10 @@ class Designer
 
     }
 
-    private function processInputVariables($company, $variables)
+    private function processInputVariables($account, $variables)
     {
 
-        $custom_fields = $company->custom_fields;
+        $custom_fields = $account->custom_fields;
 
         $matches = array_intersect(self::$custom_fields, $variables);
 

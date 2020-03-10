@@ -39,17 +39,19 @@ class TaskService
     }
 
     /**
-     * converts a lead to a deal
-     * @param ClientContactRepository $client_contact_repo
-     * @return $this
+     * @param Request $request
+     * @param CustomerRepository $customer_repo
+     * @param TaskRepository $task_repo
+     * @param bool $is_deal
+     * @return Invoice|InvoiceSum|Task|null
      */
-    public function convertLead()
+    public function sendEmail()
     {
-        $convert_lead = new ConvertLead($this->task);
+        $send_email = new SendEmail($this->task);
 
-        $this->task = $convert_lead->run();
+        $this->task = $send_email->run();
 
-        return $this;
+        return $this->task;
     }
 
     /**

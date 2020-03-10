@@ -7,6 +7,7 @@ use App\Jobs\Company\CreateCompany;
 //use App\Jobs\Account\CreateCompanyToken;
 use App\Jobs\User\CreateUser;
 use App\Domain;
+use App\Notifications\Ninja\NewAccountCreated;
 use App\User;
 use App\Notifications\NewDomainCreated;
 use App\Utils\Traits\UserSessionAttributes;
@@ -62,11 +63,12 @@ class CreateDomain
         if ($user) {
             auth()->login($user, false);
         }
+
         $user->setAccount($account);
         /*
          * Create token
          */ //$user_agent = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
-        //$company_token = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
+//$company_token = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
         /*
          * Fire related events
          */
@@ -75,8 +77,8 @@ class CreateDomain
         }
 
         $user->fresh();
-        /*Notification::route('slack', config('ninja.notification.slack'))
-                    ->notify(new NewAccountCreated($user, $company));*/
+
+        $account->notification(new NewAccountCreated($user, $account))->ninja();
         return $domain;
     }
 }

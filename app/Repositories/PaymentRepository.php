@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Customer;
 use App\Jobs\Credit\ApplyCreditPayment;
 use App\Repositories\Base\BaseRepository;
 use App\Payment;
@@ -89,6 +90,11 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
+        //check currencies here and fill the exchange rate data if necessary
+        if (!$payment->id) {
+            $this->processExchangeRates($data, $payment);
+        }
+
         $payment->fill($data);
 
         $payment->status_id = Payment::STATUS_COMPLETED;
@@ -160,6 +166,27 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         $payment->save();
 
         return $payment->fresh();
+    }
+
+    /**
+     * If the client is paying in a currency other than
+     * the company currency, we need to set a record
+     */
+    private function processExchangeRates($data, $payment)
+    {
+        $client = Customer::find($data['customer_id']);
+
+        $client_currency = $client->currency_id;
+        $company_currency = $client->account->settings->currency_id;
+
+        if ($company_currency != $client_currency) {
+            $currency = $client->currency;
+
+            $payment->exchange_rate = $currency->exchange_rate;
+            $payment->exchange_currency_id = $client_currency;
+        }
+
+        return $payment;
     }
 
     private function refundPayment(array $request, Payment $payment): ?Payment

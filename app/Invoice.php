@@ -50,6 +50,7 @@ class Invoice extends Model
         'number',
         'customer_id',
         'total',
+        'balance',
         'sub_total',
         'tax_total',
         'tax_rate',
@@ -80,6 +81,7 @@ class Invoice extends Model
         'custom_value2',
         'custom_value3',
         'custom_value4',
+        'design_id'
     ];
 
     const STATUS_DRAFT = 1;

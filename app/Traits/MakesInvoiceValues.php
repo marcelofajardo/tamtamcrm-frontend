@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Traits;
 
@@ -244,6 +253,9 @@ trait MakesInvoiceValues
         $data['$credit_amount'] =  &$data['$total'];
         $data['$credit_balance'] =  &$data['$balance'];
         $data['$credit.amount'] = &$data['$total'];
+        $data['$credit_number'] = &$data['$number'];
+        $data['$credit_no'] = &$data['$number'];
+        $data['$credit.credit_no'] = &$data['$number'];
 
         $data['$date'] = $this->date ?: '&nbsp;';
         $data['$invoice.date'] = &$data['$date'];
@@ -396,48 +408,6 @@ trait MakesInvoiceValues
         return $data;
     }
 
-    public function table_header(array $columns, array $css): ?string
-    {
-
-        /* Table Header */
-        //$table_header = '<thead><tr class="'.$css['table_header_thead_class'].'">';
-
-        $table_header = '';
-        $column_headers = $this->transformColumnsForHeader($columns);
-
-        foreach ($column_headers as $column) {
-            //$table_header .= '<td class="' . $css['table_header_td_class'] . '">' . $column . '</td>';
-            $table_header .= '<td class="' . $css['table_header_td_class'] . '">' . trans('texts.' . $column . '') .
-                '</td>';
-        }
-
-//$table_header .= '</tr></thead>';
-
-        return $table_header;
-    }
-
-    public function table_body(array $columns, array $css): ?string
-    {
-        $table_body = '';
-
-        /* Table Body */
-        $columns = $this->transformColumnsForLineItems($columns);
-
-        $items = $this->transformLineItems($this->line_items);
-
-        foreach ($items as $item) {
-
-            $table_body .= '<tr class="">';
-
-            foreach ($columns as $column) {
-                $table_body .= '<td class="' . $css['table_body_td_class'] . '">' . $item->{$column} . '</td>';
-            }
-
-            $table_body .= '</tr>';
-        }
-
-        return $table_body;
-    }
 
     private function totalTaxLabels(): string
     {
@@ -511,8 +481,7 @@ trait MakesInvoiceValues
         $column_headers = $this->transformColumnsForHeader($columns);
 
         foreach ($column_headers as $column) {
-
-            $data .= '<td>' . trans('texts.' . $column . '') . '</td>';
+            $data .= '<td>' . ctrans('texts.' . $column . '') . '</td>';
         }
 
         $data .= '</tr></thead>';
@@ -535,6 +504,44 @@ trait MakesInvoiceValues
         return $data;
     }
 
+    public function table_header($columns): ?string
+    {
+        $table_header = '<tr>';
+
+        $column_headers = $this->transformColumnsForHeader($columns);
+
+        foreach ($column_headers as $column) {
+            $table_header .= '<td class="table_header_td_class">' . trans('texts.' . $column . '') . '</td>';
+        }
+
+        $table_header .= '</tr>';
+
+        return $table_header;
+    }
+
+    public function table_body($columns): ?string
+    {
+        $table_body = '';
+
+        /* Table Body */
+        $columns = $this->transformColumnsForLineItems($columns);
+
+        $items = $this->transformLineItems($this->line_items);
+
+        foreach ($items as $item) {
+
+            $table_body .= '<tr class="">';
+
+            foreach ($columns as $column) {
+                $table_body .= '<td class="table_body_td_class">' . $item->{$column} . '</td>';
+            }
+
+            $table_body .= '</tr>';
+        }
+
+        return $table_body;
+    }
+
     /**
      * Transform the column headers into translated header values
      *
@@ -543,16 +550,22 @@ trait MakesInvoiceValues
      */
     private function transformColumnsForHeader(array $columns): array
     {
+        if (count($columns) == 0) {
+            return [];
+        }
+
         $pre_columns = $columns;
         $columns = array_intersect($columns, self::$master_columns);
+
         return str_replace([
             'tax_name1',
-            'tax_name2'
+            'tax_name2',
+            'tax_name3'
         ], [
             'tax',
             'tax',
+            'tax'
         ], $columns);
-
     }
 
     /**

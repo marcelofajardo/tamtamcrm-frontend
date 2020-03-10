@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\DataMapper;
 
@@ -16,10 +25,10 @@ class InvoiceItem
     public $custom_value2 = '';
     public $custom_value3 = '';
     public $custom_value4 = '';
-    public $line_item_type_id = 1; //1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee
+    public $type_id = 1; //1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee
 
     public static $casts = [
-        'line_item_type_id' => 'string',
+        'type_id' => 'string',
         'quantity' => 'float',
         'unit_price' => 'float',
         'product_id' => 'int',

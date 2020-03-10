@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Account;
+use App\DataMapper\CompanySettings;
 use App\User;
 use App\Department;
 use App\Repositories\Interfaces\UserRepositoryInterface;
@@ -148,23 +150,38 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $data['password'] = Hash::make($data['password']);
         }
 
+        /*************** save new user ***************************/
         $user->fill($data);
         $user->save();
 
         if (isset($data['company_user'])) {
-            if (auth()->user()->account_user()->count() > 0) {
-                $account = auth()->user()->account_user();
+            $account = Account::find($data['company_user']['account_id']);
 
-                $cu = AccountUser::whereUserId($user->id)->whereAccountId($account->id)->first();
+            $domain_id = $account->domains->id;
 
-                /*No company user exists - attach the user*/
-                if (!$cu) {
-                    $user->accounts()->attach($account->id, $data['company_user']);
-                } else {
-                    $cu->fill($data['company_user']);
-                    $cu->save();
+            $cu = AccountUser::whereUserId($user->id)->whereAccountId($account->id)->withTrashed()->first();
+
+            /*No company user exists - attach the user*/
+            if (!$cu) {
+                $data['company_user']['domain_id'] = $domain_id;
+
+                if (empty($data['company_user']['notifications'])) {
+                    $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 }
+
+                $user->accounts()->attach($account->id, $data['company_user']);
+            } else {
+                $cu->fill($data['company_user']);
+                $cu->restore();
+                $cu->save();
             }
+
+            $user->with([
+                'account_users' => function ($query) use ($account, $user) {
+                    $query->whereAccountId($account->id)->whereUserId($user->id);
+                }
+            ])->first();
+            //return $user->with('company_user')->whereCompanyId($company->id)->first();
         }
 
 
@@ -177,6 +194,26 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
         return $user->fresh();
 
+    }
+
+    /**
+     * @param array $data
+     * @param User $user
+     * @return User|null
+     * @throws Exception
+     */
+    public function destroy(User $user, array $data = [])
+    {
+        if (!empty($data) && array_key_exists('account_user', $data)) {
+            $company = auth()->user()->account_user();
+
+            $cu = AccountUser::whereUserId($user->id)->whereAccountId($company->id)->first();
+            $cu->delete();
+        } else {
+            $user->delete();
+        }
+
+        return $user->fresh();
     }
 
 }

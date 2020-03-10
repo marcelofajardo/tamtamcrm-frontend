@@ -30,7 +30,8 @@ class InvoiceEmail extends EmailBuilder
         if (iconv_strlen($body_template) == 0) {
             $body_template = trans('texts.invoice_message', [
                 'invoice' => $invoice->number,
-                'account' => $invoice->account->present()->name()
+                'company' => $invoice->account->present()->name(),
+                'amount' => Number::formatMoney($invoice->balance, $invoice->customer),
             ], null, $invoice->customer->locale());
         }
 

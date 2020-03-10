@@ -32,10 +32,10 @@ class UploadFile implements ShouldQueue
 
     const PROPERTIES = [
         self::IMAGE => [
-            'path' => 'public/images',
+            'path' => 'images',
         ],
         self::DOCUMENT => [
-            'path' => 'public/documents',
+            'path' => 'documents',
         ]
     ];
 
@@ -63,8 +63,13 @@ class UploadFile implements ShouldQueue
      */
     public function handle(): ?File
     {
-        $instance = Storage::disk($this->disk)
-                           ->putFileAs(self::PROPERTIES[$this->type]['path'], $this->file, $this->file->hashName());
+        $path = self::PROPERTIES[$this->type]['path'];
+
+        if ($this->account) {
+            $path = sprintf('%s/%s', $this->account->id, self::PROPERTIES[$this->type]['path']);
+        }
+
+        $instance = Storage::disk($this->disk)->putFileAs($path, $this->file, $this->file->hashName());
 
         if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {
             $image_size = getimagesize($this->file);
@@ -85,8 +90,8 @@ class UploadFile implements ShouldQueue
         $document->width = isset($width) ?? null;
         $document->height = isset($height) ?? null;
 
-        // $preview_path = $this->encodePrimaryKey($this->company->id);
-        // $document->preview = $this->generatePreview($preview_path);
+// $preview_path = $this->encodePrimaryKey($this->company->id);
+// $document->preview = $this->generatePreview($preview_path);
 
         $this->entity->documents()->save($document);
 

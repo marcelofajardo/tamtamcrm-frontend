@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Rules;
 
@@ -43,6 +52,7 @@ class ValidSettingsRule implements Rule
      */
     public function message()
     {
-        return $this->return_data[0] . " is not a valid " . $this->return_data[1];
+        return $this->return_data[0] . " is not a valid " . $this->return_data[1] . " ( " . $this->return_data[2] .
+            " )";
     }
 }

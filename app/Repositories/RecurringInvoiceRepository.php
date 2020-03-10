@@ -39,8 +39,8 @@ class RecurringInvoiceRepository extends BaseRepository
         }
 
         $invoice->save();
-        //fire events here that cascading from the saving of an invoice
-        //ie. client balance update...
+//fire events here that cascading from the saving of an invoice
+//ie. client balance update...
 
         return $invoice;
     }

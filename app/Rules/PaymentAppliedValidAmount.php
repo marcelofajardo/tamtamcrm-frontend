@@ -1,7 +1,17 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Rules;
 
+use App\Invoice;
 use App\User;
 use App\Payment;
 use Illuminate\Contracts\Validation\Rule;
@@ -33,7 +43,7 @@ class PaymentAppliedValidAmount implements Rule
 
     private function calculateAmounts(): bool
     {
-        $payment = Payment::whereId(request()->segment(4))->first();
+        $payment = Payment::whereId(request()->segment(3))->first();
 
         if (!$payment) {
             return false;
@@ -52,7 +62,8 @@ class PaymentAppliedValidAmount implements Rule
 
         if (request()->input('invoices') && is_array(request()->input('invoices'))) {
             foreach (request()->input('invoices') as $invoice) {
-                $invoice_amounts = +$invoice['amount'];
+
+                $invoice_amounts += $invoice['amount'];
             }
         }
 

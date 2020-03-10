@@ -2,7 +2,10 @@
 
 namespace App\Services\Quote;
 
+use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Invoice;
 use App\Quote;
+use App\Repositories\QuoteRepository;
 
 class QuoteService
 {
@@ -28,11 +31,57 @@ class QuoteService
         $this->quote = $mark_approved->run();
 
         if ($this->quote->customer->getSetting('auto_convert_quote') === true) {
-            $convert_quote = new ConvertQuote($this->quote->client, $invoice_repo, $this->quote);
+            $convert_quote = new ConvertQuote($this->quote->customer, $invoice_repo, $this->quote);
             $this->quote = $convert_quote->run();
         }
 
         return $this;
+    }
+
+    public function approve(): QuoteService
+    {
+        $this->setStatus(Quote::STATUS_APPROVED)->save();
+
+        $invoice = null;
+
+        if ($this->quote->customer->getSetting('auto_convert_quote')) {
+            $invoice = $this->convertToInvoice();
+            $this->linkInvoiceToQuote($invoice)->save();
+        }
+
+        if ($this->quote->customer->getSetting('auto_archive_quote')) {
+            $quote_repo = new QuoteRepository(new Quote);
+            $quote_repo->archive($this->quote);
+        }
+
+        return $this;
+
+    }
+
+    /**
+     * Where we convert a quote to an invoice we link the two entities via the invoice_id parameter on the quote table
+     * @param object $invoice The Invoice object
+     * @return object          QuoteService
+     */
+    public function linkInvoiceToQuote($invoice): QuoteService
+    {
+        $this->quote->invoice_id = $invoice->id;
+
+        return $this;
+    }
+
+    public function convertToInvoice(): Invoice
+    {
+        $invoice = CloneQuoteToInvoiceFactory::create($this->quote, auth()->user()->id,
+            auth()->user()->account_user()->account_id);
+        $invoice->status_id = Invoice::STATUS_SENT;
+        $invoice->due_date = null;
+        $invoice->number = null;
+        $invoice->save();
+
+        $invoice->service()->markSent()->createInvitations()->save();
+
+        return $invoice;
     }
 
     /**

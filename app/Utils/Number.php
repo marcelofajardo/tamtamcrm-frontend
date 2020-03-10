@@ -51,6 +51,10 @@ class Number
     {
         $currency = $client->currency;
 
+        if (empty($currency)) {
+            return true;
+        }
+
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
         $precision = $currency->precision;
@@ -59,7 +63,7 @@ class Number
 
         $address = $client->addresses->where('address_type', '=', 1)->first();
 
-        if ($address->count() > 0) {
+        if (!empty($address) && $address->count() > 0) {
 
             /* Country settings override client settings */
             if (isset($address->country->thousand_separator)) {

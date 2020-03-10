@@ -9,7 +9,7 @@ class CreativeRed extends AbstractDesign
     {
     }
 
-    public function header()
+    public function include()
     {
 
         return '
@@ -592,7 +592,12 @@ float: left;
         ];
     }
 
-    public function table()
+    public function task_table()
+    {
+
+    }
+
+    public function product_table()
     {
 
         return '

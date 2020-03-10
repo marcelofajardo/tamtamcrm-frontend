@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\DataMapper;
 
@@ -15,6 +24,9 @@ class CompanySettings extends BaseSettings
     /*Group settings based on functionality*/
     /*Invoice*/
     public $auto_archive_invoice = false;
+    public $auto_archive_lead = false;
+    public $email_subject_payment_partial = '';
+    public $email_template_payment_partial = '';
     public $lock_sent_invoices = false;
     public $update_products = true;
     public $fill_products = true;
@@ -89,6 +101,7 @@ class CompanySettings extends BaseSettings
     public $enabled_item_tax_rates = 0;
     public $invoice_design_id = '1';
     public $quote_design_id = '1';
+    public $credit_design_id = '1';
     public $invoice_footer = '';
     public $invoice_labels = '';
     public $tax_name1 = '';
@@ -181,14 +194,11 @@ class CompanySettings extends BaseSettings
     public $all_pages_header = true;
     public $all_pages_footer = true;
 
-    public $system_notifications_slack = '';
-    public $system_notifications_email = '';
-
     public $pdf_variables = [];
 
     public static $casts = [
-        'system_notifications_slack' => 'string',
-        'system_notifications_email' => 'string',
+        'email_subject_payment_partial' => 'string',
+        'email_template_payment_partial' => 'string',
         'portal_design_id' => 'string',
         'fill_products' => 'bool',
         'update_products' => 'bool',
@@ -298,6 +308,7 @@ class CompanySettings extends BaseSettings
         'invoice_number_pattern' => 'string',
         'invoice_number_counter' => 'integer',
         'invoice_design_id' => 'string',
+        'credit_design_id' => 'string',
         'invoice_fields' => 'string',
         'invoice_taxes' => 'int',
         'enabled_item_tax_rates' => 'int',
@@ -341,6 +352,7 @@ class CompanySettings extends BaseSettings
         'enable_client_portal_tasks' => 'bool',
         'lock_sent_invoices' => 'bool',
         'auto_archive_invoice' => 'bool',
+        'auto_archive_lead' => 'bool',
         'auto_archive_quote' => 'bool',
         'auto_convert_quote' => 'bool',
         'shared_invoice_quote_counter' => 'bool',
@@ -431,7 +443,16 @@ class CompanySettings extends BaseSettings
         return $settings;
     }
 
-    private static function getEntityVariableDefaults()
+    public static function notificationDefaults()
+    {
+
+        $notification = new \stdClass;
+        $notification->email = ['all_notifications'];
+
+        return $notification;
+    }
+
+    public static function getEntityVariableDefaults()
     {
         $variables = [
             'client_details' => [
@@ -481,7 +502,16 @@ class CompanySettings extends BaseSettings
                 'credit_balance',
                 'credit_amount',
             ],
-            'table_columns' => [
+            'product_columns' => [
+                'product_key',
+                'notes',
+                'cost',
+                'quantity',
+                'discount',
+                'tax_name1',
+                'line_total'
+            ],
+            'task_columns' => [
                 'product_key',
                 'notes',
                 'cost',

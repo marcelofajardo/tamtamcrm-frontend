@@ -42,6 +42,11 @@ class UpdateUserRequest extends BaseFormRequest
         return $rules;
     }
 
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+    }
+
     /**
      * Custom message for validation
      *

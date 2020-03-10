@@ -3,11 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountUser extends Pivot
 {
+    use SoftDeletes;
+
     //   protected $guarded = ['id'];
-    protected $dateFormat = 'Y-m-d H:i:s.u';
     /**
      * The attributes that should be cast to native types.
      *
@@ -18,14 +20,18 @@ class AccountUser extends Pivot
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'settings' => 'object',
+        'notifications' => 'object',
+        'permissions' => 'object',
     ];
     protected $fillable = [
+        'notifications',
         'account_id',
         'permissions',
         'settings',
         'is_admin',
         'is_owner',
-        'is_locked'
+        'is_locked',
+        'slack_webhook_url',
     ];
 
     public function account()
@@ -35,12 +41,14 @@ class AccountUser extends Pivot
 
     public function user_pivot()
     {
-        return $this->hasOne(User::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+        return $this->hasOne(User::class)
+                    ->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url');
     }
 
     public function account_pivot()
     {
-        return $this->hasOne(Account::class)->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked');
+        return $this->hasOne(Account::class)
+                    ->withPivot('permissions', 'settings', 'is_admin', 'is_owner', 'is_locked', 'slack_webhook_url');
     }
 
     public function user()
