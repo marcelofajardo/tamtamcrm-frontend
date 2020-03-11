@@ -1,6 +1,6 @@
 # TamTam CRM
 
-TamTam CRM is an all in one invoicing, accounting and crm system. It was built to prevent a common issue often seen with other CRM's when you need to have multiple subscriptions with data spread across multiple systems. TamTam CRM is a functionality rich system providing you with a full package all in one place. The system is under continuous development and is updated regularly. Some of the features that can be found in TamTam CRM are as follows
+TamTam CRM is an all in one invoicing, accounting and crm system. It was built to prevent a common issue often seen with other CRM's where you need to pay for multiple subscriptions and have data spread across multiple databases. TamTam CRM is a functionality rich system providing you with a full package all in one place. The system is under continuous development and is updated regularly. Some of the features that can be found in TamTam CRM are as follows
 
 * Features
 * Multiple Accounts
@@ -26,7 +26,7 @@ TamTam CRM is an all in one invoicing, accounting and crm system. It was built t
 
 ## Getting Started
 
-git clone https://github.com/michael-hampton/taskmanager.git
+git clone https://github.com/michael-hampton/tamtamcrm.git
 composer update
 npm i
 npm run production
@@ -58,7 +58,3 @@ All pull requests made from and to master.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Special thanks to the invoice ninja team 
