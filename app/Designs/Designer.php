@@ -277,12 +277,12 @@ class Designer
     {
 
         $data = [
-            'company_name' => '<span>$account.company_name</span>',
-            'id_number' => '<span>$account.id_number</span>',
-            'vat_number' => '<span>$account.vat_number</span>',
-            'website' => '<span>$account.website</span>',
-            'email' => '<span>$account.email</span>',
-            'phone' => '<span>$account.phone</span>',
+            'company_name' => '<span>$company.company_name</span>',
+            'id_number' => '<span>$company.id_number</span>',
+            'vat_number' => '<span>$company.vat_number</span>',
+            'website' => '<span>$company.website</span>',
+            'email' => '<span>$company.email</span>',
+            'phone' => '<span>$company.phone</span>',
             'company1' => '<span>$company1</span>',
             'company2' => '<span>$company2</span>',
             'company3' => '<span>$company3</span>',
@@ -297,11 +297,11 @@ class Designer
     {
 
         $data = [
-            'address1' => '<span>$account.address1</span>',
-            'address2' => '<span>$account.address1</span>',
-            'city_state_postal' => '<span>$account.city_state_postal</span>',
-            'postal_city_state' => '<span>$account.postal_city_state</span>',
-            'country' => '<span>$account.country</span>',
+            'address1' => '<span>$company.address1</span>',
+            'address2' => '<span>$company.address1</span>',
+            'city_state_postal' => '<span>$company.city_state_postal</span>',
+            'postal_city_state' => '<span>$company.postal_city_state</span>',
+            'country' => '<span>$company.country</span>',
             'company1' => '<span>$company1</span>',
             'company2' => '<span>$company2</span>',
             'company3' => '<span>$company3</span>',

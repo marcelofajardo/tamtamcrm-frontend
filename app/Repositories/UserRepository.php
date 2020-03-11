@@ -210,7 +210,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
             $cu = AccountUser::whereUserId($user->id)->whereAccountId($company->id)->first();
             $cu->delete();
         } else {
-            $user->delete();
+            $user->$cu->forceDelete();
         }
 
         return $user->fresh();

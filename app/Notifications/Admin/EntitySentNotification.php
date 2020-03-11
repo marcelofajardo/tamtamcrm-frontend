@@ -14,40 +14,49 @@ namespace App\Notifications\Admin;
 use App\Utils\Number;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class EntityViewedNotification extends Notification implements ShouldQueue
+class EntitySentNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.
      *
      * @return void
-     * @
      */
 
     protected $invitation;
-    protected $entity_name;
+
     protected $entity;
-    protected $account;
+
+    protected $entity_name;
+
     protected $settings;
+
+    public $is_system;
+
     public $method;
+
     protected $contact;
+
+    protected $company;
 
     public function __construct($invitation, $entity_name, $is_system = false, $settings = null)
     {
+        $this->invitation = $invitation;
         $this->entity_name = $entity_name;
         $this->entity = $invitation->{$entity_name};
         $this->contact = $invitation->contact;
-        $this->account = $invitation->account;
-        $this->settings = $this->entity->customer->getMergedSettings();
+        $this->company = $invitation->company;
+        $this->settings = $this->entity->client->getMergedSettings();
         $this->is_system = $is_system;
-        $this->invitation = $invitation;
         $this->method = null;
-
     }
 
     /**
@@ -58,7 +67,6 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-
         return $this->method ?: [];
     }
 
@@ -70,10 +78,30 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $data = $this->buildDataArray();
-        $subject = $this->buildSubject();
+
+        $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
+        $subject = ctrans("texts.notification_{$this->entity_name}_sent_subject", [
+            'client' => $this->contact->present()->name(),
+            'invoice' => $this->entity->number,
+        ]);
+
+        $data = [
+            'title' => $subject,
+            'message' => ctrans("texts.notification_{$this->entity_name}_sent", [
+                'amount' => $amount,
+                'client' => $this->contact->present()->name(),
+                'invoice' => $this->entity->number,
+            ]),
+            'url' => $this->invitation->getAdminLink(),
+            'button' => ctrans("texts.view_{$this->entity_name}"),
+            'signature' => $this->settings->email_signature,
+            'logo' => $this->company->present()->logo(),
+        ];
+
 
         return (new MailMessage)->subject($subject)->markdown('email.admin.generic', $data);
+
+
     }
 
     /**
@@ -90,56 +118,34 @@ class EntityViewedNotification extends Notification implements ShouldQueue
 
     public function toSlack($notifiable)
     {
-        $logo = $this->account->present()->logo();
+        $logo = $this->invitation->company->present()->logo();
         $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
 
-        return (new SlackMessage)->from(trans('texts.notification_bot'))->success()
+        // return (new SlackMessage)
+        //         ->success()
+        //         ->from(ctrans('texts.notification_bot'))
+        //         ->image($logo)
+        //         ->content(ctrans('texts.notification_invoice_sent',
+        //         [
+        //             'amount' => $amount,
+        //             'client' => $this->contact->present()->name(),
+        //             'invoice' => $this->invoice->number
+        //         ]));
+
+
+        return (new SlackMessage)->from(ctrans('texts.notification_bot'))->success()
                                  ->image('https://app.invoiceninja.com/favicon-v2.png')
-                                 ->content(trans("texts.notification_{$this->entity_name}_viewed", [
+                                 ->content(trans("texts.notification_{$this->entity_name}_sent_subject", [
                                      'amount' => $amount,
                                      'client' => $this->contact->present()->name(),
-                                     $this->entity_name => $this->entity->number
+                                     'invoice' => $this->entity->number
                                  ]))->attachment(function ($attachment) use ($amount) {
-                $attachment->title(trans('texts.entity_number_placeholder',
-                    ['entity' => ucfirst($this->entity_name), 'entity_number' => $this->entity->number]),
+                $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->entity->number]),
                     $this->invitation->getAdminLink())->fields([
-                    trans('texts.client') => $this->contact->present()->name(),
-                    trans('texts.status_viewed') => $this->invitation->viewed_date,
+                    ctrans('texts.client') => $this->contact->present()->name(),
+                    ctrans('texts.amount') => $amount,
                 ]);
             });
     }
 
-    private function buildDataArray()
-    {
-
-        $amount = Number::formatMoney($this->entity->amount, $this->entity->customer);
-
-        $data = [
-            'title' => $this->buildSubject(),
-            'test' => trans("texts.notification_{$this->entity_name}_viewed", [
-                'amount' => $amount,
-                'client' => $this->contact->present()->name(),
-                $this->entity_name => $this->entity->number,
-            ]),
-            'url' => config('ninja.site_url') . "/client/{$this->entity_name}/" . $this->invitation->key . "?silent=true",
-            'button' => trans("texts.view_{$this->entity_name}"),
-            'signature' => !empty($this->settings) ? $this->settings->email_signature : '',
-            'logo' => $this->account->present()->logo(),
-        ];
-
-
-        return $data;
-
-    }
-
-    private function buildSubject()
-    {
-        $subject = trans("texts.notification_{$this->entity_name}_viewed_subject", [
-            'client' => $this->contact->present()->name(),
-            $this->entity_name => $this->entity->number,
-        ]);
-
-        return $subject;
-
-    }
 }

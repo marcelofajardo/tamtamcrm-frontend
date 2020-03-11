@@ -359,7 +359,7 @@ trait MakesInvoiceValues
         $data['$country'] = isset($billing->country->name) ? $billing->country->name : 'No Country Set';
         $data['$client.country'] = &$data['$country'];
         $data['$email'] = isset($this->customer->primary_contact()->first()->email) ? $this->customer->primary_contact()
-                                                                                                     ->first()->email : 'no contact email on record';
+            ->first()->email : 'no contact email on record';
         $data['$client.email'] = &$data['$email'];
 
         if (!$contact) {
@@ -384,7 +384,8 @@ trait MakesInvoiceValues
         $data['$company.city'] = $settings->city ?: '&nbsp;';
         $data['$company.state'] = $settings->state ?: '&nbsp;';
         $data['$company.postal_code'] = $settings->postal_code ?: '&nbsp;';
-        $data['$company.country'] = Country::find($settings->country_id)->first()->name ?: '&nbsp;';
+
+        $data['$company.country'] = Country::where('id', $settings->country_id)->first()->name ?: '&nbsp;';
         $data['$company.phone'] = $settings->phone ?: '&nbsp;';
         $data['$company.email'] = $settings->email ?: '&nbsp;';
         $data['$company.vat_number'] = $settings->vat_number ?: '&nbsp;';
@@ -484,27 +485,28 @@ trait MakesInvoiceValues
             $data .= '<td>' . ctrans('texts.' . $column . '') . '</td>';
         }
 
-        $data .= '</tr></thead>';
+$data .= '</tr></thead>';
 
-        $columns = $this->transformColumnsForLineItems($columns);
+$columns = $this->transformColumnsForLineItems($columns);
 
-        $items = $this->transformLineItems($this->line_items);
+$items = $this->transformLineItems($this->line_items);
 
-        foreach ($items as $item) {
-            $data .= '<tr class="item">';
+foreach ($items as $item) {
+    $data .= '<tr class="item">';
 
-            foreach ($columns as $column) {
-                $data .= '<td>' . $item->{$column} . '</td>';
-            }
-            $data .= '</tr>';
-        }
-
-        $data .= '</table>';
-
-        return $data;
+    foreach ($columns as $column) {
+        $data .= '<td>' . $item->{$column} . '</td>';
     }
+    $data .= '</tr>';
+}
 
-    public function table_header($columns): ?string
+$data .= '</table>';
+
+return $data;
+}
+
+public
+function table_header($columns): ?string
     {
         $table_header = '<tr>';
 
@@ -549,24 +551,24 @@ trait MakesInvoiceValues
      * @return array          The new column header variables
      */
     private function transformColumnsForHeader(array $columns): array
-    {
-        if (count($columns) == 0) {
-            return [];
-        }
-
-        $pre_columns = $columns;
-        $columns = array_intersect($columns, self::$master_columns);
-
-        return str_replace([
-            'tax_name1',
-            'tax_name2',
-            'tax_name3'
-        ], [
-            'tax',
-            'tax',
-            'tax'
-        ], $columns);
+{
+    if (count($columns) == 0) {
+        return [];
     }
+
+    $pre_columns = $columns;
+    $columns = array_intersect($columns, self::$master_columns);
+
+    return str_replace([
+        'tax_name1',
+        'tax_name2',
+        'tax_name3'
+    ], [
+        'tax',
+        'tax',
+        'tax'
+    ], $columns);
+}
 
     /**
      *
@@ -576,24 +578,24 @@ trait MakesInvoiceValues
      * @return array          The invoice variables
      */
     private function transformColumnsForLineItems(array $columns): array
-    {
-        /* Removes any invalid columns the user has entered. */
-        $columns = array_intersect($columns, self::$master_columns);
-        return str_replace([
-            'custom_invoice_label1',
-            'custom_invoice_label2',
-            'custom_invoice_label3',
-            'custom_invoice_label4',
-            'tax_name1',
-        ], [
-            'custom_invoice_value1',
-            'custom_invoice_value2',
-            'custom_invoice_value3',
-            'custom_invoice_value4',
-            'unit_tax',
-        ], $columns);
+{
+    /* Removes any invalid columns the user has entered. */
+    $columns = array_intersect($columns, self::$master_columns);
+    return str_replace([
+        'custom_invoice_label1',
+        'custom_invoice_label2',
+        'custom_invoice_label3',
+        'custom_invoice_label4',
+        'tax_name1',
+    ], [
+        'custom_invoice_value1',
+        'custom_invoice_value2',
+        'custom_invoice_value3',
+        'custom_invoice_value4',
+        'unit_tax',
+    ], $columns);
 
-    }
+}
 
     /**
      * Formats the line items for display
@@ -601,25 +603,25 @@ trait MakesInvoiceValues
      * @return array        The formatted array of invoice items
      */
     private function transformLineItems($items): array
-    {
-        if (!is_array($items)) {
-            return [];
-        }
-
-        foreach ($items as $item) {
-            $item->cost = Number::formatMoney($item->sub_total, $this->customer);
-            $item->line_total = Number::formatMoney($item->sub_total, $this->customer);
-            if (isset($item->discount) && $item->discount > 0) {
-                if ($item->unit_discount > 0) {
-                    $item->discount = Number::formatMoney($item->unit_discount, $this->customer);
-                }
-                //else
-                //$item->discount = $item->discount . '%';
-            }
-        }
-
-        return $items;
+{
+    if (!is_array($items)) {
+        return [];
     }
+
+    foreach ($items as $item) {
+        $item->cost = Number::formatMoney($item->sub_total, $this->customer);
+        $item->line_total = Number::formatMoney($item->sub_total, $this->customer);
+        if (isset($item->discount) && $item->discount > 0) {
+            if ($item->unit_discount > 0) {
+                $item->discount = Number::formatMoney($item->unit_discount, $this->customer);
+            }
+            //else
+            //$item->discount = $item->discount . '%';
+        }
+    }
+
+    return $items;
+}
 
     /**
      * Due to the way we are compiling the blade template we
@@ -640,19 +642,19 @@ trait MakesInvoiceValues
      * aggregate data
      */
     private function makeLineTaxes(): string
-    {
-        $tax_map = $this->calc()->getTaxMap();
+{
+    $tax_map = $this->calc()->getTaxMap();
 
-        $data = '';
+    $data = '';
 
-        foreach ($tax_map as $tax) {
-            $data .= '<tr class="line_taxes">';
-            $data .= '<td>' . $tax['name'] . '</td>';
-            $data .= '<td>' . Number::formatMoney($tax['total'], $this->customer) . '</td></tr>';
-        }
-
-        return $data;
+    foreach ($tax_map as $tax) {
+        $data .= '<tr class="line_taxes">';
+        $data .= '<td>' . $tax['name'] . '</td>';
+        $data .= '<td>' . Number::formatMoney($tax['total'], $this->customer) . '</td></tr>';
     }
+
+    return $data;
+}
 
     /**
      * @return string a collectino of <tr> with
@@ -665,20 +667,20 @@ trait MakesInvoiceValues
      */
 
     private function makeTotalTaxes(): string
-    {
-        $data = '';
+{
+    $data = '';
 
-        if (!$this->calc()->getTotalTaxMap()) {
-            return $data;
-        }
-
-        foreach ($this->calc()->getTotalTaxMap() as $tax) {
-            $data .= '<tr class="total_taxes">';
-            $data .= '<td>' . $tax['name'] . '</td>';
-            $data .= '<td>' . Number::formatMoney($tax['total'], $this->customer) . '</td></tr>';
-        }
-
+    if (!$this->calc()->getTotalTaxMap()) {
         return $data;
     }
+
+    foreach ($this->calc()->getTotalTaxMap() as $tax) {
+        $data .= '<tr class="total_taxes">';
+        $data .= '<td>' . $tax['name'] . '</td>';
+        $data .= '<td>' . Number::formatMoney($tax['total'], $this->customer) . '</td></tr>';
+    }
+
+    return $data;
+}
 
 }

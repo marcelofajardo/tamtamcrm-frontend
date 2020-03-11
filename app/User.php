@@ -244,8 +244,8 @@ class User extends Authenticatable implements JWTSubject
             return config('taskmanager.notification.slack');
         }
 
-        if ($this->account()) {
-            return $this->account()->settings->system_notifications_slack;
+        if ($this->account_user->slack_webhook_url) {
+            return $this->account_user->slack_webhook_url;
         }
     }
 

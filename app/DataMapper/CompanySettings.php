@@ -27,6 +27,7 @@ class CompanySettings extends BaseSettings
     public $auto_archive_lead = false;
     public $email_subject_payment_partial = '';
     public $email_template_payment_partial = '';
+    public $payment_type_id = '-1';
     public $lock_sent_invoices = false;
     public $update_products = true;
     public $fill_products = true;
@@ -119,7 +120,7 @@ class CompanySettings extends BaseSettings
 
     //email settings
     public $email_sending_method = 'default'; //enum 'default','gmail'
-    public $gmail_sending_user_id = '';
+    public $gmail_sending_user_id = '0';
 
     //email settings
     public $reply_to_email = '';
@@ -194,7 +195,7 @@ class CompanySettings extends BaseSettings
     public $all_pages_header = true;
     public $all_pages_footer = true;
 
-    public $pdf_variables = [];
+    public $pdf_variables = '';
 
     public static $casts = [
         'email_subject_payment_partial' => 'string',
@@ -401,7 +402,7 @@ class CompanySettings extends BaseSettings
         $data->date_format_id = (string)config('taskmanager.i18n.date_format_id');
         $data->country_id = (string)config('taskmanager.i18n.country_id');
         $data->translations = (object)[];
-        $data->pdf_variables = (array)self::getEntityVariableDefaults();
+        $data->pdf_variables = (object)self::getEntityVariableDefaults();
 
         /* $data->email_subject_invoice = EmailTemplateDefaults::emailInvoiceSubject();
         $data->email_template_invoice = EmailTemplateDefaults:: emailInvoiceTemplate();
@@ -447,7 +448,7 @@ class CompanySettings extends BaseSettings
     {
 
         $notification = new \stdClass;
-        $notification->email = ['all_notifications'];
+        $notification->email = [];
 
         return $notification;
     }
@@ -522,6 +523,6 @@ class CompanySettings extends BaseSettings
             ],
         ];
 
-        return $variables;
+        return json_decode(json_encode($variables));
     }
 }

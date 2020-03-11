@@ -72,9 +72,9 @@ trait SettingsSaver
         $settings = (object)$settings;
         $casts = CompanySettings::$casts;
 
-        if (property_exists($settings, 'pdf_variables')) {
-            unset($settings->pdf_variables);
-        }
+//        if (property_exists($settings, 'pdf_variables')) {
+//            unset($settings->pdf_variables);
+//        }
 
         ksort($casts);
 
@@ -98,6 +98,8 @@ trait SettingsSaver
                     return [$key, $value, $settings->{$key}];
                 }
 
+                continue;
+            } elseif ($key == 'pdf_variables') {
                 continue;
             }
 

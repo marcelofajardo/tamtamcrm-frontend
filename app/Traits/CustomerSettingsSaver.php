@@ -1,9 +1,12 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: michael.hampton
- * Date: 03/12/2019
- * Time: 20:09
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
  */
 
 namespace App\Traits;

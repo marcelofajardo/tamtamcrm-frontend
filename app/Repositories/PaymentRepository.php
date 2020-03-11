@@ -182,8 +182,10 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
         if ($company_currency != $client_currency) {
             $currency = $client->currency;
 
-            $payment->exchange_rate = $currency->exchange_rate;
-            $payment->exchange_currency_id = $client_currency;
+            if(!empty($currency)) {
+                $payment->exchange_rate = $currency->exchange_rate;
+                $payment->exchange_currency_id = $client_currency;
+            }
         }
 
         return $payment;

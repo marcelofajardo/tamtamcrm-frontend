@@ -27,8 +27,11 @@ class Custom extends AbstractDesign
 
     public $name;
 
+    public $design;
+
     public function __construct($design)
     {
+
         $this->name = $design->name;
 
         $this->includes = $design->design->includes;
@@ -36,6 +39,8 @@ class Custom extends AbstractDesign
         $this->header = $design->design->header;
 
         $this->body = $design->design->body;
+
+        $this->design = $design->design;
 
         $this->product = $design->design->product;
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Customer;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\CloneInvoiceFactory;
+use App\InvoiceInvitation;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Factory\CloneInvoiceToQuoteFactory;
 use App\Factory\NotificationFactory;
@@ -173,7 +174,8 @@ class InvoiceController extends Controller
                 break;
             case 'mark_paid':
                 if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID ||
-                    $invoice->is_deleted === true) {
+                    $invoice->is_deleted === true
+                ) {
                     return response()->json('Invoice cannot be marked as paid', 400);
                 }
                 $invoice = $invoice->service()->markPaid();

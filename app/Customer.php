@@ -238,11 +238,10 @@ class Customer extends Model implements HasLocalePreference
      */
     public function getSetting($setting)
     {
-
         /*Client Settings*/
         if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
             /*need to catch empty string here*/
-            if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
+            if (!empty($this->settings->{$setting})) {
                 return $this->settings->{$setting};
             }
         }
