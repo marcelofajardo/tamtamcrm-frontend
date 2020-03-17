@@ -66,7 +66,7 @@ class AddCompany extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('companyForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'companyForm')) {
             const storedValues = JSON.parse(localStorage.getItem('companyForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

@@ -2,10 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import EditInvoice from './EditInvoice'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
+    FormGroup, Input, Card, CardBody, Row, Col
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -37,7 +34,7 @@ export default class Invoice extends Component {
             bulk: [],
             dropdownButtonActions: ['download'],
             custom_fields: [],
-            ignoredColumns: ['invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'public_notes', 'private_notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
+            ignoredColumns: ['design_id', 'invitations', 'id', 'user_id', 'status', 'company_id', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'updated_at', 'deleted_at', 'created_at', 'public_notes', 'private_notes', 'terms', 'footer', 'last_send_date', 'line_items', 'next_send_date', 'last_sent_date', 'first_name', 'last_name', 'tax_total', 'discount_total', 'sub_total'],
             filters: {
                 status_id: 'Draft',
                 customer_id: '',
@@ -172,7 +169,7 @@ export default class Invoice extends Component {
                 const columnList = Object.keys(invoice).filter(key => {
                     return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
                 }).map(key => {
-                    return <InvoicePresenter customers={customers} toggleViewedEntity={this.toggleViewedEntity}
+                    return <InvoicePresenter key={key} customers={customers} toggleViewedEntity={this.toggleViewedEntity}
                         field={key} entity={invoice}/>
                 })
 

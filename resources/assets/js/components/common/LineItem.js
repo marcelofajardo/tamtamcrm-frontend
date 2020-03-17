@@ -3,12 +3,16 @@ import { Button, Input, Col, Row, FormGroup, Label } from 'reactstrap'
 import ProductDropdown from '../common/ProductDropdown'
 import TaskDropdown from '../common/TaskDropdown'
 import ExpenseDropdown from '../common/ExpenseDropdown'
+import FormatMoney from './FormatMoney'
 
 class LineItem extends Component {
     constructor (props) {
         super(props)
         // this.state = Object.assign({}, props.lineItemData)
         this.handleDeleteClick = this.handleDeleteClick.bind(this)
+        const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+        const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+        this.settings = user_account[0].account.settings
     }
 
     handleDeleteClick () {
@@ -20,7 +24,7 @@ class LineItem extends Component {
     }
 
     render () {
-        const uses_inclusive_taxes = false
+        const uses_inclusive_taxes = this.settings.inclusive_taxes
 
         return this.props.rows.map((lineItem, index) => {
             let total = 0
@@ -42,7 +46,7 @@ class LineItem extends Component {
                 }
             }
 
-            return <React.Fragment>
+            return <React.Fragment key={index}>
                 <Row className="border-bottom border-primary my-3" form>
                     {this.props.line_type === 1 &&
                     <Col md={3} data-id={index}>
@@ -134,12 +138,14 @@ class LineItem extends Component {
                     </Col>
                     <FormGroup className="mr-4">
                         <Label>Tax Total</Label>
-                        <p className='pa2 mr2 f6'>{lineItem.tax_total}</p>
+                        <p className='pa2 mr2 f6'>{<FormatMoney
+                            amount={lineItem.tax_total}/>}</p>
                     </FormGroup>
 
                     <FormGroup>
                         <Label>Sub Total</Label>
-                        <p className='pa2 mr2 f6'>{total}</p>
+                        <p className='pa2 mr2 f6'>{<FormatMoney
+                            amount={total}/>}</p>
                     </FormGroup>
 
                     <Col md={2} data-id={index}>

@@ -3,13 +3,9 @@ import axios from 'axios'
 import AddCustomer from './AddCustomer'
 import EditCustomer from './EditCustomer'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
+    FormGroup, Input, Card, CardBody, Row, Col
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import CustomerTypeDropdown from '../common/CustomerTypeDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import DeleteModal from '../common/DeleteModal'
 import RestoreModal from '../common/RestoreModal'
@@ -42,13 +38,13 @@ export default class Customers extends Component {
             filters: {
                 status: 'active',
                 company_id: '',
-                customer_type: '',
                 group_settings_id: '',
                 searchText: '',
                 start_date: '',
                 end_date: ''
             },
             ignoredColumns: [
+                'vat_number',
                 'public_notes',
                 'private_notes',
                 'industry_id',
@@ -59,8 +55,6 @@ export default class Customers extends Component {
                 'credit_balance',
                 'settings',
                 'assigned_user',
-                'first_name',
-                'last_name',
                 'company',
                 'customer_type',
                 'company_id',
@@ -68,7 +62,6 @@ export default class Customers extends Component {
                 'customer_type',
                 'customerType',
                 'credit',
-                'job_title',
                 'default_payment_method',
                 'billing',
                 'shipping',
@@ -148,10 +141,10 @@ export default class Customers extends Component {
         this.setState({ bulk: options })
     }
 
-    saveBulk () {
+    saveBulk (e) {
         const action = e.target.id
         const self = this
-        axios.post('/api/customer/bulk', { bulk: this.state.bulk }).then(function (response) {
+        axios.post('/api/customer/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
             // const arrQuotes = [...self.state.invoices]
             // const index = arrQuotes.findIndex(payment => payment.id === id)
             // arrQuotes.splice(index, 1)
@@ -220,7 +213,7 @@ export default class Customers extends Component {
     }
 
     getFilters () {
-        const { searchText, status, company_id, customer_type, group_settings_id, start_date, end_date } = this.state.filters
+        const { searchText, status, company_id, group_settings_id, start_date, end_date } = this.state.filters
         const columnFilter = this.state.customers.length
             ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.customers[0])}
                 ignored_columns={this.state.ignoredColumns}/> : null
@@ -261,16 +254,9 @@ export default class Customers extends Component {
                     />
                 </Col>
 
-                <Col md={2}>
-                    <CustomerTypeDropdown
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterCustomers}
-                    />
-                </Col>
-
                 <Col md={1}>
                     <CsvImporter filename="customers.csv"
-                        url={`/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&customer_type=${customer_type}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                        url={`/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>
 
                 <Col md={2}>
@@ -328,7 +314,7 @@ export default class Customers extends Component {
                 const columnList = Object.keys(customer).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <CustomerPresenter toggleViewedEntity={this.toggleViewedEntity}
+                    return <CustomerPresenter key={key} toggleViewedEntity={this.toggleViewedEntity}
                         field={key} entity={customer}/>
                 })
 
@@ -361,13 +347,12 @@ export default class Customers extends Component {
     }
 
     render () {
-        const { searchText, status, company_id, customer_type, group_settings_id, start_date, end_date } = this.state.filters
+        const { searchText, status, company_id, group_settings_id, start_date, end_date } = this.state.filters
         const { custom_fields, customers, companies, error, view } = this.state
-        const fetchUrl = `/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&customer_type=${customer_type}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}`
+        const fetchUrl = `/api/customers?search_term=${searchText}&status=${status}&company_id=${company_id}&group_settings_id=${group_settings_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = companies.length ? <AddCustomer
             custom_fields={custom_fields}
-            customer_type={this.props.customer_type}
             action={this.updateCustomers}
             customers={customers}
             companies={companies}

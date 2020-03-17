@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
 import React from 'react'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, FormGroup, Label, Form } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, FormGroup, Label, Form, DropdownItem } from 'reactstrap'
 import axios from 'axios'
 import UserDropdown from '../common/UserDropdown'
+import TaskStatusDropdown from '../common/TaskStatusDropdown'
 
 class EditLeadForm extends React.Component {
     constructor (props) {
@@ -11,21 +11,21 @@ class EditLeadForm extends React.Component {
         this.state = {
             modal: false,
             id: this.props.lead.id,
-            customer_id: this.props.lead.customer_id,
-            first_name: this.props.lead.customer.first_name,
-            last_name: this.props.lead.customer.last_name,
-            email: this.props.lead.customer.email,
-            phone: this.props.lead.customer.phone,
-            address_1: this.props.lead.customer.billing ? this.props.lead.customer.billing.address_1 : '',
-            address_2: this.props.lead.customer.billing ? this.props.lead.customer.billing.address_2 : '',
-            job_title: this.props.lead.customer.job_title,
+            first_name: this.props.lead.first_name,
+            last_name: this.props.lead.last_name,
+            email: this.props.lead.email,
+            phone: this.props.lead.phone,
+            address_1: this.props.lead.address_1,
+            address_2: this.props.lead ? this.props.lead.address_2 : '',
+            job_title: this.props.lead.job_title,
             company_name: '',
-            zip: this.props.lead.customer.billing ? this.props.lead.customer.billing.zip : '',
-            city: this.props.lead.customer.billing ? this.props.lead.customer.billing.city : '',
+            zip: this.props.lead.zip,
+            city: this.props.lead.city,
             title: this.props.lead.title,
+            description: this.props.lead.description,
             valued_at: this.props.lead.valued_at,
-            contributors: this.props.lead.contributors,
             source_type: this.props.lead.source_type,
+            task_status: this.props.lead.task_status,
             values: [],
             loading: false,
             submitSuccess: false,
@@ -42,10 +42,24 @@ class EditLeadForm extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.buildSourceTypeOptions = this.buildSourceTypeOptions.bind(this)
         this.handleMultiSelect = this.handleMultiSelect.bind(this)
+        this.convertLead = this.convertLead.bind(this)
     }
 
     componentDidMount () {
         this.getSourceTypes()
+    }
+
+    convertLead () {
+        axios.get(`/api/lead/convert/${this.state.id}`)
+            .then(function (response) {
+                const arrTasks = [...this.props.allTasks]
+                const index = arrTasks.findIndex(task => task.id === this.props.task.id)
+                arrTasks.splice(index, 1)
+                this.props.action(arrTasks)
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
     }
 
     hasErrorFor (field) {
@@ -83,13 +97,12 @@ class EditLeadForm extends React.Component {
             job_title: this.state.job_title,
             company_name: this.state.company_name,
             description: this.state.description,
-            customer_type: this.props.customer_type,
             title: this.state.title,
             valued_at: this.state.valued_at,
             contributors: this.state.selectedUsers,
             source_type: this.state.source_type,
             task_type: this.props.task_type,
-            task_status: this.props.status
+            task_status: this.state.task_status
         }
         this.setState({
             submitSuccess: true,
@@ -174,10 +187,13 @@ class EditLeadForm extends React.Component {
     render () {
         const { submitSuccess, loading } = this.state
         const sourceTypeOptions = this.buildSourceTypeOptions()
+        const button = this.props.listView && this.props.listView === true
+            ? <DropdownItem onClick={this.toggle}><i className="fa fa-edit"/>Edit</DropdownItem>
+            : <Button className="mr-2 ml-2" color="primary" onClick={this.toggle}>Edit Lead</Button>
 
         return (
             <React.Fragment>
-                <Button color="success" onClick={this.toggle}>Edit Lead</Button>
+                {button}
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>
                         Edit Lead
@@ -235,7 +251,16 @@ class EditLeadForm extends React.Component {
                                 {this.renderErrorFor('valued_at')}
                             </FormGroup>
 
-                            <UserDropdown handleInputChanges={this.handleMultiSelect.bind(this)} name="contributors" users={this.props.users}
+                            <FormGroup>
+                                <Label for="valued_at"> Task Status </Label>
+                                <TaskStatusDropdown task_type={2}
+                                    handleInputChanges={this.handleInputChanges.bind(this)}
+                                    status={this.state.task_status}/>
+                                {this.renderErrorFor('valued_at')}
+                            </FormGroup>
+
+                            <UserDropdown handleInputChanges={this.handleMultiSelect.bind(this)} name="contributors"
+                                users={this.props.users}
                                 multiple={true}/>
 
                             {sourceTypeOptions}
@@ -316,7 +341,7 @@ class EditLeadForm extends React.Component {
                             <FormGroup>
                                 <Label for="postcode"> Postcode </Label>
                                 <Input className={this.hasErrorFor('zip') ? 'is-invalid' : ''}
-                                    value={this.state.postcode}
+                                    value={this.state.zip}
                                     type="text"
                                     id="zip"
                                     onChange={this.handleInputChanges.bind(this)}
@@ -365,6 +390,7 @@ class EditLeadForm extends React.Component {
                     <ModalFooter>
                         <Button color="success" onClick={this.handleClick.bind(this)}>Add</Button>
                         <Button color="secondary" onClick={this.toggle}>Close</Button>
+                        <Button color="success" onClick={this.convertLead}>Convert to Deal</Button>
 
                         {loading &&
                         <span className="fa fa-circle-o-notch fa-spin"/>

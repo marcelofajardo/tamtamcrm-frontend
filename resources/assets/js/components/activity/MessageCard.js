@@ -49,12 +49,12 @@ class MessageCard extends React.Component {
     }
 
     formatDate (dateString) {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        // const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June',
             'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'
         ]
         const d = new Date(dateString)
-        const dayName = days[d.getDay()]
+        // const dayName = days[d.getDay()]
         const monthName = monthNames[d.getMonth()]
         // const formattedDate = `${dayName} ${d.getDate()} ${monthName} ${d.getFullYear()}`
         // return formattedDate

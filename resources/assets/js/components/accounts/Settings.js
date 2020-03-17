@@ -20,7 +20,7 @@ import { ToastContainer, toast } from 'react-toastify'
 class Settings extends Component {
     constructor (props) {
         super(props)
-        
+
         this.state = {
             id: this.props.match.params.add && this.props.match.params.add === 'true' ? null : localStorage.getItem('account_id'),
             loaded: false,
@@ -106,6 +106,7 @@ class Settings extends Component {
                 toast.success('Settings updated successfully')
             })
             .catch((error) => {
+                console.error(error)
                 toast.error('There was an issue updating the settings')
             })
     }
@@ -245,6 +246,23 @@ class Settings extends Component {
                         {
                             value: 'custom',
                             text: 'Custom'
+                        }
+                    ]
+                },
+                {
+                    name: 'inclusive_taxes',
+                    label: 'Inclusive Taxes',
+                    type: 'select',
+                    value: settings.inclusive_taxes,
+                    group: 3,
+                    options: [
+                        {
+                            value: true,
+                            text: 'Yes'
+                        },
+                        {
+                            value: false,
+                            text: 'No'
                         }
                     ]
                 }

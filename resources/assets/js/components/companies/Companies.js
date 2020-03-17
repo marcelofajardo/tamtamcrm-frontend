@@ -127,7 +127,7 @@ export default class Companies extends Component {
     saveBulk (e) {
         const action = e.target.id
         const self = this
-        axios.post('/api/company/bulk', { bulk: this.state.bulk }).then(function (response) {
+        axios.post('/api/company/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
             // const arrQuotes = [...self.state.invoices]
             // const index = arrQuotes.findIndex(payment => payment.id === id)
             // arrQuotes.splice(index, 1)
@@ -202,15 +202,25 @@ export default class Companies extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
+                <Col md={2}>
+                    <FormGroup>
+                        <BulkActionDropdown
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            saveBulk={this.saveBulk}/>
+                    </FormGroup>
                 </Col>
 
-                <Col>
-                    <CsvImporter filename="companies.csv"
-                        url={`/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                <Col md={2}>
+                    <FormGroup>
+                        <CsvImporter filename="companies.csv"
+                            url={`/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                    </FormGroup>
+                </Col>
+
+                <Col md={8}>
+                    <FormGroup>
+                        {columnFilter}
+                    </FormGroup>
                 </Col>
 
                 <Col md={2}>
@@ -218,10 +228,6 @@ export default class Companies extends Component {
                         <DateFilter onChange={this.filterCompanies} update={this.addUserToState}
                             data={this.state.cachedData}/>
                     </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
                 </Col>
             </Row>
         )
@@ -249,7 +255,7 @@ export default class Companies extends Component {
                 const columnList = Object.keys(brand).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <CompanyPresenter toggleViewedEntity={this.toggleViewedEntity}
+                    return <CompanyPresenter key={key} toggleViewedEntity={this.toggleViewedEntity}
                         field={key} entity={brand}/>
                 })
                 return <tr key={brand.id}>
@@ -320,12 +326,12 @@ export default class Companies extends Component {
     }
 
     render () {
-        const { custom_fields, users, error, view } = this.state
+        const { custom_fields, users, error, view, brands } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
         const addButton = users.length
-            ? <AddCompany users={users} action={this.addUserToState}
+            ? <AddCompany brands={brands} users={users} action={this.addUserToState}
                 custom_fields={custom_fields}/> : null
 
         return (

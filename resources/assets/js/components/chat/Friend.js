@@ -4,10 +4,6 @@ import { Badge, ListGroupItem } from 'reactstrap'
 import Avatar from '../common/Avatar'
 
 class Friend extends Component {
-    constructor (props) {
-        super(props)
-    }
-
     render () {
         const { customer_id, name, avatar, message, when, toRespond, seen } = this.props.friend
         const active = this.props.selected_friend === customer_id

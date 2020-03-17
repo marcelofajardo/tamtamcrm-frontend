@@ -13,6 +13,7 @@ import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
 import FormBuilder from '../accounts/FormBuilder'
 import AddButtons from '../common/AddButtons'
+import DesignDropdown from '../common/DesignDropdown'
 
 class AddCredit extends React.Component {
     constructor (props) {
@@ -29,6 +30,7 @@ class AddCredit extends React.Component {
             private_notes: '',
             public_notes: '',
             custom_value4: '',
+            design_id: null,
             loading: false,
             errors: [],
             message: ''
@@ -41,7 +43,7 @@ class AddCredit extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('creditForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'creditForm')) {
             const storedValues = JSON.parse(localStorage.getItem('creditForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }
@@ -101,6 +103,8 @@ class AddCredit extends React.Component {
     handleClick () {
         axios.post('/api/credit', {
             total: this.state.total,
+            design_id: this.state.design_id,
+            balance: this.state.total,
             public_notes: this.state.public_notes,
             private_notes: this.state.private_notes,
             customer_id: this.state.customer_id,
@@ -125,6 +129,7 @@ class AddCredit extends React.Component {
                     private_notes: '',
                     custom_value3: '',
                     custom_value4: '',
+                    design_id: null,
                     loading: false,
                     errors: []
                 })
@@ -153,6 +158,7 @@ class AddCredit extends React.Component {
                     customer_id: null,
                     custom_value1: '',
                     custom_value2: '',
+                    design_id: null,
                     public_notes: '',
                     private_notes: '',
                     custom_value3: '',
@@ -196,6 +202,12 @@ class AddCredit extends React.Component {
                                     {this.renderErrorFor('total')}
                                 </FormGroup>
 
+                                <FormGroup className="mb-3">
+                                    <Label>Design</Label>
+                                    <DesignDropdown name="design_id" handleChange={this.handleInput.bind(this)}
+                                        design={this.state.design_id}/>
+                                </FormGroup>
+
                                 {customForm}
                             </CardBody>
                         </Card>
@@ -215,8 +227,8 @@ class AddCredit extends React.Component {
                                     {this.renderErrorFor('customer_id')}
                                 </FormGroup>
 
-                                {this.state.contacts.length && this.state.contacts.map(contact => (
-                                    <FormGroup check>
+                                {this.state.contacts.length && this.state.contacts.map((contact, index) => (
+                                    <FormGroup key={index} check>
                                         <Label check>
                                             <Input value={contact.id} onChange={this.handleContactChange}
                                                 type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}

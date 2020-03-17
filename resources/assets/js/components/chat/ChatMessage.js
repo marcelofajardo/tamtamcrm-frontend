@@ -3,10 +3,6 @@ import React, { Component } from 'react'
 import { Card, CardBody } from 'reactstrap'
 
 class ChatMessage extends Component {
-    constructor (props) {
-        super(props)
-    }
-
     outgoingMessage (message, formattedDate) {
         return (
             <div className="outgoing_msg">

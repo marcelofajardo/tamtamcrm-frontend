@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import LineItem from './LineItem'
 import { Button, FormGroup, Label, Input } from 'reactstrap'
 import axios from 'axios'
+import FormatMoney from './FormatMoney'
 
 class LineItemEditor extends Component {
     constructor (props) {
@@ -115,8 +116,7 @@ class LineItemEditor extends Component {
     }
 
     render () {
-        console.log('rows', this.props.rows)
-        const lineItemRows = this.state.products.length && this.state.expenses.length && this.state.taxRates.length
+        const lineItemRows = this.state.products.length && this.state.taxRates.length
             ? <LineItem
                 line_type={parseInt(this.state.line_type)}
                 rows={this.props.rows}
@@ -152,28 +152,32 @@ class LineItemEditor extends Component {
                         <tr>
                             <th/>
                             <th>Tax total:</th>
-                            <th>{this.props.tax_total}</th>
+                            <th>{<FormatMoney
+                                amount={this.props.tax_total}/>}</th>
                             <th/>
                         </tr>
 
                         <tr>
                             <th/>
                             <th>Discount total:</th>
-                            <th>{this.props.discount_total}</th>
+                            <th>{<FormatMoney
+                                amount={this.props.discount_total}/>}</th>
                             <th/>
                         </tr>
 
                         <tr>
                             <th/>
                             <th>Sub total:</th>
-                            <th>{this.props.sub_total}</th>
+                            <th>{<FormatMoney
+                                amount={this.props.sub_total}/>}</th>
                             <th/>
                         </tr>
 
                         <tr>
                             <th/>
                             <th>Grand total:</th>
-                            <th>{total}</th>
+                            <th>{<FormatMoney
+                                amount={total}/>}</th>
                             <th/>
                         </tr>
                     </tfoot>

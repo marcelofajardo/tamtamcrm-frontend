@@ -1,88 +1,80 @@
 import React, { Component } from 'react'
-import Address from './Address'
-import LineItemEditor from '../common/LineItemEditor'
 import axios from 'axios'
 import {
     Button,
-    FormGroup,
-    Input,
-    Label,
+    Col,
+    DropdownItem,
     Modal,
     ModalBody,
     ModalFooter,
     ModalHeader,
-    Card,
-    CardBody,
-    CardHeader,
     Nav,
     NavItem,
     NavLink,
+    Row,
     TabContent,
-    TabPane,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem, Row, Col
+    TabPane
 } from 'reactstrap'
-import CustomerDropdown from '../common/CustomerDropdown'
-import TaxRateDropdown from '../common/TaxRateDropdown'
-import CompanyDropdown from '../common/CompanyDropdown'
 import 'react-dates/lib/css/_datepicker.css'
 import moment from 'moment'
-import AddRecurringInvoice from '../recurringInvoices/AddRecurringInvoice'
-import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import AddButtons from '../common/AddButtons'
-import FileUploads from '../attachments/FileUploads'
+import Details from './Details'
+import Contacts from './Contacts'
+import Settings from './Settings'
+import Items from './Items'
+import Documents from './Documents'
+import QuoteDropdownMenu from './QuoteDropdownMenu'
+import Notes from '../common/Notes'
 
 class EditInvoice extends Component {
     constructor (props, context) {
         super(props, context)
 
         this.state = {
-            is_recurring: false,
-            due_date: this.props.invoice && this.props.invoice.due_date && this.props.invoice.due_date.length ? moment(this.props.invoice.due_date).format('YYYY-MM-DD') : moment(new Date()).format('YYYY-MM-DD'),
-            quantity: '',
-            tax_rate_name: '',
-            finance_type: this.props.finance_type ? this.props.finance_type : 1,
-            lines: [],
             invitations: this.props.invoice && this.props.invoice.invitations && this.props.invoice.invitations.length ? this.props.invoice.invitations : [],
+            customer_id: this.props.invoice && this.props.invoice.customer_id ? this.props.invoice.customer_id : null,
             contacts: [],
+            due_date: this.props.invoice && this.props.invoice.due_date && this.props.invoice.due_date.length ? moment(this.props.invoice.due_date).format('YYYY-MM-DD') : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
+            quantity: '',
+            finance_type: this.props.finance_type ? this.props.finance_type : 1,
+            invoice_id: this.props.invoice && this.props.invoice.id ? this.props.invoice.id : null,
+            lines: [],
             address: {},
             customerName: '',
-            customer_id: this.props.invoice && this.props.invoice.customer_id ? this.props.invoice.customer_id : null,
+            tax_rate_name: '',
+            tax_rate: this.props.invoice && this.props.invoice.tax_rate ? this.props.invoice.tax_rate : 0,
             company_id: this.props.invoice && this.props.invoice.company_id ? this.props.invoice.company_id : null,
-            status: this.props.invoice && this.props.invoice.status_id ? this.props.invoice.status_id : 1,
+            status_id: this.props.invoice && this.props.invoice.status_id ? parseInt(this.props.invoice.status_id) : 1,
             customers: this.props.customers,
             tasks: [],
             errors: [],
             total: this.props.invoice && this.props.invoice.total ? this.props.invoice.total : 0,
-            po_number: this.props.invoice && this.props.invoice.po_number ? this.props.invoice.po_number : '',
             discount_total: this.props.invoice && this.props.invoice.discount_total ? this.props.invoice.discount_total : 0,
             tax_total: this.props.invoice && this.props.invoice.tax_total ? this.props.invoice.tax_total : 0,
             sub_total: this.props.invoice && this.props.invoice.sub_total ? this.props.invoice.sub_total : 0,
-            data: [],
-            date: this.props.invoice && this.props.invoice.date ? this.props.invoice.date : moment(new Date()).format('YYYY-MM-DD'),
+            data: this.props.invoice && this.props.invoice.line_items ? this.props.invoice.line_items : [],
+            date: this.props.invoice && this.props.invoice.date ? this.props.invoice.date : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             partial: this.props.invoice && this.props.invoice.partial ? this.props.invoice.partial : 0,
             public_notes: this.props.invoice && this.props.invoice.public_notes ? this.props.invoice.public_notes : null,
             private_notes: this.props.invoice && this.props.invoice.private_notes ? this.props.invoice.private_notes : null,
             terms: this.props.invoice && this.props.invoice.terms ? this.props.invoice.terms : null,
             footer: this.props.invoice && this.props.invoice.footer ? this.props.invoice.footer : null,
-            invoice_id: this.props.invoice && this.props.invoice.id ? this.props.invoice.id : null,
             visible: 'collapse',
-            success: false,
-            tax: 0,
-            discount: 0,
-            recurring: '',
-            activeTab: '1',
-            showSuccessMessage: false,
-            showErrorMessage: false,
             custom_value1: this.props.invoice ? this.props.invoice.custom_value1 : '',
             custom_value2: this.props.invoice ? this.props.invoice.custom_value2 : '',
             custom_value3: this.props.invoice ? this.props.invoice.custom_value3 : '',
             custom_value4: this.props.invoice ? this.props.invoice.custom_value4 : '',
-            dropdownOpen: false,
+            tax: 0,
+            discount: 0,
+            recurring: '',
+            activeTab: '1',
+            po_number: this.props.invoice && this.props.invoice.po_number ? this.props.invoice.po_number : '',
+            design_id: this.props.invoice && this.props.invoice.design_id ? this.props.invoice.design_id : null,
+            success: false,
+            showSuccessMessage: false,
+            showErrorMessage: false,
             width: window.innerWidth
         }
 
@@ -90,45 +82,35 @@ class EditInvoice extends Component {
         this.saveData = this.saveData.bind(this)
         this.setTotal = this.setTotal.bind(this)
         this.toggle = this.toggle.bind(this)
-        this.hasErrorFor = this.hasErrorFor.bind(this)
-        this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleTaskChange = this.handleTaskChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.buildForm = this.buildForm.bind(this)
         this.createInvoice = this.createInvoice.bind(this)
+        this.setRecurring = this.setRecurring.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleAddFiled = this.handleAddFiled.bind(this)
         this.handleFieldChange = this.handleFieldChange.bind(this)
         this.updatePriceData = this.updatePriceData.bind(this)
         this.calculateTotals = this.calculateTotals.bind(this)
-        this.handleSlideClick = this.handleSlideClick.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
-        this.toggleMenu = this.toggleMenu.bind(this)
-        this.setRecurring = this.setRecurring.bind(this)
         this.handleContactChange = this.handleContactChange.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
 
         this.total = 0
+        const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+        const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+        this.settings = user_account[0].account.settings
     }
 
-    toggleTab (tab) {
-        if (this.state.activeTab !== tab) {
-            this.setState({ activeTab: tab })
-        }
-    }
-
-    toggleMenu (event) {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        })
+    componentWillMount () {
+        window.addEventListener('resize', this.handleWindowSizeChange)
     }
 
     componentDidMount () {
         if (this.props.task_id || this.props.invoice_id) {
             this.loadInvoice()
         } else {
-            if (localStorage.hasOwnProperty('quoteForm')) {
+            if (Object.prototype.hasOwnProperty.call(localStorage, 'quoteForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('quoteForm'))
                 this.setState({ ...storedValues }, () => console.log('new state', this.state))
             }
@@ -142,28 +124,20 @@ class EditInvoice extends Component {
         }
     }
 
-    componentWillMount () {
-        window.addEventListener('resize', this.handleWindowSizeChange)
-    }
-
     // make sure to remove the listener
     // when the component is not mounted anymore
     componentWillUnmount () {
         window.removeEventListener('resize', this.handleWindowSizeChange)
     }
 
-    handleWindowSizeChange () {
-        this.setState({ width: window.innerWidth })
+    toggleTab (tab) {
+        if (this.state.activeTab !== tab) {
+            this.setState({ activeTab: tab })
+        }
     }
 
-    renderErrorFor (field) {
-        if (this.hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{this.state.errors[field][0]}</strong>
-                </span>
-            )
-        }
+    handleWindowSizeChange () {
+        this.setState({ width: window.innerWidth })
     }
 
     handleContactChange (e) {
@@ -258,14 +232,6 @@ class EditInvoice extends Component {
             })
     }
 
-    handleSlideClick (e) {
-        this.setState({ is_recurring: e.target.checked })
-    }
-
-    hasErrorFor (field) {
-        return !!this.state.errors[field]
-    }
-
     loadInvoice () {
         const url = this.props.task_id ? `/api/quotes/task/${this.props.task_id}` : `/api/quote/${this.state.invoice_id}`
 
@@ -291,44 +257,6 @@ class EditInvoice extends Component {
             })
     }
 
-    downloadPdf (response) {
-        const linkSource = `data:application/pdf;base64,${response.data.data}`
-        const downloadLink = document.createElement('a')
-        const fileName = 'vct_illustration.pdf'
-
-        downloadLink.href = linkSource
-        downloadLink.download = fileName
-        downloadLink.click()
-    }
-
-    changeStatus (action) {
-        if (!this.state.invoice_id) {
-            return false
-        }
-
-        const data = this.getFormData()
-
-        axios.post(`/api/quote/${this.state.invoice_id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({
-                    status: status,
-                    showSuccessMessage: true,
-                    showErrorMessage: false
-                })
-            })
-            .catch((error) => {
-                this.setState({
-                    showErrorMessage: true,
-                    showSuccessMessage: false
-                })
-                console.warn(error)
-            })
-    }
-
     toggle () {
         this.setState({
             modal: !this.state.modal,
@@ -347,7 +275,8 @@ class EditInvoice extends Component {
                     customer_id: null,
                     company_id: null,
                     status_id: null,
-                    data: []
+                    data: [],
+                    invitations: []
                 }, () => localStorage.removeItem('quoteForm'))
             }
         })
@@ -382,7 +311,6 @@ class EditInvoice extends Component {
             }
 
             if (product.unit_tax > 0 && this.state.tax === 0) {
-                const n = parseFloat(total)
                 const tax_percentage = lexieTotal * product.unit_tax / 100
                 tax_total += tax_percentage
             }
@@ -419,7 +347,7 @@ class EditInvoice extends Component {
         let total = price
         const unit_discount = currentRow.unit_discount
         const unit_tax = currentRow.unit_tax
-        const uses_inclusive_taxes = false
+        const uses_inclusive_taxes = this.settings.inclusive_taxes
 
         const quantity = currentRow.quantity
 
@@ -502,7 +430,9 @@ class EditInvoice extends Component {
     }
 
     getFormData () {
-        const data = {
+        return {
+            is_amount_discount: true,
+            design_id: this.state.design_id,
             tax_rate: this.state.tax,
             tax_rate_name: this.state.tax_rate_name,
             is_recurring: this.state.is_recurring,
@@ -513,6 +443,7 @@ class EditInvoice extends Component {
             company_id: this.state.company_id,
             line_items: this.state.data,
             total: this.state.total,
+            balance: this.props.invoice && this.props.invoice.balance ? this.props.invoice.balance : this.state.total,
             po_number: this.state.po_number,
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
@@ -530,8 +461,6 @@ class EditInvoice extends Component {
             custom_value4: this.state.custom_value4,
             invitations: this.state.invitations
         }
-
-        return data
     }
 
     saveData () {
@@ -594,65 +523,8 @@ class EditInvoice extends Component {
     }
 
     buildForm () {
-        const changeStatusButton = <DropdownItem color="primary" onClick={() => this.changeStatus('mark_sent')}>Mark Sent</DropdownItem>
-
-        const approveButton = this.state.status !== 4
-            ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('mark_approved')}>Approve</DropdownItem> : null
-
-        const sendEmailButton = this.state.status === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
-                    Email</DropdownItem> : null
-
-        const downloadButton = <DropdownItem className="primary"
-            onClick={() => this.changeStatus('download')}>Download</DropdownItem>
-
-        const cloneInvoiceButton = <DropdownItem className="primary"
-            onClick={() => this.changeStatus('clone_to_invoice').bind(this)}>Convert
-                to
-                Invoice</DropdownItem>
-
-        const cloneButton = <DropdownItem className="primary"
-            onClick={() => this.changeStatus('clone_to_quote').bind(this)}>Clone Quote
-        </DropdownItem>
-
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
-
-        const dropdownMenu = this.state.invoice_id
-            ? <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-                <DropdownToggle caret>
-                        Actions
-                </DropdownToggle>
-
-                <DropdownMenu>
-                    <DropdownItem header>Header</DropdownItem>
-                    {changeStatusButton}
-                    {approveButton}
-                    {sendEmailButton}
-                    {downloadButton}
-                    {deleteButton}
-                    {archiveButton}
-                    {cloneInvoiceButton}
-                    {cloneButton}
-                    {this.props.task_id ? <DropdownItem className="primary" onClick={this.handleTaskChange}>Get
-                            Products</DropdownItem> : null}
-                </DropdownMenu>
-            </Dropdown> : null
-
-        const successMessage = this.state.showSuccessMessage === true
-            ? <SuccessMessage message="Quote was updated successfully"/> : null
+        const successMessage = this.state.showSuccessMessage !== false && this.state.showSuccessMessage !== ''
+            ? <SuccessMessage message={this.state.showSuccessMessage}/> : null
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
@@ -666,298 +538,131 @@ class EditInvoice extends Component {
             </NavLink>
         </NavItem> : null
 
-        const documentTab = this.state.invoice_id !== null
-            ? <TabPane tabId="5">
-                <Card>
-                    <CardHeader>Documents</CardHeader>
-                    <CardBody>
-                        <FileUploads entity_type="App\Invoice" entity={this.props.invoice}
-                            user_id={this.props.invoice.user_id}/>
-                    </CardBody>
-                </Card>
-            </TabPane> : null
+        const tabs = <Nav tabs>
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '1' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('1')
+                    }}>
+                    Details
+                </NavLink>
+            </NavItem>
 
-        const detailsForm = <React.Fragment>
-            <h2>{this.state.customerName}</h2>
-            <Address address={this.state.address}/>
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '2' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('2')
+                    }}>
+                    Contacts
+                </NavLink>
+            </NavItem>
 
-            <Card>
-                <CardHeader>Recurring</CardHeader>
-                <CardBody>
-                    <FormGroup>
-                        <Label>Is Recurring?</Label>
-                        <Input type="checkbox" onChange={this.handleSlideClick}/>
-                    </FormGroup>
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '3' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('3')
+                    }}>
+                    Items
+                </NavLink>
+            </NavItem>
 
-                    <div className={this.state.is_recurring ? 'collapse show' : 'collapse'}>
-                        <AddRecurringInvoice
-                            finance_type={this.props.finance_type}
-                            invoice={this.props.invoice}
-                            setRecurring={this.setRecurring}
-                        />
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '4' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('4')
+                    }}>
+                    Notes
+                </NavLink>
+            </NavItem>
+            {documentTabLink}
+        </Nav>
 
-                    </div>
-                </CardBody>
-            </Card>
+        const details = <Details company_id={this.state.company_id} handleInput={this.handleInput}
+            customer_id={this.state.customer_id} customers={this.props.customers}
+            errors={this.state.errors} partial={this.state.partial} invoice={this.props.invoice}
+            po_number={this.state.po_number} due_date={this.state.due_date} date={this.state.date}
+            address={this.state.address} customerName={this.state.customerName}
+            custom_fields={this.props.custom_fields}/>
 
-            <Card>
-                <CardHeader>Details</CardHeader>
-                <CardBody>
-                    <FormGroup>
-                        <Label for="date">Quote Date(*):</Label>
-                        <Input value={this.state.date} type="date" id="date" name="date"
-                            onChange={this.handleInput}/>
-                        {this.renderErrorFor('due_date')}
-                    </FormGroup>
+        const contacts = <Contacts errors={this.state.errors} contacts={this.state.contacts}
+            invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
-                    <FormGroup>
-                        <Label for="due_date">Expiry Date(*):</Label>
-                        <Input value={this.state.due_date} type="date" id="due_date" name="due_date"
-                            onChange={this.handleInput}/>
-                        {this.renderErrorFor('due_date')}
-                    </FormGroup>
+        const settings = <Settings errors={this.state.errors} handleInput={this.handleInput}
+            discount={this.state.discount} design_id={this.state.design_id}/>
 
-                    <FormGroup>
-                        <Label for="po_number">PO Number(*):</Label>
-                        <Input value={this.state.po_number} type="text" id="po_number" name="po_number"
-                            onChange={this.handleInput}/>
-                        {this.renderErrorFor('po_number')}
-                    </FormGroup>
+        const items = <Items errors={this.state.errors} handleFieldChange={this.handleFieldChange}
+            handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
+            handleDelete={this.handleDelete} discount_total={this.state.discount_total}
+            sub_total={this.state.sub_total} tax_total={this.state.tax_total}
+            total={this.state.total} data={this.state.data}/>
 
-                    <FormGroup>
-                        <Label>Partial</Label>
-                        <Input
-                            value={this.state.partial}
-                            type='text'
-                            name='partial'
-                            id='partial'
-                            onChange={this.handleInput}
-                        />
-                    </FormGroup>
+        const notes = <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+            terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
+            handleInput={this.handleInput}/>
 
-                    <CustomerDropdown
-                        handleInputChanges={this.handleInput}
-                        customer={this.state.customer_id}
-                        customers={this.state.customers}
-                        errors={this.state.errors}
-                    />
+        const documents = <Documents invoice={this.props.invoice}/>
 
-                    <CompanyDropdown
-                        name="company_id"
-                        company_id={this.state.company_id}
-                        errors={this.state.errors}
-                        handleInputChanges={this.handleInput}
-                    />
-
-                    {customForm}
-                </CardBody>
-            </Card>
-
-        </React.Fragment>
-
-        const contactsForm = <Card>
-            <CardHeader>Invitations</CardHeader>
-            <CardBody>
-                {this.state.contacts.length && this.state.contacts.map(contact => {
-                    const invitations = this.state.invitations.length ? this.state.invitations.filter(invitation => parseInt(invitation.client_contact_id) === contact.id) : []
-                    const checked = invitations.length ? 'checked="checked"' : ''
-                    return <FormGroup check>
-                        <Label check>
-                            <Input checked={checked} value={contact.id} onChange={this.handleContactChange}
-                                type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
-                        </Label>
-                    </FormGroup>
-                })
-                }
-                {!this.state.contacts.length &&
-                <h2>You haven't selected a customer</h2>
-                }
-            </CardBody>
-        </Card>
-
-        const taxesTab =
-            <Card>
-                <CardHeader>Items</CardHeader>
-                <CardBody>
-                    <FormGroup>
-                        <Label>Tax</Label>
-                        <TaxRateDropdown
-                            name="tax"
-                            handleInputChanges={this.handleInput}
-                            errors={this.state.errors}
-                        />
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label>Discount</Label>
-                        <Input
-                            value={this.state.discount}
-                            type='text'
-                            name='discount'
-                            id='discount'
-                            onChange={this.handleInput}
-                        />
-                    </FormGroup>
-                </CardBody>
-            </Card>
-
-        const itemsForm = <Card>
-            <CardHeader>Items</CardHeader>
-            <CardBody>
-                <LineItemEditor
-                    total={this.state.total}
-                    sub_total={this.state.sub_total}
-                    tax_total={this.state.tax_total}
-                    discount_total={this.state.discount_total}
-                    rows={this.state.data}
-                    delete={this.handleDelete}
-                    update={this.handleFieldChange}
-                    onAddFiled={this.handleAddFiled}
-                    setTotal={this.setTotal}/>
-
-                <br/>
-                <br/>
-            </CardBody>
-        </Card>
-
-        const notesForm = <Card>
-            <CardHeader>Notes</CardHeader>
-            <CardBody>
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>Public Notes</Label>
-                    <Input
-                        value={this.state.public_notes}
-                        type='textarea'
-                        name='public_notes'
-                        id='public_notes'
-                        onChange={this.handleInput}
-                    />
-                </FormGroup>
-
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>Private Notes</Label>
-                    <Input
-                        value={this.state.private_notes}
-                        type='textarea'
-                        name='private_notes'
-                        id='private_notes'
-                        onChange={this.handleInput}
-                    />
-                </FormGroup>
-
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>Terms</Label>
-                    <Input
-                        value={this.state.terms}
-                        type='textarea'
-                        name='terms'
-                        id='terms'
-                        onChange={this.handleInput}
-                    />
-                </FormGroup>
-
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Label>Footer</Label>
-                    <Input
-                        value={this.state.footer}
-                        type='textarea'
-                        name='footer'
-                        id='footer'
-                        onChange={this.handleInput}
-                    />
-
-                </FormGroup>
-            </CardBody>
-        </Card>
+        const dropdownMenu = <QuoteDropdownMenu invoices={this.props.invoices} formData={this.getFormData()}
+            invoice_id={this.props.invoice.id}
+            task_id={this.state.task_id}
+            handleTaskChange={this.handleTaskChange}
+            action={this.props.action}
+            status_id={this.props.invoice.status_id}/>
 
         const isMobile = this.state.width <= 500
         const form = isMobile
             ? <React.Fragment>
-                <Nav tabs>
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '1' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggleTab('1')
-                            }}>
-                       Details
-                        </NavLink>
-                    </NavItem>
 
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '2' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggleTab('2')
-                            }}>
-                       Contacts
-                        </NavLink>
-                    </NavItem>
-
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '3' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggleTab('3')
-                            }}>
-                       Items
-                        </NavLink>
-                    </NavItem>
-
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '4' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggleTab('4')
-                            }}>
-                       Notes
-                        </NavLink>
-                    </NavItem>
-                    {documentTabLink}
-                </Nav>
+                {tabs}
 
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
-                        {detailsForm}
+                        {details}
                     </TabPane>
 
                     <TabPane tabId="2">
-                        {contactsForm}
+                        {contacts}
                     </TabPane>
 
                     <TabPane tabId="3">
-                        {taxesTab}
-                        {itemsForm}
+                        {settings}
+                        {items}
                     </TabPane>
 
                     <TabPane tabId="4">
-                        {notesForm}
+                        {notes}
                     </TabPane>
 
-                    {documentTab}
+                    <TabPane tabId="5">
+                        {documents}
+                    </TabPane>
                 </TabContent>
             </React.Fragment>
 
             : <React.Fragment>
                 <Row form>
                     <Col md={6}>
-                        {detailsForm}
+                        {details}
                     </Col>
 
                     <Col md={6}>
-                        {contactsForm}
-                        {taxesTab}
+                        {contacts}
+                        {settings}
                     </Col>
                 </Row>
-                {itemsForm}
+                {items}
 
                 <Row form>
                     <Col md={6}>
-                        {notesForm}
+                        {notes}
                     </Col>
 
                     <Col md={6}>
-                        {documentTab}
+                        {documents}
                     </Col>
                 </Row>
             </React.Fragment>
@@ -968,6 +673,7 @@ class EditInvoice extends Component {
                 {successMessage}
                 {errorMessage}
                 {form}
+
             </div>
         )
     }
@@ -985,7 +691,7 @@ class EditInvoice extends Component {
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}
                         size="lg">
                         <ModalHeader toggle={this.toggle}>
-                                Quote
+                            Quote
                         </ModalHeader>
 
                         <ModalBody>
@@ -1004,7 +710,7 @@ class EditInvoice extends Component {
             <div>
 
                 {success && <div className="alert alert-success" role="alert">
-                        Products added to task successfully
+                    Products added to task successfully
                 </div>}
 
                 {form}
@@ -1014,6 +720,4 @@ class EditInvoice extends Component {
     }
 }
 
-export
-default
-EditInvoice
+export default EditInvoice

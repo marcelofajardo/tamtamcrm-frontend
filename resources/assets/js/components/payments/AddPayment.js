@@ -26,7 +26,7 @@ class AddPayment extends React.Component {
             customer_id: null,
             invoice_id: null,
             transaction_reference: null,
-            date: moment(new Date()).format('YYYY-MM-DD'),
+            date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             amount: 0,
             type_id: '',
             loading: false,
@@ -52,7 +52,7 @@ class AddPayment extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('paymentForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'paymentForm')) {
             const storedValues = JSON.parse(localStorage.getItem('paymentForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

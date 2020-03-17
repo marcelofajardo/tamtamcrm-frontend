@@ -19,7 +19,7 @@ class AddGroupSetting extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('groupForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'groupForm')) {
             const storedValues = JSON.parse(localStorage.getItem('groupForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

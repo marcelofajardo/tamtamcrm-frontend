@@ -13,6 +13,15 @@ export default class CustomerDropdown extends Component {
         this.getCustomers = this.getCustomers.bind(this)
     }
 
+    componentDidMount () {
+        if (!this.props.customers || !this.props.customers.length) {
+            this.getCustomers()
+        } else {
+            this.props.customers.unshift({ id: '', name: 'Select Customer' })
+            this.setState({ customers: this.props.customers })
+        }
+    }
+
     renderErrorFor (field) {
         if (this.hasErrorFor(field)) {
             return (
@@ -25,15 +34,6 @@ export default class CustomerDropdown extends Component {
 
     hasErrorFor (field) {
         return this.props.errors && !!this.props.errors[field]
-    }
-
-    componentDidMount () {
-        if (!this.props.customers || !this.props.customers.length) {
-            this.getCustomers()
-        } else {
-            this.props.customers.unshift({ id: '', name: 'Select Customer' })
-            this.setState({ customers: this.props.customers })
-        }
     }
 
     getCustomers () {

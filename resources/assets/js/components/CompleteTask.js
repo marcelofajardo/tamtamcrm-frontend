@@ -3,10 +3,6 @@ import axios from 'axios'
 import React, { Component } from 'react'
 
 class CompleteTask extends Component {
-    constructor (props) {
-        super(props)
-    }
-
     handleMarkTaskAsCompleted (taskId) {
         axios.put(`/api/tasks/complete/${taskId}`).then(response => {
             const filteredArray = this.props.tasks.filter(item => item.id !== parseInt(taskId))

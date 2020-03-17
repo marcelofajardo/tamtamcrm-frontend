@@ -12,10 +12,6 @@ import RestoreModal from './common/RestoreModal'
 import EditLeadForm from './forms/EditLeadForm'
 
 class Task extends Component {
-    constructor (props) {
-        super(props)
-    }
-
     componentWillReceiveProps () {
         setTimeout(function () {
             $('.mcell-task').draggable({
@@ -63,6 +59,19 @@ class Task extends Component {
             })
     }
 
+    deleteLead (id) {
+        const self = this
+
+        axios.delete('/api/leads/' + id)
+            .then(function (response) {
+                const filteredArray = self.props.tasks.filter(item => item.id !== id)
+                self.props.action(filteredArray)
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+    }
+
     render () {
         const { tasks, loading, column } = this.props
         const filter = column.id
@@ -83,6 +92,11 @@ class Task extends Component {
                             : <RestoreModal id={i.id} entities={tasks} updateState={this.props.action}
                                 url={`/api/tasks/restore/${i.id}`}/>
 
+                        const deleteLeadButton = !i.deleted_at
+                            ? <i id="delete" className="fa fa-times" onClick={() => this.deleteLead(i.id)}/>
+                            : <RestoreModal id={i.id} entities={tasks} updateState={this.props.action}
+                                url={`/api/leads/restore/${i.id}`}/>
+
                         if (i.users && i.users.length) {
                             contributors = i.users.map((user, index) => {
                                 return (
@@ -90,6 +104,8 @@ class Task extends Component {
                                 )
                             })
                         }
+
+                        const description = this.props.task_type === 2 ? i.description : i.content
 
                         const divStyle = {
                             borderLeft: `2px solid ${this.props.column.column_color}`
@@ -107,17 +123,20 @@ class Task extends Component {
                                 task={i}
                             />
 
+                        const deleteButtonDisplay = this.props.task_type === 2 ? deleteLeadButton : deleteButton
+
                         return (
                             <div style={divStyle} data-task={i.id} id={i.id}
                                 className="col-12 col-md-12 mcell-task card" key={index}>
 
                                 <span className="task-name">
                                     {edit}
-                                    {deleteButton}
+                                    {deleteButtonDisplay}
                                 </span>
 
+                                <h3>{i.title}</h3>
                                 <h5 className="m-3">{i.valued_at}</h5>
-                                <p className="mb-1">{i.content}</p>
+                                <p className="mb-1">{description}</p>
 
                                 <div>
                                     <span className="task-due">Start: {moment(i.startDate).format('DD.MM.YYYY')}</span>

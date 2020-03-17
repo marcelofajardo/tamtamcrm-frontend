@@ -34,7 +34,7 @@ class AddRecurringInvoice extends Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('recurringInvoiceForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'recurringInvoiceForm')) {
             const storedValues = JSON.parse(localStorage.getItem('recurringInvoiceForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

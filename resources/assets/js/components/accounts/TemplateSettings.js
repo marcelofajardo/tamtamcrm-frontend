@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import FormBuilder from './FormBuilder'
+import parse from 'html-react-parser'
 import {
     Button,
     Input,
@@ -38,11 +39,16 @@ class TemplateSettings extends Component {
                 email_template_reminder3: '',
                 email_subject_reminder3: '',
                 email_subject_invoice: '',
-                email_template_invoice: ''
+                email_template_invoice: '',
+                email_subject_lead: '',
+                email_template_lead: '',
+                email_subject_deal: '',
+                email_template_deal: ''
             },
             activeTab: '1',
             template_type: 'invoice',
-            company_logo: null
+            company_logo: null,
+            preview: []
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
@@ -70,11 +76,17 @@ class TemplateSettings extends Component {
     }
 
     getPreview () {
-        axios.get(`api/accounts/${this.state.id}`)
+        const subjectKey = `email_subject_${this.state.template_type}`
+        const bodyKey = `email_template_${this.state.template_type}`
+
+        const subject = !this.state.settings[subjectKey] ? 'Subject Here' : this.state.settings[subjectKey]
+        const body = !this.state.settings[bodyKey] ? 'Body Here' : this.state.settings[bodyKey]
+
+        axios.post('api/template', { subject: subject, body: body })
             .then((r) => {
                 this.setState({
                     loaded: true,
-                    settings: r.data.settings
+                    preview: r.data
                 })
             })
             .catch((e) => {
@@ -106,7 +118,11 @@ class TemplateSettings extends Component {
 
     toggle (tab) {
         if (this.state.activeTab !== tab) {
-            this.setState({ activeTab: tab })
+            this.setState({ activeTab: tab }, () => {
+                if (this.state.activeTab === '2') {
+                    this.getPreview()
+                }
+            })
         }
     }
 
@@ -125,6 +141,7 @@ class TemplateSettings extends Component {
                 toast.success('Settings updated successfully')
             })
             .catch((error) => {
+                console.error(error)
                 // this.setState({
                 //     errors: error.response.data.errors
                 // })
@@ -138,18 +155,20 @@ class TemplateSettings extends Component {
 
         const invoiceFields = [
             {
+                id: 'subject',
                 name: 'email_subject_invoice',
                 label: 'Subject',
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Subject',
                 value: settings.email_subject_invoice,
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_invoice',
                 label: 'Body',
                 type: 'text',
-                placeholder: 'Website',
+                placeholder: 'Body',
                 value: settings.email_template_invoice,
                 group: 1
             }
@@ -157,18 +176,20 @@ class TemplateSettings extends Component {
 
         const paymentFields = [
             {
+                id: 'subject',
                 name: 'email_subject_payment',
                 label: 'Subject',
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Subject',
                 value: settings.email_subject_payment,
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_payment',
                 label: 'Body',
                 type: 'text',
-                placeholder: 'Website',
+                placeholder: 'Body',
                 value: settings.email_template_payment,
                 group: 1
             }
@@ -176,18 +197,20 @@ class TemplateSettings extends Component {
 
         const quoteFields = [
             {
+                id: 'subject',
                 name: 'email_subject_quote',
                 label: 'Subject',
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Subject',
                 value: settings.email_subject_quote,
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_quote',
                 label: 'Body',
                 type: 'text',
-                placeholder: 'Website',
+                placeholder: 'Body',
                 value: settings.email_template_quote,
                 group: 1
             }
@@ -195,25 +218,70 @@ class TemplateSettings extends Component {
 
         const creditFields = [
             {
+                id: 'subject',
                 name: 'email_subject_statement',
                 label: 'Subject',
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Subject',
                 value: settings.email_subject_statement,
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_statement',
                 label: 'Body',
                 type: 'text',
-                placeholder: 'Website',
+                placeholder: 'Body',
                 value: settings.email_template_statement,
+                group: 1
+            }
+        ]
+
+        const leadFields = [
+            {
+                id: 'subject',
+                name: 'email_subject_lead',
+                label: 'Subject',
+                type: 'text',
+                placeholder: 'Name',
+                value: settings.email_subject_lead,
+                group: 1
+            },
+            {
+                id: 'body',
+                name: 'email_template_lead',
+                label: 'Body',
+                type: 'text',
+                placeholder: 'Body',
+                value: settings.email_template_lead,
+                group: 1
+            }
+        ]
+
+        const dealFields = [
+            {
+                id: 'subject',
+                name: 'email_subject_deal',
+                label: 'Subject',
+                type: 'text',
+                placeholder: 'Subject',
+                value: settings.email_subject_deal,
+                group: 1
+            },
+            {
+                id: 'body',
+                name: 'email_template_deal',
+                label: 'Body',
+                type: 'text',
+                placeholder: 'Body',
+                value: settings.email_template_deal,
                 group: 1
             }
         ]
 
         const firstFields = [
             {
+                id: 'subject',
                 name: 'email_subject_reminder1',
                 label: 'Subject',
                 type: 'text',
@@ -222,10 +290,11 @@ class TemplateSettings extends Component {
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_reminder1',
                 label: 'Body',
                 type: 'text',
-                placeholder: 'Website',
+                placeholder: 'Body',
                 value: settings.email_template_reminder1,
                 group: 1
             }
@@ -233,18 +302,20 @@ class TemplateSettings extends Component {
 
         const secondFields = [
             {
+                id: 'subject',
                 name: 'email_subject_reminder2',
                 label: 'Subject',
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Subject',
                 value: settings.email_subject_reminder2,
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_reminder2',
                 label: 'Body',
                 type: 'text',
-                placeholder: 'Website',
+                placeholder: 'Body',
                 value: settings.email_template_reminder2,
                 group: 1
             }
@@ -252,14 +323,16 @@ class TemplateSettings extends Component {
 
         const thirdFields = [
             {
+                id: 'subject',
                 name: 'email_subject_reminder3',
                 label: 'Subject',
                 type: 'text',
-                placeholder: 'Name',
+                placeholder: 'Subject',
                 value: settings.email_subject_reminder3,
                 group: 1
             },
             {
+                id: 'body',
                 name: 'email_template_reminder3',
                 label: 'Body',
                 type: 'text',
@@ -270,6 +343,8 @@ class TemplateSettings extends Component {
         ]
 
         formFields.invoice = invoiceFields
+        formFields.deal = dealFields
+        formFields.lead = leadFields
         formFields.payment = paymentFields
         formFields.quote = quoteFields
         formFields.credit = creditFields
@@ -292,6 +367,10 @@ class TemplateSettings extends Component {
             handleSubmit={this.handleSubmit}
             submitBtnTitle="Calculate"
         />
+
+        const preview = Object.keys(this.state.preview).length ? <div className="col-12">
+            <div>{parse(this.state.preview.subject)}</div><div className="mt-5">{parse(this.state.preview.body)}</div></div>
+            : null
 
         return (
             <React.Fragment>
@@ -331,6 +410,8 @@ class TemplateSettings extends Component {
                                             <option value="quote">Quote</option>
                                             <option value="credit">Credit</option>
                                             <option value="payment">Payment</option>
+                                            <option value="lead">Lead</option>
+                                            <option value="deal">Deal</option>
                                             <option value="first">First Reminder</option>
                                             <option value="second">Second Reminder</option>
                                             <option value="third">Third Reminder</option>
@@ -349,7 +430,7 @@ class TemplateSettings extends Component {
                         <Card>
                             <CardHeader>Preview</CardHeader>
                             <CardBody>
-                                preview
+                                {preview}
                             </CardBody>
                         </Card>
                     </TabPane>

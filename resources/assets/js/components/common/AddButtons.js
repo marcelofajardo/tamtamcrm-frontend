@@ -9,7 +9,7 @@ export default class AddButtons extends Component {
                     Add Item
                 </UncontrolledTooltip>
 
-                <Button id="addButtonTooltip" style={{ position: 'absolute', top: '20px', right: '30px' }}
+                <Button id="addButtonTooltip" style={{ position: 'absolute', top: '48px', right: '30px' }}
                     className="d-none d-md-inline-block" color="primary" onClick={this.props.toggle}>+</Button>
                 <Button id="addButtonTooltip" className="d-md-none float" color="primary" onClick={this.props.toggle}><i
                     className="fa fa-plus my-float"/></Button>

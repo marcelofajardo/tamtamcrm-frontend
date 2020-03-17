@@ -3,10 +3,7 @@ import DataTable from '../common/DataTable'
 import AddPayment from './AddPayment'
 import EditPayment from './EditPayment'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
+    FormGroup, Input, Card, CardBody, Row, Col
 } from 'reactstrap'
 import axios from 'axios'
 import DeleteModal from '../common/DeleteModal'
@@ -38,7 +35,7 @@ export default class Payments extends Component {
             custom_fields: [],
             dropdownButtonActions: ['download'],
             bulk: [],
-            ignoredColumns: ['paymentables', 'private_notes', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'applied', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
+            ignoredColumns: ['currency_id', 'exchange_rate', 'exchange_currency_id', 'paymentables', 'private_notes', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
             filters: {
                 status_id: 'active',
                 customer_id: '',
@@ -108,7 +105,10 @@ export default class Payments extends Component {
     saveBulk (e) {
         const action = e.target.id
         const self = this
-        axios.post('/api/payment/bulk', { bulk: this.state.bulk }).then(function (response) {
+        axios.post('/api/payment/bulk', {
+            ids: this.state.bulk,
+            action: action
+        }).then(function (response) {
             // const arrQuotes = [...self.state.invoices]
             // const index = arrQuotes.findIndex(payment => payment.id === id)
             // arrQuotes.splice(index, 1)
@@ -208,11 +208,11 @@ export default class Payments extends Component {
         const invoiceIds = payment.paymentables.filter(paymentable => {
             return paymentable.payment_id === payment.id && paymentable.paymentable_type === 'App\\Invoice'
         }).map(paymentable => {
-            return parseInt(paymentable.paymentable_id)
+            return parseInt(paymentable.invoice_id)
         })
 
         const invoices = this.state.invoices.filter(invoice => {
-            return invoiceIds.includes(invoice.id)
+            return invoiceIds.includes(parseInt(invoice.id))
         })
 
         return invoices
@@ -222,7 +222,7 @@ export default class Payments extends Component {
         const { payments, custom_fields, invoices, customers } = this.state
         if (payments && payments.length && customers.length && invoices.length) {
             return payments.map(payment => {
-                const paymentableInvoices = this.getPaymentables(payment)
+                const paymentableInvoices = invoices && invoices.length ? this.getPaymentables(payment) : null
 
                 const restoreButton = payment.deleted_at
                     ? <RestoreModal id={payment.id} entities={payments} updateState={this.updateCustomers}
@@ -247,7 +247,8 @@ export default class Payments extends Component {
                 const columnList = Object.keys(payment).filter(key => {
                     return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
                 }).map(key => {
-                    return <PaymentPresenter customers={customers} field={key} entity={payment}
+                    return <PaymentPresenter key={key} customers={customers} field={key}
+                        paymentables={paymentableInvoices} entity={payment}
                         toggleViewedEntity={this.toggleViewedEntity}/>
                 })
 
@@ -260,7 +261,7 @@ export default class Payments extends Component {
                 return (
                     <tr key={payment.id}>
                         <td>
-                            <Input value={payment.id} type="checkbox" onChange={this.onChangeBulk} />
+                            <Input value={payment.id} type="checkbox" onChange={this.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 refund={refundButton}
                                 restore={restoreButton}/>

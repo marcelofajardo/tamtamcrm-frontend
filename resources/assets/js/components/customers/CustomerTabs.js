@@ -46,20 +46,24 @@ export default function CustomerTabs (props) {
         })
     }
 
+    const setContacts = contacts => {
+        setContactValues({
+            contacts: contacts
+        })
+    }
+
     const [errors, setErrors] = useState({})
 
     const [activeTab, setActiveTab] = useState('1')
 
-    const [contacts, setContacts] = useState(props.customer && props.customer.contacts ? props.customer.contacts : [])
+    const [contacts, setContactValues] = useState({
+        contacts: props.customer && props.customer.contacts ? props.customer.contacts : []
+    })
 
     const [customer, setCustomerValues] = useState({
-        first_name: props.customer ? props.customer.name.split(' ').slice(0, -1).join(' ') : '',
-        last_name: props.customer ? props.customer.name.split(' ').slice(-1).join(' ') : '',
-        email: props.customer ? props.customer.email : '',
-        job_title: props.customer ? props.customer.job_title : '',
+        name: props.customer ? props.customer.name : '',
         company_id: props.customer ? props.customer.company_id : '',
         phone: props.customer ? props.customer.phone : '',
-        customer_type: props.customer ? props.customer.customer_type : '',
         group_settings_id: props.customer ? props.customer.group_settings_id : null,
         currency_id: props.customer ? props.customer.currency_id : '',
         default_payment_method: props.customer ? props.customer.default_payment_method : '',
@@ -71,6 +75,7 @@ export default function CustomerTabs (props) {
         public_notes: props.customer ? props.customer.public_notes : '',
         private_notes: props.customer ? props.customer.private_notes : '',
         website: props.customer ? props.customer.website : '',
+        vat_number: props.customer ? props.customer.vat_number : '',
         size_id: props.customer ? props.customer.size_id : null,
         industry_id: props.customer ? props.customer.industry_id : null
     })
@@ -107,28 +112,25 @@ export default function CustomerTabs (props) {
         return removeEmpty(contacts).filter(value => Object.keys(value).length >= 4)
     }
 
-    const getFormData = () => {
+    const updateForm = () => {
         const addresses = []
         const innerObj = {}
         innerObj.billing = billing
         innerObj.shipping = shipping
         addresses.push(innerObj)
 
-        // eslint-disable-next-line no-use-before-define
-        const contacts = contacts[0] && Object.keys(contacts[0]).length ? cleanContacts(contacts) : []
+        const cleanedContacts = contacts.contacts && contacts.contacts.length ? cleanContacts(contacts.contacts) : []
+        console.log('contacts 2', cleanedContacts)
 
-        return {
-            first_name: customer.first_name,
-            last_name: customer.last_name,
-            email: customer.email,
+        const formdata = {
+            name: customer.name,
             phone: customer.phone,
-            job_title: customer.job_title,
             company_id: customer.company_id,
             description: customer.description,
             public_notes: customer.public_notes,
             private_notes: customer.private_notes,
             website: customer.website,
-            customer_type: customer.customer_type,
+            vat_number: customer.vat_number,
             currency_id: customer.currency_id,
             size_id: customer.size_id,
             industry_id: customer.industry_id,
@@ -140,13 +142,11 @@ export default function CustomerTabs (props) {
             custom_value3: customer.custom_value3,
             custom_value4: customer.custom_value4,
             addresses: addresses,
-            contacts: contacts,
+            contacts: contacts.contacts,
             settings: settings
         }
-    }
 
-    const updateForm = () => {
-        axios.put(`/api/customers/${props.customer.id}`, getFormData()
+        axios.put(`/api/customers/${props.customer.id}`, formdata
         ).then(response => {
             if (props.customers && props.customers.length) {
                 const index = props.customers.findIndex(customer => parseInt(customer.id) === props.customer.id)
@@ -161,7 +161,40 @@ export default function CustomerTabs (props) {
     }
 
     const submitForm = () => {
-        axios.post('/api/customers', getFormData())
+        const addresses = []
+        const innerObj = {}
+        innerObj.billing = billing
+        innerObj.shipping = shipping
+        addresses.push(innerObj)
+
+        const cleanedContacts = contacts.contacts && contacts.contacts.length ? cleanContacts(contacts.contacts) : []
+        console.log('contacts 2', cleanedContacts)
+
+        const formdata = {
+            name: customer.name,
+            phone: customer.phone,
+            company_id: customer.company_id,
+            description: customer.description,
+            public_notes: customer.public_notes,
+            private_notes: customer.private_notes,
+            website: customer.website,
+            vat_number: customer.vat_number,
+            currency_id: customer.currency_id,
+            size_id: customer.size_id,
+            industry_id: customer.industry_id,
+            assigned_user: customer.assigned_user,
+            default_payment_method: customer.default_payment_method,
+            group_settings_id: customer.group_settings_id,
+            custom_value1: customer.custom_value1,
+            custom_value2: customer.custom_value2,
+            custom_value3: customer.custom_value3,
+            custom_value4: customer.custom_value4,
+            addresses: addresses,
+            contacts: contacts.contacts,
+            settings: settings
+        }
+
+        axios.post('/api/customers', formdata)
             .then((response) => {
                 const newCustomer = response.data
                 props.customers.push(newCustomer)
@@ -176,6 +209,7 @@ export default function CustomerTabs (props) {
     }
 
     const method = props.type === 'add' ? submitForm : updateForm
+    const button = <Button color="primary" onClick={method}>Send </Button>
 
     return (
         <React.Fragment>
@@ -227,7 +261,7 @@ export default function CustomerTabs (props) {
                     <Card>
                         <CardHeader>Contacts</CardHeader>
                         <CardBody>
-                            <Contact errors={errors} onChange={setContacts} contacts={contacts}/>
+                            <Contact errors={errors} onChange={setContacts} contacts={contacts.contacts}/>
                         </CardBody>
                     </Card>
                 </TabPane>
@@ -263,7 +297,7 @@ export default function CustomerTabs (props) {
                 </TabPane>
             </TabContent>
 
-            <Button color="primary" onClick={method}>Send </Button>
+            {button}
         </React.Fragment>
     )
 }

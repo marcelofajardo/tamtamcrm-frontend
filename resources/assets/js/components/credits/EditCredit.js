@@ -20,6 +20,7 @@ import CustomerDropdown from '../common/CustomerDropdown'
 import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
+import DesignDropdown from '../common/DesignDropdown'
 
 class EditCredit extends React.Component {
     constructor (props) {
@@ -31,6 +32,7 @@ class EditCredit extends React.Component {
             showErrorMessage: false,
             total: this.props.credit.total,
             customer_id: this.props.credit.customer_id,
+            design_id: this.props.credit.design_id,
             custom_value1: this.props.credit.custom_value1,
             public_notes: this.props.credit.public_notes,
             private_notes: this.props.credit.private_notes,
@@ -80,31 +82,69 @@ class EditCredit extends React.Component {
         }
     }
 
+    downloadPdf (response, id) {
+        const linkSource = `data:application/pdf;base64,${response.data.data}`
+        const downloadLink = document.createElement('a')
+        const fileName = `credit_${id}.pdf`
+
+        downloadLink.href = linkSource
+        downloadLink.download = fileName
+        downloadLink.click()
+    }
+
     changeStatus (action) {
         if (!this.state.id) {
             return false
         }
 
-        const data = this.getPostData()
+        const data = this.getFormData()
 
         axios.post(`/api/credit/${this.state.id}/${action}`, data)
             .then((response) => {
-                if (response.data) {
+                let message = `${action} completed successfully`
+
+                if (action === 'clone_to_credit') {
                     this.props.credits.push(response.data)
                     this.props.action(this.props.credits)
+                    message = `Credit was cloned successfully. Quote ${response.data.number} has been created`
                 }
-                this.setState({ showSuccessMessage: true })
+
+                if (action === 'download') {
+                    this.downloadPdf(response, this.state.id)
+                    message = 'The PDF file has been downloaded'
+                }
+
+                if (action === 'clone_to_quote') {
+                    message = `The credit was successfully converted to a quote. Quote ${response.data.number} has been created`
+                }
+
+                if (action === 'mark_sent') {
+                    message = 'The quote has been marked as sent'
+                }
+
+                if (action === 'email') {
+                    message = 'The email has been sent successfully'
+                }
+
+                this.setState({
+                    showSuccessMessage: message,
+                    showErrorMessage: false
+                })
             })
             .catch((error) => {
-                this.setState({ showErrorMessage: true })
+                this.setState({
+                    showErrorMessage: true,
+                    showSuccessMessage: false
+                })
                 console.warn(error)
             })
     }
 
-    getPostData () {
+    getFormData () {
         const data = {
             total: this.state.total,
             customer_id: this.state.customer_id,
+            design_id: this.state.design_id,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
@@ -117,7 +157,7 @@ class EditCredit extends React.Component {
     }
 
     handleClick () {
-        const data = this.getPostData()
+        const data = this.getFormData()
         axios.put(`/api/credit/${this.state.id}`, data)
             .then((response) => {
                 const index = this.props.credits.findIndex(credit => credit.id === this.props.credit.id)
@@ -162,6 +202,9 @@ class EditCredit extends React.Component {
         const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
             Email</DropdownItem>
 
+        const downloadButton = <DropdownItem className="primary"
+            onClick={() => this.changeStatus('download')}>Download</DropdownItem>
+
         const cloneToQuote = <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_quote')}>Clone
             To
             Quote</DropdownItem>
@@ -170,8 +213,8 @@ class EditCredit extends React.Component {
             To
             Credit</DropdownItem>
 
-        const changeStatusButton = <DropdownItem color="primary" onClick={() => this.changeStatus('mark_paid')}>Mark
-            Paid</DropdownItem>
+        const changeStatusButton = <DropdownItem color="primary" onClick={() => this.changeStatus('mark_sent')}>Mark
+            Sent</DropdownItem>
 
         const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
             <DropdownToggle caret>
@@ -181,14 +224,15 @@ class EditCredit extends React.Component {
             <DropdownMenu>
                 <DropdownItem header>Header</DropdownItem>
                 {changeStatusButton}
+                {downloadButton}
                 {sendEmailButton}
                 {cloneToCredit}
                 {cloneToQuote}
             </DropdownMenu>
         </Dropdown>
 
-        const successMessage = this.state.showSuccessMessage === true
-            ? <SuccessMessage message="Invoice was updated successfully"/> : null
+        const successMessage = this.state.showSuccessMessage !== false && this.state.showSuccessMessage !== ''
+            ? <SuccessMessage message={this.state.showSuccessMessage}/> : null
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
@@ -219,6 +263,12 @@ class EditCredit extends React.Component {
                             {this.renderErrorFor('total')}
                         </InputGroup>
 
+                        <Label>Design</Label>
+                        <InputGroup className="mb-3">
+                            <DesignDropdown name="design_id" design={this.state.design}
+                                handleChange={this.handleInput.bind(this)}/>
+                        </InputGroup>
+
                         <Label>Customer</Label>
                         <InputGroup className="mb-3">
                             <InputGroupAddon addonType="prepend">
@@ -238,7 +288,8 @@ class EditCredit extends React.Component {
                             <InputGroupAddon addonType="prepend">
                                 <InputGroupText><i className="fa fa-user-o"/></InputGroupText>
                             </InputGroupAddon>
-                            <Input value={this.state.public_notes} className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
+                            <Input value={this.state.public_notes}
+                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
                                 type="text" name="public_notes"
                                 onChange={this.handleInput.bind(this)}/>
                             {this.renderErrorFor('public_notes')}
@@ -249,7 +300,8 @@ class EditCredit extends React.Component {
                             <InputGroupAddon addonType="prepend">
                                 <InputGroupText><i className="fa fa-user-o"/></InputGroupText>
                             </InputGroupAddon>
-                            <Input value={this.state.private_notes} className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
+                            <Input value={this.state.private_notes}
+                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
                                 type="text" name="private_notes"
                                 onChange={this.handleInput.bind(this)}/>
                             {this.renderErrorFor('private_notes')}

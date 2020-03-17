@@ -1,6 +1,8 @@
 import { Badge } from 'reactstrap'
 import React from 'react'
 import moment from 'moment'
+import FormatMoney from '../common/FormatMoney'
+import FormatDate from '../common/FormatDate'
 
 export default function RecurringInvoicePresenter (props) {
     const colors = {
@@ -27,18 +29,25 @@ export default function RecurringInvoicePresenter (props) {
         : <Badge className="mr-2" color="warning">Archived</Badge>
 
     switch (field) {
+        case 'total':
+            return <td onClick={() => props.toggleViewedEntity(entity, entity.number)} data-label="Total">{<FormatMoney
+                customers={props.customers} customer_id={entity.customer_id}
+                amount={entity.total}/>}</td>
         case 'date':
         case 'due_date':
-        case 'start_date':
-            const date = entity[field].length ? moment(entity[field]).format('DD/MMM/YYYY') : ''
-            return <td onClick={() => props.toggleViewedEntity(entity, entity.number)} data-label="Date">{date}</td>
+        case 'start_date': {
+            return <FormatDate field={field} date={entity[field]} />
+        }
+
         case 'status_id':
             return <td onClick={() => props.toggleViewedEntity(entity, entity.number)} data-label="Status">{status}</td>
-        case 'customer_id':
+
+        case 'customer_id': {
             const index = props.customers.findIndex(customer => customer.id === entity[field])
             const customer = props.customers[index]
             return <td onClick={() => props.toggleViewedEntity(entity, entity.number)}
-                data-label="Customer">{`${customer.first_name} ${customer.last_name}`}</td>
+                data-label="Customer">{customer.name}</td>
+        }
 
         default:
             return <td onClick={() => props.toggleViewedEntity(entity, entity.number)} key={field}

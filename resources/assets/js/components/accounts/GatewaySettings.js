@@ -210,6 +210,7 @@ class GatewaySettings extends Component {
                 toast.success('Settings updated successfully')
             })
             .catch((error) => {
+                console.error(error)
                 toast.error('There was an issue updating the settings')
             })
     }
@@ -393,8 +394,8 @@ class GatewaySettings extends Component {
                                 <Row>
                                     <Col sm={10}>
                                         {
-                                            this.card_types.map(item => (
-                                                <div className="form-check">
+                                            this.card_types.map((item, index) => (
+                                                <div key={index} className="form-check">
                                                     <Checkbox name={item.name}
                                                         checked={this.state.accepted_cards.get(item.name)}
                                                         onChange={this.handleCardChange}/>

@@ -31,30 +31,12 @@ export default function CustomerForm (props) {
             <CardHeader>Details</CardHeader>
             <CardBody>
                 <FormGroup>
-                    <Label for="first_name"> First Name </Label>
-                    <Input className={hasErrorFor('first_name') ? 'is-invalid' : ''} type="text"
-                        id="first_name" defaultValue={props.customer.first_name}
-                        onChange={props.onChange} name="first_name"
-                        placeholder="First Name"/>
-                    {renderErrorFor('first_name')}
-                </FormGroup>
-
-                <FormGroup>
-                    <Label for="last_name"> Last Name </Label>
-                    <Input className={hasErrorFor('last_name') ? 'is-invalid' : ''} type="text"
-                        id="last_name" defaultValue={props.customer.last_name}
-                        onChange={props.onChange} name="last_name"
-                        placeholder="Last Name"/>
-                    {renderErrorFor('last_name')}
-                </FormGroup>
-
-                <FormGroup>
-                    <Label for="email"> Email </Label>
-                    <Input className={hasErrorFor('email') ? 'is-invalid' : ''} type="email" id="email"
-                        defaultValue={props.customer.email}
-                        onChange={props.onChange} name="email"
-                        placeholder="Email Address"/>
-                    {renderErrorFor('email')}
+                    <Label for="name"> Name </Label>
+                    <Input className={hasErrorFor('name') ? 'is-invalid' : ''} type="text"
+                        id="name" defaultValue={props.customer.name}
+                        onChange={props.onChange} name="name"
+                        placeholder="Name"/>
+                    {renderErrorFor('name')}
                 </FormGroup>
 
                 <FormGroup>
@@ -67,15 +49,6 @@ export default function CustomerForm (props) {
                 </FormGroup>
 
                 <FormGroup>
-                    <Label htmlFor="job_title"> Job Title </Label>
-                    <Input className={hasErrorFor('job_title') ? 'is-invalid' : ''} type="text" id="job_title"
-                        defaultValue={props.customer.job_title}
-                        onChange={props.onChange} name="job_title"
-                        placeholder="Job Title"/>
-                    {renderErrorFor('job_title')}
-                </FormGroup>
-
-                <FormGroup>
                     <Label htmlFor="website"> Website </Label>
                     <Input className={hasErrorFor('website') ? 'is-invalid' : ''}
                         type="text"
@@ -85,6 +58,15 @@ export default function CustomerForm (props) {
                         name="website"
                         placeholder="Website"/>
                     {renderErrorFor('website')}
+                </FormGroup>
+
+                <FormGroup>
+                    <Label for="name"> Vat Number </Label>
+                    <Input className={hasErrorFor('vat_number') ? 'is-invalid' : ''} type="text"
+                        id="name" defaultValue={props.customer.vat_number}
+                        onChange={props.onChange} name="vat_number"
+                        placeholder="VAT Number"/>
+                    {renderErrorFor('vat_number')}
                 </FormGroup>
 
                 {customForm}

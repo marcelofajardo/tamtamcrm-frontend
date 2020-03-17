@@ -1,15 +1,15 @@
-/* eslint-disable no-unused-vars */
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Progress } from 'reactstrap'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import './uploads.scss'
 
 class FileUpload extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            selectedFile: null,
+            selectedFile: [],
             loaded: 0
         }
     }
@@ -60,6 +60,7 @@ class FileUpload extends Component {
     onChangeHandler (event) {
         const files = event.target.files
         if (this.maxSelectFile(event) && this.checkMimeType(event) && this.checkFileSize(event)) {
+            console.log('selected files', files)
             // if return true allow to setState
             this.setState({
                 selectedFile: files,
@@ -98,6 +99,18 @@ class FileUpload extends Component {
     }
 
     render () {
+        const file_list = []
+
+        if (this.state.selectedFile.length) {
+            Array.from(this.state.selectedFile).forEach(file => {
+                file_list.push(
+                    <div key={file.name} className="Row">
+                        <span className="Filename">{file.name}</span>
+                    </div>
+                )
+            })
+        }
+
         return (
             <div className="container">
                 <div className="row">
@@ -118,6 +131,10 @@ class FileUpload extends Component {
                             <ToastContainer/>
                             <Progress max="100" color="success"
                                 value={this.state.loaded}>{Math.round(this.state.loaded, 2)}%</Progress>
+                        </div>
+
+                        <div className="Files">
+                            {file_list}
                         </div>
 
                         <hr className="mt-2 mb-5"/>

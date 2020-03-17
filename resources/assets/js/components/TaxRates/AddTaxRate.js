@@ -31,7 +31,7 @@ class AddTaxRate extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('taxForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'taxForm')) {
             const storedValues = JSON.parse(localStorage.getItem('taxForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

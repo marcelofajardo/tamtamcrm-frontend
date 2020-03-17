@@ -100,7 +100,7 @@ class AddExpense extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('expenseForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'expenseForm')) {
             const storedValues = JSON.parse(localStorage.getItem('expenseForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

@@ -31,7 +31,7 @@ class AddStory extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('projectForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'projectForm')) {
             const storedValues = JSON.parse(localStorage.getItem('projectForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

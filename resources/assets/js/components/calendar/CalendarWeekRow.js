@@ -21,10 +21,6 @@ const DayHeader = styled.span`
 `
 
 class CalendarWeekRow extends React.Component {
-    constructor (props) {
-        super(props)
-    }
-
     render () {
         const { year, month, dates, events, allEvents } = this.props
 

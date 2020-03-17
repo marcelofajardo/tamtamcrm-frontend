@@ -3,10 +3,7 @@ import axios from 'axios'
 import EditUser from './EditUser'
 import AddUser from './AddUser'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col, ButtonDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem
+    FormGroup, Input, Card, CardBody, Row, Col
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
 import DepartmentDropdown from '../common/DepartmentDropdown'
@@ -30,6 +27,7 @@ export default class UserList extends Component {
             users: [],
             cachedData: [],
             departments: [],
+            accounts: [],
             custom_fields: [],
             bulk: [],
             dropdownButtonActions: ['download'],
@@ -48,6 +46,7 @@ export default class UserList extends Component {
                 searchText: ''
             },
             ignoredColumns: [
+                'account_users',
                 'department',
                 'phone_number',
                 'job_description',
@@ -74,15 +73,18 @@ export default class UserList extends Component {
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
+        this.getAccounts = this.getAccounts.bind(this)
+        this.getDepartments = this.getDepartments.bind(this)
     }
 
     componentDidMount () {
         this.getDepartments()
+        this.getAccounts()
         this.getCustomFields()
     }
 
     updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('customer') }, function () {
+        this.setState({ ignoredColumns: columns.concat('customer', 'account_users') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
         })
     }
@@ -120,7 +122,7 @@ export default class UserList extends Component {
     saveBulk (e) {
         const action = e.target.id
         const self = this
-        axios.post('/api/user/bulk', { bulk: this.state.bulk }).then(function (response) {
+        axios.post(`/api/user/bulk/${action}`, { ids: this.state.bulk }).then(function (response) {
             // const arrQuotes = [...self.state.invoices]
             // const index = arrQuotes.findIndex(payment => payment.id === id)
             // arrQuotes.splice(index, 1)
@@ -259,6 +261,20 @@ export default class UserList extends Component {
             })
     }
 
+    getAccounts () {
+        axios.get('/api/accounts')
+            .then((r) => {
+                console.log('accounts', r.data)
+                this.setState({
+                    accounts: r.data
+                })
+            })
+            .catch((e) => {
+                alert(e)
+                console.error(e)
+            })
+    }
+
     getDepartments () {
         axios.get('/api/departments')
             .then((r) => {
@@ -292,14 +308,14 @@ export default class UserList extends Component {
                 const deleteButton = !user.deleted_at
                     ? <DeleteModal archive={false} deleteFunction={this.deleteUser} id={user.id}/> : null
                 const editButton = !user.deleted_at
-                    ? <EditUser departments={departments} user_id={user.id}
+                    ? <EditUser accounts={this.state.accounts} departments={departments} user_id={user.id}
                         custom_fields={custom_fields} users={users}
                         action={this.addUserToState}/> : null
 
                 const columnList = Object.keys(user).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)
                 }).map(key => {
-                    return <UserPresenter toggleViewedEntity={this.toggleViewedEntity}
+                    return <UserPresenter key={key} toggleViewedEntity={this.toggleViewedEntity}
                         field={key} entity={user}/>
                 })
 
@@ -343,9 +359,10 @@ export default class UserList extends Component {
         const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}`
         const filters = this.getFilters()
-        const addButton = departments.length ? <AddUser custom_fields={custom_fields} departments={departments}
-            users={users}
-            action={this.addUserToState}/> : null
+        const addButton = departments.length
+            ? <AddUser accounts={this.state.accounts} custom_fields={custom_fields} departments={departments}
+                users={users}
+                action={this.addUserToState}/> : null
 
         return (
             <div className="data-table">

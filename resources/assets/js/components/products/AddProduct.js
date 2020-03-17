@@ -52,7 +52,7 @@ class AddProduct extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('productForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'productForm')) {
             const storedValues = JSON.parse(localStorage.getItem('productForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }
@@ -92,6 +92,10 @@ class AddProduct extends React.Component {
         formData.append('category', this.state.selectedCategories)
         formData.append('notes', this.state.notes)
         formData.append('assigned_user_id', this.state.assigned_user_id)
+        formData.append('custom_value1', this.state.custom_value1)
+        formData.append('custom_value2', this.state.custom_value2)
+        formData.append('custom_value3', this.state.custom_value3)
+        formData.append('custom_value4', this.state.custom_value4)
 
         axios.post('/api/products', formData, {
             headers: {

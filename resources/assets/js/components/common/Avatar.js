@@ -2,10 +2,6 @@
 import React, { Component } from 'react'
 
 class Avatar extends Component {
-    constructor (props, context) {
-        super(props, context)
-    }
-
     render () {
         const large = this.props.lg && this.props.lg === true ? 'avatar-circle-md ml-3' : 'avatar-circle-sm'
         const className = this.props.className ? this.props.className : ''

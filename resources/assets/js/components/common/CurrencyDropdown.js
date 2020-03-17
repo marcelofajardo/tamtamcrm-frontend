@@ -13,6 +13,14 @@ export default class CurrencyDropdown extends Component {
         this.getCurrencies = this.getCurrencies.bind(this)
     }
 
+    componentDidMount () {
+        if (!this.props.currencies || !this.props.currencies.length) {
+            this.getCurrencies()
+        } else {
+            this.setState({ currencies: this.props.currencies })
+        }
+    }
+
     renderErrorFor (field) {
         if (this.hasErrorFor(field)) {
             return (
@@ -25,14 +33,6 @@ export default class CurrencyDropdown extends Component {
 
     hasErrorFor (field) {
         return this.props.errors && !!this.props.errors[field]
-    }
-
-    componentDidMount () {
-        if (!this.props.currencies || !this.props.currencies.length) {
-            this.getCurrencies()
-        } else {
-            this.setState({ currencies: this.props.currencies })
-        }
     }
 
     getCurrencies () {

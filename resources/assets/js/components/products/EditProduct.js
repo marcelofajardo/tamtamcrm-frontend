@@ -112,6 +112,10 @@ class EditProduct extends React.Component {
         formData.append('number_of_years', this.state.number_of_years)
         formData.append('minimum_downpayment', this.state.minimum_downpayment)
         formData.append('interest_rate', this.state.interest_rate)
+        formData.append('custom_value1', this.state.custom_value1)
+        formData.append('custom_value2', this.state.custom_value2)
+        formData.append('custom_value3', this.state.custom_value3)
+        formData.append('custom_value4', this.state.custom_value4)
         formData.append('_method', 'PUT')
 
         return formData
@@ -405,8 +409,8 @@ class EditProduct extends React.Component {
 
                                 <FormGroup>
                                     {
-                                        this.state.images && this.state.images.map(image => {
-                                            return (<div className="col-md-3">
+                                        this.state.images && this.state.images.map((image, index) => {
+                                            return (<div key={index} className="col-md-3">
                                                 <div className="row">
                                                     <img src={`/storage/${image.src}`} alt=""
                                                         className="img-responsive img-thumbnail"/>

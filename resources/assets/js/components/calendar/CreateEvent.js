@@ -43,7 +43,7 @@ class CreateEvent extends React.Component {
     componentDidMount () {
         this.getUsers()
 
-        if (localStorage.hasOwnProperty('eventForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'eventForm')) {
             const storedValues = JSON.parse(localStorage.getItem('eventForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

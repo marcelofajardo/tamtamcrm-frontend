@@ -13,6 +13,14 @@ export default class CountryDropdown extends Component {
         this.getCountries = this.getCountries.bind(this)
     }
 
+    componentDidMount () {
+        if (!this.props.countries || !this.props.countries.length) {
+            this.getCountries()
+        } else {
+            this.setState({ countries: this.props.countries })
+        }
+    }
+
     renderErrorFor (field) {
         if (this.hasErrorFor(field)) {
             return (
@@ -25,14 +33,6 @@ export default class CountryDropdown extends Component {
 
     hasErrorFor (field) {
         return this.props.errors && !!this.props.errors[field]
-    }
-
-    componentDidMount () {
-        if (!this.props.countries || !this.props.countries.length) {
-            this.getCountries()
-        } else {
-            this.setState({ countries: this.props.countries })
-        }
     }
 
     getCountries () {

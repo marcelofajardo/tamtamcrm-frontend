@@ -1,11 +1,11 @@
-import React, {Component} from 'react'
-import {Button, Form, FormGroup, Label, Input, Card, CardBody, CardTitle} from 'reactstrap'
+import React, { Component } from 'react'
+import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardTitle } from 'reactstrap'
 import axios from 'axios'
-//import AddStory from './forms/AddStory'
-//import EditProject from './forms/EditProject'
+// import AddStory from './forms/AddStory'
+// import EditProject from './forms/EditProject'
 
 export default class CalendarFilters extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
             filters: [],
@@ -17,11 +17,11 @@ export default class CalendarFilters extends Component {
         this.resetFilters = this.resetFilters.bind(this)
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getStoryDetails()
     }
 
-    getStoryDetails() {
+    getStoryDetails () {
         axios.get('/api/projects')
             .then((r) => {
                 this.setState({
@@ -33,19 +33,18 @@ export default class CalendarFilters extends Component {
             })
     }
 
-    handleProjectChange(event) {
+    handleProjectChange (event) {
         const projectId = event.target.value
         this.props.updateProjectId(projectId)
     }
 
-    handleChange(event) {
+    handleChange (event) {
         const column = event.target.id
         const value = event.target.value
-        const project_id = this.props.project_id ? this.props.project_id : 0
 
         if (value === 'all') {
             const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({filters: updatedRowState})
+            this.setState({ filters: updatedRowState })
             return true
         }
         /* this.setState(prevState => ({
@@ -55,19 +54,18 @@ export default class CalendarFilters extends Component {
         this.setState(prevState => ({
             filters: {
                 ...prevState.filters,
-                [column]: value,
-            },
+                [column]: value
+            }
         }))
-        * /
 
         return true
     }
 
-    resetFilters() {
+    resetFilters () {
         this.props.reset()
     }
 
-    handleSubmit(event) {
+    handleSubmit (event) {
         event.preventDefault()
         console.log(this.state.filters)
         axios.post(`/api/tasks/filterTasks/${this.props.task_type}`,
@@ -80,7 +78,7 @@ export default class CalendarFilters extends Component {
             })
     }
 
-    buildProjectOptions() {
+    buildProjectOptions () {
         let storyTable = null
         if (this.state.stories && this.state.stories.length) {
             storyTable = this.state.stories.map((story, index) => {
@@ -98,7 +96,7 @@ export default class CalendarFilters extends Component {
         )
     }
 
-    buildCustomerOptions() {
+    buildCustomerOptions () {
         let customerContent = null
         if (!this.props.customers) {
             customerContent = <option value="">Loading...</option>
@@ -118,7 +116,7 @@ export default class CalendarFilters extends Component {
         )
     }
 
-    buildUserOptions() {
+    buildUserOptions () {
         let userContent = null
         if (!this.props.users) {
             userContent = <option value="">Loading...</option>
@@ -138,15 +136,15 @@ export default class CalendarFilters extends Component {
         )
     }
 
-    render() {
+    render () {
         const userContent = this.buildUserOptions()
         const projectContent = this.props.task_type !== 2 && this.props.task_type !== 3 ? this.buildProjectOptions() : ''
         const customerContent = this.buildCustomerOptions()
         const addButton = this.props.task_type !== 2 && this.props.task_type !== 3
             ? <AddStory customers={this.props.customers} addProject={this.props.addProject}/>
             : ''
-        const editButton = this.props.project_id ?
-            <EditProject customers={this.props.customers} project_id={this.props.project_id}/> : ''
+        const editButton = this.props.project_id
+            ? <EditProject customers={this.props.customers} project_id={this.props.project_id}/> : ''
 
         return (
             <Card className="col-12 p-0">

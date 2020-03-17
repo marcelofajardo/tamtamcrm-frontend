@@ -34,7 +34,7 @@ class AddRecurringQuote extends Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('recurringQuoteForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'recurringQuoteForm')) {
             const storedValues = JSON.parse(localStorage.getItem('recurringQuoteForm'))
             this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }
@@ -72,8 +72,8 @@ class AddRecurringQuote extends Component {
             .then((response) => {
                 this.toggle()
                 const newUser = response.data
-                this.props.categories.push(newUser)
-                this.props.action(this.props.categories)
+                this.props.invoices.push(newUser)
+                this.props.action(this.props.invoices)
                 localStorage.removeItem('recurringQuoteForm')
                 this.setState({
                     quote_id: null,

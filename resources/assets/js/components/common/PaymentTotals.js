@@ -3,12 +3,9 @@ import {
     Card,
     CardText
 } from 'reactstrap'
+import FormatMoney from './FormatMoney'
 
 export default class PaymentTotals extends Component {
-    constructor (props) {
-        super(props)
-    }
-
     render () {
         return (
             <Card body outline color="danger">
@@ -17,19 +14,22 @@ export default class PaymentTotals extends Component {
                         <div
                             className="p-2 flex-fill">
                             <h4>Amount</h4>
-              £{this.props.entity.amount}
+                            £{<FormatMoney
+                                amount={this.props.entity.amount}/>}
                         </div>
 
                         <div
                             className="p-2 flex-fill">
                             <h4>Applied</h4>
-              £{this.props.entity.applied}
+                            £{<FormatMoney
+                                amount={this.props.entity.applied}/>}
                         </div>
 
                         <div
                             className="p-2 flex-fill">
                             <h4>Refunded</h4>
-                        £{this.props.entity.refunded}
+                            £{<FormatMoney
+                                amount={this.props.entity.refunded}/>}
                         </div>
                     </div>
                 </CardText>

@@ -42,7 +42,7 @@ class AddModal extends React.Component {
     }
 
     componentDidMount () {
-        if (localStorage.hasOwnProperty('taskForm')) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, 'taskForm')) {
             // const storedValues = JSON.parse(localStorage.getItem('taskForm'))
             // this.setState({ ...storedValues }, () => console.log('new state', this.state))
         }

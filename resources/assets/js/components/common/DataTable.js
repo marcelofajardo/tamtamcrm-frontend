@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { Table, Spinner } from 'reactstrap'
+import { Table, Spinner, UncontrolledTooltip } from 'reactstrap'
 import PaginationBuilder from './PaginationBuilder'
 import TableSort from './TableSort'
 
@@ -87,7 +87,7 @@ export default class DataTable extends Component {
             this.cancel.cancel()
         }
 
-        pageNumber = !pageNumber ? this.state.current_page : pageNumber
+        pageNumber = !pageNumber || typeof pageNumber === 'object' ? this.state.current_page : pageNumber
         order = !order ? this.state.order : order
         sorted_column = !sorted_column ? this.state.sorted_column : sorted_column
         const noPerPage = !this.state.perPage ? Math.ceil(window.innerHeight / 90) : this.state.perPage
@@ -146,6 +146,14 @@ export default class DataTable extends Component {
                 {message && <p className="message">{message}</p>}
 
                 {loader}
+
+                <UncontrolledTooltip placement="top" target="refresh">
+                    Refresh
+                </UncontrolledTooltip>
+
+                <a className="row justify-content-end" id="refresh" style={{ color: '#fff', cursor: 'pointer', marginRight: '6px' }} onClick={this.fetchEntities} >
+                    <i className="fa fa-gear" style={{ fontSize: '28px' }} />
+                </a>
 
                 {table}
 

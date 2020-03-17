@@ -66,6 +66,7 @@ class NumberSettings extends Component {
                 toast.success('Settings updated successfully')
             })
             .catch((error) => {
+                console.error(error)
                 toast.error('There was an issue updating the settings')
             })
     }

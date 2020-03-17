@@ -46,6 +46,8 @@ if (localStorage.getItem('access_token')) {
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 }
 
+axios.defaults.baseURL = 'http://taskman2.develop'
+
 const UNAUTHORIZED = 401
 axios.interceptors.response.use(
     response => response,
