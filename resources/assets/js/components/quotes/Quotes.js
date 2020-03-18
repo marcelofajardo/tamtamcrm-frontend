@@ -2,21 +2,12 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import EditQuote from './EditQuote'
 import {
-    FormGroup, Input, Card, CardBody, Col, Row
+    Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import CustomerDropdown from '../common/CustomerDropdown'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
-import DisplayColumns from '../common/DisplayColumns'
-import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
-import QuotePresenter from '../presenters/QuotePresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import QuoteItem from './QuoteItem'
+import QuoteFilters from './QuoteFilters'
 
 export default class Quotes extends Component {
     constructor (props) {
@@ -51,7 +42,6 @@ export default class Quotes extends Component {
         this.filterInvoices = this.filterInvoices.bind(this)
         this.deleteQuote = this.deleteQuote.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -124,88 +114,16 @@ export default class Quotes extends Component {
             })
     }
 
-    filterInvoices (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
+    filterInvoices (filters) {
+        this.setState({ filters: filters })
     }
 
     userList () {
-        const { quotes, custom_fields, customers } = this.state
-        if (this.state.quotes && this.state.quotes.length && customers.length) {
-            return quotes.map(user => {
-                const restoreButton = user.deleted_at
-                    ? <RestoreModal id={user.id} entities={quotes} updateState={this.updateInvoice}
-                        url={`/api/quotes/restore/${user.id}`}/> : null
-
-                const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteQuote} id={user.id}/> : null
-
-                const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteQuote} id={user.id}/> : null
-
-                const editButton = !user.deleted_at ? <EditQuote
-                    custom_fields={custom_fields}
-                    customers={customers}
-                    modal={true}
-                    add={false}
-                    invoice={user}
-                    invoice_id={user.id}
-                    action={this.updateInvoice}
-                    invoices={quotes}
-                /> : null
-
-                const columnList = Object.keys(user).filter(key => {
-                    return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
-                }).map(key => {
-                    return <QuotePresenter key={key} customers={customers} toggleViewedEntity={this.toggleViewedEntity}
-                        field={key} entity={user}/>
-                })
-
-                return (
-                    <tr key={user.id}>
-                        <td>
-                            <Input value={user.id} type="checkbox" onChange={this.onChangeBulk} />
-                            <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                                restore={restoreButton}/>
-                        </td>
-                        {columnList}
-                    </tr>
-                )
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        const { quotes, custom_fields, customers, ignoredColumns } = this.state
+        return <QuoteItem quotes={quotes} customers={customers} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
+            deleteQuote={this.deleteQuote} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deleteQuote (id, archive = true) {
@@ -228,75 +146,6 @@ export default class Quotes extends Component {
 
     renderErrorFor () {
 
-    }
-
-    getFilters () {
-        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
-        const { customers } = this.state
-        const columnFilter = this.state.quotes.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns}
-                columns={Object.keys(this.state.quotes[0]).concat(this.state.ignoredColumns)}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterInvoices}/>
-                </Col>
-
-                <Col md={3}>
-                    <CustomerDropdown
-                        customer={this.state.filters.customer_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterInvoices}
-                        customers={customers}
-                        name="customer_id"
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterInvoices}
-                            name="status_id"
-                            id="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                            <option value='active'>Draft</option>
-                            <option value='active'>Sent</option>
-                            <option value='active'>Viewed</option>
-                            <option value='approved'>Approved</option>
-                            <option value='archived'>Expired</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col>
-                    <CsvImporter filename="quotes.csv"
-                        url={`/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
     }
 
     getCustomers () {
@@ -327,10 +176,9 @@ export default class Quotes extends Component {
     }
 
     render () {
-        const { quotes, custom_fields, customers, view } = this.state
+        const { quotes, custom_fields, customers, view, filters } = this.state
         const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <EditQuote
             custom_fields={custom_fields}
             customers={customers}
@@ -346,7 +194,10 @@ export default class Quotes extends Component {
 
                 <Card>
                     <CardBody>
-                        <FilterTile filters={filters}/>
+                        <QuoteFilters quotes={quotes}
+                            updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={filters} filter={this.filterInvoices}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
 
                         <DataTable

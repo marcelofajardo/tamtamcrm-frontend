@@ -5,20 +5,12 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Input,
-    FormGroup,
-    Label,
-    CustomInput,
-    Card,
-    CardBody,
-    CardHeader
 } from 'reactstrap'
 import axios from 'axios'
-import CompanyDropdown from '../common/CompanyDropdown'
-import CategoryDropdown from '../common/CategoryDropdown'
-import UserDropdown from '../common/UserDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import AddButtons from '../common/AddButtons'
+import CostsForm from './CostsForm'
+import ImageForm from './ImageForm'
+import DetailsForm from './DetailsForm'
 
 class AddProduct extends React.Component {
     constructor (props) {
@@ -49,6 +41,8 @@ class AddProduct extends React.Component {
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleMultiSelect = this.handleMultiSelect.bind(this)
+        this.handleFileChange = this.handleFileChange.bind(this)
+        this.onChangeHandler = this.onChangeHandler.bind(this)
     }
 
     componentDidMount () {
@@ -181,11 +175,6 @@ class AddProduct extends React.Component {
     }
 
     render () {
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
         return (
             <React.Fragment>
                 <AddButtons toggle={this.toggle}/>
@@ -194,130 +183,20 @@ class AddProduct extends React.Component {
                         Add Product
                     </ModalHeader>
                     <ModalBody>
-                        <Card>
-                            <CardHeader>Product</CardHeader>
-                            <CardBody>
-                                <FormGroup>
-                                    <Label for="name">Name(*):</Label>
-                                    <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''} type="text"
-                                        name="name" value={this.state.name} onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('name')}
-                                </FormGroup>
+                        <DetailsForm errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
+                            assigned_user_id={this.state.assigned_user_id}
+                            handleMultiSelect={this.handleMultiSelect} categories={this.props.categories}
+                            selectedCategories={this.state.selectedCategories}
+                            company_id={this.state.company_id} companies={this.state.companies}
+                            sku={this.state.sku} description={this.state.description}
+                            quantity={this.state.quantity} name={this.state.name}/>
 
-                                <FormGroup>
-                                    <Label for="description">Description:</Label>
-                                    <Input className={this.hasErrorFor('description') ? 'is-invalid' : ''}
-                                        value={this.state.description}
-                                        type="textarea"
-                                        name="description"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('description')}
-                                </FormGroup>
+                        <CostsForm errors={this.state.errors} price={this.state.price} handleInput={this.handleInput}
+                            cost={this.state.cost}/>
 
-                                <FormGroup>
-                                    <Label for="quantity">Quantity:</Label>
-                                    <Input className={this.hasErrorFor('quantity') ? 'is-invalid' : ''}
-                                        type="text"
-                                        name="quantity"
-                                        value={this.state.quantity}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('quantity')}
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label for="sku">Sku(*):</Label>
-                                    <Input className={this.hasErrorFor('sku') ? 'is-invalid' : ''}
-                                        value={this.state.sku}
-                                        type="text"
-                                        name="sku"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('sku')}
-                                </FormGroup>
-
-                                <CompanyDropdown
-                                    companies={this.props.companies}
-                                    company_id={this.state.company_id}
-                                    name="company_id"
-                                    hasErrorFor={this.hasErrorFor}
-                                    errors={this.state.errors}
-                                    handleInputChanges={this.handleInput}
-                                />
-
-                                <CategoryDropdown
-                                    multiple={true}
-                                    name="category"
-                                    errors={this.state.errors}
-                                    handleInputChanges={this.handleMultiSelect}
-                                    categories={this.props.categories}
-                                />
-
-                                <FormGroup>
-                                    <Label for="postcode">Users:</Label>
-                                    <UserDropdown
-                                        name="assigned_user_id"
-                                        errors={this.state.errors}
-                                        handleInputChanges={this.handleInput.bind(this)}
-                                    />
-                                </FormGroup>
-
-                                {customForm}
-
-                                <FormGroup>
-                                    <Label for="postcode">Notes:</Label>
-                                    <Input
-                                        value={this.state.notes}
-                                        type='textarea'
-                                        name="notes"
-                                        errors={this.state.errors}
-                                        onChange={this.handleInput.bind(this)}
-                                    />
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Prices</CardHeader>
-                            <CardBody>
-                                <FormGroup>
-                                    <Label for="price">Price(*):</Label>
-                                    <Input className={this.hasErrorFor('price') ? 'is-invalid' : ''}
-                                        value={this.state.price}
-                                        type="text"
-                                        name="price"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('price')}
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label for="price">Cost(*):</Label>
-                                    <Input className={this.hasErrorFor('cost') ? 'is-invalid' : ''}
-                                        value={this.state.cost}
-                                        type="text"
-                                        name="cost"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('cost')}
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Images</CardHeader>
-                            <CardBody>
-                                <FormGroup>
-                                    <Label>Cover Image </Label>
-                                    <CustomInput className="mt-4 mb-4" onChange={this.handleFileChange.bind(this)}
-                                        type="file" id="cover" name="cover"
-                                        label="Cover!"/>
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label>Thumbnails</Label>
-                                    <Input className="mb-4" onChange={this.onChangeHandler.bind(this)} multiple
-                                        type="file" id="image" name="image"
-                                        label="Thumbnail!"/>
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
+                        <ImageForm errors={this.state.errors} images={this.state.images}
+                            deleteImage={null} handleFileChange={this.handleFileChange}
+                            onChangeHandler={this.onChangeHandler}/>
 
                     </ModalBody>
 

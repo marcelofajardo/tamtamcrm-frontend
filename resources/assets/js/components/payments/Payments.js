@@ -1,24 +1,13 @@
 import React, { Component } from 'react'
 import DataTable from '../common/DataTable'
 import AddPayment from './AddPayment'
-import EditPayment from './EditPayment'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col
+    Card, CardBody
 } from 'reactstrap'
 import axios from 'axios'
-import DeleteModal from '../common/DeleteModal'
-import RestoreModal from '../common/RestoreModal'
-import Refund from './Refund'
-import CustomerDropdown from '../common/CustomerDropdown'
-import DisplayColumns from '../common/DisplayColumns'
-import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
-import PaymentPresenter from '../presenters/PaymentPresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import PaymentItem from './PaymentItem'
+import PaymentFilters from './PaymentFilters'
 
 export default class Payments extends Component {
     constructor (props) {
@@ -54,7 +43,6 @@ export default class Payments extends Component {
         this.getInvoices = this.getInvoices.bind(this)
         this.filterPayments = this.filterPayments.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -170,174 +158,16 @@ export default class Payments extends Component {
         })
     }
 
-    filterPayments (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
-    }
-
-    getPaymentables (payment) {
-        const invoiceIds = payment.paymentables.filter(paymentable => {
-            return paymentable.payment_id === payment.id && paymentable.paymentable_type === 'App\\Invoice'
-        }).map(paymentable => {
-            return parseInt(paymentable.invoice_id)
-        })
-
-        const invoices = this.state.invoices.filter(invoice => {
-            return invoiceIds.includes(parseInt(invoice.id))
-        })
-
-        return invoices
+    filterPayments (filters) {
+        this.setState({ filters: filters })
     }
 
     customerList () {
-        const { payments, custom_fields, invoices, customers } = this.state
-        if (payments && payments.length && customers.length && invoices.length) {
-            return payments.map(payment => {
-                const paymentableInvoices = invoices && invoices.length ? this.getPaymentables(payment) : null
-
-                const restoreButton = payment.deleted_at
-                    ? <RestoreModal id={payment.id} entities={payments} updateState={this.updateCustomers}
-                        url={`/api/payments/restore/${payment.id}`}/> : null
-
-                const archiveButton = !payment.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deletePayment} id={payment.id}/> : null
-
-                const deleteButton = !payment.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deletePayment} id={payment.id}/> : null
-
-                const editButton = !payment.deleted_at ? <EditPayment
-                    custom_fields={custom_fields}
-                    invoices={invoices}
-                    payment={payment}
-                    action={this.updateCustomers}
-                    payments={payments}
-                    customers={customers}
-                    modal={true}
-                /> : null
-
-                const columnList = Object.keys(payment).filter(key => {
-                    return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
-                }).map(key => {
-                    return <PaymentPresenter key={key} customers={customers} field={key}
-                        paymentables={paymentableInvoices} entity={payment}
-                        toggleViewedEntity={this.toggleViewedEntity}/>
-                })
-
-                const refundButton = paymentableInvoices.length && invoices.length
-                    ? <Refund customers={customers} payment={payment} allInvoices={paymentableInvoices}
-                        invoices={invoices}
-                        payments={this.state.payments}
-                        action={this.updateCustomers}/> : null
-
-                return (
-                    <tr key={payment.id}>
-                        <td>
-                            <Input value={payment.id} type="checkbox" onChange={this.onChangeBulk}/>
-                            <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                                refund={refundButton}
-                                restore={restoreButton}/>
-                        </td>
-                        {columnList}
-                    </tr>
-                )
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
-    }
-
-    getFilters () {
-        const { status_id, searchText, customer_id, start_date, end_date } = this.state.filters
-        const columnFilter = this.state.payments.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns}
-                columns={Object.keys(this.state.payments[0]).concat(this.state.ignoredColumns)}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterPayments}/>
-                </Col>
-
-                <Col md={3}>
-                    <CustomerDropdown
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterPayments}
-                        customer={this.state.filters.customer_id}
-                        name="customer_id"
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterPayments}
-                            id="status_id"
-                            name="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <CsvImporter filename="payments.csv"
-                        url={`/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterPayments} update={this.updateCustomers}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
+        const { payments, custom_fields, invoices, customers, ignoredColumns } = this.state
+        return <PaymentItem payments={payments} customers={customers} invoices={invoices} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} updateCustomers={this.updateCustomers}
+            deletePayment={this.deletePayment} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deletePayment (id, archive = true) {
@@ -360,10 +190,9 @@ export default class Payments extends Component {
     }
 
     render () {
-        const { payments, custom_fields, invoices, view } = this.state
+        const { payments, custom_fields, invoices, view, filters } = this.state
         const { status_id, searchText, customer_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.getFilters()
         const addButton = invoices.length ? <AddPayment
             custom_fields={custom_fields}
             invoices={invoices}
@@ -375,7 +204,10 @@ export default class Payments extends Component {
 
             <Card>
                 <CardBody>
-                    <FilterTile filters={filters}/>
+                    <PaymentFilters payments={payments} invoices={invoices}
+                        updateIgnoredColumns={this.updateIgnoredColumns}
+                        filters={filters} filter={this.filterPayments}
+                        saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                     {addButton}
 
                     <DataTable

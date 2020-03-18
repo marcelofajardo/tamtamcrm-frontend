@@ -5,27 +5,20 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Input,
-    FormGroup,
-    Label,
-    CustomInput,
     Card,
     CardBody,
     CardHeader,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
     DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
 import PropTypes from 'prop-types'
 import ProductAttribute from './ProductAttribute'
-import CompanyDropdown from '../common/CompanyDropdown'
-import CategoryDropdown from '../common/CategoryDropdown'
-import UserDropdown from '../common/UserDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
+import DetailsForm from './DetailsForm'
+import CostsForm from './CostsForm'
+import ImageForm from './ImageForm'
+import ProductListDropdown from './ProductListDropdown'
 
 class EditProduct extends React.Component {
     constructor (props) {
@@ -78,6 +71,8 @@ class EditProduct extends React.Component {
         this.deleteImage = this.deleteImage.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
         this.changeStatus = this.changeStatus.bind(this)
+        this.handleFileChange = this.handleFileChange.bind(this)
+        this.onChangeHandler = this.onChangeHandler.bind(this)
     }
 
     toggleMenu (event) {
@@ -147,6 +142,7 @@ class EditProduct extends React.Component {
         axios.post(`/api/products/${this.state.id}`, formData)
             .then((response) => {
                 this.toggle()
+                this.setState({ changesMade: false })
                 const index = this.props.products.findIndex(product => parseInt(product.id) === this.state.id)
                 this.props.products[index] = response.data
                 this.props.action(this.props.products)
@@ -234,41 +230,10 @@ class EditProduct extends React.Component {
     }
 
     render () {
-        const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
-            Email</DropdownItem>
-
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_product')}>Clone</DropdownItem>
-
-        const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-            <DropdownToggle caret>
-                Actions
-            </DropdownToggle>
-
-            <DropdownMenu>
-                {sendEmailButton}
-                {deleteButton}
-                {archiveButton}
-                {cloneButton}
-            </DropdownMenu>
-        </Dropdown>
-
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message="Invoice was updated successfully"/> : null
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
-
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         return (
             <React.Fragment>
@@ -279,167 +244,24 @@ class EditProduct extends React.Component {
                     </ModalHeader>
                     <ModalBody>
 
-                        {dropdownMenu}
+                        <ProductListDropdown id={this.state.id} formData={this.getFormData()} />
                         {successMessage}
                         {errorMessage}
 
-                        <Card>
-                            <CardHeader>Product</CardHeader>
-                            <CardBody>
+                        <DetailsForm errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
+                            assigned_user_id={this.state.assigned_user_id}
+                            handleMultiSelect={this.handleMultiSelect} categories={this.props.categories}
+                            selectedCategories={this.state.selectedCategories}
+                            company_id={this.state.company_id} companies={this.state.companies}
+                            sku={this.state.sku} description={this.state.description}
+                            quantity={this.state.quantity} name={this.state.name}/>
 
-                                <FormGroup>
-                                    <Label for="name">Name(*):</Label>
-                                    <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''}
-                                        type="text"
-                                        name="name"
-                                        defaultValue={this.state.name}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('name')}
-                                </FormGroup>
+                        <CostsForm errors={this.state.errors} price={this.state.price} handleInput={this.handleInput}
+                            cost={this.state.cost}/>
 
-                                <FormGroup>
-                                    <Label for="email">Quantity:</Label>
-                                    <Input className={this.hasErrorFor('quantity') ? 'is-invalid' : ''}
-                                        type="text"
-                                        name="quantity"
-                                        defaultValue={this.state.quantity}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('quantity')}
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label for="email">Description:</Label>
-                                    <Input className={this.hasErrorFor('description') ? 'is-invalid' : ''}
-                                        type="textarea"
-                                        name="description"
-                                        defaultValue={this.state.description}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('description')}
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label for="sku">Sku(*):</Label>
-                                    <Input className={this.hasErrorFor('sku') ? 'is-invalid' : ''}
-                                        type="text"
-                                        name="sku"
-                                        defaultValue={this.state.sku}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('sku')}
-                                </FormGroup>
-
-                                <CompanyDropdown
-                                    name="company_id"
-                                    company_id={this.state.company_id}
-                                    errors={this.state.errors}
-                                    handleInputChanges={this.handleInput}
-                                    companies={this.props.companies}
-                                />
-
-                                <CategoryDropdown
-                                    multiple={true}
-                                    name="category"
-                                    category={this.state.selectedCategories}
-                                    errors={this.state.errors}
-                                    handleInputChanges={this.handleMultiSelect}
-                                    categories={this.props.categories}
-                                />
-
-                                <FormGroup>
-                                    <Label for="postcode">Users:</Label>
-                                    <UserDropdown
-                                        user={this.state.assigned_user_id}
-                                        name="assigned_user_id"
-                                        errors={this.state.errors}
-                                        handleInputChanges={this.handleInput.bind(this)}
-                                    />
-                                </FormGroup>
-
-                                {customForm}
-
-                                <FormGroup>
-                                    <Label for="postcode">Notes:</Label>
-                                    <Input
-                                        value={this.state.notes}
-                                        type='textarea'
-                                        name="notes"
-                                        errors={this.state.errors}
-                                        onChange={this.handleInput.bind(this)}
-                                    />
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Prices</CardHeader>
-                            <CardBody>
-                                <FormGroup>
-                                    <Label for="price">Price(*):</Label>
-                                    <Input className={this.hasErrorFor('price') ? 'is-invalid' : ''}
-                                        type="text"
-                                        name="price"
-                                        defaultValue={this.state.price}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('price')}
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label for="price">Cost:</Label>
-                                    <Input className={this.hasErrorFor('cost') ? 'is-invalid' : ''}
-                                        type="text"
-                                        name="cost"
-                                        defaultValue={this.state.cost}
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('cost')}
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Images</CardHeader>
-                            <CardBody>
-
-                                <FormGroup>
-                                    <div className="col-md-3">
-                                        <div className="row">
-                                            <img src={`/storage/${this.props.product.cover}`} alt=""
-                                                className="img-responsive img-thumbnail"/>
-                                        </div>
-                                    </div>
-                                </FormGroup>
-
-                                <FormGroup>
-                                    {
-                                        this.state.images && this.state.images.map((image, index) => {
-                                            return (<div key={index} className="col-md-3">
-                                                <div className="row">
-                                                    <img src={`/storage/${image.src}`} alt=""
-                                                        className="img-responsive img-thumbnail"/>
-                                                    <br/> <br/>
-                                                    <Button data-src={image.src} color="danger"
-                                                        onClick={this.deleteImage.bind(this)}>Remove</Button>
-                                                    <br/>
-                                                </div>
-                                            </div>)
-                                        })
-                                    }
-
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label>Cover Image</Label>
-                                    <CustomInput onChange={this.handleFileChange.bind(this)} type="file" id="cover"
-                                        name="cover"
-                                        label="Cover!"/>
-                                </FormGroup>
-
-                                <FormGroup>
-                                    <Label>Thumbnails</Label>
-                                    <Input onChange={this.onChangeHandler.bind(this)} multiple type="file" id="image"
-                                        name="image"
-                                        label="Thumbnail!"/>
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
+                        <ImageForm errors={this.state.errors} product={this.props.product} images={this.state.images}
+                            deleteImage={this.deleteImage} handleFileChange={this.handleFileChange}
+                            onChangeHandler={this.onChangeHandler}/>
 
                         <Card>
                             <CardHeader>Attributes</CardHeader>

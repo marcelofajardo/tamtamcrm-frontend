@@ -70,7 +70,7 @@ export default class RoleDropdown extends Component {
                     <option value="">Select Role</option>
                     {roleList}
                 </Input>
-                {this.props.renderErrorFor('role')}
+                {this.renderErrorFor('role')}
             </FormGroup>
         )
     }

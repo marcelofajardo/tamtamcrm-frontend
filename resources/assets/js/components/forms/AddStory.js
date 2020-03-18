@@ -90,9 +90,11 @@ class AddStory extends React.Component {
         })
             .then((response) => {
                 if (response.data) {
-                    this.props.addProject(response.data)
+                    const newUser = response.data
+                    this.props.projects.push(newUser)
+                    this.props.action(this.props.projects)
+                    localStorage.removeItem('creditForm')
                 }
-                localStorage.removeItem('projectForm')
                 this.setState({
                     title: '',
                     description: '',

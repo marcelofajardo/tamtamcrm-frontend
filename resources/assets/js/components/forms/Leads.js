@@ -1,21 +1,13 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import EditLead from './EditLeadForm'
 import AddLead from './AddLeadForm'
 import DataTable from '../common/DataTable'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col
+    Card, CardBody
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
-import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import LeadFilters from './LeadFilters'
+import LeadItem from './LeadItem'
 
 export default class Leads extends Component {
     constructor (props) {
@@ -76,7 +68,6 @@ export default class Leads extends Component {
         this.deleteLead = this.deleteLead.bind(this)
         this.filterLeads = this.filterLeads.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -149,131 +140,16 @@ export default class Leads extends Component {
         }, () => console.log('view', this.state.view))
     }
 
-    filterLeads (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
-    }
-
-    getFilters () {
-        const { status_id, searchText, start_date, end_date } = this.state.filters
-        const columnFilter = this.state.leads.length
-            ? <DisplayColumns onChange={this.updateIgnoredColumns} columns={Object.keys(this.state.leads[0])}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col className="h-100" md={3}>
-                    <TableSearch onChange={this.filterLeads}/>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
-                </Col>
-
-                <Col className="h-100" md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterLeads}
-                            id="status_id"
-                            name="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col className="h-100" md={2}>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col className="h-100" md={2}>
-                    <CsvImporter filename="leads.csv"
-                        url={`/api/leads?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col className="h-100" md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterLeads} update={this.addUserToState}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
+    filterLeads (filters) {
+        this.setState({ filters: filters })
     }
 
     userList () {
         const { leads, custom_fields, users, ignoredColumns } = this.state
-        if (leads && leads.length) {
-            return leads.map(lead => {
-                const restoreButton = lead.deleted_at
-                    ? <RestoreModal id={lead.id} entities={leads} updateState={this.addUserToState}
-                        url={`/api/leads/restore/${lead.id}`}/> : null
-                const archiveButton = !lead.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteLead} id={lead.id}/> : null
-                const deleteButton = !lead.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteLead} id={lead.id}/> : null
-                const editButton = !lead.deleted_at ? <EditLead
-                    listView={true}
-                    custom_fields={custom_fields}
-                    users={users}
-                    lead={lead}
-                    leads={leads}
-                    action={this.addUserToState}
-                /> : null
-
-                const columnList = Object.keys(lead).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <td onClick={() => this.toggleViewedEntity(lead, lead.title)} data-label={key}
-                        key={key}>{lead[key]}</td>
-                })
-                return <tr key={lead.id}>
-                    <td>
-                        <Input value={lead.id} type="checkbox" onChange={this.onChangeBulk} />
-                        <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                            restore={restoreButton}/>
-                    </td>
-                    {columnList}
-                </tr>
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        return <LeadItem leads={leads} users={users} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
+            deleteLead={this.deleteLead} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deleteLead (id, archive = true) {
@@ -332,7 +208,6 @@ export default class Leads extends Component {
         const { status_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/leads?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
         const { error } = this.state
-        const filters = this.getFilters()
 
         return (
             <div className="data-table">
@@ -343,7 +218,9 @@ export default class Leads extends Component {
 
                 <Card>
                     <CardBody>
-                        <FilterTile filters={filters}/>
+                        <LeadFilters leads={leads} updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={this.state.filters} filter={this.filterLeads}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         <AddLead users={users} leads={leads} action={this.addUserToState}
                             custom_fields={custom_fields}/>
 

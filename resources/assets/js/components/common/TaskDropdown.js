@@ -65,7 +65,6 @@ export default class TaskDropdown extends Component {
                     getOptionValue={option => option.id}
                     onChange={(value) => this.handleChange(value, name)}
                 />
-                {this.props.renderErrorFor('task')}
             </FormGroup>
         )
     }

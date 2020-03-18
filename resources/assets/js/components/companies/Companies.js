@@ -6,22 +6,16 @@ import DataTable from '../common/DataTable'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import {
-    FormGroup,
     Input,
     Card,
-    CardBody,
-    Row,
-    Col
+    CardBody
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import CompanyPresenter from '../presenters/CompanyPresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import CompanyFilters from './CompanyFilters'
+import CreditItem from '../credits/CreditItem'
+import CompanyItem from './CompanyItem'
 
 export default class Companies extends Component {
     constructor (props) {
@@ -73,7 +67,6 @@ export default class Companies extends Component {
         this.deleteBrand = this.deleteBrand.bind(this)
         this.filterCompanies = this.filterCompanies.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -142,136 +135,16 @@ export default class Companies extends Component {
             })
     }
 
-    filterCompanies (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.name
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
-    }
-
-    getFilters () {
-        const { searchText, status_id, start_date, end_date } = this.state.filters
-        const columnFilter = this.state.brands.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.brands[0])}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterCompanies}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterCompanies}
-                            id="status_id"
-                            name="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <BulkActionDropdown
-                            dropdownButtonActions={this.state.dropdownButtonActions}
-                            saveBulk={this.saveBulk}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <CsvImporter filename="companies.csv"
-                            url={`/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterCompanies} update={this.addUserToState}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
+    filterCompanies (filters) {
+        this.setState({ filters: filters })
     }
 
     userList () {
         const { brands, custom_fields, users, ignoredColumns } = this.state
-        if (brands && brands.length) {
-            return this.state.brands.map(brand => {
-                const restoreButton = brand.deleted_at
-                    ? <RestoreModal id={brand.id} entities={brands} updateState={this.addUserToState}
-                        url={`/api/brands/restore/${brand.id}`}/> : null
-                const archiveButton = !brand.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteBrand} id={brand.id}/> : null
-                const deleteButton = !brand.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteBrand} id={brand.id}/> : null
-                const editButton = !brand.deleted_at ? <EditCompany
-                    custom_fields={custom_fields}
-                    users={users}
-                    brand={brand}
-                    brands={brands}
-                    action={this.addUserToState}
-                /> : null
-
-                const columnList = Object.keys(brand).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <CompanyPresenter key={key} toggleViewedEntity={this.toggleViewedEntity}
-                        field={key} entity={brand}/>
-                })
-                return <tr key={brand.id}>
-                    <td>
-                        <Input value={brand.id} type="checkbox" onChange={this.onChangeBulk}/>
-                        <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                            restore={restoreButton}/>
-                    </td>
-                    {columnList}
-                </tr>
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        return <CompanyItem brands={brands} users={users} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
+            deleteBrand={this.deleteBrand} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deleteBrand (id, archive = true) {
@@ -329,7 +202,6 @@ export default class Companies extends Component {
         const { custom_fields, users, error, view, brands } = this.state
         const { searchText, status_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.getFilters()
         const addButton = users.length
             ? <AddCompany brands={brands} users={users} action={this.addUserToState}
                 custom_fields={custom_fields}/> : null
@@ -343,7 +215,9 @@ export default class Companies extends Component {
 
                 <Card>
                     <CardBody>
-                        <FilterTile filters={filters}/>
+                        <CompanyFilters brands={brands} updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={this.state.filters} filter={this.filterCompanies}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
 
                         <DataTable

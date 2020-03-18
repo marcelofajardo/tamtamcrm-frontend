@@ -1,15 +1,12 @@
 import React from 'react'
 import styled from 'styled-components'
 import Calendar from './Calendar'
-import CreateEvent from './CreateEvent'
 import axios from 'axios'
-import { FormGroup, Form, Card, CardHeader, CardBody, Input } from 'reactstrap'
+import { Card, CardHeader, CardBody, FormGroup } from 'reactstrap'
 import WeekCalendar from './WeekCalendar'
 import CalendarEvent from './CalendarEvent'
-import TaskDropdown from '../common/TaskDropdown'
-import UserDropdown from '../common/UserDropdown'
-import CustomerDropdown from '../common/CustomerDropdown'
-import EventTypeDropdown from '../common/EventTypeDropdown'
+import CreateEvent from './CreateEvent'
+import CalendarFilter from './CalendarFilter'
 
 const Controls = styled.div`
   display: flex;
@@ -57,6 +54,11 @@ class Calendars extends React.Component {
         this.setState({ month: month })
     }
 
+    filterEvents (filters) {
+        console.log('filters', filters)
+        this.setState({ filters: filters }, this.handleSubmit())
+    }
+
     getEvents () {
         const url = (this.props.user_id) ? `/api/events/users/${this.props.user_id}` : (this.props.task_id) ? `/api/events/tasks/${this.props.task_id}` : '/api/events'
         axios.get(url)
@@ -68,30 +70,6 @@ class Calendars extends React.Component {
             .catch((e) => {
                 alert(e)
             })
-    }
-
-    filterEvents (event) {
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState }, function () {
-                this.handleSubmit()
-            })
-            return true
-        }
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            }
-        }), function () {
-            this.handleSubmit()
-        })
-
-        return true
     }
 
     getCustomFields () {
@@ -109,7 +87,7 @@ class Calendars extends React.Component {
             })
     }
 
-    handleSubmit (event) {
+    handleSubmit () {
         axios.post('/api/events/filterEvents',
             this.state.filters)
             .then((response) => {
@@ -154,58 +132,6 @@ class Calendars extends React.Component {
         this.props.reset()
     }
 
-    getFilters () {
-        return (
-            <Form inline className="pull-right" onSubmit={this.handleSubmit}>
-
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <CreateEvent
-                        custom_fields={this.state.custom_fields}
-                        action={this.setEvents}
-                        events={this.state.events}
-                        modal={true}
-                    />
-                </FormGroup>
-
-                <TaskDropdown
-                    task={this.state.filters.task_id}
-                    name="task_id"
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterEvents}
-                />
-                <UserDropdown
-                    user={this.state.filters.user_id}
-                    name="event_user.user_id"
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterEvents}
-                />
-                <CustomerDropdown
-                    customer={this.state.filters.customer_id}
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterEvents}
-                />
-                <EventTypeDropdown
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterEvents}
-                    customers={this.props.customers}
-                />
-
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Input type='select'
-                        onChange={this.filterEvents}
-                        id="status_id"
-                        name="status_id"
-                    >
-                        <option value="">Select Status</option>
-                        <option value='active'>Active</option>
-                        <option value='archived'>Archived</option>
-                        <option value='deleted'>Deleted</option>
-                    </Input>
-                </FormGroup>
-            </Form>
-        )
-    }
-
     eventRender (event, i) {
         const { events, custom_fields } = this.state
         return (
@@ -227,8 +153,7 @@ class Calendars extends React.Component {
     }
 
     render () {
-        const filters = this.getFilters()
-        const { events, year, month, custom_fields, calendarType } = this.state
+        const { events, year, month, custom_fields, calendarType, filters } = this.state
 
         const calendar = this.state.calendar_type === 'month'
             ? <React.Fragment>
@@ -259,7 +184,20 @@ class Calendars extends React.Component {
                     <CardHeader>
                         <h2>Calendar</h2> <a data-type="week" onClick={this.setCalendarType.bind(this)}> Week </a> | <a
                             data-type="month" onClick={this.setCalendarType.bind(this)}> Month </a>
-                        {filters}
+
+                        <CalendarFilter events={events}
+                            updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={filters} filter={this.filterEvents}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
+
+                        <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                            <CreateEvent
+                                custom_fields={this.state.custom_fields}
+                                action={this.setEvents}
+                                events={this.state.events}
+                                modal={true}
+                            />
+                        </FormGroup>
                     </CardHeader>
                     <CardBody>
                         {calendar}

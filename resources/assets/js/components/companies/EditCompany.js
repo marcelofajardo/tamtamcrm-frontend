@@ -5,10 +5,6 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    CustomInput,
-    Input,
-    FormGroup,
-    Label,
     Card,
     CardBody,
     CardHeader,
@@ -17,20 +13,17 @@ import {
     NavLink,
     TabContent,
     TabPane,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
     DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
-import CountryDropdown from '../common/CountryDropdown'
-import CurrencyDropdown from '../common/CurrencyDropdown'
-import IndustryDropdown from '../common/IndustryDropdown'
-import UserDropdown from '../common/UserDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import Contact from '../common/Contact'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
+import AddressForm from './AddressForm'
+import SettingsForm from './SettingsForm'
+import NotesForm from './NotesForm'
+import DetailsForm from './DetailsForm'
+import CompanyDropdown from './CompanyDropdown'
 
 class EditCompany extends React.Component {
     constructor (props) {
@@ -43,7 +36,7 @@ class EditCompany extends React.Component {
             showSuccessMessage: false,
             showErrorMessage: false,
             errors: [],
-            contacts: [],
+            contacts: this.props.brand.contacts && this.props.brand.contacts.length ? this.props.brand.contacts : [],
             name: this.props.brand.name,
             website: this.props.brand.website,
             phone_number: this.props.brand.phone_number,
@@ -70,23 +63,15 @@ class EditCompany extends React.Component {
         this.initialState = this.state
         this.updateContacts = this.updateContacts.bind(this)
         this.toggle = this.toggle.bind(this)
-        this.hasErrorFor = this.hasErrorFor.bind(this)
-        this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleMultiSelect = this.handleMultiSelect.bind(this)
-        this.toggleMenu = this.toggleMenu.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
+        this.handleInput = this.handleInput.bind(this)
+        this.handleFileChange = this.handleFileChange.bind(this)
     }
 
     handleInput (e) {
         this.setState({
             [e.target.name]: e.target.value,
             changesMade: true
-        })
-    }
-
-    toggleMenu (event) {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
         })
     }
 
@@ -108,20 +93,6 @@ class EditCompany extends React.Component {
 
     handleMultiSelect (e) {
         this.setState({ selectedUsers: Array.from(e.target.selectedOptions, (item) => item.value) })
-    }
-
-    hasErrorFor (field) {
-        return !!this.state.errors[field]
-    }
-
-    renderErrorFor (field) {
-        if (this.hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{this.state.errors[field][0]}</strong>
-                </span>
-            )
-        }
     }
 
     getFormData () {
@@ -151,26 +122,6 @@ class EditCompany extends React.Component {
         return formData
     }
 
-    changeStatus (action) {
-        if (!this.state.id) {
-            return false
-        }
-
-        const data = this.getFormData()
-        axios.post(`/api/company/${this.state.id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({ showSuccessMessage: true })
-            })
-            .catch((error) => {
-                this.setState({ showErrorMessage: true })
-                console.warn(error)
-            })
-    }
-
     handleClick () {
         const formData = this.getFormData()
 
@@ -180,6 +131,7 @@ class EditCompany extends React.Component {
                 const index = this.props.brands.findIndex(company => parseInt(company.id) === this.state.id)
                 this.props.brands[index] = response.data
                 this.props.action(this.props.brands)
+                this.setState({ changesMade: false })
             })
             .catch((error) => {
                 this.setState({
@@ -204,41 +156,11 @@ class EditCompany extends React.Component {
     }
 
     render () {
-        const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
-            Email</DropdownItem>
-
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_company')}>Clone</DropdownItem>
-
-        const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-            <DropdownToggle caret>
-                Actions
-            </DropdownToggle>
-
-            <DropdownMenu>
-                {sendEmailButton}
-                {deleteButton}
-                {archiveButton}
-                {cloneButton}
-            </DropdownMenu>
-        </Dropdown>
-
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message="Invoice was updated successfully"/> : null
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
         return (
             <React.Fragment>
                 <DropdownItem onClick={this.toggle}><i className="fa fa-edit"/>Edit</DropdownItem>
@@ -248,7 +170,7 @@ class EditCompany extends React.Component {
                     </ModalHeader>
                     <ModalBody>
 
-                        {dropdownMenu}
+                        <CompanyDropdown formData={this.getFormData()} id={this.state.id} />
                         {successMessage}
                         {errorMessage}
 
@@ -294,64 +216,10 @@ class EditCompany extends React.Component {
                         </Nav>
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Card>
-                                    <CardHeader>Product</CardHeader>
-                                    <CardBody>
-                                        <FormGroup>
-                                            <Label for="name">Name(*):</Label>
-                                            <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''}
-                                                type="text"
-                                                placeholder="Name"
-                                                name="name"
-                                                value={this.state.name}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('name')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="website">Website(*):</Label>
-                                            <Input className={this.hasErrorFor('website') ? 'is-invalid' : ''}
-                                                type="text"
-                                                name="website"
-                                                placeholder="Website"
-                                                value={this.state.website}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('website')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="phone_number">Phone Number(*):</Label>
-                                            <Input className={this.hasErrorFor('phone_number') ? 'is-invalid' : ''}
-                                                placeholder="Phone Number"
-                                                type="tel"
-                                                name="phone_number"
-                                                value={this.state.phone_number}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('phone_number')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="email">Email(*):</Label>
-                                            <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''}
-                                                placeholder="Email"
-                                                type="email"
-                                                name="email"
-                                                value={this.state.email}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('email')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label>Logo</Label>
-                                            <CustomInput className="mt-4 mb-4"
-                                                onChange={this.handleFileChange.bind(this)} type="file"
-                                                id="company_logo" name="company_logo"
-                                                label="Logo"/>
-                                        </FormGroup>
-
-                                        {customForm}
-                                    </CardBody>
-                                </Card>
+                                <DetailsForm errors={this.state.errors} handleInput={this.handleInput}
+                                    name={this.state.name} website={this.state.website}
+                                    phone_number={this.state.phone_number} email={this.state.email}
+                                    handleFileChange={this.handleFileChange}/>
                             </TabPane>
 
                             <TabPane tabId="2">
@@ -367,126 +235,20 @@ class EditCompany extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="3">
-                                <Card>
-                                    <CardHeader>Address</CardHeader>
-                                    <CardBody>
-                                        <FormGroup>
-                                            <Label for="address_1">Address(*):</Label>
-                                            <Input className={this.hasErrorFor('address_1') ? 'is-invalid' : ''}
-                                                placeholder="Address"
-                                                type="text"
-                                                name="address_1"
-                                                value={this.state.address_1}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('address_1')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="address_2">Address 2:</Label>
-                                            <Input className={this.hasErrorFor('address_2') ? 'is-invalid' : ''}
-                                                placeholder="Address"
-                                                type="text"
-                                                name="address_2"
-                                                value={this.state.address_2}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('address_2')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="town">Town(*):</Label>
-                                            <Input className={this.hasErrorFor('town') ? 'is-invalid' : ''}
-                                                placeholder="Town"
-                                                type="text"
-                                                name="town"
-                                                value={this.state.town}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('town')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="city">City(*):</Label>
-                                            <Input className={this.hasErrorFor('city') ? 'is-invalid' : ''}
-                                                placeholder="City"
-                                                type="text"
-                                                name="city"
-                                                value={this.state.city}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('city')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="postcode">Postcode(*):</Label>
-                                            <Input className={this.hasErrorFor('postcode') ? 'is-invalid' : ''}
-                                                placeholder="Postcode"
-                                                type="text"
-                                                name="postcode"
-                                                value={this.state.postcode}
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('postcode')}
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="postcode">Country(*):</Label>
-                                            <CountryDropdown
-                                                country={this.state.country_id}
-                                                errors={this.state.errors}
-                                                handleInputChanges={this.handleInput.bind(this)}
-                                            />
-                                        </FormGroup>
-                                    </CardBody>
-                                </Card>
+                                <AddressForm errors={this.state.errors} address_1={this.state.address_1}
+                                    address_2={this.state.address_2} handleInput={this.handleInput}
+                                    town={this.state.town} city={this.state.city}
+                                    postcode={this.state.postcode} country_id={this.state.country_id}/>
                             </TabPane>
 
                             <TabPane tabId="4">
-                                <Card>
-                                    <CardHeader>Settings</CardHeader>
-                                    <CardBody>
-                                        <FormGroup>
-                                            <Label for="postcode">Currency(*):</Label>
-                                            <CurrencyDropdown
-                                                currency_id={this.state.currency_id}
-                                                errors={this.state.errors}
-                                                handleInputChanges={this.handleInput.bind(this)}
-                                            />
-                                        </FormGroup>
+                                <SettingsForm errors={this.state.errors} currency_id={this.state.currency_id}
+                                    industry_id={this.state.industry_id}
+                                    assigned_user_id={this.state.assigned_user_id}
+                                    handleInput={this.handleInput}/>
 
-                                        <FormGroup>
-                                            <Label for="postcode">Industry:</Label>
-                                            <IndustryDropdown
-                                                industry_id={this.state.industry_id}
-                                                errors={this.state.errors}
-                                                handleInputChanges={this.handleInput.bind(this)}
-                                            />
-                                        </FormGroup>
-
-                                        <FormGroup>
-                                            <Label for="postcode">Users:</Label>
-                                            <UserDropdown
-                                                user={this.state.assigned_user_id}
-                                                name="assigned_user_id"
-                                                errors={this.state.errors}
-                                                handleInputChanges={this.handleInput.bind(this)}
-                                            />
-                                        </FormGroup>
-                                    </CardBody>
-                                </Card>
-
-                                <Card>
-                                    <CardHeader>Notes</CardHeader>
-                                    <CardBody>
-
-                                        <FormGroup>
-                                            <Label for="postcode">Notes:</Label>
-                                            <Input
-                                                value={this.state.notes}
-                                                type='textarea'
-                                                name="notes"
-                                                errors={this.state.errors}
-                                                onChange={this.handleInput.bind(this)}
-                                            />
-                                        </FormGroup>
-                                    </CardBody>
-                                </Card>
+                                <NotesForm handleInput={this.handleInput} errors={this.state.errors}
+                                    notes={this.state.notes}/>
                             </TabPane>
                         </TabContent>
 

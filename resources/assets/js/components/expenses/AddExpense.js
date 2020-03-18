@@ -5,29 +5,18 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Input,
-    Label,
-    CardHeader,
-    Card,
-    CardBody,
-    FormGroup,
     Nav,
     NavItem,
     NavLink,
     TabContent,
-    TabPane,
-    Col,
-    Row,
-    Collapse
+    TabPane
 } from 'reactstrap'
 import axios from 'axios'
-import CustomerDropdown from '../common/CustomerDropdown'
-import CompanyDropdown from '../common/CompanyDropdown'
-import FormBuilder from '../accounts/FormBuilder'
-import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
-import CurrencyDropdown from '../common/CurrencyDropdown'
 import moment from 'moment'
 import AddButtons from '../common/AddButtons'
+import NotesForm from './NotesForm'
+import SettingsForm from './SettingsForm'
+import DetailsForm from './DetailsForm'
 
 class AddExpense extends React.Component {
     constructor (props) {
@@ -35,9 +24,7 @@ class AddExpense extends React.Component {
         this.state = {
             modal: false,
             amount: 0,
-            date: moment(new Date()).format('YYYY-MM-DD'),
-            currencyOpen: false,
-            paymentOpen: false,
+            date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             custom_value1: '',
             custom_value2: '',
             custom_value3: '',
@@ -51,7 +38,7 @@ class AddExpense extends React.Component {
             transaction_reference: null,
             payment_date: null,
             invoice_documents: null,
-            expense_date: null,
+            expense_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             company_id: null,
             category_id: null,
             notes: null,
@@ -61,42 +48,10 @@ class AddExpense extends React.Component {
             activeTab: '1'
         }
 
-        this.formFields = [
-            [
-                // {
-                //     name: 'mark_billable',
-                //     label: 'Mark Billable',
-                //     type: 'checkbox',
-                //     placeholder: 'Update Products'
-                // },
-                // {
-                //     name: 'mark_paid',
-                //     label: 'Mark Paid',
-                //     type: 'checkbox',
-                //     placeholder: 'Show Cost'
-                // },
-                // {
-                //     name: 'convert_currency',
-                //     label: 'Convert Currency',
-                //     type: 'checkbox',
-                //     placeholder: 'Show Product Quantity'
-                // },
-                {
-                    name: 'invoice_documents',
-                    label: 'Add Documents to invoice',
-                    type: 'checkbox',
-                    placeholder: 'Fill Products'
-                }
-            ]
-        ]
-
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleInput = this.handleInput.bind(this)
-        this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
-        this.toggleCurrency = this.toggleCurrency.bind(this)
-        this.togglePayment = this.togglePayment.bind(this)
     }
 
     componentDidMount () {
@@ -220,28 +175,8 @@ class AddExpense extends React.Component {
         })
     }
 
-    handleCheckboxChange (e) {
-        const value = e.target.checked
-        const name = e.target.name
-
-        this.setState({ [name]: value })
-    }
-
-    toggleCurrency () {
-        this.setState({ currencyOpen: !this.state.currencyOpen })
-    }
-
-    togglePayment () {
-        this.setState({ paymentOpen: !this.state.paymentOpen })
-    }
-
     render () {
         const { message } = this.state
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         return (
             <React.Fragment>
@@ -289,161 +224,27 @@ class AddExpense extends React.Component {
                         </Nav>
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
+                                <DetailsForm custom_fields={this.props.custom_fields} errors={this.state.errors}
+                                    amount={this.state.amount}
+                                    handleInput={this.handleInput} expense_date={this.state.expense_date}
+                                    category_id={this.state.category_id} customer_id={this.state.customer_id}
+                                    customers={this.props.customers} companies={this.props.companies}
+                                    company_id={this.state.company_id}/>
 
-                                <Card>
-                                    <CardHeader>Details</CardHeader>
-                                    <CardBody>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Amount</Label>
-                                            <Input value={this.state.amount}
-                                                className={this.hasErrorFor('amount') ? 'is-invalid' : ''}
-                                                type="text" name="amount"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('amount')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mr-2">
-                                            <Label for="date">Date(*):</Label>
-                                            <Input className={this.hasErrorFor('expense_date') ? 'is-invalid' : ''}
-                                                value={this.state.expense_date} type="date" id="date"
-                                                name="expense_date"
-                                                onChange={this.handleInput}/>
-                                            {this.renderErrorFor('expense_date')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mr-2">
-                                            <Label for="date">Category(*):</Label>
-                                            <Input className={this.hasErrorFor('category_id') ? 'is-invalid' : ''}
-                                                value={this.state.date} type="select" id="category_id"
-                                                name="category_id"
-                                                onChange={this.handleInput}>
-                                                <option value="">Select Category</option>
-                                                <option value="1">Test category</option>
-                                            </Input>
-                                            {this.renderErrorFor('category_id')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Customer</Label>
-                                            <CustomerDropdown
-                                                customer={this.state.customer_id}
-                                                renderErrorFor={this.renderErrorFor}
-                                                handleInputChanges={this.handleInput}
-                                                customers={this.props.customers}
-                                            />
-                                            {this.renderErrorFor('customer_id')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Company</Label>
-                                            <CompanyDropdown
-                                                companies={this.props.companies}
-                                                company_id={this.state.company_id}
-                                                renderErrorFor={this.renderErrorFor}
-                                                handleInputChanges={this.handleInput}
-                                            />
-                                            {this.renderErrorFor('company_id')}
-                                        </FormGroup>
-
-                                        {customForm}
-                                    </CardBody>
-                                </Card>
                             </TabPane>
 
                             <TabPane tabId="2">
-                                <Card>
-                                    <CardHeader>
-                                        Settings
-                                    </CardHeader>
-
-                                    <CardBody>
-                                        <FormBuilder
-                                            handleCheckboxChange={this.handleCheckboxChange}
-                                            formFieldsRows={this.formFields}
-                                        />
-
-                                        <Button color="primary" onClick={this.toggleCurrency}
-                                            style={{ marginBottom: '1rem' }}>Convert Currency</Button>
-                                        <Collapse isOpen={this.state.currencyOpen}>
-                                            <Row form>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="exampleEmail">Currency</Label>
-                                                        <CurrencyDropdown currency_id={this.state.expense_currency_id}
-                                                            handleInputChanges={this.handleInput}
-                                                            name="expense_currency_id"/>
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="examplePassword">Exchange Rate</Label>
-                                                        <Input type="text" name="exchange_rate" id="exchange_rate"
-                                                            onChange={this.handleInput}
-                                                            value={this.state.exchange_rate}
-                                                            placeholder="Exchange Rate"/>
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-                                        </Collapse>
-
-                                        <Button color="primary" onClick={this.togglePayment}
-                                            style={{ marginBottom: '1rem' }}>Mark Paid</Button>
-                                        <Collapse isOpen={this.state.paymentOpen}>
-                                            <Row form>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="exampleEmail">Payment Type</Label>
-                                                        <PaymentTypeDropdown handleInputChanges={this.handleInput}
-                                                            name="payment_type_id"/>
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="examplePassword">Date</Label>
-                                                        <Input type="date" name="payment_date"
-                                                            onChange={this.handleInput} id="examplePassword"
-                                                            placeholder="payment date"/>
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="examplePassword">Transaction Reference</Label>
-                                                        <Input type="text" name="transaction_reference"
-                                                            onChange={this.handleInput} id="transaction_reference"
-                                                            placeholder="transaction reference"/>
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-                                        </Collapse>
-
-                                    </CardBody>
-                                </Card>
+                                <SettingsForm errors={this.state.errors}
+                                    transaction_reference={this.state.transaction_reference}
+                                    handleInput={this.handleInput} payment_date={this.state.payment_date}
+                                    payment_type_id={this.state.payment_type_id}
+                                    expense_currency_id={this.state.expense_currency_id}
+                                    exchange_rate={this.state.exchange_rate}/>
                             </TabPane>
 
                             <TabPane tabId="3">
-                                <Card>
-                                    <CardHeader>Notes</CardHeader>
-                                    <CardBody>
-                                        <FormGroup className="mb-3">
-                                            <Label>Public Notes</Label>
-                                            <Input value={this.state.notes}
-                                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="public_notes"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('public_notes')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Private Notes</Label>
-                                            <Input value={this.state.notes}
-                                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="private_notes"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('private_notes')}
-                                        </FormGroup>
-                                    </CardBody>
-                                </Card>
+                                <NotesForm errors={this.state.errors} public_notes={this.state.public_notes}
+                                    private_notes={this.state.private_notes} handleInput={this.handleInput}/>
                             </TabPane>
                         </TabContent>
                     </ModalBody>

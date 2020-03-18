@@ -1,23 +1,13 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import AddRecurringQuote from './AddRecurringQuote'
-import UpdateRecurringQuote from './UpdateRecurringQuote'
 import {
-    FormGroup, Input, Card, CardBody, Col, Row
+    Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import CustomerDropdown from '../common/CustomerDropdown'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
-import DisplayColumns from '../common/DisplayColumns'
-import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
-import RecurringQuotePresenter from '../presenters/RecurringQuotePresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import RecurringQuoteItem from './RecurringQuoteItem'
+import RecurringQuoteFilters from './RecurringQuoteFilters'
 
 export default class RecurringQuotes extends Component {
     constructor (props) {
@@ -56,7 +46,6 @@ export default class RecurringQuotes extends Component {
         this.deleteInvoice = this.deleteInvoice.bind(this)
         this.getQuotes = this.getQuotes.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -141,88 +130,16 @@ export default class RecurringQuotes extends Component {
             })
     }
 
-    filterInvoices (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
+    filterInvoices (filters) {
+        this.setState({ filters: filters })
     }
 
     userList () {
-        const { invoices, custom_fields, customers, allQuotes } = this.state
-        if (invoices && invoices.length && customers.length) {
-            return invoices.map(user => {
-                const restoreButton = user.deleted_at
-                    ? <RestoreModal id={user.id} entities={invoices} updateState={this.updateInvoice}
-                        url={`/api/recurringQuote/restore/${user.id}`}/> : null
-                const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteInvoice} id={user.id}/> : null
-
-                const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteInvoice} id={user.id}/> : null
-
-                const editButton = !user.deleted_at ? <UpdateRecurringQuote
-                    allQuotes={allQuotes}
-                    custom_fields={custom_fields}
-                    customers={customers}
-                    modal={true}
-                    add={true}
-                    invoice={user}
-                    invoice_id={user.id}
-                    action={this.updateInvoice}
-                    invoices={invoices}
-                /> : null
-
-                const columnList = Object.keys(user).filter(key => {
-                    return this.state.ignoredColumns && !this.state.ignoredColumns.includes(key)
-                }).map(key => {
-                    return <RecurringQuotePresenter key={key} customers={customers} toggleViewedEntity={this.toggleViewedEntity}
-                        field={key} entity={user}/>
-                })
-
-                return (
-                    <tr key={user.id}>
-                        <td>
-                            <Input value={user.id} type="checkbox" onChange={this.onChangeBulk} />
-                            <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                                restore={restoreButton}/>
-                        </td>
-                        {columnList}
-                    </tr>
-                )
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        const { invoices, custom_fields, customers, allQuotes, ignoredColumns } = this.state
+        return <RecurringQuoteItem allQuotes={allQuotes} invoices={invoices} customers={customers} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
+            deleteInvoice={this.deleteInvoice} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deleteInvoice (id, archive = true) {
@@ -246,76 +163,6 @@ export default class RecurringQuotes extends Component {
 
     renderErrorFor () {
 
-    }
-
-    getFilters () {
-        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
-        const { customers } = this.state
-        const columnFilter = this.state.invoices.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns}
-                columns={Object.keys(this.state.invoices[0]).concat(this.state.ignoredColumns)}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterInvoices}/>
-                </Col>
-
-                <Col md={3}>
-                    <CustomerDropdown
-                        customer={this.state.filters.customer_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterInvoices}
-                        customers={customers}
-                        name="customer_id"
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterInvoices}
-                            id="status_id"
-                            name="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='Draft'>Draft</option>
-                            <option value="archived">Archived</option>
-                            <option value="deleted">Deleted</option>
-                            <option value='unpaid'>Sent</option>
-                            <option value='Viewed'>Viewed</option>
-                            <option value='unpaid'>Partial</option>
-                            <option value='paid'>Paid</option>
-                            <option value='overdue'>Past Due</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <CsvImporter filename="recurringQuotes.csv"
-                        url={`/api/recurring-quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterInvoices} update={this.updateInvoice}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
     }
 
     getCustomFields () {
@@ -346,11 +193,10 @@ export default class RecurringQuotes extends Component {
     }
 
     render () {
-        const { invoices, custom_fields, customers, allQuotes, view } = this.state
+        const { invoices, custom_fields, customers, allQuotes, view, filters } = this.state
         const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/recurring-quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
-        const addButton = customers.length && allQuotes.length ? <AddRecurringQuote
+        const addButton = customers.length ? <AddRecurringQuote
             allQuotes={allQuotes}
             custom_fields={custom_fields}
             customers={customers}
@@ -366,7 +212,10 @@ export default class RecurringQuotes extends Component {
 
                 <Card>
                     <CardBody>
-                        <FilterTile filters={filters}/>
+                        <RecurringQuoteFilters invoices={invoices}
+                            updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={filters} filter={this.filterInvoices}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
                         <DataTable
                             columnMapping={{ customer_id: 'Customer' }}

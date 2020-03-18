@@ -6,19 +6,12 @@ import EditExpense from './EditExpense'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import {
-    Card, CardBody, FormGroup, Input, Row, Col
+    Card, CardBody, Input
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
-import CustomerDropdown from '../common/CustomerDropdown'
-import CompanyDropdown from '../common/CompanyDropdown'
 import ExpensePresenter from '../presenters/ExpensePresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import ExpenseFilters from './ExpenseFilters'
 
 export default class Expenses extends Component {
     constructor (props) {
@@ -88,7 +81,6 @@ export default class Expenses extends Component {
         this.deleteExpense = this.deleteExpense.bind(this)
         this.filterExpenses = this.filterExpenses.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -130,38 +122,8 @@ export default class Expenses extends Component {
             })
     }
 
-    filterExpenses (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
+    filterExpenses (filters) {
+        this.setState({ filters: filters })
     }
 
     onChangeBulk (e) {
@@ -199,78 +161,6 @@ export default class Expenses extends Component {
                     }
                 )
             })
-    }
-
-    getFilters () {
-        const { searchText, status_id, customer_id, company_id, start_date, end_date } = this.state.filters
-        const columnFilter = this.state.expenses.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.expenses[0])}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={2}>
-                    <TableSearch onChange={this.filterExpenses}/>
-                </Col>
-
-                <Col md={3}>
-                    <CustomerDropdown
-                        customer={this.state.filters.customer_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterExpenses}
-                        name="customer_id"
-                    />
-                </Col>
-
-                <Col md={3}>
-                    <CompanyDropdown
-                        companies={this.state.companies}
-                        company={this.state.filters.company_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterExpenses}
-                        name="company_id"
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterExpenses}
-                            id="status_id"
-                            name="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <CsvImporter filename="expenses.csv"
-                        url={`/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterExpenses} update={this.updateExpenses}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
     }
 
     getCustomers () {
@@ -378,7 +268,6 @@ export default class Expenses extends Component {
         const { expenses, customers, custom_fields, view, companies } = this.state
         const { searchText, status_id, customer_id, company_id, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.state.customers.length && this.state.companies.length ? this.getFilters() : 'Loading filters'
         const addButton = customers.length ? <AddExpense
             custom_fields={custom_fields}
             customers={customers}
@@ -392,11 +281,14 @@ export default class Expenses extends Component {
 
                 <Card>
                     <CardBody>
-
-                        <FilterTile filters={filters}/>
+                        <ExpenseFilters expenses={expenses} companies={companies}
+                            updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={this.state.filters} filter={this.filterExpenses}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
 
                         <DataTable
+                            columnMapping={{ customer_id: 'CUSTOMER' }}
                             disableSorting={['id']}
                             defaultColumn='amount'
                             userList={this.expenseList}

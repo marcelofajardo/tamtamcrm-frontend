@@ -3,21 +3,16 @@ import DataTable from '../common/DataTable'
 import axios from 'axios'
 import AddCredit from './AddCredit'
 import EditCredit from './EditCredit'
-import CustomerDropdown from '../common/CustomerDropdown'
 import {
-    FormGroup, Input, Card, CardBody, Col, Row
+    Input, Card, CardBody
 } from 'reactstrap'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
-import DisplayColumns from '../common/DisplayColumns'
 import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
 import CreditPresenter from '../presenters/CreditPresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import CreditFilters from './CreditFilters'
+import CreditItem from './CreditItem'
 
 export default class Credits extends Component {
     constructor (props) {
@@ -63,7 +58,7 @@ export default class Credits extends Component {
         this.deleteCredit = this.deleteCredit.bind(this)
         this.filterCredits = this.filterCredits.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
+
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -117,38 +112,8 @@ export default class Credits extends Component {
             })
     }
 
-    filterCredits (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status_id' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
+    filterCredits (filters) {
+        this.setState({ filters: filters })
     }
 
     getCustomers () {
@@ -197,115 +162,12 @@ export default class Credits extends Component {
         }, () => console.log('view', this.state.view))
     }
 
-    getFilters () {
-        const { customers } = this.state
-        const columnFilter = this.state.credits.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns}
-                columns={Object.keys(this.state.credits[0]).concat(this.state.ignoredColumns)}
-                ignored_columns={this.state.ignoredColumns}/> : null
-
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterCredits}/>
-                </Col>
-
-                <Col md={3}>
-                    <CustomerDropdown
-                        customer={this.state.filters.customer_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterCredits}
-                        customers={customers}
-                        name="customer_id"
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterCredits}
-                            id="status_id"
-                            name="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='draft'>Draft</option>
-                            <option value='sent'>Sent</option>
-                            <option value='partial'>Partial</option>
-                            <option value='applied'>Applied</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col>
-                    <CsvImporter filename="credits.csv"
-                        url={`/api/credits?status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterCredits} update={this.updateCustomers}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
-                </Col>
-            </Row>
-        )
-    }
-
     customerList () {
         const { credits, customers, custom_fields, ignoredColumns } = this.state
-        if (credits && credits.length && customers.length) {
-            return credits.map(credit => {
-                const editButton = !credit.deleted_at ? <EditCredit
-                    custom_fields={custom_fields}
-                    credit={credit}
-                    action={this.updateCustomers}
-                    credits={credits}
-                    customers={customers}
-                    modal={true}
-                /> : null
-                const restoreButton = credit.deleted_at
-                    ? <RestoreModal id={credit.id} entities={credits} updateState={this.updateCustomers}
-                        url={`/api/credits/restore/${credit.id}`}/> : null
-                const archiveButton = !credit.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteCredit} id={credit.id}/> : null
-                const deleteButton = !credit.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteCredit} id={credit.id}/> : null
-
-                const columnList = Object.keys(credit).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <CreditPresenter key={key} customers={customers} toggleViewedEntity={this.toggleViewedEntity}
-                        field={key} entity={credit}/>
-                })
-                return (
-                    <tr key={credit.id}>
-                        <td>
-                            <Input value={credit.id} type="checkbox" onChange={this.onChangeBulk}/>
-                            <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                                restore={restoreButton}/>
-                        </td>
-                        {columnList}
-                    </tr>
-                )
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        return <CreditItem credits={credits} customers={customers} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} updateCustomers={this.updateCustomers}
+            deleteCredit={this.deleteCredit} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deleteCredit (id, archive = true) {
@@ -328,9 +190,8 @@ export default class Credits extends Component {
     }
 
     render () {
-        const { customers, credits, custom_fields, view } = this.state
-        const fetchUrl = `/api/credits?status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
-        const filters = this.state.customers.length ? this.getFilters() : 'Loading filters'
+        const { customers, credits, custom_fields, view, filters } = this.state
+        const fetchUrl = `/api/credits?search_term=${this.state.filters.searchText}&status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}`
         const addButton = customers.length ? <AddCredit
             custom_fields={custom_fields}
             customers={customers}
@@ -343,7 +204,10 @@ export default class Credits extends Component {
                 <Card>
                     <CardBody>
 
-                        <FilterTile filters={filters}/>
+                        <CreditFilters credits={credits} customers={customers}
+                            updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={filters} filter={this.filterCredits}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
                         <DataTable
                             columnMapping={{ customer_id: 'Customer' }}

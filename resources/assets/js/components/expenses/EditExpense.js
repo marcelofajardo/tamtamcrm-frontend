@@ -5,33 +5,24 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Input,
-    CardHeader,
-    Card,
-    CardBody,
-    Label,
-    FormGroup,
     Nav,
     NavItem,
     NavLink,
     TabContent,
     TabPane,
-    Col,
-    Row,
-    Collapse,
     Dropdown,
     DropdownToggle,
     DropdownMenu,
     DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
-import CustomerDropdown from '../common/CustomerDropdown'
-import CompanyDropdown from '../common/CompanyDropdown'
 import FormBuilder from '../accounts/FormBuilder'
-import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
-import CurrencyDropdown from '../common/CurrencyDropdown'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
+import DetailsForm from './DetailsForm'
+import SettingsForm from './SettingsForm'
+import NotesForm from './NotesForm'
+import ExpenseDropdown from './ExpenseDropdown'
 
 class EditExpense extends React.Component {
     constructor (props) {
@@ -103,11 +94,7 @@ class EditExpense extends React.Component {
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleInput = this.handleInput.bind(this)
-        this.handleCheckboxChange = this.handleCheckboxChange.bind(this)
-        this.toggleCurrency = this.toggleCurrency.bind(this)
-        this.togglePayment = this.togglePayment.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
     }
 
     toggleMenu (event) {
@@ -123,25 +110,10 @@ class EditExpense extends React.Component {
         })
     }
 
-    handleCheckboxChange (e) {
-        const value = e.target.checked
-        const name = e.target.name
-
-        this.setState({ [name]: value })
-    }
-
     toggleTab (tab) {
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
         }
-    }
-
-    toggleCurrency () {
-        this.setState({ currencyOpen: !this.state.currencyOpen })
-    }
-
-    togglePayment () {
-        this.setState({ paymentOpen: !this.state.paymentOpen })
     }
 
     hasErrorFor (field) {
@@ -180,26 +152,6 @@ class EditExpense extends React.Component {
         }
     }
 
-    changeStatus (action) {
-        if (!this.state.id) {
-            return false
-        }
-
-        const data = this.getFormData()
-        axios.post(`/api/expense/${this.state.id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({ showSuccessMessage: true })
-            })
-            .catch((error) => {
-                this.setState({ showErrorMessage: true })
-                console.warn(error)
-            })
-    }
-
     handleClick () {
         const data = this.getFormData()
         axios.put(`/api/expense/${this.state.id}`, data)
@@ -207,6 +159,7 @@ class EditExpense extends React.Component {
                 const index = this.props.expenses.findIndex(expense => expense.id === this.props.expense.id)
                 this.props.expenses[index] = response.data
                 this.props.action(this.props.expenses)
+                this.setState({ changesMade: false })
                 this.toggle()
             })
             .catch((error) => {
@@ -236,42 +189,12 @@ class EditExpense extends React.Component {
     }
 
     render () {
-        const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
-            Email</DropdownItem>
-
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_expense')}>Clone</DropdownItem>
-
-        const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-            <DropdownToggle caret>
-                Actions
-            </DropdownToggle>
-
-            <DropdownMenu>
-                {sendEmailButton}
-                {deleteButton}
-                {archiveButton}
-                {cloneButton}
-            </DropdownMenu>
-        </Dropdown>
-
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message="Invoice was updated successfully"/> : null
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
         const { message } = this.state
-        const customFields = this.props.custom_fields
-        const customForm = customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         return (
             <React.Fragment>
@@ -286,7 +209,7 @@ class EditExpense extends React.Component {
                             {message}
                         </div>}
 
-                        {dropdownMenu}
+                        <ExpenseDropdown formData={this.getFormData()} id={this.state.id} />
                         {successMessage}
                         {errorMessage}
 
@@ -323,161 +246,26 @@ class EditExpense extends React.Component {
                         </Nav>
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Card>
-                                    <CardHeader>Details</CardHeader>
-                                    <CardBody>
-                                        <FormGroup className="mb-3">
-                                            <Label>Amount</Label>
-                                            <Input value={this.state.amount}
-                                                className={this.hasErrorFor('amount') ? 'is-invalid' : ''}
-                                                type="text" name="amount"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('amount')}
-                                        </FormGroup>
+                                <DetailsForm custom_fields={this.props.custom_fields} errors={this.state.errors} amount={this.state.amount}
+                                    handleInput={this.handleInput} expense_date={this.state.expense_date}
+                                    category_id={this.state.category_id} customer_id={this.state.customer_id}
+                                    customers={this.props.customers} companies={this.props.companies}
+                                    company_id={this.state.company_id}/>
 
-                                        <FormGroup className="mr-2">
-                                            <Label for="expense_date">Date(*):</Label>
-                                            <Input className={this.hasErrorFor('expense_date') ? 'is-invalid' : ''}
-                                                value={this.state.expense_date} type="date" id="expense_date"
-                                                name="date"
-                                                onChange={this.handleInput}/>
-                                            {this.renderErrorFor('expense_date')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mr-2">
-                                            <Label for="date">Category(*):</Label>
-                                            <Input className={this.hasErrorFor('category_id') ? 'is-invalid' : ''}
-                                                value={this.state.category_id} type="select" id="category_id"
-                                                name="category_id"
-                                                onChange={this.handleInput}>
-                                                <option value="">Select Category</option>
-                                                <option value="1">Test category</option>
-                                            </Input>
-                                            {this.renderErrorFor('category_id')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Customer</Label>
-                                            <CustomerDropdown
-                                                customer={this.state.customer_id}
-                                                renderErrorFor={this.renderErrorFor}
-                                                handleInputChanges={this.handleInput}
-                                                customers={this.props.customers}
-                                            />
-                                            {this.renderErrorFor('customer_id')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Company</Label>
-                                            <CompanyDropdown
-                                                companies={this.props.companies}
-                                                company_id={this.state.company_id}
-                                                renderErrorFor={this.renderErrorFor}
-                                                handleInputChanges={this.handleInput}
-                                            />
-                                            {this.renderErrorFor('company_id')}
-                                        </FormGroup>
-
-                                        {customForm}
-                                    </CardBody>
-                                </Card>
                             </TabPane>
 
                             <TabPane tabId="2">
-                                <Card>
-                                    <CardHeader>
-                                        Settings
-                                    </CardHeader>
-
-                                    <CardBody>
-                                        <FormBuilder
-                                            handleCheckboxChange={this.handleCheckboxChange}
-                                            formFieldsRows={this.formFields}
-                                        />
-
-                                        <Button color="primary" onClick={this.toggleCurrency}
-                                            style={{ marginBottom: '1rem' }}>Convert Currency</Button>
-                                        <Collapse isOpen={this.state.currencyOpen}>
-                                            <Row form>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="exampleEmail">Currency</Label>
-                                                        <CurrencyDropdown currency_id={this.state.expense_currency_id}
-                                                            handleInputChanges={this.handleInput}
-                                                            name="expense_currency_id"/>
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <FormGroup>
-                                                        <Label for="examplePassword">Exchange Rate</Label>
-                                                        <Input type="text" name="exchange_rate" id="exchange_rate"
-                                                            onChange={this.handleInput}
-                                                            value={this.state.exchange_rate}
-                                                            placeholder="Exchange Rate"/>
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-                                        </Collapse>
-
-                                        <Button color="primary" onClick={this.togglePayment}
-                                            style={{ marginBottom: '1rem' }}>Mark Paid</Button>
-                                        <Collapse isOpen={this.state.paymentOpen}>
-                                            <Row form>
-                                                <Col md={4}>
-                                                    <FormGroup>
-                                                        <Label for="exampleEmail">Payment Type</Label>
-                                                        <PaymentTypeDropdown payment_type={this.state.payment_type_id}
-                                                            handleInputChanges={this.handleInput}
-                                                            name="payment_type_id"/>
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md={4}>
-                                                    <FormGroup>
-                                                        <Label for="examplePassword">Date</Label>
-                                                        <Input value={this.state.payment_date} type="date"
-                                                            onChange={this.handleInput}
-                                                            name="payment_date" id="examplePassword"
-                                                            placeholder="password placeholder"/>
-                                                    </FormGroup>
-                                                </Col>
-                                                <Col md={4}>
-                                                    <FormGroup>
-                                                        <Label for="examplePassword">Transaction Reference</Label>
-                                                        <Input value={this.state.transaction_reference} type="text"
-                                                            name="transaction_reference"
-                                                            onChange={this.handleInput} id="transaction_reference"
-                                                            placeholder="password placeholder"/>
-                                                    </FormGroup>
-                                                </Col>
-                                            </Row>
-                                        </Collapse>
-                                    </CardBody>
-                                </Card>
+                                <SettingsForm errors={this.state.errors}
+                                    transaction_reference={this.state.transaction_reference}
+                                    handleInput={this.handleInput} payment_date={this.state.payment_date}
+                                    payment_type_id={this.state.payment_type_id}
+                                    expense_currency_id={this.state.expense_currency_id}
+                                    exchange_rate={this.state.exchange_rate}/>
                             </TabPane>
 
-                            <TabPane tabId="1">
-                                <Card>
-                                    <CardHeader>Notes</CardHeader>
-                                    <CardBody>
-                                        <FormGroup className="mb-3">
-                                            <Label>Public Notes</Label>
-                                            <Input value={this.state.public_notes}
-                                                className={this.hasErrorFor('public_notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="public_notes"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('public_notes')}
-                                        </FormGroup>
-
-                                        <FormGroup className="mb-3">
-                                            <Label>Private Notes</Label>
-                                            <Input value={this.state.private_notes}
-                                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''}
-                                                type="textarea" name="private_notes"
-                                                onChange={this.handleInput.bind(this)}/>
-                                            {this.renderErrorFor('private_notes')}
-                                        </FormGroup>
-                                    </CardBody>
-                                </Card>
+                            <TabPane tabId="3">
+                                <NotesForm errors={this.state.errors} public_notes={this.state.public_notes}
+                                    private_notes={this.state.private_notes} handleInput={this.handleInput}/>
                             </TabPane>
                         </TabContent>
 

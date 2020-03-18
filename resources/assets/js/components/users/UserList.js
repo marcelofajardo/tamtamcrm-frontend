@@ -1,24 +1,13 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import EditUser from './EditUser'
 import AddUser from './AddUser'
 import {
-    FormGroup, Input, Card, CardBody, Row, Col
+    Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import DepartmentDropdown from '../common/DepartmentDropdown'
-import RoleDropdown from '../common/RoleDropdown'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
-import DisplayColumns from '../common/DisplayColumns'
-import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import ViewEntity from '../common/ViewEntity'
-import UserPresenter from '../presenters/UserPresenter'
-import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import UserItem from './UserItem'
+import UserFilters from './UserFilters'
 
 export default class UserList extends Component {
     constructor (props) {
@@ -69,7 +58,6 @@ export default class UserList extends Component {
         this.filterUsers = this.filterUsers.bind(this)
         this.deleteUser = this.deleteUser.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
         this.saveBulk = this.saveBulk.bind(this)
@@ -137,113 +125,12 @@ export default class UserList extends Component {
             })
     }
 
-    filterUsers (event) {
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
-                }
-            }))
-            return
-        }
-
-        const column = event.target.id
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
+    filterUsers (filters) {
+        this.setState({ filters: filters })
     }
 
     renderErrorFor () {
 
-    }
-
-    getFilters () {
-        const { departments } = this.state
-        const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
-        const columnFilter = this.state.users.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.users[0])}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterUsers}/>
-                </Col>
-
-                <Col md={3}>
-                    <DepartmentDropdown
-                        name="department_id"
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterUsers}
-                        departments={departments}
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <RoleDropdown
-                        name="role_id"
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterUsers}
-                    />
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterUsers}
-                            name="status"
-                            id="status"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <CsvImporter filename="users.csv"
-                        url={`/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterUsers} update={this.addUserToState}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
-                    </FormGroup>
-                </Col>
-            </Row>
-        )
     }
 
     getCustomFields () {
@@ -296,43 +183,11 @@ export default class UserList extends Component {
     }
 
     userList () {
-        const { users, departments, custom_fields, ignoredColumns } = this.state
-
-        if (users && users.length) {
-            return users.map(user => {
-                const restoreButton = user.deleted_at
-                    ? <RestoreModal id={user.id} entities={users} updateState={this.addUserToState}
-                        url={`/api/users/restore/${user.id}`}/> : null
-                const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteUser} id={user.id}/> : null
-                const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteUser} id={user.id}/> : null
-                const editButton = !user.deleted_at
-                    ? <EditUser accounts={this.state.accounts} departments={departments} user_id={user.id}
-                        custom_fields={custom_fields} users={users}
-                        action={this.addUserToState}/> : null
-
-                const columnList = Object.keys(user).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <UserPresenter key={key} toggleViewedEntity={this.toggleViewedEntity}
-                        field={key} entity={user}/>
-                })
-
-                return <tr key={user.id}>
-                    <td>
-                        <Input value={user.id} type="checkbox" onChange={this.onChangeBulk}/>
-                        <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                            restore={restoreButton}/>
-                    </td>
-                    {columnList}
-                </tr>
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        const { users, departments, custom_fields, ignoredColumns, accounts } = this.state
+        return <UserItem accounts={accounts} departments={departments} users={users} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
+            deleteUser={this.deleteUser} toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     deleteUser (id, archive = true) {
@@ -355,10 +210,9 @@ export default class UserList extends Component {
     }
 
     render () {
-        const { users, departments, custom_fields, error, view } = this.state
+        const { users, departments, custom_fields, error, view, filters } = this.state
         const { status, role_id, department_id, searchText, start_date, end_date } = this.state.filters
         const fetchUrl = `/api/users?search_term=${searchText}&status=${status}&role_id=${role_id}&department_id=${department_id}&start_date=${start_date}&end_date=${end_date}`
-        const filters = this.getFilters()
         const addButton = departments.length
             ? <AddUser accounts={this.state.accounts} custom_fields={custom_fields} departments={departments}
                 users={users}
@@ -373,7 +227,10 @@ export default class UserList extends Component {
 
                 <Card>
                     <CardBody>
-                        <FilterTile filters={filters}/>
+                        <UserFilters users={users} departments={departments}
+                            updateIgnoredColumns={this.updateIgnoredColumns}
+                            filters={filters} filter={this.filterUsers}
+                            saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
                         <DataTable
                             disableSorting={['id']}

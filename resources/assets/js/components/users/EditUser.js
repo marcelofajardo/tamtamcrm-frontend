@@ -5,17 +5,10 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Input,
     FormGroup,
-    Label,
     Card,
     CardBody,
     CardHeader,
-    Row,
-    Col,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
     DropdownItem,
     Nav,
     NavItem,
@@ -25,13 +18,12 @@ import {
 } from 'reactstrap'
 import axios from 'axios'
 import PropTypes from 'prop-types'
-import DropdownDate from '../common/DropdownDate'
-import RoleDropdown from '../common/RoleDropdown'
-import DepartmentDropdown from '../common/DepartmentDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import Notifications from '../common/Notifications'
+import DetailsForm from './DetailsForm'
+import PermissionsForm from './PermissionsForm'
+import UserDropdownMenu from './UserDropdownMenu'
 
 class EditUser extends React.Component {
     constructor (props) {
@@ -41,6 +33,7 @@ class EditUser extends React.Component {
             loading: false,
             changesMade: false,
             dropdownOpen: false,
+            username: null,
             errors: [],
             user: [],
             account_user: [],
@@ -58,35 +51,19 @@ class EditUser extends React.Component {
             activeTab: '1'
         }
 
-        this.defaultValues = {
-            year: 'Select Year',
-            month: 'Select Month',
-            day: 'Select Day'
-        }
-
-        this.classes = {
-            dateContainer: 'form-row',
-            yearContainer: 'col-md-4 mb-3',
-            monthContainer: 'col-md-4 mb-3',
-            dayContainer: 'col-md-4 mb-3'
-        }
-
         this.initialState = this.state
         this.account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
 
         this.toggleTab = this.toggleTab.bind(this)
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
-        this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleMultiSelect = this.handleMultiSelect.bind(this)
         this.handleAccountMultiSelect = this.handleAccountMultiSelect.bind(this)
         this.setDate = this.setDate.bind(this)
-        this.buildGenderDropdown = this.buildGenderDropdown.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
-        this.handleCheck = this.handleCheck.bind(this)
         this.setNotifications = this.setNotifications.bind(this)
+        this.setSelectedAccounts = this.setSelectedAccounts.bind(this)
     }
 
     componentDidMount () {
@@ -122,6 +99,15 @@ class EditUser extends React.Component {
                 this.setState({
                     roles: r.data.roles,
                     user: r.data.user,
+                    gender: r.data.user.gender,
+                    dob: r.data.user.dob,
+                    username: r.data.user.username,
+                    email: r.data.user.email,
+                    first_name: r.data.user.first_name,
+                    last_name: r.data.user.last_name,
+                    phone_number: r.data.user.phone_number,
+                    job_description: r.data.user.job_description,
+                    password: r.data.user.password,
                     selectedRoles: r.data.selectedIds,
                     selectedAccounts: r.data.user.account_users[0]
                 })
@@ -134,17 +120,17 @@ class EditUser extends React.Component {
     getFormData () {
         return {
             company_user: this.state.selectedAccounts,
-            username: this.state.user.username,
-            department: this.state.user.department,
-            email: this.state.user.email,
-            first_name: this.state.user.first_name,
-            last_name: this.state.user.last_name,
-            password: this.state.user.password,
+            username: this.state.username,
+            department: this.state.department,
+            email: this.state.email,
+            first_name: this.state.first_name,
+            last_name: this.state.last_name,
+            password: this.state.password,
             role: this.state.selectedRoles,
-            job_description: this.state.user.job_description,
-            phone_number: this.state.user.phone_number,
-            dob: this.state.user.dob,
-            gender: this.state.user.gender,
+            job_description: this.state.job_description,
+            phone_number: this.state.phone_number,
+            dob: this.state.dob,
+            gender: this.state.gender,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
@@ -152,39 +138,8 @@ class EditUser extends React.Component {
         }
     }
 
-    handleCheck (e) {
-        const account_id = parseInt(e.target.value)
-        const checked = e.target.checked
-        const name = e.target.name
-
-        this.setState(prevState => ({
-            selectedAccounts: {
-                ...prevState.selectedAccounts,
-                [name]: checked,
-                account_id: account_id,
-                permissions: ''
-            }
-        }))
-    }
-
-    changeStatus (action) {
-        if (!this.props.user.id) {
-            return false
-        }
-
-        const data = this.getFormData()
-        axios.post(`/api/user/${this.props.user.id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({ showSuccessMessage: true })
-            })
-            .catch((error) => {
-                this.setState({ showErrorMessage: true })
-                console.warn(error)
-            })
+    setSelectedAccounts (selectedAccounts) {
+        this.setState({ selectedAccounts: selectedAccounts })
     }
 
     handleClick () {
@@ -196,7 +151,7 @@ class EditUser extends React.Component {
                 const index = this.props.users.findIndex(user => parseInt(user.id) === this.props.user_id)
                 this.props.users[index] = this.state.user
                 this.props.action(this.props.users)
-                this.setState({ message: '' })
+                this.setState({ message: '', changesMade: false })
                 this.toggle()
             })
             .catch((error) => {
@@ -208,16 +163,6 @@ class EditUser extends React.Component {
                     this.setState({ message: error.response.data })
                 }
             })
-    }
-
-    renderErrorFor (field) {
-        if (this.hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{this.state.errors[field][0]}</strong>
-                </span>
-            )
-        }
     }
 
     hasErrorFor (field) {
@@ -262,83 +207,13 @@ class EditUser extends React.Component {
         this.setValues({ dob: date })
     }
 
-    buildGenderDropdown () {
-        const arrOptions = ['male', 'female']
-
-        const options = arrOptions.map(option => {
-            return <option key={option} value={option}>{option}</option>
-        })
-
-        return (
-            <FormGroup>
-                <Label for="gender">Gender(*):</Label>
-                <Input className={this.hasErrorFor('gender') ? 'is-invalid' : ''}
-                    value={this.state.user.gender}
-                    type="select"
-                    name="gender"
-                    onChange={this.handleInput.bind(this)}>
-                    <option value="">Select gender</option>
-                    {options}
-                </Input>
-                {this.renderErrorFor('gender')}
-            </FormGroup>
-        )
-    }
-
     render () {
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_task')}>Clone</DropdownItem>
-
-        const genderList = this.buildGenderDropdown()
-        const { message } = this.state
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
-
-        const account = this.props.accounts.filter(account => account.id === this.account_id)
-
-        const is_admin = this.state.selectedAccounts && this.state.selectedAccounts.is_admin === true
-
-        const accountList = (
-            <React.Fragment key={account[0].id}>
-                <div>
-                    <FormGroup check inline>
-                        <Label check>
-                            <Input name="is_admin" checked={is_admin} value={account[0].id} onChange={this.handleCheck}
-                                type="checkbox"/>
-                            Administrator
-                        </Label>
-                    </FormGroup>
-                </div>
-            </React.Fragment>
-        )
-
-        const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-            <DropdownToggle caret>
-                Actions
-            </DropdownToggle>
-
-            <DropdownMenu>
-                {deleteButton}
-                {archiveButton}
-                {cloneButton}
-            </DropdownMenu>
-        </Dropdown>
-
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message="Invoice was updated successfully"/> : null
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
-        const notifications = this.state.selectedAccounts && Object.keys(this.state.selectedAccounts).length ? this.state.selectedAccounts.notifications.email : []
+        const notifications = this.state.selectedAccounts && Object.keys(this.state.selectedAccounts).length && this.state.selectedAccounts.notifications ? this.state.selectedAccounts.notifications.email : []
 
         return (
             <React.Fragment>
@@ -349,11 +224,7 @@ class EditUser extends React.Component {
                     </ModalHeader>
                     <ModalBody>
 
-                        {message && <div className="alert alert-danger" role="alert">
-                            {message}
-                        </div>}
-
-                        {dropdownMenu}
+                        <UserDropdownMenu id={this.state.user.id} formData={this.getFormData()} />
                         {successMessage}
                         {errorMessage}
 
@@ -400,155 +271,30 @@ class EditUser extends React.Component {
 
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <Card>
-                                    <CardHeader>Details</CardHeader>
-                                    <CardBody>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label for="username">Username(*):</Label>
-                                                    <Input className={this.hasErrorFor('username') ? 'is-invalid' : ''}
-                                                        placeholder="Username"
-                                                        type="text"
-                                                        name="username" defaultValue={this.state.user.username}
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    <small className="form-text text-muted">Your username must be
-                                                        "firstname"."lastname"
-                                                        eg
-                                                        joe.bloggs.
-                                                    </small>
-                                                    {this.renderErrorFor('username')}
-                                                </FormGroup>
-                                            </Col>
+                                {Object.keys(this.state.user).length &&
+                                <DetailsForm setDate={this.setDate} errors={this.state.errors}
+                                    dob={this.state.dob} username={this.state.username}
+                                    custom_fields={this.props.custom_fields}
+                                    handleInput={this.handleInput} email={this.state.email}
+                                    first_name={this.state.first_name} last_name={this.state.last_name}
+                                    phone_number={this.state.phone_number}
+                                    job_description={this.state.job_description}
+                                    password={this.state.password}/>
+                                }
 
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label for="email">Email(*):</Label>
-                                                    <Input className={this.hasErrorFor('email') ? 'is-invalid' : ''}
-                                                        type="email"
-                                                        name="email"
-                                                        defaultValue={this.state.user.email}
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    {this.renderErrorFor('email')}
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label for="first_name">First Name(*):</Label>
-                                                    <Input
-                                                        className={this.hasErrorFor('first_name') ? 'is-invalid' : ''}
-                                                        type="text"
-                                                        name="first_name" defaultValue={this.state.user.first_name}
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    {this.renderErrorFor('first_name')}
-                                                </FormGroup>
-                                            </Col>
-
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label for="last_name">Last Name(*):</Label>
-                                                    <Input className={this.hasErrorFor('last_name') ? 'is-invalid' : ''}
-                                                        type="text"
-                                                        name="last_name" defaultValue={this.state.user.last_name}
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    {this.renderErrorFor('last_name')}
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        <Row form>
-                                            <Col md={6}>
-                                                {genderList}
-                                            </Col>
-
-                                            <Col md={6}>
-                                                <DropdownDate selectedDate={this.state.user.dob} classes={this.classes}
-                                                    defaultValues={this.defaultValues}
-                                                    onDateChange={this.setDate}/>
-                                            </Col>
-                                        </Row>
-
-                                        <Row form>
-                                            <Col md={4}>
-                                                <FormGroup>
-                                                    <Label for="phone_number">Phone Number:</Label>
-                                                    <Input
-                                                        className={this.hasErrorFor('phone_number') ? 'is-invalid' : ''}
-                                                        value={this.state.user.phone_number}
-                                                        type="tel"
-                                                        name="phone_number"
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    {this.renderErrorFor('phone_number')}
-                                                </FormGroup>
-                                            </Col>
-
-                                            <Col md={4}>
-                                                <FormGroup>
-                                                    <Label for="password">Password:</Label>
-                                                    <Input className={this.hasErrorFor('password') ? 'is-invalid' : ''}
-                                                        type="password"
-                                                        name="password" defaultValue={this.state.user.password}
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    {this.renderErrorFor('password')}
-                                                </FormGroup>
-                                            </Col>
-
-                                            <Col md={4}>
-                                                <FormGroup>
-                                                    <Label for="password">Job Description:</Label>
-                                                    <Input
-                                                        className={this.hasErrorFor('job_description') ? 'is-invalid' : ''}
-                                                        type="text"
-                                                        value={this.state.user.job_description}
-                                                        placeholder="Job Description"
-                                                        name="job_description"
-                                                        onChange={this.handleInput.bind(this)}/>
-                                                    {this.renderErrorFor('job_description')}
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {customForm}
-                                    </CardBody>
-                                </Card>
                             </TabPane>
 
                             <TabPane tabId="2">
-                                <Card>
-                                    <CardHeader>Permissions</CardHeader>
-                                    <CardBody>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <Label for="password">Department:</Label>
-                                                <DepartmentDropdown
-                                                    departments={this.props.departments && this.props.departments.length ? this.props.departments : ''}
-                                                    department={this.state.user.department}
-                                                    errors={this.state.errors}
-                                                    handleInputChanges={this.handleInput}
-                                                />
-                                            </Col>
+                                {this.state.username && this.state.username.length &&
+                                <PermissionsForm handleInput={this.handleInput} errors={this.state.errors}
+                                    setAccounts={this.setSelectedAccounts}
+                                    departments={this.props.departments} accounts={this.props.accounts}
+                                    selectedAccounts={this.state.selectedAccounts}
+                                    handleMultiSelect={this.handleMultiSelect}
+                                    selectedRoles={this.state.selectedRoles}/>
 
-                                            <Col md={6}>
-                                                <RoleDropdown
-                                                    multiple={true}
-                                                    name="role"
-                                                    errors={this.state.errors}
-                                                    handleInputChanges={this.handleMultiSelect}
-                                                />
-                                            </Col>
-                                        </Row>
+                                }
 
-                                        <Row form>
-                                            <h4>Accounts</h4>
-                                            <Col md={6}>
-                                                {accountList}
-                                            </Col>
-                                        </Row>
-                                    </CardBody>
-                                </Card>
                             </TabPane>
 
                             <TabPane tabId="3">
