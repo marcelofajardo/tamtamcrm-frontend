@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -13,9 +14,26 @@ export default class PaymentItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deletePayment = this.deletePayment.bind(this)
+    }
 
-        }
+    deletePayment (id, archive = true) {
+        const url = archive === true ? `/api/payments/archive/${id}` : `/api/payments/${id}`
+        const self = this
+        axios.delete(url)
+            .then(function (response) {
+                const arrPayments = [...self.props.payments]
+                const index = arrPayments.findIndex(payment => payment.id === id)
+                arrPayments.splice(index, 1)
+                self.props.updateCustomers(arrPayments)
+            })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     getPaymentables (payment) {
@@ -43,10 +61,10 @@ export default class PaymentItem extends Component {
                         url={`/api/payments/restore/${payment.id}`}/> : null
 
                 const archiveButton = !payment.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deletePayment} id={payment.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deletePayment} id={payment.id}/> : null
 
                 const deleteButton = !payment.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deletePayment} id={payment.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deletePayment} id={payment.id}/> : null
 
                 const editButton = !payment.deleted_at ? <EditPayment
                     custom_fields={custom_fields}

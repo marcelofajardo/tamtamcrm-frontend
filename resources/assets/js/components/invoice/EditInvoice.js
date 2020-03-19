@@ -588,6 +588,10 @@ class EditInvoice extends Component {
             errors={this.state.errors} partial={this.state.partial} invoice={this.props.invoice}
             po_number={this.state.po_number} due_date={this.state.due_date} date={this.state.date}
             address={this.state.address} customerName={this.state.customerName}
+            custom_value1={this.state.custom_value1}
+            custom_value2={this.state.custom_value2}
+            custom_value3={this.state.custom_value3}
+            custom_value4={this.state.custom_value4}
             custom_fields={this.props.custom_fields}/>
 
         const contacts = <Contacts errors={this.state.errors} contacts={this.state.contacts}

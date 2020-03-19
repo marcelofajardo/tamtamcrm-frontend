@@ -2,16 +2,12 @@ import React, { Component } from 'react'
 import DataTable from '../common/DataTable'
 import axios from 'axios'
 import AddExpense from './AddExpense'
-import EditExpense from './EditExpense'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
 import {
-    Card, CardBody, Input
+    Card, CardBody
 } from 'reactstrap'
-import ActionsMenu from '../common/ActionsMenu'
 import ViewEntity from '../common/ViewEntity'
-import ExpensePresenter from '../presenters/ExpensePresenter'
 import ExpenseFilters from './ExpenseFilters'
+import ExpenseItem from './ExpenseItem'
 
 export default class Expenses extends Component {
     constructor (props) {
@@ -78,7 +74,6 @@ export default class Expenses extends Component {
 
         this.updateExpenses = this.updateExpenses.bind(this)
         this.expenseList = this.expenseList.bind(this)
-        this.deleteExpense = this.deleteExpense.bind(this)
         this.filterExpenses = this.filterExpenses.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -185,49 +180,11 @@ export default class Expenses extends Component {
 
     expenseList () {
         const { expenses, customers, custom_fields, ignoredColumns, companies } = this.state
-        if (expenses && expenses.length && customers.length) {
-            return expenses.map(expense => {
-                const restoreButton = expense.deleted_at
-                    ? <RestoreModal id={expense.id} entities={expenses} updateState={this.addUserToState}
-                        url={`/api/expenses/restore/${expense.id}`}/> : null
-                const archiveButton = !expense.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteExpense} id={expense.id}/> : null
-                const deleteButton = !expense.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteExpense} id={expense.id}/> : null
-                const editButton = !expense.deleted_at ? <EditExpense
-                    companies={companies}
-                    custom_fields={custom_fields}
-                    expense={expense}
-                    action={this.updateExpenses}
-                    expenses={expenses}
-                    customers={customers}
-                    modal={true}
-                /> : null
-
-                const columnList = Object.keys(expense).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <ExpensePresenter key={key} companies={companies} customers={customers}
-                        toggleViewedEntity={this.toggleViewedEntity}
-                        field={key} entity={expense}/>
-                })
-
-                return (
-                    <tr key={expense.id}>
-                        <td>
-                            <Input value={expense.id} type="checkbox" onChange={this.onChangeBulk}/>
-                            <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                                restore={restoreButton}/>
-                        </td>
-                        {columnList}
-                    </tr>
-                )
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
+        return <ExpenseItem expenses={expenses} customers={customers} companies={companies}
+            custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} updateExpenses={this.updateExpenses}
+            toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     getCustomFields () {
@@ -242,25 +199,6 @@ export default class Expenses extends Component {
                     loading: false,
                     err: e
                 })
-            })
-    }
-
-    deleteExpense (id, archive = true) {
-        const url = archive === true ? `/api/expenses/archive/${id}` : `/api/expenses/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrExpenses = [...self.state.expenses]
-                const index = arrExpenses.findIndex(expense => expense.id === id)
-                arrExpenses.splice(index, 1)
-                self.updateExpenses(arrExpenses)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
             })
     }
 

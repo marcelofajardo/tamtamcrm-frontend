@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -11,9 +12,22 @@ export default class ProductItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteProduct = this.deleteProduct.bind(this)
+    }
 
-        }
+    deleteProduct (id, archive = false) {
+        const self = this
+        const url = archive === true ? `/api/products/archive/${id}` : `/api/products/${id}`
+        axios.delete(url)
+            .then(function (response) {
+                const arrProducts = [...self.props.products]
+                const index = arrProducts.findIndex(product => product.id === id)
+                arrProducts.splice(index, 1)
+                self.props.addProductToState(arrProducts)
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
     }
 
     render () {
@@ -25,7 +39,7 @@ export default class ProductItem extends Component {
                     ? <RestoreModal id={product.id} entities={products} updateState={this.props.addProductToState}
                         url={`/api/products/restore/${product.id}`}/> : null
                 const deleteButton = !product.deleted_at
-                    ? <DeleteModal deleteFunction={this.props.deleteProduct} id={product.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteProduct} id={product.id}/> : null
                 const editButton = !product.deleted_at ? <EditProduct
                     custom_fields={custom_fields}
                     companies={companies}
@@ -36,7 +50,7 @@ export default class ProductItem extends Component {
                 /> : null
 
                 const archiveButton = !product.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteProduct} id={product.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteProduct} id={product.id}/> : null
 
                 const columnList = Object.keys(product).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)

@@ -21,6 +21,15 @@ export default function CustomerForm (props) {
     }
 
     const customFields = props.custom_fields ? props.custom_fields : []
+
+    if (customFields[0] && Object.keys(customFields[0]).length) {
+        customFields[0].forEach((element, index, array) => {
+            if (props.customer[element.name] && props.customer[element.name].length) {
+                customFields[0][index].value = props.customer[element.name]
+            }
+        })
+    }
+
     const customForm = customFields && customFields.length ? <FormBuilder
         handleChange={props.onChange}
         formFieldsRows={customFields}

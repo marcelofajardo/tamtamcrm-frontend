@@ -24,7 +24,7 @@ export default class Payments extends Component {
             custom_fields: [],
             dropdownButtonActions: ['download'],
             bulk: [],
-            ignoredColumns: ['currency_id', 'exchange_rate', 'exchange_currency_id', 'paymentables', 'private_notes', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
+            ignoredColumns: ['custom_value1', 'custom_value2', 'custom_value3', 'custom_value4', 'currency_id', 'exchange_rate', 'exchange_currency_id', 'paymentables', 'private_notes', 'created_at', 'user_id', 'id', 'customer', 'invoice_id', 'assigned_user_id', 'deleted_at', 'updated_at', 'type_id', 'refunded', 'is_manual', 'task_id', 'company_id', 'invitation_id'],
             filters: {
                 status_id: 'active',
                 customer_id: '',
@@ -39,7 +39,6 @@ export default class Payments extends Component {
 
         this.updateCustomers = this.updateCustomers.bind(this)
         this.customerList = this.customerList.bind(this)
-        this.deletePayment = this.deletePayment.bind(this)
         this.getInvoices = this.getInvoices.bind(this)
         this.filterPayments = this.filterPayments.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
@@ -166,27 +165,8 @@ export default class Payments extends Component {
         const { payments, custom_fields, invoices, customers, ignoredColumns } = this.state
         return <PaymentItem payments={payments} customers={customers} invoices={invoices} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} updateCustomers={this.updateCustomers}
-            deletePayment={this.deletePayment} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deletePayment (id, archive = true) {
-        const url = archive === true ? `/api/payments/archive/${id}` : `/api/payments/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrPayments = [...self.state.payments]
-                const index = arrPayments.findIndex(payment => payment.id === id)
-                arrPayments.splice(index, 1)
-                self.updateCustomers(arrPayments)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     render () {

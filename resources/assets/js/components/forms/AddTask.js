@@ -8,6 +8,7 @@ import 'react-dates/initialize' // necessary for latest version
 import 'react-dates/lib/css/_datepicker.css'
 import { DateRangePicker } from 'react-dates'
 import AddButtons from '../common/AddButtons'
+import CustomerDropdown from '../common/CustomerDropdown'
 
 class AddModal extends React.Component {
     constructor (props) {
@@ -21,6 +22,10 @@ class AddModal extends React.Component {
             customer_id: null,
             content: '',
             contributors: '',
+            custom_value1: '',
+            custom_value2: '',
+            custom_value3: '',
+            custom_value4: '',
             created_by: '5af1921c0fe5703dd4a463ec',
             due_date: moment(),
             start_date: moment(),
@@ -82,6 +87,10 @@ class AddModal extends React.Component {
                     customer_id: null,
                     content: '',
                     contributors: '',
+                    custom_value1: '',
+                    custom_value2: '',
+                    custom_value3: '',
+                    custom_value4: '',
                     created_by: '5af1921c0fe5703dd4a463ec',
                     due_date: '',
                     start_date: ''
@@ -124,7 +133,11 @@ class AddModal extends React.Component {
             project_id: parseInt(this.props.project_id),
             created_by: this.state.created_by,
             task_type: this.props.task_type,
-            parent_id: this.props.task_id ? this.props.task_id : 0
+            parent_id: this.props.task_id ? this.props.task_id : 0,
+            custom_value1: this.state.custom_value1,
+            custom_value2: this.state.custom_value2,
+            custom_value3: this.state.custom_value3,
+            custom_value4: this.state.custom_value4
         })
             .then((response) => {
                 this.toggle()
@@ -140,7 +153,11 @@ class AddModal extends React.Component {
                     due_date: '',
                     start_date: '',
                     loading: false,
-                    submitSuccess: true
+                    submitSuccess: true,
+                    custom_value1: '',
+                    custom_value2: '',
+                    custom_value3: '',
+                    custom_value4: ''
                 })
 
                 if (this.props.action) {
@@ -181,6 +198,17 @@ class AddModal extends React.Component {
                         value={this.state.title}
                         id="taskTitle" onChange={this.handleInput.bind(this)}/>
                     {this.renderErrorFor('title')}
+                </FormGroup>
+
+                <FormGroup className="mb-3">
+                    <Label>Customer</Label>
+                    <CustomerDropdown
+                        customer={this.state.customer_id}
+                        renderErrorFor={this.renderErrorFor}
+                        handleInputChanges={this.handleInput}
+                        customers={this.props.customers}
+                    />
+                    {this.renderErrorFor('customer_id')}
                 </FormGroup>
 
                 <FormGroup>

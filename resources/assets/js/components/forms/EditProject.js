@@ -113,8 +113,6 @@ class EditProject extends React.Component {
         const data = this.getFormData()
         axios.put(`/api/projects/${this.props.project_id}`, data)
             .then((response) => {
-                this.toggle()
-
                 this.setState({
                     notes: null,
                     due_date: null,
@@ -125,8 +123,10 @@ class EditProject extends React.Component {
                     customer_id: null,
                     created_by: null,
                     storyId: null,
-                    loading: false
+                    loading: false,
+                    changesMade: false
                 })
+                this.toggle()
             })
             .catch((error) => {
                 this.setState({

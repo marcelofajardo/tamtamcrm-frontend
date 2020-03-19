@@ -3,14 +3,32 @@ import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import ActionsMenu from '../common/ActionsMenu'
 import EditTaxRate from './EditTaxRate'
+import axios from 'axios'
 
 export default class TaxRateItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteTaxRate = this.deleteTaxRate.bind(this)
+    }
 
-        }
+    deleteTaxRate (id, archive = false) {
+        const url = archive === true ? `/api/taxRates/archive/${id}` : `/api/taxRates/${id}`
+        const self = this
+        axios.delete(url)
+            .then(function (response) {
+                const arrTaxRates = [...self.props.taxRates]
+                const index = arrTaxRates.findIndex(taxRate => taxRate.id === id)
+                arrTaxRates.splice(index, 1)
+                self.props.addUserToState(arrTaxRates)
+            })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -22,10 +40,10 @@ export default class TaxRateItem extends Component {
                         url={`/api/taxRate/restore/${taxRate.id}`}/> : null
 
                 const deleteButton = !taxRate.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteTaxRate} id={taxRate.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteTaxRate} id={taxRate.id}/> : null
 
                 const archiveButton = !taxRate.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteTaxRate} id={taxRate.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteTaxRate} id={taxRate.id}/> : null
 
                 const editButton = !taxRate.deleted_at
                     ? <EditTaxRate taxRate={taxRate} taxRates={taxRates} action={this.props.addUserToState}/>

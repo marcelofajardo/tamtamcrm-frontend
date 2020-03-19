@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
 import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
-import EditLead from './EditLeadForm'
 import ActionsMenu from '../common/ActionsMenu'
 import EditExpense from './EditExpense'
 import ExpensePresenter from '../presenters/ExpensePresenter'
@@ -13,9 +13,22 @@ export default class ExpenseItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteExpense = this.deleteExpense.bind(this)
+    }
 
-        }
+    deleteExpense (id, archive = false) {
+        const url = archive === true ? `/api/expenses/archive/${id}` : `/api/expenses/${id}`
+        const self = this
+        axios.delete(url)
+            .then(function (response) {
+                const arrExpenses = [...self.props.expenses]
+                const index = arrExpenses.findIndex(expense => expense.id === id)
+                arrExpenses.splice(index, 1)
+                self.props.updateExpenses(arrExpenses)
+            })
+            .catch(function (error) {
+                alert(error)
+            })
     }
 
     render () {
@@ -23,12 +36,12 @@ export default class ExpenseItem extends Component {
         if (expenses && expenses.length && customers.length) {
             return expenses.map(expense => {
                 const restoreButton = expense.deleted_at
-                    ? <RestoreModal id={expense.id} entities={expenses} updateState={this.props.addUserToState}
+                    ? <RestoreModal id={expense.id} entities={expenses} updateState={this.props.updateExpenses}
                         url={`/api/expenses/restore/${expense.id}`}/> : null
                 const archiveButton = !expense.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteExpense} id={expense.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteExpense} id={expense.id}/> : null
                 const deleteButton = !expense.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteExpense} id={expense.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteExpense} id={expense.id}/> : null
                 const editButton = !expense.deleted_at ? <EditExpense
                     companies={companies}
                     custom_fields={custom_fields}

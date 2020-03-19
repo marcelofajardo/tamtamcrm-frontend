@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -12,9 +13,25 @@ export default class QuoteItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteQuote = this.deleteQuote.bind(this)
+    }
 
-        }
+    deleteQuote (id, archive = false) {
+        const url = archive === true ? `/api/quote/archive/${id}` : `/api/quote/${id}`
+        const self = this
+        axios.delete(url).then(function (response) {
+            const arrQuotes = [...self.props.quotes]
+            const index = arrQuotes.findIndex(payment => payment.id === id)
+            arrQuotes.splice(index, 1)
+            self.props.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -26,10 +43,10 @@ export default class QuoteItem extends Component {
                         url={`/api/quotes/restore/${user.id}`}/> : null
 
                 const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteQuote} id={user.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteQuote} id={user.id}/> : null
 
                 const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteQuote} id={user.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteQuote} id={user.id}/> : null
 
                 const editButton = !user.deleted_at ? <EditQuote
                     custom_fields={custom_fields}

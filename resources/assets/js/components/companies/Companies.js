@@ -1,20 +1,13 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import EditCompany from './EditCompany'
 import AddCompany from './AddCompany'
 import DataTable from '../common/DataTable'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
 import {
-    Input,
     Card,
     CardBody
 } from 'reactstrap'
-import ActionsMenu from '../common/ActionsMenu'
 import ViewEntity from '../common/ViewEntity'
-import CompanyPresenter from '../presenters/CompanyPresenter'
 import CompanyFilters from './CompanyFilters'
-import CreditItem from '../credits/CreditItem'
 import CompanyItem from './CompanyItem'
 
 export default class Companies extends Component {
@@ -57,14 +50,17 @@ export default class Companies extends Component {
                 'country_id',
                 'user_id',
                 'assigned_user_id',
-                'notes'
+                'notes',
+                'custom_value1',
+                'custom_value2',
+                'custom_value3',
+                'custom_value4'
             ],
             showRestoreButton: false
         }
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.deleteBrand = this.deleteBrand.bind(this)
         this.filterCompanies = this.filterCompanies.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -143,29 +139,8 @@ export default class Companies extends Component {
         const { brands, custom_fields, users, ignoredColumns } = this.state
         return <CompanyItem brands={brands} users={users} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            deleteBrand={this.deleteBrand} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteBrand (id, archive = true) {
-        const self = this
-        const url = archive === true ? `/api/companies/archive/${id}` : `/api/companies/${id}`
-
-        axios.delete(url)
-            .then(function (response) {
-                const arrBrands = [...self.state.brands]
-                const index = arrBrands.findIndex(brand => brand.id === id)
-                arrBrands.splice(index, 1)
-                self.addUserToState(arrBrands)
-            })
-            .catch(function (error) {
-                console.log(error)
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     getCustomFields () {

@@ -1,22 +1,7 @@
 import React from 'react'
-import { FormGroup, Label, Input, Card, CardHeader, CardBody, TabPane } from 'reactstrap'
-import TaxRateDropdown from './TaxRateDropdown'
-import DesignDropdown from './DesignDropdown'
+import { FormGroup, Label, Input, Card, CardHeader, CardBody } from 'reactstrap'
 
 export default function Notes (props) {
-    const hasErrorFor = (field) => {
-        return props.errors && !!props.errors[field]
-    }
-
-    const renderErrorFor = (field) => {
-        if (hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{props.errors[field][0]}</strong>
-                </span>
-            )
-        }
-    }
 
     return (
         <Card>

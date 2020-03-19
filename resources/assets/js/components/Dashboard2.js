@@ -9,7 +9,6 @@ import {
     ButtonToolbar,
     Card,
     CardBody,
-    CardFooter,
     CardHeader,
     CardTitle,
     Col,
@@ -704,6 +703,7 @@ class Dashboard extends Component {
         const charts = chartData.map((entry, index) => {
             const buttons = Object.entries(entry.buttons).map(([key, value]) => {
                 return <Button
+                    key={key}
                     color="outline-secondary"
                     onClick={() => this.onRadioBtnClick(key)}
                     active={this.state.radioSelected === key}>{`${key} £${value}`}</Button>

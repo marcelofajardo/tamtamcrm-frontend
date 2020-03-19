@@ -64,10 +64,11 @@ class UpdateRecurringQuote extends Component {
             private_notes: this.state.private_notes
         })
             .then((response) => {
-                this.toggle()
                 const newUser = response.data
                 this.props.categories.push(newUser)
                 this.props.action(this.props.categories)
+                this.setState({ changesMade: false })
+                this.toggle()
             })
             .catch((error) => {
                 alert(error)

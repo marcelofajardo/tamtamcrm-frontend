@@ -40,7 +40,6 @@ export default class Quotes extends Component {
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
-        this.deleteQuote = this.deleteQuote.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
@@ -122,26 +121,8 @@ export default class Quotes extends Component {
         const { quotes, custom_fields, customers, ignoredColumns } = this.state
         return <QuoteItem quotes={quotes} customers={customers} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
-            deleteQuote={this.deleteQuote} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteQuote (id, archive = true) {
-        const url = archive === true ? `/api/quote/archive/${id}` : `/api/quote/${id}`
-        const self = this
-        axios.delete(url).then(function (response) {
-            const arrQuotes = [...self.state.quotes]
-            const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes.splice(index, 1)
-            self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     renderErrorFor () {

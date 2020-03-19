@@ -40,7 +40,6 @@ export default class Invoice extends Component {
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
-        this.deleteInvoice = this.deleteInvoice.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
@@ -104,7 +103,7 @@ export default class Invoice extends Component {
         const { invoices, customers, custom_fields, ignoredColumns } = this.state
         return <InvoiceItem invoices={invoices} customers={customers} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
-            deleteInvoice={this.deleteInvoice} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
     }
 
@@ -116,24 +115,6 @@ export default class Invoice extends Component {
             // const index = arrQuotes.findIndex(payment => payment.id === id)
             // arrQuotes.splice(index, 1)
             // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
-    }
-
-    deleteInvoice (id, archive = true) {
-        const url = archive === true ? `/api/invoice/archive/${id}` : `/api/invoice/${id}`
-        const self = this
-        axios.delete(url).then(function (response) {
-            const arrQuotes = [...self.state.invoices]
-            const index = arrQuotes.findIndex(payment => payment.id === id)
-            arrQuotes.splice(index, 1)
-            self.updateInvoice(arrQuotes)
         })
             .catch(function (error) {
                 self.setState(

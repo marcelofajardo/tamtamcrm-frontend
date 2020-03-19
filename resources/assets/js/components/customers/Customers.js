@@ -1,18 +1,12 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import AddCustomer from './AddCustomer'
-import EditCustomer from './EditCustomer'
 import {
-    Input, Card, CardBody
+    Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import DeleteModal from '../common/DeleteModal'
-import RestoreModal from '../common/RestoreModal'
-import ActionsMenu from '../common/ActionsMenu'
 import ViewEntity from '../common/ViewEntity'
-import CustomerPresenter from '../presenters/CustomerPresenter'
 import CustomerFilters from './CustomerFilters'
-import CompanyItem from '../companies/CompanyItem'
 import CustomerItem from './CustomerItem'
 
 export default class Customers extends Component {
@@ -78,7 +72,6 @@ export default class Customers extends Component {
         this.customerList = this.customerList.bind(this)
         this.getCompanies = this.getCompanies.bind(this)
         this.filterCustomers = this.filterCustomers.bind(this)
-        this.deleteCustomer = this.deleteCustomer.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
@@ -193,16 +186,6 @@ export default class Customers extends Component {
             ignoredColumns={ignoredColumns} updateCustomers={this.updateCustomers}
             deleteCustomer={this.deleteCustomer} toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteCustomer (id, archive = true) {
-        const url = archive === true ? `/api/customers/archive/${id}` : `/api/customers/${id}`
-        axios.delete(url).then(data => {
-            const arrCustomers = [...this.state.customers]
-            const index = arrCustomers.findIndex(customer => customer.id === id)
-            arrCustomers.splice(index, 1)
-            this.updateCustomers(arrCustomers)
-        })
     }
 
     render () {

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -12,9 +13,17 @@ export default class CustomerItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteCustomer = this.deleteCustomer.bind(this)
+    }
 
-        }
+    deleteCustomer (id, archive = false) {
+        const url = archive === true ? `/api/customers/archive/${id}` : `/api/customers/${id}`
+        axios.delete(url).then(data => {
+            const arrCustomers = [...this.props.customers]
+            const index = arrCustomers.findIndex(customer => customer.id === id)
+            arrCustomers.splice(index, 1)
+            this.props.updateCustomers(arrCustomers)
+        })
     }
 
     render () {
@@ -25,9 +34,9 @@ export default class CustomerItem extends Component {
                     ? <RestoreModal id={customer.id} entities={customers} updateState={this.props.updateCustomers}
                         url={`/api/customers/restore/${customer.id}`}/> : null
                 const archiveButton = !customer.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteCustomer} id={customer.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteCustomer} id={customer.id}/> : null
                 const deleteButton = !customer.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteCustomer} id={customer.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteCustomer} id={customer.id}/> : null
                 const editButton = !customer.deleted_at && customers.length ? <EditCustomer
                     custom_fields={custom_fields}
                     customer={customer}

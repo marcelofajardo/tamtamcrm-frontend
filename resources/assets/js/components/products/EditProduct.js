@@ -19,6 +19,7 @@ import DetailsForm from './DetailsForm'
 import CostsForm from './CostsForm'
 import ImageForm from './ImageForm'
 import ProductListDropdown from './ProductListDropdown'
+import Details from '../credits/Details'
 
 class EditProduct extends React.Component {
     constructor (props) {
@@ -69,16 +70,8 @@ class EditProduct extends React.Component {
         this.handleMultiSelect = this.handleMultiSelect.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.deleteImage = this.deleteImage.bind(this)
-        this.toggleMenu = this.toggleMenu.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
         this.handleFileChange = this.handleFileChange.bind(this)
         this.onChangeHandler = this.onChangeHandler.bind(this)
-    }
-
-    toggleMenu (event) {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        })
     }
 
     getFormData () {
@@ -116,36 +109,16 @@ class EditProduct extends React.Component {
         return formData
     }
 
-    changeStatus (action) {
-        if (!this.state.id) {
-            return false
-        }
-
-        const data = this.getFormData()
-        axios.post(`/api/product/${this.state.id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({ showSuccessMessage: true })
-            })
-            .catch((error) => {
-                this.setState({ showErrorMessage: true })
-                console.warn(error)
-            })
-    }
-
     handleClick () {
         const formData = this.getFormData()
 
         axios.post(`/api/products/${this.state.id}`, formData)
             .then((response) => {
-                this.toggle()
                 this.setState({ changesMade: false })
                 const index = this.props.products.findIndex(product => parseInt(product.id) === this.state.id)
                 this.props.products[index] = response.data
                 this.props.action(this.props.products)
+                this.toggle()
             })
             .catch((error) => {
                 this.setState({
@@ -244,11 +217,14 @@ class EditProduct extends React.Component {
                     </ModalHeader>
                     <ModalBody>
 
-                        <ProductListDropdown id={this.state.id} formData={this.getFormData()} />
+                        <ProductListDropdown id={this.state.id} formData={this.getFormData()}/>
                         {successMessage}
                         {errorMessage}
 
-                        <DetailsForm errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
+                        <DetailsForm custom_fields={this.props.custom_fields} custom_value1={this.state.custom_value1}
+                            custom_value2={this.state.custom_value2}
+                            custom_value3={this.state.custom_value3} custom_value4={this.state.custom_value4}
+                            errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
                             assigned_user_id={this.state.assigned_user_id}
                             handleMultiSelect={this.handleMultiSelect} categories={this.props.categories}
                             selectedCategories={this.state.selectedCategories}

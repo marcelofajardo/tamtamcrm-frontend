@@ -1,3 +1,4 @@
+import axios from 'axios'
 import React, { Component } from 'react'
 import {
     Input
@@ -11,9 +12,28 @@ export default class LeadItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteLead = this.deleteLead.bind(this)
+    }
 
-        }
+    deleteLead (id, archive = false) {
+        const self = this
+        const url = archive === true ? `/api/leads/archive/${id}` : `/api/leads/${id}`
+
+        axios.delete(url)
+            .then(function (response) {
+                const arrLeads = [...self.props.leads]
+                const index = arrLeads.findIndex(lead => lead.id === id)
+                arrLeads.splice(index, 1)
+                self.props.addUserToState(arrLeads)
+            })
+            .catch(function (error) {
+                console.log(error)
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -24,9 +44,9 @@ export default class LeadItem extends Component {
                     ? <RestoreModal id={lead.id} entities={leads} updateState={this.props.addUserToState}
                         url={`/api/leads/restore/${lead.id}`}/> : null
                 const archiveButton = !lead.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteLead} id={lead.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteLead} id={lead.id}/> : null
                 const deleteButton = !lead.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteLead} id={lead.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteLead} id={lead.id}/> : null
                 const editButton = !lead.deleted_at ? <EditLead
                     listView={true}
                     custom_fields={custom_fields}

@@ -10,60 +10,93 @@ class ModuleSettings extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            modules: [
+            modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
+                recurringInvoices: false,
+                credits: false,
+                invoices: false,
+                payments: false,
+                quotes: false,
+                expenses: false,
+                customers: true,
+                companies: true,
+                projects: false,
+                cases: false,
+                tasks: false,
+                recurringExpenses: false,
+                recurringTasks: false
+            },
+            moduleTypes: [
                 {
-                    id: 1,
+                    id: 'recurringInvoices',
                     value: 1,
                     label: 'Recurring Invoices',
                     isChecked: false
                 },
                 {
-                    id: 2,
+                    id: 'credits',
                     value: 2,
                     label: 'Credits',
                     isChecked: false
                 },
                 {
-                    id: 3,
+                    id: 'quotes',
                     value: 4,
                     label: 'Quotes',
                     isChecked: false
                 },
                 { id: 4, value: 8, label: 'Tasks', isChecked: false },
                 {
-                    id: 4,
+                    id: 'expenses',
                     value: 16,
                     label: 'Expenses',
                     isChecked: false
                 },
                 {
-                    id: 4,
+                    id: 'projects',
                     value: 32,
                     label: 'Projects',
                     isChecked: false
                 },
                 {
-                    id: 4,
+                    id: 'companies',
                     value: 64,
                     label: 'Vendors',
                     isChecked: false
                 },
                 {
-                    id: 4,
+                    id: 'cases',
                     value: 128,
                     label: 'Cases',
                     isChecked: false
                 },
                 {
-                    id: 4,
+                    id: 'recurringExpenses',
                     value: 512,
                     label: 'Recurring Expenses',
                     isChecked: false
                 },
                 {
-                    id: 4,
+                    id: 'recurringTasks',
                     value: 1024,
                     label: 'Recurring Tasks',
+                    isChecked: false
+                },
+                {
+                    id: 'tasks',
+                    value: 1024,
+                    label: 'Tasks',
+                    isChecked: false
+                },
+                {
+                    id: 'payments',
+                    value: 1024,
+                    label: 'Payments',
+                    isChecked: false
+                },
+                {
+                    id: 'invoices',
+                    value: 1024,
+                    label: 'Invoices',
                     isChecked: false
                 }
             ]
@@ -75,22 +108,20 @@ class ModuleSettings extends Component {
 
     handleAllChecked (event) {
         const modules = this.state.modules
-        modules.forEach(module => module.isChecked = event.target.checked)
-        this.setState({ modules: modules })
+        Object.keys(modules).forEach(module => modules[module] = event.target.checked)
+        this.setState({ modules: modules }, () => localStorage.setItem('modules', JSON.stringify(this.state.modules)))
     }
 
     customInputSwitched (buttonName, e) {
+        const name = e.target.id
         const checked = e.target.checked
-        const modules = this.state.modules
 
-        modules.forEach(module => {
-            if (module.value === buttonName) {
-                module.isChecked = checked
+        this.setState(prevState => ({
+            modules: {
+                ...prevState.modules,
+                [name]: checked
             }
-        })
-        this.setState({ modules: modules }, () => {
-            console.log('test', this.state.modules)
-        })
+        }), () => localStorage.setItem('modules', JSON.stringify(this.state.modules)))
     }
 
     render () {
@@ -99,17 +130,17 @@ class ModuleSettings extends Component {
                 <p>Start editing to see some magic happen :)</p>
                 <Form>
                     <FormGroup>
-                        <Label for="exampleCheckbox">Switches <input type="checkbox" onClick={this.handleAllChecked} />Check all </Label>
-                        {this.state.modules.map((module, index) => {
-                            // console.log(disease, index);
-                            const idName = 'exampleCustomSwitch' + index
+                        <Label for="exampleCheckbox">Switches <input type="checkbox" onClick={this.handleAllChecked}/>Check
+                            all </Label>
+                        {this.state.moduleTypes.map((module, index) => {
+                            const isChecked = this.state.modules[module.id]
 
                             return (
                                 <div key={index}>
                                     <CustomInput
-                                        checked={module.isChecked}
+                                        checked={isChecked}
                                         type="switch"
-                                        id={idName}
+                                        id={module.id}
                                         name="customSwitch"
                                         label={module.label}
                                         onChange={this.customInputSwitched.bind(this, module.value)}

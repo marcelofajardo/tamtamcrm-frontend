@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { FormGroup, Label, Input, Card, CardHeader, CardBody, TabPane } from 'reactstrap'
+import { FormGroup, Label, Input, Card, CardHeader, CardBody } from 'reactstrap'
 import AddRecurringInvoice from '../recurringInvoices/AddRecurringInvoice'
 import Address from './Address'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -37,6 +37,15 @@ export default class Details extends Component {
 
     render () {
         const customFields = this.props.custom_fields ? this.props.custom_fields : []
+
+        if (customFields[0] && Object.keys(customFields[0]).length) {
+            customFields[0].forEach((element, index, array) => {
+                if (this.props[element.name] && this.props[element.name].length) {
+                    customFields[0][index].value = this.props[element.name]
+                }
+            })
+        }
+
         const customForm = customFields && customFields.length ? <FormBuilder
             handleChange={this.props.handleInput.bind(this)}
             formFieldsRows={customFields}

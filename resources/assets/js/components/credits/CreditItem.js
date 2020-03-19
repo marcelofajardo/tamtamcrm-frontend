@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -12,9 +13,26 @@ export default class CreditItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteCredit = this.deleteCredit.bind(this)
+    }
 
-        }
+    deleteCredit (id, archive = false) {
+        const url = archive === true ? `/api/credits/archive/${id}` : `/api/credits/${id}`
+        const self = this
+        axios.delete(url)
+            .then(function (response) {
+                const arrPayments = [...self.props.credits]
+                const index = arrPayments.findIndex(payment => payment.id === id)
+                arrPayments.splice(index, 1)
+                self.props.updateCustomers(arrPayments)
+            })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -33,9 +51,9 @@ export default class CreditItem extends Component {
                     ? <RestoreModal id={credit.id} entities={credits} updateState={this.props.updateCustomers}
                         url={`/api/credits/restore/${credit.id}`}/> : null
                 const archiveButton = !credit.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteCredit} id={credit.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteCredit} id={credit.id}/> : null
                 const deleteButton = !credit.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteCredit} id={credit.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteCredit} id={credit.id}/> : null
 
                 const columnList = Object.keys(credit).filter(key => {
                     return ignoredColumns && !ignoredColumns.includes(key)

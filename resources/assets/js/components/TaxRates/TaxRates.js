@@ -40,7 +40,6 @@ export default class TaxRates extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.deleteTaxRate = this.deleteTaxRate.bind(this)
         this.filterTaxRates = this.filterTaxRates.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -120,27 +119,8 @@ export default class TaxRates extends Component {
         const { taxRates, ignoredColumns } = this.state
         return <TaxRateItem taxRates={taxRates}
             ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            deleteTaxRate={this.deleteTaxRate} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteTaxRate (id, archive = true) {
-        const url = archive === true ? `/api/taxRates/archive/${id}` : `/api/taxRates/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrTaxRates = [...self.state.taxRates]
-                const index = arrTaxRates.findIndex(taxRate => taxRate.id === id)
-                arrTaxRates.splice(index, 1)
-                self.addUserToState(arrTaxRates)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     render () {

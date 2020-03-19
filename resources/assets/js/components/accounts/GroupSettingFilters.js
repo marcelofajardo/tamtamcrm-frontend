@@ -5,30 +5,26 @@ import {
 import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
-import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 import FilterTile from '../common/FilterTile'
 
-export default class LeadFilters extends Component {
+export default class GroupSettingFilters extends Component {
     constructor (props) {
         super(props)
-
         this.state = {
             dropdownButtonActions: ['download'],
             filters: {
-                status_id: 'active',
-                customer_id: '',
                 searchText: '',
+                status: 'active',
                 start_date: '',
                 end_date: ''
             }
         }
 
-        this.filterLeads = this.filterLeads.bind(this)
+        this.filterGroups = this.filterGroups.bind(this)
         this.getFilters = this.getFilters.bind(this)
     }
 
-    filterLeads (event) {
+    filterGroups (event) {
         if ('start_date' in event) {
             this.setState(prevState => ({
                 filters: {
@@ -40,7 +36,7 @@ export default class LeadFilters extends Component {
             return
         }
 
-        const column = event.target.id
+        const column = event.target.name
         const value = event.target.value
 
         if (value === 'all') {
@@ -55,31 +51,28 @@ export default class LeadFilters extends Component {
                 [column]: value
             }
         }), () => this.props.filter(this.state.filters))
-
-        return true
     }
 
     getFilters () {
-        const { status_id, searchText, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.leads.length
-            ? <DisplayColumns onChange={this.props.updateIgnoredColumns} columns={Object.keys(this.props.leads[0])}
+        const columnFilter = this.props.groups.length
+            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns} columns={Object.keys(this.props.groups[0])}
                 ignored_columns={this.props.ignoredColumns}/> : null
         return (
             <Row form>
-                <Col className="h-100" md={3}>
-                    <TableSearch onChange={this.filterLeads}/>
+                <Col md={3}>
+                    <TableSearch onChange={this.filterGroups}/>
                 </Col>
 
-                <Col md={8}>
+                <Col md={2}>
                     {columnFilter}
                 </Col>
 
-                <Col className="h-100" md={2}>
+                <Col md={2}>
                     <FormGroup>
                         <Input type='select'
-                            onChange={this.filterLeads}
+                            onChange={this.filterGroups}
+                            name="status"
                             id="status_id"
-                            name="status_id"
                         >
                             <option value="">Select Status</option>
                             <option value='active'>Active</option>
@@ -89,20 +82,9 @@ export default class LeadFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col className="h-100" md={2}>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
-                <Col className="h-100" md={2}>
-                    <CsvImporter filename="leads.csv"
-                        url={`/api/leads?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col className="h-100" md={2}>
+                <Col md={2}>
                     <FormGroup>
-                        <DateFilter onChange={this.filterLeads} />
+                        <DateFilter onChange={this.filterGroups} />
                     </FormGroup>
                 </Col>
             </Row>

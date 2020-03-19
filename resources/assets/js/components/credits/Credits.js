@@ -2,15 +2,10 @@ import React, { Component } from 'react'
 import DataTable from '../common/DataTable'
 import axios from 'axios'
 import AddCredit from './AddCredit'
-import EditCredit from './EditCredit'
 import {
-    Input, Card, CardBody
+    Card, CardBody
 } from 'reactstrap'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
-import ActionsMenu from '../common/ActionsMenu'
 import ViewEntity from '../common/ViewEntity'
-import CreditPresenter from '../presenters/CreditPresenter'
 import CreditFilters from './CreditFilters'
 import CreditItem from './CreditItem'
 
@@ -40,7 +35,12 @@ export default class Credits extends Component {
                 'invoice_id',
                 'user_id',
                 'created_at',
-                'invitations'
+                'invitations',
+                'custom_value1',
+                'custom_value2',
+                'custom_value3',
+                'custom_value4',
+                'design_id'
             ],
             // columns: ['Number', 'Customer', 'Total', 'Status'],
             filters: {
@@ -55,7 +55,6 @@ export default class Credits extends Component {
 
         this.updateCustomers = this.updateCustomers.bind(this)
         this.customerList = this.customerList.bind(this)
-        this.deleteCredit = this.deleteCredit.bind(this)
         this.filterCredits = this.filterCredits.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
 
@@ -166,27 +165,8 @@ export default class Credits extends Component {
         const { credits, customers, custom_fields, ignoredColumns } = this.state
         return <CreditItem credits={credits} customers={customers} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} updateCustomers={this.updateCustomers}
-            deleteCredit={this.deleteCredit} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteCredit (id, archive = true) {
-        const url = archive === true ? `/api/credits/archive/${id}` : `/api/credits/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrPayments = [...self.state.credits]
-                const index = arrPayments.findIndex(payment => payment.id === id)
-                arrPayments.splice(index, 1)
-                self.updateCustomers(arrPayments)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     render () {

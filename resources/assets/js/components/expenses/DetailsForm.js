@@ -1,7 +1,5 @@
 import React from 'react'
 import {
-    Button,
-    CustomInput,
     Input,
     FormGroup,
     Label,
@@ -14,10 +12,6 @@ import CompanyDropdown from '../common/CompanyDropdown'
 import CustomerDropdown from '../common/CustomerDropdown'
 
 export default class DetailsForm extends React.Component {
-    constructor (props) {
-        super(props)
-    }
-
     hasErrorFor (field) {
         return !!this.props.errors[field]
     }

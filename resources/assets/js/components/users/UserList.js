@@ -56,7 +56,6 @@ export default class UserList extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterUsers = this.filterUsers.bind(this)
-        this.deleteUser = this.deleteUser.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
@@ -186,27 +185,8 @@ export default class UserList extends Component {
         const { users, departments, custom_fields, ignoredColumns, accounts } = this.state
         return <UserItem accounts={accounts} departments={departments} users={users} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            deleteUser={this.deleteUser} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteUser (id, archive = true) {
-        const url = archive === true ? `/api/users/archive/${id}` : `/api/users/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrUsers = [...self.state.users]
-                const index = arrUsers.findIndex(user => user.id === id)
-                arrUsers.splice(index, 1)
-                self.addUserToState(arrUsers)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     render () {

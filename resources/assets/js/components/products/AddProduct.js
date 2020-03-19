@@ -4,7 +4,7 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
-    ModalFooter,
+    ModalFooter
 } from 'reactstrap'
 import axios from 'axios'
 import AddButtons from '../common/AddButtons'

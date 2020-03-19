@@ -56,7 +56,6 @@ export default class ProjectList extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.deleteProject = this.deleteProject.bind(this)
         this.filterProjects = this.filterProjects.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -139,29 +138,8 @@ export default class ProjectList extends Component {
         const { projects, custom_fields, users, ignoredColumns } = this.state
         return <ProjectItem projects={projects} users={users} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            deleteProject={this.deleteProject} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteProject (id, archive = true) {
-        const self = this
-        const url = archive === true ? `/api/projects/archive/${id}` : `/api/projects/${id}`
-
-        axios.delete(url)
-            .then(function (response) {
-                const arrProjects = [...self.state.projects]
-                const index = arrProjects.findIndex(project => project.id === id)
-                arrProjects.splice(index, 1)
-                self.addUserToState(arrProjects)
-            })
-            .catch(function (error) {
-                console.log(error)
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     getCustomFields () {

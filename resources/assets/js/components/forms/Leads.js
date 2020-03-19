@@ -65,7 +65,6 @@ export default class Leads extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.deleteLead = this.deleteLead.bind(this)
         this.filterLeads = this.filterLeads.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -148,29 +147,8 @@ export default class Leads extends Component {
         const { leads, custom_fields, users, ignoredColumns } = this.state
         return <LeadItem leads={leads} users={users} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            deleteLead={this.deleteLead} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteLead (id, archive = true) {
-        const self = this
-        const url = archive === true ? `/api/leads/archive/${id}` : `/api/leads/${id}`
-
-        axios.delete(url)
-            .then(function (response) {
-                const arrLeads = [...self.state.leads]
-                const index = arrLeads.findIndex(lead => lead.id === id)
-                arrLeads.splice(index, 1)
-                self.addUserToState(arrLeads)
-            })
-            .catch(function (error) {
-                console.log(error)
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     getCustomFields () {

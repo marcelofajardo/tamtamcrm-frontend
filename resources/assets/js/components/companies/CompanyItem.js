@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -11,6 +12,29 @@ import CompanyPresenter from '../presenters/CompanyPresenter'
 export default class CompanyItem extends Component {
     constructor (props) {
         super(props)
+
+        this.deleteBrand = this.deleteBrand.bind(this)
+    }
+
+    deleteBrand (id, archive = false) {
+        const self = this
+        const url = archive === true ? `/api/companies/archive/${id}` : `/api/companies/${id}`
+
+        axios.delete(url)
+            .then(function (response) {
+                const arrBrands = [...self.props.brands]
+                const index = arrBrands.findIndex(brand => brand.id === id)
+                arrBrands.splice(index, 1)
+                self.props.addUserToState(arrBrands)
+            })
+            .catch(function (error) {
+                console.log(error)
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -21,9 +45,9 @@ export default class CompanyItem extends Component {
                     ? <RestoreModal id={brand.id} entities={brands} updateState={this.props.addUserToState}
                         url={`/api/companies/restore/${brand.id}`}/> : null
                 const archiveButton = !brand.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteBrand} id={brand.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteBrand} id={brand.id}/> : null
                 const deleteButton = !brand.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteBrand} id={brand.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteBrand} id={brand.id}/> : null
                 const editButton = !brand.deleted_at ? <EditCompany
                     custom_fields={custom_fields}
                     users={users}

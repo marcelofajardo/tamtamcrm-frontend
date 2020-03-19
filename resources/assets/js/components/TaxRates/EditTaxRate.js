@@ -58,6 +58,7 @@ class EditTaxRate extends React.Component {
                 this.props.taxRates[index].name = this.state.name
                 this.props.taxRates[index].description = this.state.description
                 this.props.action(this.props.taxRates)
+                this.setState({ changesMade: false })
                 this.toggle()
             })
             .catch((error) => {

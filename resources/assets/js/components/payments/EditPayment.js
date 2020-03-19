@@ -1,8 +1,6 @@
 import React from 'react'
 import {
-    Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, FormGroup, DropdownItem, Dropdown,
-    DropdownToggle,
-    DropdownMenu
+    Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, FormGroup, DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -12,6 +10,7 @@ import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import InvoiceLine from './InvoiceLine'
+import PaymentDropdownMenu from './PaymentDropdownMenu'
 
 class EditPayment extends React.Component {
     constructor (props) {
@@ -21,7 +20,6 @@ class EditPayment extends React.Component {
             modal: false,
             loading: false,
             changesMade: false,
-            dropdownOpen: false,
             showSuccessMessage: false,
             showErrorMessage: false,
             errors: [],
@@ -46,16 +44,9 @@ class EditPayment extends React.Component {
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.setInvoices = this.setInvoices.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
+        this.handleInput = this.handleInput.bind(this)
         this.handleCustomerChange = this.handleCustomerChange.bind(this)
         this.handleInvoiceChange = this.handleInvoiceChange.bind(this)
-        this.toggleMenu = this.toggleMenu.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
-    }
-
-    toggleMenu (event) {
-        this.setState({
-            dropdownOpen: !this.state.dropdownOpen
-        })
     }
 
     handleInvoiceChange (e) {
@@ -133,26 +124,6 @@ class EditPayment extends React.Component {
         }
     }
 
-    changeStatus (action) {
-        if (!this.state.id) {
-            return false
-        }
-
-        const data = this.getFormData()
-        axios.post(`/api/payment/${this.state.id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({ showSuccessMessage: true })
-            })
-            .catch((error) => {
-                this.setState({ showErrorMessage: true })
-                console.warn(error)
-            })
-    }
-
     handleClick () {
         const data = this.getFormData()
         axios.put(`/api/payments/${this.state.id}`, data)
@@ -205,43 +176,19 @@ class EditPayment extends React.Component {
     render () {
         const { message } = this.state
         const customFields = this.props.custom_fields ? this.props.custom_fields : []
+
+        if (customFields[0] && Object.keys(customFields[0]).length) {
+            customFields[0].forEach((element, index, array) => {
+                if (this.state[element.name] && this.state[element.name].length) {
+                    customFields[0][index].value = this.state[element.name]
+                }
+            })
+        }
+
         const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
+            handleChange={this.handleInput}
             formFieldsRows={customFields}
         /> : null
-
-        const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
-            Email</DropdownItem>
-
-        const downloadButton = this.state.status_id === 1
-            ? <DropdownItem className="primary"
-                onClick={() => this.changeStatus('download')}>Download</DropdownItem> : null
-
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_invoice')}>Clone To
-                Invoice</DropdownItem>
-
-        const dropdownMenu = this.state.id
-            ? <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-                <DropdownToggle caret>
-                    Actions
-                </DropdownToggle>
-
-                <DropdownMenu>
-                    <DropdownItem header>Header</DropdownItem>
-                    {sendEmailButton}
-                    {downloadButton}
-                    {deleteButton}
-                    {archiveButton}
-                    {cloneButton}
-                </DropdownMenu>
-            </Dropdown> : null
 
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message="Invoice was updated successfully"/> : null
@@ -261,7 +208,7 @@ class EditPayment extends React.Component {
                             {message}
                         </div>}
 
-                        {dropdownMenu}
+                        <PaymentDropdownMenu id={this.state.id} formData={this.getFormData()}/>
                         {successMessage}
                         {errorMessage}
 
@@ -307,7 +254,8 @@ class EditPayment extends React.Component {
                             />
                         </FormGroup>
 
-                        <InvoiceLine lines={this.state.payable_invoices} handleAmountChange={this.setAmount} errors={this.state.errors}
+                        <InvoiceLine lines={this.state.payable_invoices} handleAmountChange={this.setAmount}
+                            errors={this.state.errors}
                             invoices={this.props.invoices}
                             customerChange={this.handleCustomerChange} onChange={this.setInvoices}/>
 

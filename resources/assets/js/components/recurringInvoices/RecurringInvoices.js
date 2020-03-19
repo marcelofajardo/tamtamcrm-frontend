@@ -43,7 +43,6 @@ export default class RecurringInvoices extends Component {
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
-        this.deleteInvoice = this.deleteInvoice.bind(this)
         this.getInvoices = this.getInvoices.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -139,27 +138,8 @@ export default class RecurringInvoices extends Component {
         const { invoices, custom_fields, customers, allInvoices, ignoredColumns } = this.state
         return <RecurringInvoiceItem allInvoices={allInvoices} invoices={invoices} customers={customers} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
-            deleteInvoice={this.deleteInvoice} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteInvoice (id, archive = true) {
-        const self = this
-        const url = archive === true ? `/api/recurring-invoice/archive/${id}` : `/api/recurring-invoice/${id}`
-        axios.delete(url)
-            .then(function (response) {
-                const arrInvoices = [...self.state.invoices]
-                const index = arrInvoices.findIndex(payment => payment.id === id)
-                arrInvoices.splice(index, 1)
-                self.updateInvoice(arrInvoices)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     renderErrorFor () {

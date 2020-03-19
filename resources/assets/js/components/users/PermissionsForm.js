@@ -5,10 +5,8 @@ import {
     Label,
     Card,
     CardBody,
-    CardHeader, Row, Col, TabPane
+    CardHeader, Row, Col
 } from 'reactstrap'
-import FormBuilder from '../accounts/FormBuilder'
-import DropdownDate from '../common/DropdownDate'
 import DepartmentDropdown from '../common/DepartmentDropdown'
 import RoleDropdown from '../common/RoleDropdown'
 

@@ -46,10 +46,11 @@ class EditGroupSetting extends React.Component {
             name: this.state.name
         })
             .then((response) => {
-                this.toggle()
                 const index = this.props.groups.findIndex(group => group.id === this.state.id)
                 this.props.groups[index].name = this.state.name
                 this.props.action(this.props.groups)
+                this.setState({ changesMade: false })
+                this.toggle()
             })
             .catch((error) => {
                 this.setState({

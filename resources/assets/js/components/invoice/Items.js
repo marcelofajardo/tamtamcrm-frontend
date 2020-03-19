@@ -1,24 +1,8 @@
 import React from 'react'
-import { FormGroup, Label, Input, Card, CardHeader, CardBody, TabPane } from 'reactstrap'
-import TaxRateDropdown from '../common/TaxRateDropdown'
-import DesignDropdown from '../common/DesignDropdown'
+import { Card, CardHeader, CardBody } from 'reactstrap'
 import LineItemEditor from '../common/LineItemEditor'
 
 export default function Items (props) {
-    const hasErrorFor = (field) => {
-        return props.errors && !!props.errors[field]
-    }
-
-    const renderErrorFor = (field) => {
-        if (hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{props.errors[field][0]}</strong>
-                </span>
-            )
-        }
-    }
-
     return (
         <Card>
             <CardHeader>Items</CardHeader>

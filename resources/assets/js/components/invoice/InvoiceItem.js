@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -12,9 +13,25 @@ export default class InvoiceItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteInvoice = this.deleteInvoice.bind(this)
+    }
 
-        }
+    deleteInvoice (id, archive = false) {
+        const url = archive === true ? `/api/invoice/archive/${id}` : `/api/invoice/${id}`
+        const self = this
+        axios.delete(url).then(function (response) {
+            const arrQuotes = [...self.props.invoices]
+            const index = arrQuotes.findIndex(payment => payment.id === id)
+            arrQuotes.splice(index, 1)
+            self.props.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -26,10 +43,10 @@ export default class InvoiceItem extends Component {
                         url={`/api/invoice/restore/${invoice.id}`}/> : null
 
                 const archiveButton = !invoice.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteInvoice} id={invoice.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteInvoice} id={invoice.id}/> : null
 
                 const deleteButton = !invoice.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteInvoice} id={invoice.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteInvoice} id={invoice.id}/> : null
 
                 const editButton = !invoice.deleted_at ? <EditInvoice
                     custom_fields={custom_fields}

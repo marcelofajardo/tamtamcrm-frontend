@@ -111,15 +111,16 @@ class EditLeadForm extends React.Component {
         })
         axios.put(`/api/tasks/lead/${this.state.id}`, formData)
             .then((response) => {
-                this.toggle()
                 this.setState({
                     title: null,
                     content: null,
                     contributors: null,
                     source_type: null,
                     due_date: null,
-                    loading: false
+                    loading: false,
+                    changesMade: false
                 })
+                this.toggle()
                 // const firstTask = response.data
                 // this.props.tasks.push(firstTask)
                 // this.props.action(this.props.tasks)

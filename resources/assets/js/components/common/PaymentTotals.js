@@ -14,21 +14,21 @@ export default class PaymentTotals extends Component {
                         <div
                             className="p-2 flex-fill">
                             <h4>Amount</h4>
-                            £{<FormatMoney
+                            {<FormatMoney
                                 amount={this.props.entity.amount}/>}
                         </div>
 
                         <div
                             className="p-2 flex-fill">
                             <h4>Applied</h4>
-                            £{<FormatMoney
+                            {<FormatMoney
                                 amount={this.props.entity.applied}/>}
                         </div>
 
                         <div
                             className="p-2 flex-fill">
                             <h4>Refunded</h4>
-                            £{<FormatMoney
+                            {<FormatMoney
                                 amount={this.props.entity.refunded}/>}
                         </div>
                     </div>

@@ -4,16 +4,13 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
-    ModalFooter,
-    Input,
-    Label,
-    FormGroup, CardHeader, CardBody, Card
+    ModalFooter
 } from 'reactstrap'
 import axios from 'axios'
-import CustomerDropdown from '../common/CustomerDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import AddButtons from '../common/AddButtons'
-import DesignDropdown from '../common/DesignDropdown'
+import Invitations from './Invitations'
+import Notes from '../common/Notes'
+import Details from './Details'
 
 class AddCredit extends React.Component {
     constructor (props) {
@@ -27,9 +24,11 @@ class AddCredit extends React.Component {
             custom_value1: '',
             custom_value2: '',
             custom_value3: '',
+            custom_value4: '',
             private_notes: '',
             public_notes: '',
-            custom_value4: '',
+            footer: '',
+            terms: '',
             design_id: null,
             loading: false,
             errors: [],
@@ -107,6 +106,8 @@ class AddCredit extends React.Component {
             balance: this.state.total,
             public_notes: this.state.public_notes,
             private_notes: this.state.private_notes,
+            footer: this.state.footer,
+            terms: this.state.terms,
             customer_id: this.state.customer_id,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
@@ -123,12 +124,14 @@ class AddCredit extends React.Component {
                     contacts: [],
                     total: 0,
                     customer_id: null,
+                    footer: '',
+                    terms: '',
                     custom_value1: '',
                     custom_value2: '',
-                    public_notes: '',
-                    private_notes: '',
                     custom_value3: '',
                     custom_value4: '',
+                    public_notes: '',
+                    private_notes: '',
                     design_id: null,
                     loading: false,
                     errors: []
@@ -156,13 +159,15 @@ class AddCredit extends React.Component {
                     contacts: [],
                     total: 0,
                     customer_id: null,
+                    footer: '',
+                    terms: '',
                     custom_value1: '',
                     custom_value2: '',
+                    custom_value3: '',
+                    custom_value4: '',
                     design_id: null,
                     public_notes: '',
                     private_notes: '',
-                    custom_value3: '',
-                    custom_value4: '',
                     loading: false,
                     errors: []
                 }, () => localStorage.removeItem('creditForm'))
@@ -172,11 +177,6 @@ class AddCredit extends React.Component {
 
     render () {
         const { message } = this.state
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         return (
             <React.Fragment>
@@ -190,77 +190,17 @@ class AddCredit extends React.Component {
                             {message}
                         </div>}
 
-                        <Card>
-                            <CardHeader>Details</CardHeader>
-                            <CardBody>
-                                <FormGroup className="mb-3">
-                                    <Label>Amount</Label>
-                                    <Input value={this.state.total}
-                                        className={this.hasErrorFor('total') ? 'is-invalid' : ''}
-                                        type="text" name="total"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('total')}
-                                </FormGroup>
+                        <Details custom_fields={this.props.custom_fields} errors={this.state.errors}
+                            total={this.state.total} handleInput={this.handleInput}
+                            design_id={this.state.design_id}/>
 
-                                <FormGroup className="mb-3">
-                                    <Label>Design</Label>
-                                    <DesignDropdown name="design_id" handleChange={this.handleInput.bind(this)}
-                                        design={this.state.design_id}/>
-                                </FormGroup>
+                        <Invitations errors={this.state.errors} handleInput={this.handleInput}
+                            customers={this.props.customers}
+                            customer_id={this.state.customer_id} contacts={this.state.contacts}
+                            handleContactChange={this.handleContactChange}/>
 
-                                {customForm}
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Invitations</CardHeader>
-                            <CardBody>
-                                <FormGroup className="mb-3">
-                                    <Label>Customer</Label>
-
-                                    <CustomerDropdown
-                                        customer={this.state.customer_id}
-                                        renderErrorFor={this.renderErrorFor}
-                                        handleInputChanges={this.handleInput}
-                                        customers={this.props.customers}
-                                    />
-                                    {this.renderErrorFor('customer_id')}
-                                </FormGroup>
-
-                                {this.state.contacts.length && this.state.contacts.map((contact, index) => (
-                                    <FormGroup key={index} check>
-                                        <Label check>
-                                            <Input value={contact.id} onChange={this.handleContactChange}
-                                                type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
-                                        </Label>
-                                    </FormGroup>
-                                ))
-                                }
-                            </CardBody>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>Notes</CardHeader>
-                            <CardBody>
-                                <FormGroup className="mb-3">
-                                    <Label>Public Notes</Label>
-                                    <Input value={this.state.public_notes}
-                                        className={this.hasErrorFor('total') ? 'is-invalid' : ''}
-                                        type="textarea" name="public_notes"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('public_notes')}
-                                </FormGroup>
-
-                                <FormGroup className="mb-3">
-                                    <Label>Private Notes</Label>
-                                    <Input value={this.state.private_notes}
-                                        className={this.hasErrorFor('total') ? 'is-invalid' : ''}
-                                        type="textarea" name="private_notes"
-                                        onChange={this.handleInput.bind(this)}/>
-                                    {this.renderErrorFor('private_notes')}
-                                </FormGroup>
-                            </CardBody>
-                        </Card>
+                        <Notes public_notes={this.state.public_notes} handleInput={this.handleInput}
+                            private_notes={this.state.private_notes}/>
                     </ModalBody>
 
                     <ModalFooter>

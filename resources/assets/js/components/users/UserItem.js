@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -12,9 +13,26 @@ export default class UserItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteUser = this.deleteUser.bind(this)
+    }
 
-        }
+    deleteUser (id, archive = false) {
+        const url = archive === true ? `/api/users/archive/${id}` : `/api/users/${id}`
+        const self = this
+        axios.delete(url)
+            .then(function (response) {
+                const arrUsers = [...self.props.users]
+                const index = arrUsers.findIndex(user => user.id === id)
+                arrUsers.splice(index, 1)
+                self.props.addUserToState(arrUsers)
+            })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -26,9 +44,9 @@ export default class UserItem extends Component {
                     ? <RestoreModal id={user.id} entities={users} updateState={this.props.addUserToState}
                         url={`/api/users/restore/${user.id}`}/> : null
                 const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteUser} id={user.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteUser} id={user.id}/> : null
                 const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteUser} id={user.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteUser} id={user.id}/> : null
                 const editButton = !user.deleted_at
                     ? <EditUser accounts={this.props.accounts} departments={departments} user_id={user.id}
                         custom_fields={custom_fields} users={users}

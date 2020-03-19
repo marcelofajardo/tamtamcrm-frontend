@@ -2,33 +2,38 @@ import React, { Component } from 'react'
 import {
     FormGroup, Input, Col, Row
 } from 'reactstrap'
-import CustomerDropdown from '../common/CustomerDropdown'
 import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
 import BulkActionDropdown from '../common/BulkActionDropdown'
+import FilterTile from '../common/FilterTile'
+import UserDropdown from '../common/UserDropdown'
+import CustomerDropdown from '../common/CustomerDropdown'
+import TaskStatusDropdown from '../common/TaskStatusDropdown'
 
-export default class QuoteFilters extends Component {
+export default class TaskFilters extends Component {
     constructor (props) {
         super(props)
+
         this.state = {
             dropdownButtonActions: ['download'],
             filters: {
+                project_id: '',
                 status_id: 'active',
+                task_status: '',
+                user_id: '',
                 customer_id: '',
-                searchText: '',
-                start_date: '',
-                end_date: ''
+                task_type: '',
+                searchText: ''
             }
         }
 
+        this.filterTasks = this.filterTasks.bind(this)
         this.getFilters = this.getFilters.bind(this)
-        this.filterInvoices = this.filterInvoices.bind(this)
     }
 
-    filterInvoices (event) {
+    filterTasks (event) {
         if ('start_date' in event) {
             this.setState(prevState => ({
                 filters: {
@@ -60,64 +65,74 @@ export default class QuoteFilters extends Component {
     }
 
     getFilters () {
-        const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.quotes.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns}
-                columns={Object.keys(this.props.quotes[0]).concat(this.props.ignoredColumns)}
+        const { searchText, start_date, end_date, customer_id, project_id, task_status, task_type, user_id } = this.state.filters
+        const columnFilter = this.props.tasks.length
+            ? <DisplayColumns onChange={this.props.updateIgnoredColumns} columns={Object.keys(this.props.tasks[0])}
                 ignored_columns={this.props.ignoredColumns}/> : null
         return (
+
             <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterInvoices}/>
+                <Col md={2}>
+                    <TableSearch onChange={this.filterTasks}/>
                 </Col>
 
                 <Col md={3}>
                     <CustomerDropdown
                         customer={this.props.filters.customer_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.filterInvoices}
-                        customers={this.props.customers}
+                        handleInputChanges={this.filterTasks}
                         name="customer_id"
+                    />
+                </Col>
+
+                <Col md={3}>
+                    <UserDropdown
+                        handleInputChanges={this.filterTasks}
+                        users={this.props.users}
+                        name="user_id"
+                    />
+                </Col>
+
+                <Col md={2}>
+
+                    <TaskStatusDropdown
+                        task_type={1}
+                        handleInputChanges={this.filterTasks}
                     />
                 </Col>
 
                 <Col md={2}>
                     <FormGroup>
                         <Input type='select'
-                            onChange={this.filterInvoices}
-                            name="status_id"
+                            onChange={this.filterTasks}
                             id="status_id"
+                            name="status_id"
                         >
                             <option value="">Select Status</option>
+                            <option value='active'>Active</option>
                             <option value='archived'>Archived</option>
                             <option value='deleted'>Deleted</option>
-                            <option value='active'>Draft</option>
-                            <option value='active'>Sent</option>
-                            <option value='active'>Viewed</option>
-                            <option value='approved'>Approved</option>
-                            <option value='archived'>Expired</option>
                         </Input>
                     </FormGroup>
                 </Col>
 
-                <Col>
+                <Col md={1}>
+                    <CsvImporter filename="expenses.csv"
+                        url={`/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
+                </Col>
+
+                <Col md={1}>
                     <BulkActionDropdown
                         dropdownButtonActions={this.state.dropdownButtonActions}
                         saveBulk={this.props.saveBulk}/>
                 </Col>
 
-                <Col>
-                    <CsvImporter filename="quotes.csv"
-                        url={`/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
                 <Col md={2}>
                     <FormGroup>
-                        <DateFilter onChange={this.filterInvoices} />
+                        <DateFilter onChange={this.filterTasks} />
                     </FormGroup>
                 </Col>
 
-                <Col md={8}>
+                <Col md={6}>
                     <FormGroup>
                         {columnFilter}
                     </FormGroup>

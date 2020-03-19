@@ -65,7 +65,6 @@ export default class ProductList extends Component {
         this.addProductToState = this.addProductToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterProducts = this.filterProducts.bind(this)
-        this.deleteProduct = this.deleteProduct.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
         this.onChangeBulk = this.onChangeBulk.bind(this)
@@ -193,23 +192,8 @@ export default class ProductList extends Component {
 
         return <ProductItem products={products} categories={categories} companies={companies} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} addProductToState={this.addProductToState}
-            deleteProduct={this.deleteProduct} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteProduct (id, archive = true) {
-        const self = this
-        const url = archive === true ? `/api/products/archive/${id}` : `/api/products/${id}`
-        axios.delete(url)
-            .then(function (response) {
-                const arrProducts = [...self.state.products]
-                const index = arrProducts.findIndex(product => product.id === id)
-                arrProducts.splice(index, 1)
-                self.addProductToState(arrProducts)
-            })
-            .catch(function (error) {
-                console.log(error)
-            })
     }
 
     render () {

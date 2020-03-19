@@ -1,19 +1,11 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import EditTask from './EditTask'
-import AddTask from './AddTask'
 import DataTable from '../common/DataTable'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
-import { Form, FormGroup, Input, Card, CardBody, Button } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
-import UserDropdown from '../common/UserDropdown'
-import CustomerDropdown from '../common/CustomerDropdown'
-import TaskStatusDropdown from '../common/TaskStatusDropdown'
-import ActionsMenu from '../common/ActionsMenu'
-import KanbanFilter from '../KanbanFilter'
-import TableSearch from '../common/TableSearch'
+import { Card, CardBody, Button } from 'reactstrap'
 import ViewEntity from '../common/ViewEntity'
+import TaskFilters from './TaskFilters'
+import TaskItem from './TaskItem'
+import AddModal from './AddTask'
 
 export default class TaskList extends Component {
     constructor (props) {
@@ -38,7 +30,9 @@ export default class TaskList extends Component {
                 user_id: '',
                 customer_id: '',
                 task_type: '',
-                searchText: ''
+                searchText: '',
+                start_date: '',
+                end_date: ''
             },
             custom_fields: [],
 
@@ -77,19 +71,38 @@ export default class TaskList extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.deleteTask = this.deleteTask.bind(this)
+        this.saveBulk = this.saveBulk.bind(this)
         this.filterTasks = this.filterTasks.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
         this.getCustomers = this.getCustomers.bind(this)
         this.getUsers = this.getUsers.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
+        this.onChangeBulk = this.onChangeBulk.bind(this)
     }
 
     componentDidMount () {
         this.getUsers()
         this.getCustomers()
         this.getCustomFields()
+    }
+
+    onChangeBulk (e) {
+        // current array of options
+        const options = this.state.bulk
+        let index
+
+        // check if the check box is checked or unchecked
+        if (e.target.checked) {
+            // add the numerical value of the checkbox to options array
+            options.push(+e.target.value)
+        } else {
+            // or remove the value from the unchecked checkbox from the array
+            index = options.indexOf(e.target.value)
+            options.splice(index, 1)
+        }
+
+        // update the state with the new array of options
+        this.setState({ bulk: options })
     }
 
     toggleViewedEntity (id, title = null) {
@@ -104,7 +117,8 @@ export default class TaskList extends Component {
     }
 
     updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('settings') }, function () {
+        console.log('columns', columns)
+        this.setState({ ignoredColumns: columns.concat('comments', 'customer', 'users', 'contributors') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
         })
     }
@@ -120,116 +134,13 @@ export default class TaskList extends Component {
         return true
     }
 
-    getFilters () {
-        const columnFilter = this.state.tasks.length
-            ? <DisplayColumns onChange={this.updateIgnoredColumns} columns={Object.keys(this.state.tasks[0])}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Form inline>
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <AddTask modal={true} users={this.state.users} tasks={this.state.tasks} action={this.addUserToState}
-                        custom_fields={this.state.custom_fields}/>
-                </FormGroup>
-
-                <TableSearch onChange={this.filterTasks}/>
-
-                {columnFilter}
-
-                <UserDropdown
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterTasks}
-                    users={this.props.users}
-                    name="user_id"
-                />
-
-                <CustomerDropdown
-                    customer={this.state.filters.customer_id}
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterTasks}
-                />
-
-                <TaskStatusDropdown
-                    task_type={this.props.task_type}
-                    renderErrorFor={this.renderErrorFor}
-                    handleInputChanges={this.filterTasks}
-                />
-
-                <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                    <Input type='select'
-                        onChange={this.filterTasks}
-                        id="status_id"
-                        name="status_id"
-                    >
-                        <option value="">Select Status</option>
-                        <option value='active'>Active</option>
-                        <option value='archived'>Archived</option>
-                        <option value='deleted'>Deleted</option>
-                    </Input>
-                </FormGroup>
-            </Form>
-        )
-    }
-
     userList () {
         const { tasks, custom_fields, users, ignoredColumns } = this.state
-        if (tasks && tasks.length) {
-            return this.state.tasks.map(task => {
-                const restoreButton = task.deleted_at
-                    ? <RestoreModal id={task.id} entities={tasks} updateState={this.addUserToState}
-                        url={`/api/tasks/restore/${task.id}`}/> : null
-                const archiveButton = !task.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteTask} id={task.id}/> : null
-                const deleteButton = !task.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteTask} id={task.id}/> : null
-                const editButton = !task.deleted_at ? <EditTask
-                    modal={true}
-                    listView={true}
-                    custom_fields={custom_fields}
-                    users={users}
-                    task={task}
-                    tasks={tasks}
-                    action={this.addUserToState}
-                /> : null
 
-                const columnList = Object.keys(task).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <td onClick={() => this.toggleViewedEntity(task, task.title)} data-label={key} key={key}>{task[key]}</td>
-                })
-                return <tr key={task.id}>
-                    <td>
-                        <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
-                            restore={restoreButton}/>
-                    </td>
-                    {columnList}
-                </tr>
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
-    }
-
-    deleteTask (id, archive = true) {
-        const self = this
-        const url = archive === true ? `/api/tasks/archive/${id}` : `/api/tasks/${id}`
-
-        axios.delete(url)
-            .then(function (response) {
-                const arrTasks = [...self.state.tasks]
-                const index = arrTasks.findIndex(task => task.id === id)
-                arrTasks.splice(index, 1)
-                self.addUserToState(arrTasks)
-            })
-            .catch(function (error) {
-                console.log(error)
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
+        return <TaskItem tasks={tasks} users={users} custom_fields={custom_fields}
+            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
+            toggleViewedEntity={this.toggleViewedEntity}
+            onChangeBulk={this.onChangeBulk}/>
     }
 
     getCustomFields () {
@@ -262,6 +173,24 @@ export default class TaskList extends Component {
             })
     }
 
+    saveBulk (e) {
+        const action = e.target.id
+        const self = this
+        axios.post(`/api/user/bulk/${action}`, { ids: this.state.bulk }).then(function (response) {
+            // const arrQuotes = [...self.state.invoices]
+            // const index = arrQuotes.findIndex(payment => payment.id === id)
+            // arrQuotes.splice(index, 1)
+            // self.updateInvoice(arrQuotes)
+        })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
+    }
+
     getCustomers () {
         axios.get('api/customers')
             .then((r) => {
@@ -278,11 +207,10 @@ export default class TaskList extends Component {
     }
 
     render () {
-        const { project_id, task_status, task_type, customer_id, user_id, searchText } = this.state.filters
-        const fetchUrl = `/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}`
+        const { tasks, users, customers, custom_fields } = this.state
+        const { project_id, task_status, task_type, customer_id, user_id, searchText, start_date, end_date } = this.state.filters
+        const fetchUrl = `/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
-        const filters = <KanbanFilter task_type={1} users={this.state.users} customers={this.state.customers}
-            handleFilters={this.filterTasks}/>
         const table = <DataTable
             disableSorting={['id']}
             defaultColumn='title'
@@ -292,8 +220,19 @@ export default class TaskList extends Component {
             updateState={this.addUserToState}
         />
 
+        const addButton = customers.length && users.length ? <AddModal
+            custom_fields={custom_fields}
+            modal={true}
+            status={1}
+            task_type={1}
+            customers={customers}
+            users={users}
+            action={this.addUserToState}
+            tasks={tasks}
+        /> : null
+
         return (
-            <div className="data-table m-md-3 m-0">
+            <div className="data-table">
 
                 {error && <div className="alert alert-danger" role="alert">
                     {error}
@@ -303,12 +242,16 @@ export default class TaskList extends Component {
                     <CardBody>
 
                         <div>
-                            {filters}
+                            <TaskFilters users={users} tasks={tasks} updateIgnoredColumns={this.updateIgnoredColumns}
+                                filters={this.state.filters} filter={this.filterTasks}
+                                saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         </div>
 
                         <Button color="primary" onClick={() => {
                             location.href = '/#/kanban/projects'
                         }}>Kanban view </Button>
+
+                        {addButton}
 
                         {table}
                     </CardBody>

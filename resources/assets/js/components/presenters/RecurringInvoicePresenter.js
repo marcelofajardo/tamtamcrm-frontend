@@ -1,6 +1,5 @@
 import { Badge } from 'reactstrap'
 import React from 'react'
-import moment from 'moment'
 import FormatMoney from '../common/FormatMoney'
 import FormatDate from '../common/FormatDate'
 

@@ -53,7 +53,7 @@ export default class RecurringQuoteFilters extends Component {
             filters: {
                 ...prevState.filters,
                 [column]: value
-            },
+            }
         }), () => this.props.filter(this.state.filters))
 
         return true

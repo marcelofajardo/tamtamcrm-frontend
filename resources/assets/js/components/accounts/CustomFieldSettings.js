@@ -21,6 +21,8 @@ class CustomFieldSettings extends Component {
     constructor (props) {
         super(props)
 
+        this.modules = JSON.parse(localStorage.getItem('modules'))
+
         this.state = {
             activeTab: '1',
             quotes: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
@@ -46,10 +48,19 @@ class CustomFieldSettings extends Component {
             payments: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
                 name: 'custom_value3',
                 label: ''
+            }, { name: 'custom_value4', label: '' }],
+            tasks: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
+                name: 'custom_value3',
+                label: ''
+            }, { name: 'custom_value4', label: '' }],
+            credits: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
+                name: 'custom_value3',
+                label: ''
             }, { name: 'custom_value4', label: '' }]
         }
 
         this.handleChange = this.handleChange.bind(this)
+        this.toggle = this.toggle.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getSettings = this.getSettings.bind(this)
     }
@@ -69,6 +80,8 @@ class CustomFieldSettings extends Component {
                         invoices: r.data.Invoice,
                         companies: r.data.Company,
                         quotes: r.data.Quote
+                        // credits: r.data.Credit,
+                        // tasks: r.data.Task
                     })
                     console.log('response', r.data.Product)
                 }
@@ -101,6 +114,8 @@ class CustomFieldSettings extends Component {
         fields.Payment = this.state.payments
         fields.Invoice = this.state.invoices
         fields.Quote = this.state.quotes
+        fields.Task = this.state.tasks
+        fields.Credit = this.state.credits
 
         axios.post('/api/accounts/fields', {
             fields: JSON.stringify(fields)
@@ -118,17 +133,21 @@ class CustomFieldSettings extends Component {
             })
     }
 
-    toggle (tab) {
+    toggle (e) {
+        const tab = String(e.target.dataset.id)
         if (this.state.activeTab !== tab) {
             this.setState({ activeTab: tab })
         }
     }
 
     render () {
-        const { customers, product, invoices, payments, companies, quotes } = this.state
+        const { customers, product, invoices, payments, companies, quotes, credits, tasks } = this.state
+        let tabCounter = 1
+        const tabContent = []
+        const tabItems = []
 
-        const tabContent = customers ? <TabContent activeTab={this.state.activeTab}>
-            <TabPane tabId="1">
+        if (customers && this.modules.customers === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
                 <Card>
                     <CardHeader>Customers</CardHeader>
                     <CardBody>
@@ -174,54 +193,21 @@ class CustomFieldSettings extends Component {
                         }
                     </CardBody>
                 </Card>
-            </TabPane>
-            <TabPane tabId="2">
-                <Card>
-                    <CardHeader>Companies</CardHeader>
-                    <CardBody>
-                        {
-                            companies.map((val, idx) => {
-                                const catId = `custom_value${idx}`
-                                const ageId = `age-${idx}`
-                                return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-entity="companies"
-                                                data-id={idx}
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={companies[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="companies"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={companies[idx].label}
-                                            />
-                                        </FormGroup>
-                                    </Form>
-                                )
-                            })
-                        }
-                    </CardBody>
-                </Card>
-            </TabPane>
-            <TabPane tabId="3">
+            </TabPane>)
+
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                                     Customers
+                </NavLink>
+            </NavItem>)
+            tabCounter++
+        }
+
+        if (product && this.modules.products === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
                 <Card>
                     <CardHeader>Products</CardHeader>
                     <CardBody>
@@ -266,9 +252,22 @@ class CustomFieldSettings extends Component {
                         }
                     </CardBody>
                 </Card>
-            </TabPane>
+            </TabPane>)
 
-            <TabPane tabId="4">
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                                     Products
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        if (invoices && this.modules.invoices === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
                 <Card>
                     <CardHeader>Invoice</CardHeader>
                     <CardBody>
@@ -313,9 +312,22 @@ class CustomFieldSettings extends Component {
                         }
                     </CardBody>
                 </Card>
-            </TabPane>
+            </TabPane>)
 
-            <TabPane tabId="5">
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                    Invoices
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        if (payments && this.modules.payments === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
                 <Card>
                     <CardHeader>Payments</CardHeader>
                     <CardBody>
@@ -360,9 +372,82 @@ class CustomFieldSettings extends Component {
                         }
                     </CardBody>
                 </Card>
-            </TabPane>
+            </TabPane>)
 
-            <TabPane tabId="6">
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                    Payments
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        if (companies && this.modules.companies === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
+                <Card>
+                    <CardHeader>Companies</CardHeader>
+                    <CardBody>
+                        {
+                            companies.map((val, idx) => {
+                                const catId = `custom_value${idx}`
+                                const ageId = `age-${idx}`
+                                return (
+                                    <Form key={idx} inline>
+                                        <FormGroup className="mb-4" key={idx}>
+                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                            <Input
+                                                type="select"
+                                                name={catId}
+                                                data-entity="companies"
+                                                data-id={idx}
+                                                id={catId}
+                                                data-field="type"
+                                                onChange={this.handleChange}
+                                                value={companies[idx].type}
+                                            >
+                                                <option value='text'>Text</option>
+                                                <option value='textarea'>Textarea</option>
+                                                <option value='select'>Select List</option>
+                                                <option value='checkbox'>Switch</option>
+                                            </Input>
+                                            <Label htmlFor={ageId}>Label</Label>
+                                            <Input
+                                                type="text"
+                                                name={ageId}
+                                                data-id={idx}
+                                                data-entity="companies"
+                                                id={ageId}
+                                                data-field="label"
+                                                onChange={this.handleChange}
+                                                value={companies[idx].label}
+                                            />
+                                        </FormGroup>
+                                    </Form>
+                                )
+                            })
+                        }
+                    </CardBody>
+                </Card>
+            </TabPane>)
+
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                    Companies
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        if (quotes && this.modules.quotes === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
                 <Card>
                     <CardHeader>Quotes</CardHeader>
                     <CardBody>
@@ -407,75 +492,156 @@ class CustomFieldSettings extends Component {
                         }
                     </CardBody>
                 </Card>
-            </TabPane>
+            </TabPane>)
 
-            <Button color="primary" onClick={this.handleSubmit}>Save</Button>
-        </TabContent> : null
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                    Quotes
+                </NavLink>
+            </NavItem>)
 
-        return customers ? (
+            tabCounter++
+        }
+
+        if (credits && this.modules.credits === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
+                <Card>
+                    <CardHeader>Credits</CardHeader>
+                    <CardBody>
+                        {
+                            credits.map((val, idx) => {
+                                const catId = `custom_value${idx}`
+                                const ageId = `age-${idx}`
+                                return (
+                                    <Form key={idx} inline>
+                                        <FormGroup className="mb-4" key={idx}>
+                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                            <Input
+                                                type="select"
+                                                name={catId}
+                                                data-id={idx}
+                                                data-entity="credits"
+                                                id={catId}
+                                                data-field="type"
+                                                onChange={this.handleChange}
+                                                value={credits[idx].type}
+                                            >
+                                                <option value='text'>Text</option>
+                                                <option value='textarea'>Textarea</option>
+                                                <option value='select'>Select List</option>
+                                                <option value='checkbox'>Switch</option>
+                                            </Input>
+
+                                            <Label htmlFor={ageId}>Label</Label>
+                                            <Input
+                                                type="text"
+                                                name={ageId}
+                                                data-id={idx}
+                                                data-entity="credits"
+                                                id={ageId}
+                                                data-field="label"
+                                                onChange={this.handleChange}
+                                                value={credits[idx].label}
+                                            />
+                                        </FormGroup>
+                                    </Form>
+                                )
+                            })
+                        }
+                    </CardBody>
+                </Card>
+            </TabPane>)
+
+            tabItems.push(<NavItem>
+                <NavLink
+                    data-id={tabCounter}
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    onClick={this.toggle}>
+                    Credits
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        if (tasks && this.modules.tasks === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
+                <Card>
+                    <CardHeader>Tasks</CardHeader>
+                    <CardBody>
+                        {
+                            tasks.map((val, idx) => {
+                                const catId = `custom_value${idx}`
+                                const ageId = `age-${idx}`
+                                return (
+                                    <Form key={idx} inline>
+                                        <FormGroup className="mb-4" key={idx}>
+                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                            <Input
+                                                type="select"
+                                                name={catId}
+                                                data-id={idx}
+                                                data-entity="tasks"
+                                                id={catId}
+                                                data-field="type"
+                                                onChange={this.handleChange}
+                                                value={tasks[idx].type}
+                                            >
+                                                <option value='text'>Text</option>
+                                                <option value='textarea'>Textarea</option>
+                                                <option value='select'>Select List</option>
+                                                <option value='checkbox'>Switch</option>
+                                            </Input>
+
+                                            <Label htmlFor={ageId}>Label</Label>
+                                            <Input
+                                                type="text"
+                                                name={ageId}
+                                                data-id={idx}
+                                                data-entity="tasks"
+                                                id={ageId}
+                                                data-field="label"
+                                                onChange={this.handleChange}
+                                                value={tasks[idx].label}
+                                            />
+                                        </FormGroup>
+                                    </Form>
+                                )
+                            })
+                        }
+                    </CardBody>
+                </Card>
+            </TabPane>)
+
+            tabItems.push(<NavItem>
+                <NavLink
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    data-id={tabCounter}
+                    onClick={this.toggle}>
+                    Tasks
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        return (
             <React.Fragment>
                 <ToastContainer/>
 
                 <Nav tabs>
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '1' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggle('1')
-                            }}>
-                            Customers
-                        </NavLink>
-                    </NavItem>
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '2' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggle('2')
-                            }}>
-                            Companies
-                        </NavLink>
-                    </NavItem>
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '3' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggle('3')
-                            }}>
-                            Products
-                        </NavLink>
-                    </NavItem>
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '4' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggle('4')
-                            }}>
-                            Invoices
-                        </NavLink>
-                    </NavItem>
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '5' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggle('5')
-                            }}>
-                            Payments
-                        </NavLink>
-                    </NavItem>
-
-                    <NavItem>
-                        <NavLink
-                            className={this.state.activeTab === '6' ? 'active' : ''}
-                            onClick={() => {
-                                this.toggle('6')
-                            }}>
-                            Quotes
-                        </NavLink>
-                    </NavItem>
+                    {tabItems}
                 </Nav>
-                {tabContent}
+
+                <TabContent activeTab={this.state.activeTab} >
+                    {tabContent}
+                    <Button color="primary" onClick={this.handleSubmit}>Save</Button>
+                </TabContent>
             </React.Fragment>
-        ) : null
+        )
     }
 }
 

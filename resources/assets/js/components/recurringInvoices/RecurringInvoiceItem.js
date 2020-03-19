@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Input
 } from 'reactstrap'
@@ -12,9 +13,26 @@ export default class RecurringInvoiceItem extends Component {
     constructor (props) {
         super(props)
 
-        this.state = {
+        this.deleteInvoice = this.deleteInvoice.bind(this)
+    }
 
-        }
+    deleteInvoice (id, archive = false) {
+        const self = this
+        const url = archive === true ? `/api/recurring-invoice/archive/${id}` : `/api/recurring-invoice/${id}`
+        axios.delete(url)
+            .then(function (response) {
+                const arrInvoices = [...self.props.invoices]
+                const index = arrInvoices.findIndex(payment => payment.id === id)
+                arrInvoices.splice(index, 1)
+                self.props.updateInvoice(arrInvoices)
+            })
+            .catch(function (error) {
+                self.setState(
+                    {
+                        error: error.response.data
+                    }
+                )
+            })
     }
 
     render () {
@@ -26,10 +44,10 @@ export default class RecurringInvoiceItem extends Component {
                         url={`/api/recurringInvoice/restore/${user.id}`}/> : null
 
                 const archiveButton = !user.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.props.deleteInvoice} id={user.id}/> : null
+                    ? <DeleteModal archive={true} deleteFunction={this.deleteInvoice} id={user.id}/> : null
 
                 const deleteButton = !user.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.props.deleteInvoice} id={user.id}/> : null
+                    ? <DeleteModal archive={false} deleteFunction={this.deleteInvoice} id={user.id}/> : null
 
                 const editButton = !user.deleted_at ? <UpdateRecurringInvoice
                     allInvoices={allInvoices}

@@ -36,8 +36,17 @@ export default class DetailsForm extends React.Component {
 
     render () {
         const customFields = this.props.custom_fields ? this.props.custom_fields : []
+
+        if (customFields[0] && Object.keys(customFields[0]).length) {
+            customFields[0].forEach((element, index, array) => {
+                if (this.props[element.name] && this.props[element.name].length) {
+                    customFields[0][index].value = this.props[element.name]
+                }
+            })
+        }
+
         const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
+            handleChange={this.props.handleInput}
             formFieldsRows={customFields}
         /> : null
         return (<Card>

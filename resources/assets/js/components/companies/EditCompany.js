@@ -127,11 +127,11 @@ class EditCompany extends React.Component {
 
         axios.post(`/api/companies/${this.state.id}`, formData)
             .then((response) => {
-                this.toggle()
                 const index = this.props.brands.findIndex(company => parseInt(company.id) === this.state.id)
                 this.props.brands[index] = response.data
                 this.props.action(this.props.brands)
                 this.setState({ changesMade: false })
+                this.toggle()
             })
             .catch((error) => {
                 this.setState({
@@ -170,7 +170,7 @@ class EditCompany extends React.Component {
                     </ModalHeader>
                     <ModalBody>
 
-                        <CompanyDropdown formData={this.getFormData()} id={this.state.id} />
+                        <CompanyDropdown formData={this.getFormData()} id={this.state.id}/>
                         {successMessage}
                         {errorMessage}
 
@@ -216,7 +216,12 @@ class EditCompany extends React.Component {
                         </Nav>
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <DetailsForm errors={this.state.errors} handleInput={this.handleInput}
+                                <DetailsForm custom_fields={this.props.custom_fields}
+                                    custom_value1={this.state.custom_value1}
+                                    custom_value2={this.state.custom_value2}
+                                    custom_value3={this.state.custom_value3}
+                                    custom_value4={this.state.custom_value4} errors={this.state.errors}
+                                    handleInput={this.handleInput}
                                     name={this.state.name} website={this.state.website}
                                     phone_number={this.state.phone_number} email={this.state.email}
                                     handleFileChange={this.handleFileChange}/>

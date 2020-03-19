@@ -14,14 +14,14 @@ export default class InvoiceTotals extends Component {
                         <div
                             className="p-2 flex-fill">
                             <h4>Total</h4>
-                    £{<FormatMoney
+                            {<FormatMoney
                                 amount={this.props.entity.total}/>}
                         </div>
 
                         <div
                             className="p-2 flex-fill">
                             <h4>Balance</h4>
-                    £{<FormatMoney
+                            {<FormatMoney
                                 amount={this.props.entity.balance} />}
                         </div>
                     </div>

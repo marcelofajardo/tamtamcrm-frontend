@@ -10,13 +10,9 @@ import {
     NavLink,
     TabContent,
     TabPane,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
     DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
-import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import DetailsForm from './DetailsForm'

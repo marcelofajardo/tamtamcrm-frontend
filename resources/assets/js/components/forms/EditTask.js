@@ -238,6 +238,15 @@ class EditTask extends Component {
 
         const userContent = this.buildUserOptions()
         const customFields = this.props.custom_fields ? this.props.custom_fields : []
+
+        if (customFields[0] && Object.keys(customFields[0]).length) {
+            customFields[0].forEach((element, index, array) => {
+                if (this.state[element.name] && this.state[element.name].length) {
+                    customFields[0][index].value = this.state[element.name]
+                }
+            })
+        }
+
         const customForm = customFields && customFields.length ? <FormBuilder
             handleChange={this.handleChange.bind(this)}
             formFieldsRows={customFields}

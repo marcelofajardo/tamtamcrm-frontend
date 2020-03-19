@@ -43,7 +43,6 @@ export default class RecurringQuotes extends Component {
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
-        this.deleteInvoice = this.deleteInvoice.bind(this)
         this.getQuotes = this.getQuotes.bind(this)
         this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
@@ -138,27 +137,8 @@ export default class RecurringQuotes extends Component {
         const { invoices, custom_fields, customers, allQuotes, ignoredColumns } = this.state
         return <RecurringQuoteItem allQuotes={allQuotes} invoices={invoices} customers={customers} custom_fields={custom_fields}
             ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
-            deleteInvoice={this.deleteInvoice} toggleViewedEntity={this.toggleViewedEntity}
+            toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>
-    }
-
-    deleteInvoice (id, archive = true) {
-        const url = archive === true ? `/api/recurring-quote/archive/${id}` : `/api/recurring-quote/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrQuotes = [...self.state.invoices]
-                const index = arrQuotes.findIndex(payment => payment.id === id)
-                arrQuotes.splice(index, 1)
-                self.updateInvoice(arrQuotes)
-            })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     renderErrorFor () {
