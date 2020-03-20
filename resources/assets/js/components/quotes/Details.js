@@ -107,6 +107,17 @@ export default class Details extends Component {
                             />
                         </FormGroup>
 
+                        <FormGroup className={this.props.has_partial === true ? '' : 'd-none'}>
+                            <Label>Partial Due Date</Label>
+                            <Input
+                                value={this.props.partial_due_date}
+                                type='text'
+                                name='partial_due_date'
+                                id='partial_due_date'
+                                onChange={this.props.handleInput}
+                            />
+                        </FormGroup>
+
                         <CustomerDropdown
                             handleInputChanges={this.props.handleInput}
                             customer={this.props.customer_id}

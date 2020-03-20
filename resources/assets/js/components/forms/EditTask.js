@@ -7,9 +7,6 @@ import {
     NavLink,
     TabContent,
     TabPane,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
     DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
@@ -17,11 +14,12 @@ import AddLead from './AddLead'
 import 'react-dates/initialize' // necessary for latest version
 import 'react-dates/lib/css/_datepicker.css'
 import { DateRangePicker } from 'react-dates'
-import FormBuilder from '../accounts/FormBuilder'
 import moment from 'moment'
 import EditTaskTimes from './EditTaskTimes'
-import SuccessMessage from '../common/SucessMessage'
-import ErrorMessage from '../common/ErrorMessage'
+import TaskDropdownMenu from './TaskDropdownMenu'
+import CustomerDropdown from '../common/CustomerDropdown'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from '../common/Notes'
 
 class EditTask extends Component {
     constructor (props) {
@@ -34,8 +32,6 @@ class EditTask extends Component {
             dropdownOpen: false,
             isOpen: false,
             changesMade: false,
-            showSuccessMessage: false,
-            showErrorMessage: false,
             title: this.props.task.title,
             description: this.props.task.content,
             due_date: moment(this.props.task.due_date),
@@ -50,6 +46,9 @@ class EditTask extends Component {
             err: '',
             action: null,
             users: [],
+            errors: [],
+            public_notes: this.props.task ? this.props.task.public_notes : '',
+            private_notes: this.props.task ? this.props.task.private_notes : '',
             custom_value1: this.props.task ? this.props.task.custom_value1 : '',
             custom_value2: this.props.task ? this.props.task.custom_value2 : '',
             custom_value3: this.props.task ? this.props.task.custom_value3 : '',
@@ -67,7 +66,22 @@ class EditTask extends Component {
         this.toggle = this.toggle.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
+        this.hasErrorFor = this.hasErrorFor.bind(this)
+        this.renderErrorFor = this.renderErrorFor.bind(this)
+    }
+
+    hasErrorFor (field) {
+        return !!this.state.errors[field]
+    }
+
+    renderErrorFor (field) {
+        if (this.hasErrorFor(field)) {
+            return (
+                <span className='invalid-feedback'>
+                    <strong>{this.state.errors[field][0]}</strong>
+                </span>
+            )
+        }
     }
 
     toggle () {
@@ -111,26 +125,6 @@ class EditTask extends Component {
             })
     }
 
-    changeStatus (action) {
-        if (!this.props.task.id) {
-            return false
-        }
-
-        const data = this.getFormData()
-        axios.post(`/api/task/${this.props.task.id}/${action}`, data)
-            .then((response) => {
-                if (action === 'download') {
-                    this.downloadPdf(response)
-                }
-
-                this.setState({ showSuccessMessage: true })
-            })
-            .catch((error) => {
-                this.setState({ showErrorMessage: true })
-                console.warn(error)
-            })
-    }
-
     getFormData () {
         return {
             customer_id: this.state.customer_id,
@@ -143,31 +137,31 @@ class EditTask extends Component {
             due_date: moment(this.state.due_date).format('YYYY-MM-DD'),
             start_date: moment(this.state.start_date).format('YYYY-MM-DD'),
             custom_value1: this.state.custom_value1,
-            custom_value2: this.state.custom_value2
+            custom_value2: this.state.custom_value2,
+            custom_value3: this.state.custom_value3,
+            custom_value4: this.state.custom_value4,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes
         }
     }
 
     handleSave () {
-        const index = this.props.allTasks.findIndex(task => task.id === this.props.task.id)
-        const currentObject = this.props.allTasks[index]
         const data = this.getFormData()
 
         axios.put(`/api/tasks/${this.props.task.id}`, data)
             .then((response) => {
-                this.setState({
-                    editMode: false
-                })
-                currentObject.title = this.state.title
-                currentObject.content = this.state.description
-                currentObject.contributors = this.state.contributors
-                currentObject.due_date = this.state.due_date
-                currentObject.start_date = this.state.start_date
+                this.initialState = this.state
+                const index = this.props.allTasks.findIndex(task => task.id === this.props.task.id)
+                this.props.allTasks[index] = response.data
                 this.props.action(this.props.allTasks)
+                this.setState({
+                    editMode: false,
+                    changesMade: false
+                })
+                this.toggle()
             })
             .catch((error) => {
-                this.setState({
-                    err: error.response.data.errors
-                })
+                alert(error)
             })
     }
 
@@ -224,52 +218,8 @@ class EditTask extends Component {
     }
 
     render () {
-        const sendEmailButton = <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
-            Email</DropdownItem>
-
-        const deleteButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('delete')}>Delete</DropdownItem> : null
-
-        const archiveButton = this.state.status_id === 1
-            ? <DropdownItem className="primary" onClick={() => this.changeStatus('archive')}>Archive</DropdownItem> : null
-
-        const cloneButton =
-            <DropdownItem className="primary" onClick={() => this.changeStatus('clone_to_task')}>Clone</DropdownItem>
-
         const userContent = this.buildUserOptions()
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-
-        if (customFields[0] && Object.keys(customFields[0]).length) {
-            customFields[0].forEach((element, index, array) => {
-                if (this.state[element.name] && this.state[element.name].length) {
-                    customFields[0][index].value = this.state[element.name]
-                }
-            })
-        }
-
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleChange.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
         const leadForm = this.props.task_type === 2 ? this.getFormForLead(true) : ''
-
-        const dropdownMenu = <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleMenu}>
-            <DropdownToggle caret>
-                Actions
-            </DropdownToggle>
-
-            <DropdownMenu>
-                {sendEmailButton}
-                {deleteButton}
-                {archiveButton}
-                {cloneButton}
-            </DropdownMenu>
-        </Dropdown>
-
-        const successMessage = this.state.showSuccessMessage === true
-            ? <SuccessMessage message="Invoice was updated successfully"/> : null
-        const errorMessage = this.state.showErrorMessage === true
-            ? <ErrorMessage message="Something went wrong"/> : null
 
         const form = <React.Fragment>
             <Nav tabs>
@@ -297,10 +247,7 @@ class EditTask extends Component {
             <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
 
-                    {dropdownMenu}
-                    {successMessage}
-                    {errorMessage}
-
+                    <TaskDropdownMenu id={this.props.task.id} formData={this.getFormData()}/>
                     <Card>
                         <CardHeader>Details</CardHeader>
                         <CardBody>
@@ -316,6 +263,17 @@ class EditTask extends Component {
                                 <Input type="textarea" name="description"
                                     value={this.state.description}
                                     onChange={this.handleChange}/>
+                            </FormGroup>
+
+                            <FormGroup className="mb-3">
+                                <Label>Customer</Label>
+                                <CustomerDropdown
+                                    customer={this.state.customer_id}
+                                    renderErrorFor={this.renderErrorFor}
+                                    handleInputChanges={this.handleChange}
+                                    customers={this.props.customers}
+                                />
+                                {this.renderErrorFor('customer_id')}
                             </FormGroup>
 
                             <FormGroup>
@@ -348,7 +306,15 @@ class EditTask extends Component {
                             </FormGroup>
 
                             {leadForm}
-                            {customForm}
+
+                            <CustomFieldsForm handleInput={this.handleChange} custom_value1={this.state.custom_value1}
+                                custom_value2={this.state.custom_value2}
+                                custom_value3={this.state.custom_value3}
+                                custom_value4={this.state.custom_value4}
+                                custom_fields={this.props.custom_fields}/>
+
+                            <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                                handleInput={this.handleChange}/>
                         </CardBody>
                     </Card>
                 </TabPane>

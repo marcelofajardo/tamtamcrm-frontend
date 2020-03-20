@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalHeader, ModalFooter, DropdownItem } from 'reactstrap'
 import axios from 'axios'
-import FormBuilder from '../accounts/FormBuilder'
+import Notes from '../common/Notes'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class UpdateRecurringInvoice extends Component {
     constructor (props, context) {
@@ -64,9 +65,9 @@ class UpdateRecurringInvoice extends Component {
             private_notes: this.state.private_notes
         })
             .then((response) => {
-                const newUser = response.data
-                this.props.categories.push(newUser)
-                this.props.action(this.props.categories)
+                const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.invoice.id)
+                this.props.invoices[index] = response.data
+                this.props.action(this.props.invoices)
                 this.setState({ changesMade: false })
                 this.toggle()
             })
@@ -106,11 +107,6 @@ class UpdateRecurringInvoice extends Component {
 
     render () {
         const inlineClass = this.props ? 'mb-4' : 'form-inline mb-4'
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         const form = (
             <div className={inlineClass}>
@@ -144,7 +140,7 @@ class UpdateRecurringInvoice extends Component {
                         id='frequency'
                         onChange={this.handleInput}
                     >
-                        <option value="" />
+                        <option value=""/>
                         <option value="1">Daily</option>
                         <option value="2">Weekly</option>
                         <option value="3">Every 2 weeks</option>
@@ -160,21 +156,12 @@ class UpdateRecurringInvoice extends Component {
                     </Input>
                 </FormGroup>
 
-                <FormGroup>
-                    <Label for="public_notes">Public Notes(*):</Label>
-                    <Input value={this.state.public_notes} type="text" id="public_notes" name="public_notes"
-                        onChange={this.handleInput}/>
-                    {this.renderErrorFor('public_notes')}
-                </FormGroup>
+                <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                    handleInput={this.handleInput}/>
 
-                <FormGroup>
-                    <Label for="private_notes">Private Notes(*):</Label>
-                    <Input value={this.state.private_notes} type="text" id="private_notes" name="private_notes"
-                        onChange={this.handleInput}/>
-                    {this.renderErrorFor('private_notes')}
-                </FormGroup>
-
-                {customForm}
+                <CustomFieldsForm handleInput={this.handleInput} custom_fields={this.props.custom_fields}
+                    custom_value1={this.state.custom_value1} custom_value2={this.state.custom_value2}
+                    custom_value3={this.state.custom_value3} custom_value4={this.state.custom_value4}/>
             </div>
         )
 

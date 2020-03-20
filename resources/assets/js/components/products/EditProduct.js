@@ -8,7 +8,7 @@ import {
     Card,
     CardBody,
     CardHeader,
-    DropdownItem
+    DropdownItem, TabPane
 } from 'reactstrap'
 import axios from 'axios'
 import PropTypes from 'prop-types'
@@ -20,6 +20,7 @@ import CostsForm from './CostsForm'
 import ImageForm from './ImageForm'
 import ProductListDropdown from './ProductListDropdown'
 import Details from '../credits/Details'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class EditProduct extends React.Component {
     constructor (props) {
@@ -221,16 +222,19 @@ class EditProduct extends React.Component {
                         {successMessage}
                         {errorMessage}
 
-                        <DetailsForm custom_fields={this.props.custom_fields} custom_value1={this.state.custom_value1}
-                            custom_value2={this.state.custom_value2}
-                            custom_value3={this.state.custom_value3} custom_value4={this.state.custom_value4}
-                            errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
+                        <DetailsForm errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
                             assigned_user_id={this.state.assigned_user_id}
                             handleMultiSelect={this.handleMultiSelect} categories={this.props.categories}
                             selectedCategories={this.state.selectedCategories}
                             company_id={this.state.company_id} companies={this.state.companies}
                             sku={this.state.sku} description={this.state.description}
                             quantity={this.state.quantity} name={this.state.name}/>
+
+                        <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                            custom_value2={this.state.custom_value2}
+                            custom_value3={this.state.custom_value3}
+                            custom_value4={this.state.custom_value4}
+                            custom_fields={this.props.custom_fields}/>
 
                         <CostsForm errors={this.state.errors} price={this.state.price} handleInput={this.handleInput}
                             cost={this.state.cost}/>

@@ -47,7 +47,7 @@ class ProductSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.value
+        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
             settings: {
@@ -84,42 +84,42 @@ class ProductSettings extends Component {
                 {
                     name: 'update_products',
                     label: 'Update Products',
-                    type: 'checkbox',
+                    type: 'switch',
                     placeholder: 'Update Products',
                     value: settings.update_products
                 },
                 {
                     name: 'show_cost',
                     label: 'Show Cost',
-                    type: 'checkbox',
+                    type: 'switch',
                     placeholder: 'Show Cost',
                     value: settings.show_cost
                 },
                 {
                     name: 'show_product_quantity',
                     label: 'Show Product Quantity',
-                    type: 'checkbox',
+                    type: 'switch',
                     placeholder: 'Show Product Quantity',
                     value: settings.show_product_quantity
                 },
                 {
                     name: 'fill_products',
                     label: 'Fill Products',
-                    type: 'checkbox',
+                    type: 'switch',
                     placeholder: 'Fill Products',
                     value: settings.fill_products
                 },
                 {
                     name: 'convert_products',
                     label: 'Convert Products',
-                    type: 'checkbox',
+                    type: 'switch',
                     placeholder: 'Convert Products',
                     value: settings.convert_products
                 },
                 {
                     name: 'default_quantity',
                     label: 'Default Quantity',
-                    type: 'checkbox',
+                    type: 'switch',
                     placeholder: 'Default Quantity',
                     value: settings.default_quantity
                 }

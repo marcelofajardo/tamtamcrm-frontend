@@ -33,21 +33,6 @@ export default class Details extends React.Component {
     }
 
     render () {
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-
-        if (customFields[0] && Object.keys(customFields[0]).length) {
-            customFields[0].forEach((element, index, array) => {
-                if (this.props[element.name] && this.props[element.name].length) {
-                    customFields[0][index].value = this.props[element.name]
-                }
-            })
-        }
-
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.props.handleInput}
-            formFieldsRows={customFields}
-        /> : null
-
         return (<Card>
             <CardHeader>Details</CardHeader>
             <CardBody>
@@ -65,8 +50,6 @@ export default class Details extends React.Component {
                     <DesignDropdown name="design_id" handleChange={this.props.handleInput}
                         design={this.props.design_id}/>
                 </FormGroup>
-
-                {customForm}
             </CardBody>
         </Card>
         )

@@ -46,7 +46,7 @@ class EmailSettings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.value
+        const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
 
         this.setState(prevState => ({
             settings: {
@@ -87,71 +87,6 @@ class EmailSettings extends Component {
         const formFields = [
             [
                 {
-                    name: 'reply_to_email',
-                    label: 'Reply To Email',
-                    type: 'text',
-                    placeholder: 'Reply To Email',
-                    value: settings.reply_to_email
-                },
-                {
-                    name: 'bcc_email',
-                    label: 'BCC Email',
-                    type: 'text',
-                    placeholder: 'BCC Email',
-                    value: settings.bcc_email
-                },
-                {
-                    name: 'pdf_email_attachment',
-                    label: 'Attach PDF',
-                    type: 'select',
-                    placeholder: 'Attach PDF',
-                    value: settings.pdf_email_attachment,
-                    options: [
-                        {
-                            value: '1',
-                            text: 'Yes'
-                        },
-                        {
-                            value: '0',
-                            text: 'No'
-                        }
-                    ]
-                },
-                {
-                    name: 'ubl_email_attachment',
-                    label: 'Attach UBL',
-                    type: 'select',
-                    placeholder: 'Attach UBL',
-                    value: settings.ubl_email_attachment,
-                    options: [
-                        {
-                            value: '1',
-                            text: 'Yes'
-                        },
-                        {
-                            value: '0',
-                            text: 'No'
-                        }
-                    ]
-                },
-                {
-                    name: 'enable_email_markup',
-                    label: 'Enable Markup',
-                    type: 'select',
-                    placeholder: 'Enable Markup',
-                    value: settings.enable_email_markup,
-                    options: [
-                        {
-                            value: '1',
-                            text: 'Yes'
-                        },
-                        {
-                            value: '0',
-                            text: 'No'
-                        }
-                    ]
-                },
-                {
                     name: 'email_style',
                     label: 'Email Style',
                     type: 'select',
@@ -175,7 +110,49 @@ class EmailSettings extends Component {
                             text: 'Custom'
                         }
                     ]
-                }
+                },
+                {
+                    name: 'reply_to_email',
+                    label: 'Reply To Email',
+                    type: 'text',
+                    placeholder: 'Reply To Email',
+                    value: settings.reply_to_email
+                },
+                {
+                    name: 'bcc_email',
+                    label: 'BCC Email',
+                    type: 'text',
+                    placeholder: 'BCC Email',
+                    value: settings.bcc_email
+                },
+                {
+                    name: 'enable_email_markup',
+                    label: 'Enable Markup',
+                    type: 'switch',
+                    placeholder: 'Enable Markup',
+                    value: settings.enable_email_markup,
+                },
+                {
+                    name: 'pdf_email_attachment',
+                    label: 'Attach PDF',
+                    type: 'switch',
+                    placeholder: 'Attach PDF',
+                    value: settings.pdf_email_attachment,
+                },
+                {
+                    name: 'document_email_attachment',
+                    label: 'Attach Documents',
+                    type: 'switch',
+                    placeholder: 'Attach Documents',
+                    value: settings.document_email_attachment,
+                },
+                {
+                    name: 'ubl_email_attachment',
+                    label: 'Attach UBL',
+                    type: 'switch',
+                    placeholder: 'Attach UBL',
+                    value: settings.ubl_email_attachment,
+                },
             ]
         ]
 

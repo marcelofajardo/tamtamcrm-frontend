@@ -57,7 +57,7 @@ export default class QuoteDropdown extends Component {
             quoteList = <option value="">Loading...</option>
         } else {
             quoteList = quotes.map((quote, index) => (
-                <option key={index} value={quote.id}>{quote.id}</option>
+                <option key={index} value={quote.id}>{quote.number}</option>
             ))
         }
 

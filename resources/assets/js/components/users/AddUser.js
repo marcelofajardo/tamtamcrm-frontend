@@ -20,6 +20,7 @@ import AddButtons from '../common/AddButtons'
 import Notifications from '../common/Notifications'
 import DetailsForm from './DetailsForm'
 import PermissionsForm from './PermissionsForm'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class AddUser extends React.Component {
     constructor (props) {
@@ -246,12 +247,18 @@ class AddUser extends React.Component {
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
                                 <DetailsForm setDate={this.setDate} errors={this.state.errors}
-                                    custom_fields={this.props.custom_fields}
                                     handleInput={this.handleInput} email={this.state.email}
                                     first_name={this.state.first_name} last_name={this.state.last_name}
                                     phone_number={this.state.phone_number}
                                     job_description={this.state.job_description}
                                     password={this.state.password}/>
+
+                                <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                                    custom_value2={this.state.custom_value2}
+                                    custom_value3={this.state.custom_value3}
+                                    custom_value4={this.state.custom_value4}
+                                    custom_fields={this.props.custom_fields}/>
+
                             </TabPane>
 
                             <TabPane tabId="2">

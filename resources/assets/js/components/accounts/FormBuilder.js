@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, FormGroup, Label } from 'reactstrap'
+import {Input, FormGroup, Label, CustomInput} from 'reactstrap'
 import CountryDropdown from '../common/CountryDropdown'
 import CurrencyDropdown from '../common/CurrencyDropdown'
 import Switch from '../common/Switch'
@@ -38,6 +38,20 @@ class FormBuilder extends React.Component {
         })
 
         return formFields
+    }
+
+    buildSwitch (field) {
+        return (
+            <FormGroup>
+                <CustomInput
+                    checked={field.value}
+                    type="switch"
+                    id={field.name}
+                    name={field.name}
+                    label={field.label}
+                    onChange={this.props.handleChange.bind(this)}/>
+            </FormGroup>
+        )
     }
 
     buildSelectList (field) {
@@ -108,6 +122,9 @@ class FormBuilder extends React.Component {
 
             case 'select':
                 returnedField = this.buildSelectList(field)
+                break
+            case 'switch':
+                returnedField = this.buildSwitch(field)
                 break
 
             default:

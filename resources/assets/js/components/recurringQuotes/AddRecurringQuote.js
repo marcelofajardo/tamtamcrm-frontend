@@ -6,6 +6,8 @@ import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
 import FormBuilder from '../accounts/FormBuilder'
 import AddButtons from '../common/AddButtons'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from '../common/Notes'
 
 class AddRecurringQuote extends Component {
     constructor (props, context) {
@@ -153,11 +155,6 @@ class AddRecurringQuote extends Component {
 
     render () {
         const inlineClass = this.props ? 'mb-4' : 'form-inline mb-4'
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         const form = (
             <div className={inlineClass}>
@@ -207,7 +204,9 @@ class AddRecurringQuote extends Component {
                     </Input>
                 </FormGroup>
 
-                {customForm}
+                <CustomFieldsForm handleInput={this.handleInput} custom_fields={this.props.custom_fields}
+                    custom_value1={this.state.custom_value1} custom_value2={this.state.custom_value2}
+                    custom_value3={this.state.custom_value3} custom_value4={this.state.custom_value4}/>
 
             </div>
         )
@@ -217,7 +216,7 @@ class AddRecurringQuote extends Component {
                 <AddButtons toggle={this.toggle} />
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>
-                        Invoice
+                        Recurring Quote
                     </ModalHeader>
 
                     <ModalBody>
@@ -244,19 +243,8 @@ class AddRecurringQuote extends Component {
                             />
                         </FormGroup>
 
-                        <FormGroup>
-                            <Label for="public_notes">Public Notes(*):</Label>
-                            <Input value={this.state.public_notes} type="text" id="public_notes" name="public_notes"
-                                onChange={this.handleInput}/>
-                            {this.renderErrorFor('public_notes')}
-                        </FormGroup>
-
-                        <FormGroup>
-                            <Label for="private_notes">Private Notes(*):</Label>
-                            <Input value={this.state.private_notes} type="text" id="private_notes" name="private_notes"
-                                onChange={this.handleInput}/>
-                            {this.renderErrorFor('private_notes')}
-                        </FormGroup>
+                        <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                            handleInput={this.handleInput}/>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.handleClick.bind(this)}>Add</Button>

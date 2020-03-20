@@ -19,26 +19,6 @@ export default function NotesForm (props) {
     return (
         <div>
             <FormGroup>
-                <Label for="public_notes">Public Notes </Label>
-                <Input className={hasErrorFor('public_notes') ? 'is-invalid' : ''} type="text"
-                    id="public_notes"
-                    value={props.customer.public_notes}
-                    onChange={props.onChange}
-                    name="public_notes"
-                    placeholder="Public Notes"/>
-                {renderErrorFor('public_notes')}
-            </FormGroup>
-
-            <FormGroup>
-                <Label for="private_notes">Private Notes</Label>
-                <Input className={hasErrorFor('private_notes') ? 'is-invalid' : ''} type="text"
-                    id="private_notes" value={props.customer.private_notes}
-                    onChange={props.onChange} name="private_notes"
-                    placeholder="Private Notes"/>
-                {renderErrorFor('private_notes')}
-            </FormGroup>
-
-            <FormGroup>
                 <Label for="size_id">Size</Label>
                 <Input className={hasErrorFor('size_id') ? 'is-invalid' : ''}
                     type="select"

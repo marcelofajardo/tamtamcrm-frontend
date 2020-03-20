@@ -27,14 +27,6 @@ export default class DetailsForm extends React.Component {
     }
 
     render () {
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.props.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
-
-        console.log('props', this.props)
-
         return (<Card>
             <CardHeader>Details</CardHeader>
             <CardBody>
@@ -89,8 +81,6 @@ export default class DetailsForm extends React.Component {
                     />
                     {this.renderErrorFor('company_id')}
                 </FormGroup>
-
-                {customForm}
             </CardBody>
         </Card>
         )

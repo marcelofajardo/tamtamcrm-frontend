@@ -56,6 +56,10 @@ class CustomFieldSettings extends Component {
             credits: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
                 name: 'custom_value3',
                 label: ''
+            }, { name: 'custom_value4', label: '' }],
+            expenses: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
+                name: 'custom_value3',
+                label: ''
             }, { name: 'custom_value4', label: '' }]
         }
 
@@ -74,14 +78,15 @@ class CustomFieldSettings extends Component {
             .then((r) => {
                 if (r.data.Customer && Object.keys(r.data)) {
                     this.setState({
+                        expenses: r.data.Expense,
                         product: r.data.Product,
                         customers: r.data.Customer,
                         payments: r.data.Payment,
                         invoices: r.data.Invoice,
                         companies: r.data.Company,
-                        quotes: r.data.Quote
-                        // credits: r.data.Credit,
-                        // tasks: r.data.Task
+                        quotes: r.data.Quote,
+                        credits: r.data.Credit,
+                        tasks: r.data.Task
                     })
                     console.log('response', r.data.Product)
                 }
@@ -116,6 +121,7 @@ class CustomFieldSettings extends Component {
         fields.Quote = this.state.quotes
         fields.Task = this.state.tasks
         fields.Credit = this.state.credits
+        fields.Expense = this.state.expenses
 
         axios.post('/api/accounts/fields', {
             fields: JSON.stringify(fields)
@@ -141,7 +147,7 @@ class CustomFieldSettings extends Component {
     }
 
     render () {
-        const { customers, product, invoices, payments, companies, quotes, credits, tasks } = this.state
+        const { customers, product, invoices, payments, companies, quotes, credits, tasks, expenses } = this.state
         let tabCounter = 1
         const tabContent = []
         const tabItems = []
@@ -626,6 +632,65 @@ class CustomFieldSettings extends Component {
             </NavItem>)
 
             tabCounter++
+        }
+
+        if (expenses && this.modules.expenses === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
+                <Card>
+                    <CardHeader>Expenses</CardHeader>
+                    <CardBody>
+                        {
+                            tasks.map((val, idx) => {
+                                const catId = `custom_value${idx}`
+                                const ageId = `age-${idx}`
+                                return (
+                                    <Form key={idx} inline>
+                                        <FormGroup className="mb-4" key={idx}>
+                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                            <Input
+                                                type="select"
+                                                name={catId}
+                                                data-id={idx}
+                                                data-entity="expenses"
+                                                id={catId}
+                                                data-field="type"
+                                                onChange={this.handleChange}
+                                                value={expenses[idx].type}
+                                            >
+                                                <option value='text'>Text</option>
+                                                <option value='textarea'>Textarea</option>
+                                                <option value='select'>Select List</option>
+                                                <option value='checkbox'>Switch</option>
+                                            </Input>
+
+                                            <Label htmlFor={ageId}>Label</Label>
+                                            <Input
+                                                type="text"
+                                                name={ageId}
+                                                data-id={idx}
+                                                data-entity="expenses"
+                                                id={ageId}
+                                                data-field="label"
+                                                onChange={this.handleChange}
+                                                value={expenses[idx].label}
+                                            />
+                                        </FormGroup>
+                                    </Form>
+                                )
+                            })
+                        }
+                    </CardBody>
+                </Card>
+            </TabPane>)
+
+            tabItems.push(<NavItem>
+                <NavLink
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    data-id={tabCounter}
+                    onClick={this.toggle}>
+                    Expenses
+                </NavLink>
+            </NavItem>)
         }
 
         return (

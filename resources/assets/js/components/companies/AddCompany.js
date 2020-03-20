@@ -18,9 +18,10 @@ import axios from 'axios'
 import Contact from '../common/Contact'
 import AddButtons from '../common/AddButtons'
 import SettingsForm from './SettingsForm'
-import NotesForm from './NotesForm'
 import AddressForm from './AddressForm'
 import DetailsForm from './DetailsForm'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from '../common/Notes'
 
 class AddCompany extends React.Component {
     constructor (props) {
@@ -41,7 +42,7 @@ class AddCompany extends React.Component {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
-            notes: '',
+            private_notes: '',
             address_2: '',
             town: '',
             city: '',
@@ -126,7 +127,7 @@ class AddCompany extends React.Component {
         formData.append('currency_id', this.state.currency_id)
         formData.append('industry_id', this.state.industry_id)
         formData.append('assigned_user_id', this.state.assigned_user_id)
-        formData.append('notes', this.state.notes)
+        formData.append('private_notes', this.state.private_notes)
         formData.append('custom_value1', this.state.custom_value1)
         formData.append('custom_value2', this.state.custom_value2)
         formData.append('custom_value3', this.state.custom_value3)
@@ -154,7 +155,7 @@ class AddCompany extends React.Component {
                     custom_value2: '',
                     custom_value3: '',
                     custom_value4: '',
-                    notes: '',
+                    private_notes: '',
                     address_2: '',
                     town: '',
                     city: '',
@@ -194,7 +195,7 @@ class AddCompany extends React.Component {
                     custom_value2: '',
                     custom_value3: '',
                     custom_value4: '',
-                    notes: '',
+                    private_notes: '',
                     address_2: '',
                     town: '',
                     city: '',
@@ -267,6 +268,12 @@ class AddCompany extends React.Component {
                                     name={this.state.name} website={this.state.website}
                                     phone_number={this.state.phone_number} email={this.state.email}
                                     handleFileChange={this.handleFileChange}/>
+
+                                <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                                    custom_value2={this.state.custom_value2}
+                                    custom_value3={this.state.custom_value3}
+                                    custom_value4={this.state.custom_value4}
+                                    custom_fields={this.props.custom_fields}/>
                             </TabPane>
 
                             <TabPane tabId="2">
@@ -293,8 +300,8 @@ class AddCompany extends React.Component {
                                     assigned_user_id={this.state.assigned_user_id}
                                     handleInput={this.handleInput}/>
 
-                                <NotesForm handleInput={this.handleInput} errors={this.state.errors}
-                                    notes={this.state.notes}/>
+                                <Notes handleInput={this.handleInput} errors={this.state.errors}
+                                    private_notes={this.state.private_notes}/>
                             </TabPane>
                         </TabContent>
                     </ModalBody>

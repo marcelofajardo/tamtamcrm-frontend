@@ -50,7 +50,7 @@ export default class Companies extends Component {
                 'country_id',
                 'user_id',
                 'assigned_user_id',
-                'notes',
+                'private_notes',
                 'custom_value1',
                 'custom_value2',
                 'custom_value3',

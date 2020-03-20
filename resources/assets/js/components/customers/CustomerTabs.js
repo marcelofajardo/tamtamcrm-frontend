@@ -10,6 +10,8 @@ import {
 } from 'reactstrap'
 import Contact from '../common/Contact'
 import NotesForm from './NotesForm'
+import Notes from '../common/Notes'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 export default function CustomerTabs (props) {
     const setBilling = e => {
@@ -253,8 +255,13 @@ export default function CustomerTabs (props) {
 
             <TabContent activeTab={activeTab}>
                 <TabPane tabId="1">
-                    <CustomerForm custom_fields={props.custom_fields} errors={errors} onChange={setCustomer}
+                    <CustomerForm errors={errors} onChange={setCustomer}
                         customer={customer}/>
+                    <CustomFieldsForm custom_value1={customer.custom_value1}
+                        custom_value2={customer.custom_value2}
+                        custom_value3={customer.custom_value3}
+                        custom_value4={customer.custom_value4} handleInput={setCustomer}
+                        custom_fields={props.custom_fields}/>
                 </TabPane>
 
                 <TabPane tabId="2">
@@ -267,6 +274,10 @@ export default function CustomerTabs (props) {
                 </TabPane>
 
                 <TabPane tabId="3">
+                    <Notes handleInput={setCustomer} custom_fields={props.custom_fields}
+                        public_notes={customer.public_notes}
+                        private_notes={customer.private_notes}/>
+
                     <Card>
                         <CardHeader>Notes</CardHeader>
                         <CardBody>

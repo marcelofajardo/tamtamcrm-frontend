@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, FormGroup, Label, Form } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, FormGroup, Label, Form, TabPane } from 'reactstrap'
 import moment from 'moment'
 import axios from 'axios'
 import AddLead from './AddLead'
@@ -9,6 +9,8 @@ import 'react-dates/lib/css/_datepicker.css'
 import { DateRangePicker } from 'react-dates'
 import AddButtons from '../common/AddButtons'
 import CustomerDropdown from '../common/CustomerDropdown'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from '../common/Notes'
 
 class AddModal extends React.Component {
     constructor (props) {
@@ -26,6 +28,8 @@ class AddModal extends React.Component {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
+            public_notes: '',
+            private_notes: '',
             created_by: '5af1921c0fe5703dd4a463ec',
             due_date: moment(),
             start_date: moment(),
@@ -91,6 +95,8 @@ class AddModal extends React.Component {
                     custom_value2: '',
                     custom_value3: '',
                     custom_value4: '',
+                    public_notes: '',
+                    private_notes: '',
                     created_by: '5af1921c0fe5703dd4a463ec',
                     due_date: '',
                     start_date: ''
@@ -137,7 +143,9 @@ class AddModal extends React.Component {
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
-            custom_value4: this.state.custom_value4
+            custom_value4: this.state.custom_value4,
+            public_notes: this.state.public_notes,
+            private_notes: this.state.private_notes
         })
             .then((response) => {
                 this.toggle()
@@ -157,7 +165,9 @@ class AddModal extends React.Component {
                     custom_value1: '',
                     custom_value2: '',
                     custom_value3: '',
-                    custom_value4: ''
+                    custom_value4: '',
+                    public_notes: '',
+                    private_notes: ''
                 })
 
                 if (this.props.action) {
@@ -184,11 +194,6 @@ class AddModal extends React.Component {
 
     buildForm () {
         const userOptions = this.buildUserOptions()
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         return (
             <Form>
@@ -234,7 +239,14 @@ class AddModal extends React.Component {
                     onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
                 />
 
-                {customForm}
+                <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                    custom_value2={this.state.custom_value2}
+                    custom_value3={this.state.custom_value3}
+                    custom_value4={this.state.custom_value4}
+                    custom_fields={this.props.custom_fields}/>
+
+                <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
+                    handleInput={this.handleInput}/>
 
             </Form>
         )

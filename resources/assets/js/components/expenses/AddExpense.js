@@ -14,9 +14,10 @@ import {
 import axios from 'axios'
 import moment from 'moment'
 import AddButtons from '../common/AddButtons'
-import NotesForm from './NotesForm'
 import SettingsForm from './SettingsForm'
 import DetailsForm from './DetailsForm'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from '../common/Notes'
 
 class AddExpense extends React.Component {
     constructor (props) {
@@ -37,7 +38,8 @@ class AddExpense extends React.Component {
             exchange_rate: 1,
             transaction_reference: null,
             payment_date: null,
-            invoice_documents: null,
+            invoice_documents: false,
+            should_be_invoiced: false,
             expense_date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             company_id: null,
             category_id: null,
@@ -101,6 +103,7 @@ class AddExpense extends React.Component {
             expense_date: this.state.expense_date,
             payment_type_id: this.state.payment_type_id,
             invoice_documents: this.state.invoice_documents,
+            should_be_invoiced: this.state.should_be_invoiced,
             payment_date: this.state.payment_date,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
@@ -124,7 +127,8 @@ class AddExpense extends React.Component {
                     exchange_rate: 1,
                     transaction_reference: null,
                     payment_date: null,
-                    invoice_documents: null,
+                    invoice_documents: false,
+                    should_be_invoiced: false,
                     expense_date: null,
                     company_id: null,
                     category_id: null,
@@ -163,7 +167,8 @@ class AddExpense extends React.Component {
                     exchange_rate: 1,
                     transaction_reference: null,
                     payment_date: null,
-                    invoice_documents: null,
+                    invoice_documents: false,
+                    should_be_invoiced: false,
                     expense_date: null,
                     company_id: null,
                     category_id: null,
@@ -224,17 +229,25 @@ class AddExpense extends React.Component {
                         </Nav>
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
-                                <DetailsForm custom_fields={this.props.custom_fields} errors={this.state.errors}
+                                <DetailsForm errors={this.state.errors}
                                     amount={this.state.amount}
                                     handleInput={this.handleInput} expense_date={this.state.expense_date}
                                     category_id={this.state.category_id} customer_id={this.state.customer_id}
                                     customers={this.props.customers} companies={this.props.companies}
                                     company_id={this.state.company_id}/>
 
+                                <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                                    custom_value2={this.state.custom_value2}
+                                    custom_value3={this.state.custom_value3}
+                                    custom_value4={this.state.custom_value4}
+                                    custom_fields={this.props.custom_fields}/>
+
                             </TabPane>
 
                             <TabPane tabId="2">
                                 <SettingsForm errors={this.state.errors}
+                                    should_be_invoiced={this.state.should_be_invoiced}
+                                    invoice_documents={this.state.invoice_documents}
                                     transaction_reference={this.state.transaction_reference}
                                     handleInput={this.handleInput} payment_date={this.state.payment_date}
                                     payment_type_id={this.state.payment_type_id}
@@ -243,7 +256,7 @@ class AddExpense extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="3">
-                                <NotesForm errors={this.state.errors} public_notes={this.state.public_notes}
+                                <Notes errors={this.state.errors} public_notes={this.state.public_notes}
                                     private_notes={this.state.private_notes} handleInput={this.handleInput}/>
                             </TabPane>
                         </TabContent>

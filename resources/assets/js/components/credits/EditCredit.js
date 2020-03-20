@@ -5,7 +5,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    DropdownItem
+    DropdownItem, TabPane
 } from 'reactstrap'
 import axios from 'axios'
 import SuccessMessage from '../common/SucessMessage'
@@ -14,6 +14,7 @@ import Invitations from './Invitations'
 import Notes from '../common/Notes'
 import Details from './Details'
 import CreditDropdownMenu from './CreditDropdownMenu'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class EditCredit extends React.Component {
     constructor (props) {
@@ -166,11 +167,15 @@ class EditCredit extends React.Component {
                             {message}
                         </div>}
 
-                        <Details custom_value1={this.state.custom_value1} custom_value2={this.state.custom_value2}
-                            custom_value3={this.state.custom_value3} custom_value4={this.state.custom_value4}
-                            custom_fields={this.props.custom_fields} errors={this.state.errors}
+                        <Details errors={this.state.errors}
                             total={this.state.total} handleInput={this.handleInput}
                             design_id={this.state.design_id}/>
+
+                        <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                            custom_value2={this.state.custom_value2}
+                            custom_value3={this.state.custom_value3}
+                            custom_value4={this.state.custom_value4}
+                            custom_fields={this.props.custom_fields}/>
 
                         <Invitations errors={this.state.errors} handleInput={this.handleInput}
                             customers={this.props.customers}

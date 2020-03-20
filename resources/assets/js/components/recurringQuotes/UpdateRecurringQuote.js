@@ -64,9 +64,9 @@ class UpdateRecurringQuote extends Component {
             private_notes: this.state.private_notes
         })
             .then((response) => {
-                const newUser = response.data
-                this.props.categories.push(newUser)
-                this.props.action(this.props.categories)
+                const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.invoice.id)
+                this.props.invoices[index] = response.data
+                this.props.action(this.props.invoices)
                 this.setState({ changesMade: false })
                 this.toggle()
             })

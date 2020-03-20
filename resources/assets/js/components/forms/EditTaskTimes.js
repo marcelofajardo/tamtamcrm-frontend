@@ -68,7 +68,7 @@ class EditTaskTimes extends Component {
 
     addTaskTime () {
         this.setState((prevState) => ({
-            times: [...prevState.contacts, {
+            times: [...prevState.times, {
                 date: moment().format('YYYY-MM-DD'),
                 start_time: moment().format('HH:MM:SS'),
                 end_time: ''

@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-    Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, FormGroup, DropdownItem
+    Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, FormGroup, DropdownItem, TabPane
 } from 'reactstrap'
 import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -11,6 +11,8 @@ import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import InvoiceLine from './InvoiceLine'
 import PaymentDropdownMenu from './PaymentDropdownMenu'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from "../common/Notes";
 
 class EditPayment extends React.Component {
     constructor (props) {
@@ -130,8 +132,7 @@ class EditPayment extends React.Component {
             .then((response) => {
                 this.initialState = this.state
                 const index = this.props.payments.findIndex(payment => payment.id === this.props.payment.id)
-                this.props.payments[index].name = this.state.name
-                this.props.payments[index].description = this.state.description
+                this.props.payments[index] = response.data
                 this.props.action(this.props.payments)
                 this.toggle()
             })
@@ -175,20 +176,6 @@ class EditPayment extends React.Component {
 
     render () {
         const { message } = this.state
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-
-        if (customFields[0] && Object.keys(customFields[0]).length) {
-            customFields[0].forEach((element, index, array) => {
-                if (this.state[element.name] && this.state[element.name].length) {
-                    customFields[0][index].value = this.state[element.name]
-                }
-            })
-        }
-
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput}
-            formFieldsRows={customFields}
-        /> : null
 
         const successMessage = this.state.showSuccessMessage === true
             ? <SuccessMessage message="Invoice was updated successfully"/> : null
@@ -259,16 +246,13 @@ class EditPayment extends React.Component {
                             invoices={this.props.invoices}
                             customerChange={this.handleCustomerChange} onChange={this.setInvoices}/>
 
-                        <FormGroup className="mb-3">
-                            <Label>Notes</Label>
-                            <Input value={this.state.private_notes}
-                                className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''} type="text"
-                                name="private_notes"
-                                onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('private_notes')}
-                        </FormGroup>
+                        <Notes private_notes={this.state.private_notes} handleInput={this.handleInput}/>
 
-                        {customForm}
+                        <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                            custom_value2={this.state.custom_value2}
+                            custom_value3={this.state.custom_value3}
+                            custom_value4={this.state.custom_value4}
+                            custom_fields={this.props.custom_fields}/>
                     </ModalBody>
 
                     <ModalFooter>

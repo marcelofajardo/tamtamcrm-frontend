@@ -7,7 +7,7 @@ import {
     ModalFooter,
     Input,
     FormGroup,
-    Label
+    Label, TabPane
 } from 'reactstrap'
 import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -16,6 +16,8 @@ import moment from 'moment'
 import FormBuilder from '../accounts/FormBuilder'
 import InvoiceLine from './InvoiceLine'
 import AddButtons from '../common/AddButtons'
+import CustomFieldsForm from '../common/CustomFieldsForm'
+import Notes from '../common/Notes'
 
 class AddPayment extends React.Component {
     constructor (props) {
@@ -160,15 +162,10 @@ class AddPayment extends React.Component {
 
     render () {
         const { message } = this.state
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
 
         return (
             <React.Fragment>
-                <AddButtons toggle={this.toggle} />
+                <AddButtons toggle={this.toggle}/>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>
                         Add Payment
@@ -233,14 +230,7 @@ class AddPayment extends React.Component {
                             invoices={this.props.invoices}
                             customerChange={this.handleCustomerChange} onChange={this.setInvoices}/>
 
-                        <FormGroup className="mb-3">
-                            <Label>Notes</Label>
-                            <Input className={this.hasErrorFor('private_notes') ? 'is-invalid' : ''} type="text"
-                                value={this.state.private_notes}
-                                name="private_notes"
-                                onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('private_notes')}
-                        </FormGroup>
+                        <Notes private_notes={this.state.private_notes} handleInput={this.handleInput}/>
 
                         <FormGroup check>
                             <Label check>
@@ -249,7 +239,11 @@ class AddPayment extends React.Component {
                             </Label>
                         </FormGroup>
 
-                        {customForm}
+                        <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                            custom_value2={this.state.custom_value2}
+                            custom_value3={this.state.custom_value3}
+                            custom_value4={this.state.custom_value4}
+                            custom_fields={this.props.custom_fields}/>
 
                     </ModalBody>
 

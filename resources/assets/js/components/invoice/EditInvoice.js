@@ -27,6 +27,7 @@ import Items from './Items'
 import Documents from './Documents'
 import InvoiceDropdownMenu from './InvoiceDropdownMenu'
 import Notes from '../common/Notes'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class EditInvoice extends Component {
     constructor (props, context) {
@@ -56,6 +57,8 @@ class EditInvoice extends Component {
             data: this.props.invoice && this.props.invoice.line_items ? this.props.invoice.line_items : [],
             date: this.props.invoice && this.props.invoice.date ? this.props.invoice.date : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
             partial: this.props.invoice && this.props.invoice.partial ? this.props.invoice.partial : 0,
+            partial_due_date: this.props.invoice && this.props.invoice.partial_due_date ? this.props.invoice.partial_due_date : null,
+            has_partial: false,
             public_notes: this.props.invoice && this.props.invoice.public_notes ? this.props.invoice.public_notes : null,
             private_notes: this.props.invoice && this.props.invoice.private_notes ? this.props.invoice.private_notes : null,
             terms: this.props.invoice && this.props.invoice.terms ? this.props.invoice.terms : null,
@@ -179,6 +182,12 @@ class EditInvoice extends Component {
             return
         }
 
+        if (e.target.name === 'partial') {
+            const has_partial = e.target.value.trim() !== ''
+            this.setState({ has_partial: has_partial, partial: e.target.value })
+            return
+        }
+
         this.setState({
             [e.target.name]: e.target.value
         }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
@@ -256,6 +265,7 @@ class EditInvoice extends Component {
                     terms: '',
                     footer: '',
                     partial: 0,
+                    partial_due_date: null,
                     invoice_id: null,
                     customer_id: null,
                     company_id: null,
@@ -438,6 +448,7 @@ class EditInvoice extends Component {
             footer: this.state.footer,
             date: this.state.date,
             partial: this.state.partial,
+            partial_due_date: this.state.partial_due_date,
             recurring: this.state.recurring,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
@@ -584,11 +595,13 @@ class EditInvoice extends Component {
         </Nav>
 
         const details = <Details company_id={this.state.company_id} handleInput={this.handleInput}
+            partial_due_date={this.state.partial_due_date} has_partial={this.state.has_partial}
             customer_id={this.state.customer_id} customers={this.props.customers}
             errors={this.state.errors} partial={this.state.partial} invoice={this.props.invoice}
             po_number={this.state.po_number} due_date={this.state.due_date} date={this.state.date}
-            address={this.state.address} customerName={this.state.customerName}
-            custom_value1={this.state.custom_value1}
+            address={this.state.address} customerName={this.state.customerName} />
+
+        const custom = <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
             custom_value2={this.state.custom_value2}
             custom_value3={this.state.custom_value3}
             custom_value4={this.state.custom_value4}
@@ -628,6 +641,7 @@ class EditInvoice extends Component {
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
                         {details}
+                        {custom}
                     </TabPane>
 
                     <TabPane tabId="2">
@@ -653,6 +667,7 @@ class EditInvoice extends Component {
                 <Row form>
                     <Col md={6}>
                         {details}
+                        {custom}
                     </Col>
 
                     <Col md={6}>

@@ -9,10 +9,9 @@ import {
     CardHeader,
     Collapse,
     Col,
-    Row
+    Row, CustomInput
 } from 'reactstrap'
 import CurrencyDropdown from '../common/CurrencyDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
 
 export default class SettingsForm extends React.Component {
@@ -22,35 +21,6 @@ export default class SettingsForm extends React.Component {
             currencyOpen: false,
             paymentOpen: false
         }
-
-        this.formFields = [
-            [
-                // {
-                //     name: 'mark_billable',
-                //     label: 'Mark Billable',
-                //     type: 'checkbox',
-                //     placeholder: 'Update Products'
-                // },
-                // {
-                //     name: 'mark_paid',
-                //     label: 'Mark Paid',
-                //     type: 'checkbox',
-                //     placeholder: 'Show Cost'
-                // },
-                // {
-                //     name: 'convert_currency',
-                //     label: 'Convert Currency',
-                //     type: 'checkbox',
-                //     placeholder: 'Show Product Quantity'
-                // },
-                {
-                    name: 'invoice_documents',
-                    label: 'Add Documents to invoice',
-                    type: 'checkbox',
-                    placeholder: 'Fill Products'
-                }
-            ]
-        ]
 
         this.toggleCurrency = this.toggleCurrency.bind(this)
         this.togglePayment = this.togglePayment.bind(this)
@@ -71,59 +41,50 @@ export default class SettingsForm extends React.Component {
         }
     }
 
-    toggleCurrency () {
-        this.setState({ currencyOpen: !this.state.currencyOpen })
+    toggleCurrency (buttonName, e) {
+        this.setState({ currencyOpen: e.target.checked })
     }
 
-    togglePayment () {
-        this.setState({ paymentOpen: !this.state.paymentOpen })
+    togglePayment (buttonName, e) {
+        this.setState({ paymentOpen: e.target.checked })
     }
 
-    handleCheckboxChange (e) {
-        const value = e.target.checked
-        const name = e.target.name
+    handleCheckboxChange (buttonName, event) {
+        const value = event.target.checked
+        const name = event.target.id
+        const e = {}
+        e.target = {
+            name: name,
+            value: value,
+            type: 'checkbox'
+        }
 
-        this.setState({ [name]: value })
+        this.setState({ [name]: value }, () => this.props.handleInput(e))
     }
 
     render () {
         return (<Card>
             <CardHeader>
-                                        Settings
+                    Settings
             </CardHeader>
 
             <CardBody>
-                <FormBuilder
-                    handleCheckboxChange={this.handleCheckboxChange}
-                    formFieldsRows={this.formFields}
+                <CustomInput
+                    checked={this.props.should_be_invoiced}
+                    type="switch"
+                    id="should_be_invoiced"
+                    name="customSwitch"
+                    label="Mark Billable"
+                    onChange={this.handleCheckboxChange.bind(this, 'should_be_invoiced')}/>
+
+                <CustomInput
+                    checked={this.state.paymentOpen}
+                    type="switch"
+                    id="mark_paid"
+                    name="customSwitch"
+                    label="Mark Paid"
+                    onChange={this.togglePayment.bind(this, 'mark_paid')}
                 />
-
-                <Button color="primary" onClick={this.toggleCurrency}
-                    style={{ marginBottom: '1rem' }}>Convert Currency</Button>
-                <Collapse isOpen={this.state.currencyOpen}>
-                    <Row form>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="exampleEmail">Currency</Label>
-                                <CurrencyDropdown currency_id={this.props.expense_currency_id}
-                                    handleInputChanges={this.props.handleInput}
-                                    name="expense_currency_id"/>
-                            </FormGroup>
-                        </Col>
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label for="examplePassword">Exchange Rate</Label>
-                                <Input type="text" name="exchange_rate" id="exchange_rate"
-                                    onChange={this.props.handleInput}
-                                    value={this.state.exchange_rate}
-                                    placeholder="Exchange Rate"/>
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                </Collapse>
-
-                <Button color="primary" onClick={this.togglePayment}
-                    style={{ marginBottom: '1rem' }}>Mark Paid</Button>
                 <Collapse isOpen={this.state.paymentOpen}>
                     <Row form>
                         <Col md={4}>
@@ -154,6 +115,44 @@ export default class SettingsForm extends React.Component {
                         </Col>
                     </Row>
                 </Collapse>
+
+                <CustomInput
+                    checked={this.state.currencyOpen}
+                    type="switch"
+                    id="convert_currency"
+                    name="customSwitch"
+                    label="Convert Currency"
+                    onChange={this.toggleCurrency.bind(this, 'convert_currency')}
+                />
+                <Collapse isOpen={this.state.currencyOpen}>
+                    <Row form>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label for="exampleEmail">Currency</Label>
+                                <CurrencyDropdown currency_id={this.props.expense_currency_id}
+                                    handleInputChanges={this.props.handleInput}
+                                    name="expense_currency_id"/>
+                            </FormGroup>
+                        </Col>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label for="examplePassword">Exchange Rate</Label>
+                                <Input type="text" name="exchange_rate" id="exchange_rate"
+                                    onChange={this.props.handleInput}
+                                    value={this.props.exchange_rate}
+                                    placeholder="Exchange Rate"/>
+                            </FormGroup>
+                        </Col>
+                    </Row>
+                </Collapse>
+
+                <CustomInput
+                    checked={this.props.invoice_documents}
+                    type="switch"
+                    id="invoice_documents"
+                    name="customSwitch"
+                    label="Add Documents to Invoice"
+                    onChange={this.handleCheckboxChange.bind(this, 'invoice_documents')}/>
             </CardBody>
         </Card>
         )

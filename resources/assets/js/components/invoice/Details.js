@@ -36,21 +36,6 @@ export default class Details extends Component {
     }
 
     render () {
-        const customFields = this.props.custom_fields ? this.props.custom_fields : []
-
-        if (customFields[0] && Object.keys(customFields[0]).length) {
-            customFields[0].forEach((element, index, array) => {
-                if (this.props[element.name] && this.props[element.name].length) {
-                    customFields[0][index].value = this.props[element.name]
-                }
-            })
-        }
-
-        const customForm = customFields && customFields.length ? <FormBuilder
-            handleChange={this.props.handleInput.bind(this)}
-            formFieldsRows={customFields}
-        /> : null
-
         return (
             <React.Fragment>
                 <Card>
@@ -107,6 +92,17 @@ export default class Details extends Component {
                             />
                         </FormGroup>
 
+                        <FormGroup className={this.props.has_partial === true ? '' : 'd-none'}>
+                            <Label>Partial Due Date</Label>
+                            <Input
+                                value={this.props.partial_due_date}
+                                type='date'
+                                name='partial_due_date'
+                                id='partial_due_date'
+                                onChange={this.props.handleInput}
+                            />
+                        </FormGroup>
+
                         <CustomerDropdown
                             handleInputChanges={this.props.handleInput}
                             customer={this.props.customer_id}
@@ -121,8 +117,6 @@ export default class Details extends Component {
                             errors={this.props.errors}
                             handleInputChanges={this.props.handleInput}
                         />
-
-                        {customForm}
                     </CardBody>
                 </Card>
             </React.Fragment>

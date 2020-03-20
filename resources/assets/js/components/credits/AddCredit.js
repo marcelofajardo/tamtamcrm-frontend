@@ -11,6 +11,7 @@ import AddButtons from '../common/AddButtons'
 import Invitations from './Invitations'
 import Notes from '../common/Notes'
 import Details from './Details'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class AddCredit extends React.Component {
     constructor (props) {
@@ -193,6 +194,12 @@ class AddCredit extends React.Component {
                         <Details custom_fields={this.props.custom_fields} errors={this.state.errors}
                             total={this.state.total} handleInput={this.handleInput}
                             design_id={this.state.design_id}/>
+
+                        <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                            custom_value2={this.state.custom_value2}
+                            custom_value3={this.state.custom_value3}
+                            custom_value4={this.state.custom_value4}
+                            custom_fields={this.props.custom_fields}/>
 
                         <Invitations errors={this.state.errors} handleInput={this.handleInput}
                             customers={this.props.customers}

@@ -24,6 +24,7 @@ import Notifications from '../common/Notifications'
 import DetailsForm from './DetailsForm'
 import PermissionsForm from './PermissionsForm'
 import UserDropdownMenu from './UserDropdownMenu'
+import CustomFieldsForm from '../common/CustomFieldsForm'
 
 class EditUser extends React.Component {
     constructor (props) {
@@ -107,6 +108,10 @@ class EditUser extends React.Component {
                     last_name: r.data.user.last_name,
                     phone_number: r.data.user.phone_number,
                     job_description: r.data.user.job_description,
+                    custom_value1: r.data.user.custom_value1,
+                    custom_value2: r.data.user.custom_value2,
+                    custom_value3: r.data.user.custom_value3,
+                    custom_value4: r.data.user.custom_value4,
                     password: r.data.user.password,
                     selectedRoles: r.data.selectedIds,
                     selectedAccounts: r.data.user.account_users[0]
@@ -272,14 +277,22 @@ class EditUser extends React.Component {
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
                                 {Object.keys(this.state.user).length &&
-                                <DetailsForm setDate={this.setDate} errors={this.state.errors}
-                                    dob={this.state.dob} username={this.state.username}
-                                    custom_fields={this.props.custom_fields}
-                                    handleInput={this.handleInput} email={this.state.email}
-                                    first_name={this.state.first_name} last_name={this.state.last_name}
-                                    phone_number={this.state.phone_number}
-                                    job_description={this.state.job_description}
-                                    password={this.state.password}/>
+                                    <React.Fragment>
+                                        <DetailsForm setDate={this.setDate} errors={this.state.errors}
+                                            dob={this.state.dob} username={this.state.username}
+                                            handleInput={this.handleInput} email={this.state.email}
+                                            first_name={this.state.first_name} last_name={this.state.last_name}
+                                            phone_number={this.state.phone_number}
+                                            job_description={this.state.job_description}
+                                            password={this.state.password}/>
+
+                                        <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                                            custom_value2={this.state.custom_value2}
+                                            custom_value3={this.state.custom_value3}
+                                            custom_value4={this.state.custom_value4}
+                                            custom_fields={this.props.custom_fields}/>
+                                    </React.Fragment>
+
                                 }
 
                             </TabPane>

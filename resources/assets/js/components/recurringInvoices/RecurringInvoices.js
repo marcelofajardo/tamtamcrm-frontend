@@ -57,7 +57,7 @@ export default class RecurringInvoices extends Component {
     }
 
     updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('line_items') }, function () {
+        this.setState({ ignoredColumns: columns.concat('line_items', 'customer', 'settings') }, function () {
             console.log('ignored columns', this.state.ignoredColumns)
         })
     }

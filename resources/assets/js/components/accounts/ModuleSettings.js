@@ -13,10 +13,14 @@ class ModuleSettings extends Component {
             modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
                 recurringInvoices: false,
                 credits: false,
+                leads: false,
+                deals: false,
+                products: false,
                 invoices: false,
                 payments: false,
                 quotes: false,
                 expenses: false,
+                events: false,
                 customers: true,
                 companies: true,
                 projects: false,
@@ -33,6 +37,12 @@ class ModuleSettings extends Component {
                     isChecked: false
                 },
                 {
+                    id: 'recurringQuotes',
+                    value: 1,
+                    label: 'Recurring Quotes',
+                    isChecked: false
+                },
+                {
                     id: 'credits',
                     value: 2,
                     label: 'Credits',
@@ -44,7 +54,31 @@ class ModuleSettings extends Component {
                     label: 'Quotes',
                     isChecked: false
                 },
-                { id: 4, value: 8, label: 'Tasks', isChecked: false },
+                {
+                    id: 'products',
+                    value: 4,
+                    label: 'Products',
+                    isChecked: false
+                },
+                {
+                    id: 'leads',
+                    value: 4,
+                    label: 'Leads',
+                    isChecked: false
+                },
+                {
+                    id: 'events',
+                    value: 4,
+                    label: 'Events',
+                    isChecked: false
+                },
+                {
+                    id: 'deals',
+                    value: 4,
+                    label: 'Deals',
+                    isChecked: false
+                },
+                { id: 'tasks', value: 8, label: 'Tasks', isChecked: false },
                 {
                     id: 'expenses',
                     value: 16,
