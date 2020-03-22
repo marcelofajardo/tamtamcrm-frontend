@@ -7,7 +7,8 @@ import AddButtons from '../common/AddButtons'
 class AddLeadForm extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+
+        this.initialState = {
             modal: false,
             first_name: '',
             last_name: '',
@@ -32,6 +33,8 @@ class AddLeadForm extends React.Component {
             selectedUsers: [],
             sourceTypes: []
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.handleInputChanges = this.handleInputChanges.bind(this)
         this.handleClick = this.handleClick.bind(this)
@@ -95,14 +98,7 @@ class AddLeadForm extends React.Component {
         axios.post('/api/tasks/lead', formData)
             .then((response) => {
                 this.toggle()
-                this.setState({
-                    title: null,
-                    content: null,
-                    contributors: null,
-                    source_type: null,
-                    due_date: null,
-                    loading: false
-                })
+                this.setState(this.initialState)
                 const firstTask = response.data
                 this.props.tasks.push(firstTask)
                 this.props.action(this.props.tasks)

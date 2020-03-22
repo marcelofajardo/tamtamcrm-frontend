@@ -69,7 +69,8 @@ class EditLeadForm extends React.Component {
     handleInputChanges (e) {
         e.preventDefault()
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            changesMade: true,
         })
     }
 
@@ -161,6 +162,14 @@ class EditLeadForm extends React.Component {
     }
 
     toggle () {
+        if (this.state.modal && this.state.changesMade) {
+            if (window.confirm('Your changes have not been saved?')) {
+                this.setState({ ...this.initialState })
+            }
+
+            return
+        }
+
         this.setState({
             modal: !this.state.modal
         })

@@ -7,7 +7,7 @@ import AddButtons from '../common/AddButtons'
 class AddCustomer extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+        this.initialState = {
             modal: false,
             name: '',
             default_payment_method: null,
@@ -29,6 +29,8 @@ class AddCustomer extends React.Component {
             count: 2,
             errors: []
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
     }
 
@@ -61,17 +63,7 @@ class AddCustomer extends React.Component {
                 const newCustomer = response.data
                 this.props.customers.push(newCustomer)
                 this.props.action(this.props.customers)
-                this.setState({
-                    name: null,
-                    phone: null,
-                    address_1: null,
-                    address_2: null,
-                    zip: null,
-                    city: null,
-                    default_payment_method: null,
-                    company_id: null,
-                    description: null
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 this.setState({
@@ -84,6 +76,10 @@ class AddCustomer extends React.Component {
         this.setState({
             modal: !this.state.modal,
             errors: []
+        }, () => {
+            if (!this.state.modal) {
+                this.setState(this.initialState, () => localStorage.removeItem('customerForm'))
+            }
         })
     }
 

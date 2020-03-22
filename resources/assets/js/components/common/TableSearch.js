@@ -41,7 +41,7 @@ export default class TableSearch extends Component {
                     Clear Search
                 </UncontrolledTooltip>
 
-                <UncontrolledTooltip placement="top-left" target="searchText">
+                <UncontrolledTooltip placement="top" target="searchText">
                     Search
                 </UncontrolledTooltip>
 

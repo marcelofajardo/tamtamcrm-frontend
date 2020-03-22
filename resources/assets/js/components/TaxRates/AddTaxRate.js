@@ -17,7 +17,8 @@ import AddButtons from '../common/AddButtons'
 class AddTaxRate extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+
+        this.initialState = {
             modal: false,
             name: '',
             rate: '',
@@ -25,6 +26,8 @@ class AddTaxRate extends React.Component {
             errors: [],
             message: ''
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -68,10 +71,7 @@ class AddTaxRate extends React.Component {
                 this.props.taxRates.push(newUser)
                 this.props.action(this.props.taxRates)
                 localStorage.removeItem('taxForm')
-                this.setState({
-                    name: '',
-                    rate: ''
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 if (error.response.data.errors) {
@@ -90,10 +90,7 @@ class AddTaxRate extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    name: '',
-                    rate: ''
-                }, () => localStorage.removeItem('taxForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('taxForm'))
             }
         })
     }

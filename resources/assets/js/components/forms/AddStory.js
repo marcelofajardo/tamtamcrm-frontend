@@ -9,19 +9,21 @@ import moment from 'moment'
 class AddStory extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+        this.initialState = {
             modal: false,
             title: '',
             description: '',
             customer_id: '',
             notes: '',
-            due_date: null,
-            assigned_user_id: null,
-            budgeted_hours: null,
+            due_date: '',
+            assigned_user_id: '',
+            budgeted_hours: '',
             count: 2,
             errors: [],
             customers: []
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.getStoryCount = this.getStoryCount.bind(this)
@@ -95,16 +97,7 @@ class AddStory extends React.Component {
                     this.props.action(this.props.projects)
                     localStorage.removeItem('creditForm')
                 }
-                this.setState({
-                    title: '',
-                    description: '',
-                    customer_id: '',
-                    notes: '',
-                    due_date: null,
-                    assigned_user_id: null,
-                    budgeted_hours: null,
-                    loading: false
-                })
+                this.setState(this.initialState)
                 this.toggle()
             })
             .catch((error) => {
@@ -120,15 +113,7 @@ class AddStory extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    title: '',
-                    description: '',
-                    customer_id: '',
-                    notes: '',
-                    due_date: null,
-                    assigned_user_id: null,
-                    budgeted_hours: null
-                }, () => localStorage.removeItem('projectForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('projectForm'))
             }
         })
     }
@@ -172,6 +157,7 @@ class AddStory extends React.Component {
                         <FormGroup>
                             <Label for="postcode">Assigned User:</Label>
                             <UserDropdown
+                                user_id={this.state.assigned_user_id}
                                 name="assigned_user_id"
                                 errors={this.state.errors}
                                 handleInputChanges={this.handleInput.bind(this)}

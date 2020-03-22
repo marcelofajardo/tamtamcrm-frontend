@@ -22,12 +22,12 @@ import ErrorMessage from '../common/ErrorMessage'
 import AddButtons from '../common/AddButtons'
 import Details from './Details'
 import Contacts from './Contacts'
-import Settings from './Settings'
 import Items from './Items'
 import Documents from './Documents'
 import InvoiceDropdownMenu from './InvoiceDropdownMenu'
 import Notes from '../common/Notes'
 import CustomFieldsForm from '../common/CustomFieldsForm'
+import InvoiceSettings from '../common/InvoiceSettings'
 
 class EditInvoice extends Component {
     constructor (props, context) {
@@ -68,7 +68,17 @@ class EditInvoice extends Component {
             custom_value2: this.props.invoice ? this.props.invoice.custom_value2 : '',
             custom_value3: this.props.invoice ? this.props.invoice.custom_value3 : '',
             custom_value4: this.props.invoice ? this.props.invoice.custom_value4 : '',
+            custom_surcharge_tax1: this.props.invoice ? this.props.invoice.custom_surcharge_tax1 : false,
+            custom_surcharge_tax2: this.props.invoice ? this.props.invoice.custom_surcharge_tax2 : false,
+            custom_surcharge_tax3: this.props.invoice ? this.props.invoice.custom_surcharge_tax3 : false,
+            custom_surcharge_tax4: this.props.invoice ? this.props.invoice.custom_surcharge_tax4 : false,
+            custom_surcharge1: this.props.invoice ? this.props.invoice.custom_surcharge1 : 0,
+            custom_surcharge2: this.props.invoice ? this.props.invoice.custom_surcharge2 : 0,
+            custom_surcharge3: this.props.invoice ? this.props.invoice.custom_surcharge3 : 0,
+            custom_surcharge4: this.props.invoice ? this.props.invoice.custom_surcharge4 : 0,
             tax: 0,
+            total_custom_values: 0,
+            total_custom_tax: 0,
             discount: 0,
             recurring: '',
             activeTab: '1',
@@ -96,6 +106,8 @@ class EditInvoice extends Component {
         this.calculateTotals = this.calculateTotals.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
         this.handleContactChange = this.handleContactChange.bind(this)
+        this.handleSurcharge = this.handleSurcharge.bind(this)
+        this.calculateSurcharges = this.calculateSurcharges.bind(this)
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
 
         this.total = 0
@@ -177,7 +189,10 @@ class EditInvoice extends Component {
             this.setState({
                 tax: rate,
                 tax_rate_name: name
-            }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+            }, () => {
+                localStorage.setItem('invoiceForm', JSON.stringify(this.state))
+                this.calculateTotals()
+            })
 
             return
         }
@@ -188,9 +203,59 @@ class EditInvoice extends Component {
             return
         }
 
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+    }
+
+    handleSurcharge (e) {
+        const value = (!e.target.value) ? ('') : ((e.target.type === 'checkbox') ? (e.target.checked) : (parseFloat(e.target.value)))
+
+        this.setState({
+            [e.target.name]: value
+        }, () => this.calculateSurcharges())
+    }
+
+    calculateSurcharges (x) {
+        let total = 0
+        let tax_total = 0
+        const tax = parseFloat(this.state.tax)
+
+        if (this.state.custom_surcharge1 && this.state.custom_surcharge1 > 0) {
+            total += this.state.custom_surcharge1
+        }
+
+        if (this.state.custom_surcharge1 && this.state.custom_surcharge1 > 0 && this.state.custom_surcharge_tax1 === true && tax > 0) {
+            tax_total += this.state.custom_surcharge1 * (tax / 100)
+        }
+
+        if (this.state.custom_surcharge2 && this.state.custom_surcharge2 > 0) {
+            total += this.state.custom_surcharge2
+        }
+
+        if (this.state.custom_surcharge2 && this.state.custom_surcharge2 > 0 && this.state.custom_surcharge_tax2 === true && tax > 0) {
+            tax_total += this.state.custom_surcharge2 * (tax / 100)
+        }
+
+        if (this.state.custom_surcharge3 && this.state.custom_surcharge3 > 0) {
+            total += this.state.custom_surcharge3
+        }
+
+        if (this.state.custom_surcharge3 && this.state.custom_surcharge3 > 0 && this.state.custom_surcharge_tax3 === true && tax > 0) {
+            tax_total += this.state.custom_surcharge3 * (tax / 100)
+        }
+
+        if (this.state.custom_surcharge4 && this.state.custom_surcharge4 > 0) {
+            total += this.state.custom_surcharge4
+        }
+
+        if (this.state.custom_surcharge4 && this.state.custom_surcharge4 > 0 && this.state.custom_surcharge_tax4 === true && tax > 0) {
+            tax_total += this.state.custom_surcharge4 * (tax / 100)
+        }
+
+        this.setState({ total_custom_values: total, total_custom_tax: tax_total }, () => this.calculateTotals())
     }
 
     handleTaskChange (e) {
@@ -262,6 +327,17 @@ class EditInvoice extends Component {
                     tax: null,
                     tax_rate_name: '',
                     private_notes: '',
+                    custom_surcharge1: null,
+                    custom_surcharge2: null,
+                    custom_surcharge3: null,
+                    custom_surcharge_tax1: null,
+                    custom_surcharge_tax2: null,
+                    custom_surcharge_tax3: null,
+                    custom_surcharge_tax4: null,
+                    custom_value1: '',
+                    custom_value2: '',
+                    custom_value3: '',
+                    custom_value4: '',
                     terms: '',
                     footer: '',
                     partial: 0,
@@ -312,8 +388,9 @@ class EditInvoice extends Component {
         })
 
         if (this.state.tax > 0) {
-            const tax_percentage = parseFloat(this.state.total) * parseFloat(this.state.tax) / 100
-            total += tax_percentage
+            const a_total = this.state.total_custom_values > 0 ? parseFloat(this.state.total_custom_values) + parseFloat(this.state.total) : parseFloat(this.state.total)
+            const tax_percentage = parseFloat(a_total) * parseFloat(this.state.tax) / 100
+            tax_total += tax_percentage
         }
 
         if (this.state.discount > 0) {
@@ -454,6 +531,14 @@ class EditInvoice extends Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
+            custom_surcharge1: this.state.custom_surcharge1,
+            custom_surcharge_tax1: this.state.custom_surcharge_tax1,
+            custom_surcharge2: this.state.custom_surcharge2,
+            custom_surcharge_tax2: this.state.custom_surcharge_tax2,
+            custom_surcharge3: this.state.custom_surcharge3,
+            custom_surcharge_tax3: this.state.custom_surcharge_tax3,
+            custom_surcharge4: this.state.custom_surcharge4,
+            custom_surcharge_tax4: this.state.custom_surcharge_tax4,
             invitations: this.state.invitations
         }
     }
@@ -599,7 +684,7 @@ class EditInvoice extends Component {
             customer_id={this.state.customer_id} customers={this.props.customers}
             errors={this.state.errors} partial={this.state.partial} invoice={this.props.invoice}
             po_number={this.state.po_number} due_date={this.state.due_date} date={this.state.date}
-            address={this.state.address} customerName={this.state.customerName} />
+            address={this.state.address} customerName={this.state.customerName}/>
 
         const custom = <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
             custom_value2={this.state.custom_value2}
@@ -610,14 +695,17 @@ class EditInvoice extends Component {
         const contacts = <Contacts errors={this.state.errors} contacts={this.state.contacts}
             invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
-        const settings = <Settings errors={this.state.errors} handleInput={this.handleInput}
+        const settings = <InvoiceSettings handleSurcharge={this.handleSurcharge} settings={this.state}
+            errors={this.state.errors} handleInput={this.handleInput}
             discount={this.state.discount} design_id={this.state.design_id}/>
 
         const items = <Items errors={this.state.errors} handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
             handleDelete={this.handleDelete} discount_total={this.state.discount_total}
             sub_total={this.state.sub_total} tax_total={this.state.tax_total}
-            total={this.state.total} data={this.state.data}/>
+            total={this.state.total} data={this.state.data}
+            total_custom_values={this.state.total_custom_values}
+            total_custom_tax={this.state.total_custom_tax}/>
 
         const notes = <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
             terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}

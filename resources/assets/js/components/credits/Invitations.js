@@ -39,6 +39,7 @@ export default class Invitations extends React.Component {
                     <Label>Customer</Label>
 
                     <CustomerDropdown
+                        errors={this.props.errors}
                         customer={this.props.customer_id}
                         renderErrorFor={this.renderErrorFor}
                         handleInputChanges={this.props.handleInput}
@@ -47,14 +48,16 @@ export default class Invitations extends React.Component {
                     {this.renderErrorFor('customer_id')}
                 </FormGroup>
 
-                {this.props.contacts.length && this.props.contacts.map((contact, index) => (
-                    <FormGroup key={index} check>
+                {this.props.contacts.length && this.props.contacts.map((contact, index) => {
+                    const invitations = this.props.invitations.length ? this.props.invitations.filter(invitation => parseInt(invitation.client_contact_id) === contact.id) : []
+                    const checked = invitations.length ? 'checked="checked"' : ''
+                    return <FormGroup key={index} check>
                         <Label check>
-                            <Input value={contact.id} onChange={this.props.handleContactChange}
+                            <Input checked={checked} value={contact.id} onChange={this.props.handleContactChange}
                                 type="checkbox"/> {`${contact.first_name} ${contact.last_name}`}
                         </Label>
                     </FormGroup>
-                ))
+                })
                 }
             </CardBody>
         </Card>

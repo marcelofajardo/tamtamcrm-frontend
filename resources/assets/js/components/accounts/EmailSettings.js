@@ -130,29 +130,29 @@ class EmailSettings extends Component {
                     label: 'Enable Markup',
                     type: 'switch',
                     placeholder: 'Enable Markup',
-                    value: settings.enable_email_markup,
+                    value: settings.enable_email_markup
                 },
                 {
                     name: 'pdf_email_attachment',
                     label: 'Attach PDF',
                     type: 'switch',
                     placeholder: 'Attach PDF',
-                    value: settings.pdf_email_attachment,
+                    value: settings.pdf_email_attachment
                 },
                 {
                     name: 'document_email_attachment',
                     label: 'Attach Documents',
                     type: 'switch',
                     placeholder: 'Attach Documents',
-                    value: settings.document_email_attachment,
+                    value: settings.document_email_attachment
                 },
                 {
                     name: 'ubl_email_attachment',
                     label: 'Attach UBL',
                     type: 'switch',
                     placeholder: 'Attach UBL',
-                    value: settings.ubl_email_attachment,
-                },
+                    value: settings.ubl_email_attachment
+                }
             ]
         ]
 

@@ -1,299 +1,364 @@
-import React, { Component } from 'react'
+import React from 'react'
+import {
+    Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, FormGroup, Label, Card,
+    CardHeader,
+    CardBody,
+    Nav,
+    NavItem,
+    NavLink,
+    TabContent, TabPane
+} from 'reactstrap'
 import axios from 'axios'
-import AddDesign from './AddDesign'
-import { CardBody, Card, FormGroup, Input, Col, Row } from 'reactstrap'
-import DataTable from '../common/DataTable'
-import RestoreModal from '../common/RestoreModal'
-import DeleteModal from '../common/DeleteModal'
-import DisplayColumns from '../common/DisplayColumns'
-import ActionsMenu from '../common/ActionsMenu'
-import TableSearch from '../common/TableSearch'
-import FilterTile from '../common/FilterTile'
-import ViewEntity from '../common/ViewEntity'
-import DateFilter from '../common/DateFilter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
+import AddButtons from '../common/AddButtons'
+import DesignDropdown from '../common/DesignDropdown'
+import CKEditor from '@ckeditor/ckeditor5-react'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
-export default class Designs extends Component {
+class Designs extends React.Component {
     constructor (props) {
         super(props)
-
         this.state = {
-            designs: [],
-            cachedData: [],
-            view: {
-                viewMode: false,
-                viewedId: null,
-                title: null
+            modal: false,
+            name: '',
+            id: null,
+            is_custom: true,
+            design: {
+                header: '',
+                body: '',
+                footer: '',
+                includes: '',
+                product: '',
+                task: ''
             },
-            errors: [],
-            dropdownButtonActions: ['download'],
-            bulk: [],
-            ignoredColumns: ['settings', 'deleted_at', 'created_at', 'design'],
-            filters: {
-                searchText: '',
-                status: 'active',
-                start_date: '',
-                end_date: ''
-            }
+            obj_url: null,
+            activeTab: '1',
+            loading: false,
+            errors: []
         }
 
-        this.addUserToState = this.addUserToState.bind(this)
-        this.deleteDesign = this.deleteDesign.bind(this)
-        this.userList = this.userList.bind(this)
-        this.filterDesigns = this.filterDesigns.bind(this)
-        this.getFilters = this.getFilters.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
+        this.toggleTabs = this.toggleTabs.bind(this)
+        this.toggle = this.toggle.bind(this)
+        this.hasErrorFor = this.hasErrorFor.bind(this)
+        this.renderErrorFor = this.renderErrorFor.bind(this)
+        this.getPreview = this.getPreview.bind(this)
+        this.switchDesign = this.switchDesign.bind(this)
+        this.resetCounters = this.resetCounters.bind(this)
+        this.update = this.update.bind(this)
+        this.save = this.save.bind(this)
     }
 
-    addUserToState (designs) {
-        const cachedData = !this.state.cachedData.length ? designs : this.state.cachedData
-        this.setState({
-            designs: designs,
-            cachedData: cachedData
-        })
+    componentDidMount () {
+        if (localStorage.hasOwnProperty('designForm')) {
+            const storedValues = JSON.parse(localStorage.getItem('designForm'))
+            this.setState({ ...storedValues }, () => console.log('new state', this.state))
+        }
     }
 
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('settings') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    filterDesigns (event) {
-        console.log('event', event)
-
-        if ('start_date' in event) {
-            this.setState(prevState => ({
-                filters: {
-                    ...prevState.filters,
-                    start_date: event.start_date,
-                    end_date: event.end_date
+    toggleTabs (tab) {
+        if (this.state.activeTab !== tab) {
+            this.setState({ activeTab: tab }, () => {
+                if (this.state.activeTab === '2') {
+                    this.getPreview()
                 }
-            }))
+            })
+        }
+    }
+
+    handleChange (el) {
+        const inputName = el.target.name
+        const inputValue = el.target.value
+
+        const statusCopy = Object.assign({}, this.state)
+        statusCopy.design[inputName].value = inputValue
+
+        this.setState(statusCopy)
+    }
+
+    handleInput (e) {
+        this.setState({
+            [e.target.name]: e.target.value
+        }, () => localStorage.setItem('designForm', JSON.stringify(this.state)))
+    }
+
+    hasErrorFor (field) {
+        return !!this.state.errors[field]
+    }
+
+    renderErrorFor (field) {
+        if (this.hasErrorFor(field)) {
+            return (
+                <span className='invalid-feedback'>
+                    <strong>{this.state.errors[field][0]}</strong>
+                </span>
+            )
+        }
+    }
+
+    getFormData () {
+        return {
+            name: this.state.name,
+            design: this.state.design
+        }
+    }
+
+    save () {
+        axios.post('/api/designs', this.getFormData())
+            .then((response) => {
+                const newUser = response.data
+                this.props.designs.push(newUser)
+                this.props.action(this.props.designs)
+                localStorage.removeItem('designForm')
+                this.setState({
+                    name: null
+                })
+                // this.toggle ()
+            })
+            .catch((error) => {
+                this.setState({
+                    errors: error.response.data.errors
+                })
+            })
+    }
+
+    update () {
+        axios.put(`/api/designs/${this.state.id}`, this.getFormData())
+            .then((response) => {
+                const index = this.props.designs.findIndex(design => design.id === parseInt(this.state.id))
+                this.props.designs[index] = response.data
+                this.props.action(this.props.designs)
+            })
+            .catch((error) => {
+                this.setState({
+                    errors: error.response.data.errors
+                })
+            })
+    }
+
+    handleClick () {
+        if (this.state.id !== null) {
+            this.update()
             return
         }
 
-        const column = event.target.name
-        const value = event.target.value
-
-        if (value === 'all') {
-            const updatedRowState = this.state.filters.filter(filter => filter.column !== column)
-            this.setState({ filters: updatedRowState })
-            return true
-        }
-
-        const showRestoreButton = column === 'status' && value === 'archived'
-
-        this.setState(prevState => ({
-            filters: {
-                ...prevState.filters,
-                [column]: value
-            },
-            showRestoreButton: showRestoreButton
-        }))
-
-        return true
+        this.save()
     }
 
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/design/bulk', {
-            ids: this.state.bulk,
-            action: action
-        }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
-    }
-
-    resetFilters () {
-        this.props.reset()
-    }
-
-    getFilters () {
-        const columnFilter = this.state.designs.length
-            ? <DisplayColumns onChange2={this.updateIgnoredColumns} columns={Object.keys(this.state.designs[0])}
-                ignored_columns={this.state.ignoredColumns}/> : null
-        return (
-            <Row form>
-                <Col md={3}>
-                    <TableSearch onChange={this.filterDesigns}/>
-                </Col>
-
-                <Col md={2}>
-                    {columnFilter}
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <Input type='select'
-                            onChange={this.filterDesigns}
-                            name="status"
-                            id="status_id"
-                        >
-                            <option value="">Select Status</option>
-                            <option value='active'>Active</option>
-                            <option value='archived'>Archived</option>
-                            <option value='deleted'>Deleted</option>
-                        </Input>
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        <DateFilter onChange={this.filterDesigns} update={this.addUserToState}
-                            data={this.state.cachedData}/>
-                    </FormGroup>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.saveBulk}/>
-                </Col>
-            </Row>
-        )
-    }
-
-    userList () {
-        const { designs, ignoredColumns } = this.state
-        if (designs && designs.length) {
-            return this.state.designs.map(design => {
-                const restoreButton = design.deleted_at
-                    ? <RestoreModal id={design.id} entities={designs} updateState={this.addUserToState}
-                        url={`/api/designs/restore/${design.id}`}/> : null
-                const deleteButton = !design.deleted_at
-                    ? <DeleteModal archive={false} deleteFunction={this.deleteDesign} id={design.id}/> : null
-                const archiveButton = !design.deleted_at
-                    ? <DeleteModal archive={true} deleteFunction={this.deleteDesign} id={design.id}/> : null
-
-                const columnList = Object.keys(design).filter(key => {
-                    return ignoredColumns && !ignoredColumns.includes(key)
-                }).map(key => {
-                    return <td onClick={() => this.toggleViewedEntity(design, design.name)} data-label={key}
-                        key={key}>{design[key]}</td>
-                })
-
-                return <tr key={design.id}>
-                    <td>
-                        <Input value={design.id} type="checkbox" onChange={this.onChangeBulk}/>
-                        <ActionsMenu edit={null} delete={deleteButton} archive={archiveButton}
-                            restore={restoreButton}/>
-                    </td>
-                    {columnList}
-                </tr>
-            })
-        } else {
-            return <tr>
-                <td className="text-center">No Records Found.</td>
-            </tr>
-        }
-    }
-
-    toggleViewedEntity (id, title = null) {
+    toggle () {
         this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
+            modal: !this.state.modal,
+            errors: []
+        }, () => {
+            if (!this.state.modal) {
+                this.setState({
+                    name: null,
+                    icon: null
+                }, () => localStorage.removeItem('designForm'))
             }
-        }, () => console.log('view', this.state.view))
+        })
     }
 
-    deleteDesign (id, archive = true) {
-        const url = archive === true ? `/api/designs/archive/${id}` : `/api/designs/${id}`
-        const self = this
-        axios.delete(url)
-            .then(function (response) {
-                const arrDesigns = [...self.state.designs]
-                const index = arrDesigns.findIndex(design => design.id === id)
-                arrDesigns.splice(index, 1)
-                self.addUserToState(arrDesigns)
+    getPreview () {
+        const design = {
+            name: this.state.name,
+            is_custom: this.state.is_custom,
+            design: {
+                body: this.state.design.body,
+                header: this.state.design.header,
+                footer: this.state.design.footer,
+                includes: this.state.design.includes,
+                table: this.state.design.table,
+                product: '',
+                task: ''
+            }
+        }
+        axios.post('/api/preview', {
+            design: design,
+            entity_id: 1529,
+            entity: 'invoice'
+        })
+            .then((response) => {
+                console.log('respons', response.data.data)
+                var base64str = response.data.data
+
+                // decode base64 string, remove space for IE compatibility
+                var binary = atob(base64str.replace(/\s/g, ''))
+                var len = binary.length
+                var buffer = new ArrayBuffer(len)
+                var view = new Uint8Array(buffer)
+                for (var i = 0; i < len; i++) {
+                    view[i] = binary.charCodeAt(i)
+                }
+
+                // create the blob object with content-type "application/pdf"
+                var blob = new Blob([view], { type: 'application/pdf' })
+                var url = URL.createObjectURL(blob)
+
+                /* const file = new Blob (
+                 [ response.data.data ],
+                 { type: 'application/pdf' } ) */
+                // const fileURL = URL.createObjectURL ( file )
+
+                this.setState({ obj_url: url }, () => URL.revokeObjectURL(url))
             })
-            .catch(function (error) {
-                console.log(error)
+            .catch((error) => {
+                this.setState({
+                    errors: error.response.data.errors
+                })
             })
     }
 
-    getUsers () {
-        axios.get('api/users')
-            .then((r) => {
-                this.setState({
-                    users: r.data
-                })
-            })
-            .catch((e) => {
-                this.setState({
-                    loading: false,
-                    err: e
-                })
-            })
+    resetCounters () {
+        this.setState({ name: '', id: null, design: { header: '', body: '', footer: '' }, obj_url: null, is_custom: true })
+    }
+
+    switchDesign (design) {
+        this.setState({
+            design: design[0].design,
+            name: design[0].name,
+            id: design[0].id,
+            is_custom: false
+        })
     }
 
     render () {
-        const { searchText, status, start_date, end_date } = this.state.filters
-        const { view } = this.state
-        const fetchUrl = `/api/designs?search_term=${searchText}&status=${status}&start_date=${start_date}&end_date=${end_date} `
-        const filters = this.getFilters()
-
+        const title = this.state.is_custom === true ? <FormGroup>
+            <Label for="name">Name <span className="text-danger">*</span></Label>
+            <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''} type="text" name="name"
+                id="name" value={this.state.name} placeholder="Name"
+                onChange={this.handleInput.bind(this)}/>
+            {this.renderErrorFor('name')}
+        </FormGroup> : <FormGroup>
+            <Label for="name">Name <span className="text-danger">*</span></Label>
+            <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''} type="text" name="name"
+                id="name" disabled="disabled" value={this.state.name} placeholder="Name"
+                onChange={this.handleInput.bind(this)}/>
+            {this.renderErrorFor('name')}
+        </FormGroup>
         return (
-            <div className="data-table">
+            <React.Fragment>
+                <Nav tabs>
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '1' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('1') }}>
+                            Edit
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '2' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('2') }}>
+                            Preview
+                        </NavLink>
+                    </NavItem>
+                </Nav>
 
-                <Card>
-                    <CardBody>
-                        <FilterTile filters={filters}/>
+                <TabContent activeTab={this.state.activeTab}>
+                    <TabPane tabId="1">
 
-                        <AddDesign
-                            designs={this.state.designs}
-                            action={this.addUserToState}
-                        />
+                        <Card>
+                            <CardHeader>{this.state.template_type}</CardHeader>
+                            <CardBody>
+                                {title}
 
-                        <DataTable
-                            ignore={this.state.ignoredColumns}
-                            userList={this.userList}
-                            fetchUrl={fetchUrl}
-                            updateState={this.addUserToState}
-                        />
-                    </CardBody>
-                </Card>
+                                <FormGroup>
+                                    <Label for="name">Design <span className="text-danger">*</span></Label>
+                                    <DesignDropdown resetCounters={this.resetCounters} handleInputChanges={this.switchDesign}/>
+                                </FormGroup>
 
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
-            </div>
+                                <FormGroup>
+                                    <Label for="name">Header <span className="text-danger">*</span></Label>
+                                    <CKEditor
+                                        data={this.state.design.header}
+                                        editor={ClassicEditor}
+                                        config={{
+                                            toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'link', 'numberedList', 'bulletedList', 'imageUpload', 'insertTable',
+                                                'tableColumn', 'tableRow', 'mergeTableCells', 'mediaEmbed', '|', 'undo', 'redo']
+                                        }}
+                                        onInit={editor => {
+                                            // You can store the "editor" and use when it is needed.
+                                            console.log('Editor is ready to use!', editor)
+                                        }}
+                                        onChange={(event, editor) => {
+                                            const data = editor.getData()
+                                            this.setState(prevState => ({
+                                                design: { // object that we want to update
+                                                    ...prevState.design, // keep all other key-value pairs
+                                                    header: data // update the value of specific key
+                                                }
+                                            }), () => console.log('design', this.state.design))
+                                        }}
+                                    />
+                                </FormGroup>
+
+                                <FormGroup>
+                                    <Label for="name">Body <span className="text-danger">*</span></Label>
+                                    <CKEditor
+                                        data={this.state.design.body}
+                                        editor={ClassicEditor}
+                                        config={{
+                                            toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'link', 'numberedList', 'bulletedList', 'imageUpload', 'insertTable',
+                                                'tableColumn', 'tableRow', 'mergeTableCells', 'mediaEmbed', '|', 'undo', 'redo']
+                                        }}
+                                        onInit={editor => {
+                                            // You can store the "editor" and use when it is needed.
+                                            console.log('Editor is ready to use!', editor)
+                                        }}
+                                        onChange={(event, editor) => {
+                                            const data = editor.getData()
+                                            this.setState(prevState => ({
+                                                design: { // object that we want to update
+                                                    ...prevState.design, // keep all other key-value pairs
+                                                    body: data // update the value of specific key
+                                                }
+                                            }), () => console.log('design', this.state.design))
+                                        }}
+                                    />
+                                </FormGroup>
+
+                                <FormGroup>
+                                    <Label for="name">Footer <span className="text-danger">*</span></Label>
+                                    <CKEditor
+                                        data={this.state.design.footer}
+                                        editor={ClassicEditor}
+                                        config={{
+                                            toolbar: ['heading', '|', 'bold', 'italic', 'blockQuote', 'link', 'numberedList', 'bulletedList', 'imageUpload', 'insertTable',
+                                                'tableColumn', 'tableRow', 'mergeTableCells', 'mediaEmbed', '|', 'undo', 'redo']
+                                        }}
+                                        onInit={editor => {
+                                            // You can store the "editor" and use when it is needed.
+                                            console.log('Editor is ready to use!', editor)
+                                        }}
+                                        onChange={(event, editor) => {
+                                            const data = editor.getData()
+                                            this.setState(prevState => ({
+                                                design: { // object that we want to update
+                                                    ...prevState.design, // keep all other key-value pairs
+                                                    footer: data // update the value of specific key
+                                                }
+                                            }), () => console.log('design', this.state.design))
+                                        }}
+                                    />
+                                </FormGroup>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="2">
+
+                        <Card>
+                            <CardHeader>Preview</CardHeader>
+                            <CardBody>
+                                <div className="embed-responsive embed-responsive-21by9">
+                                    <iframe className="embed-responsive-item" id="viewer" src={this.state.obj_url}/>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+                </TabContent>
+            </React.Fragment>
         )
     }
 }
+
+export default Designs

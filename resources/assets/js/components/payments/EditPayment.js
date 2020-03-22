@@ -6,13 +6,12 @@ import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
 import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
 import moment from 'moment'
-import FormBuilder from '../accounts/FormBuilder'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import InvoiceLine from './InvoiceLine'
 import PaymentDropdownMenu from './PaymentDropdownMenu'
 import CustomFieldsForm from '../common/CustomFieldsForm'
-import Notes from "../common/Notes";
+import Notes from '../common/Notes'
 
 class EditPayment extends React.Component {
     constructor (props) {
@@ -130,10 +129,10 @@ class EditPayment extends React.Component {
         const data = this.getFormData()
         axios.put(`/api/payments/${this.state.id}`, data)
             .then((response) => {
-                this.initialState = this.state
                 const index = this.props.payments.findIndex(payment => payment.id === this.props.payment.id)
                 this.props.payments[index] = response.data
                 this.props.action(this.props.payments)
+                this.setState({ changesMade: false })
                 this.toggle()
             })
             .catch((error) => {

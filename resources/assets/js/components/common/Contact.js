@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ContactInputs from './ContactInputs'
-import { Button } from 'reactstrap'
+import { Button, Form } from 'reactstrap'
 
 export default class Contact extends Component {
     constructor (props) {
@@ -37,10 +37,10 @@ export default class Contact extends Component {
     render () {
         const { contacts } = this.state
         return contacts.length ? (
-            <form onChange={this.handleChange} >
-                <ContactInputs contacts={contacts} removeContact={this.removeContact} />
+            <Form>
+                <ContactInputs handleChange={this.handleChange} contacts={contacts} removeContact={this.removeContact} />
                 <Button color="primary" size="lg" block onClick={this.addContact}>Add new contact</Button>
-            </form>
+            </Form>
         ) : null
     }
 }

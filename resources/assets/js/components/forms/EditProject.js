@@ -246,7 +246,7 @@ class EditProject extends React.Component {
                         <FormGroup>
                             <Label for="postcode">Assigned User:</Label>
                             <UserDropdown
-                                user={this.state.assigned_user_id}
+                                user_id={this.state.assigned_user_id}
                                 name="assigned_user_id"
                                 errors={this.state.errors}
                                 handleInputChanges={this.handleInput.bind(this)}

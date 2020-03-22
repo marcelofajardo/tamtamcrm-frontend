@@ -22,7 +22,7 @@ import Notes from '../common/Notes'
 class AddExpense extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+        this.initialState = {
             modal: false,
             amount: 0,
             date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
@@ -50,6 +50,9 @@ class AddExpense extends React.Component {
             activeTab: '1'
         }
 
+        this.state = this.initialState
+
+        this.currencies = JSON.parse(localStorage.getItem('currencies'))
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -64,6 +67,12 @@ class AddExpense extends React.Component {
     }
 
     handleInput (e) {
+        if (e.target.name === 'expense_currency_id') {
+            const currency = this.currencies && this.currencies.length ? this.currencies.filter(currency => currency.id === parseInt(e.target.value)) : []
+            const exchange_rate = currency.length ? currency[0].exchange_rate : 1
+            this.setState({ exchange_rate: exchange_rate })
+        }
+
         this.setState({
             [e.target.name]: e.target.value
         }, () => localStorage.setItem('expenseForm', JSON.stringify(this.state)))
@@ -115,27 +124,7 @@ class AddExpense extends React.Component {
                 this.props.expenses.push(newUser)
                 this.props.action(this.props.expenses)
                 localStorage.removeItem('expenseForm')
-                this.setState({
-                    paymentOpen: false,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    customer_id: null,
-                    expense_currency_id: null,
-                    payment_type_id: null,
-                    exchange_rate: 1,
-                    transaction_reference: null,
-                    payment_date: null,
-                    invoice_documents: false,
-                    should_be_invoiced: false,
-                    expense_date: null,
-                    company_id: null,
-                    category_id: null,
-                    public_notes: null,
-                    private_notes: null,
-                    loading: false
-                })
+                this.setState(this.initialState)
                 this.toggle()
             })
             .catch((error) => {
@@ -155,27 +144,7 @@ class AddExpense extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    paymentOpen: false,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    customer_id: null,
-                    expense_currency_id: null,
-                    payment_type_id: null,
-                    exchange_rate: 1,
-                    transaction_reference: null,
-                    payment_date: null,
-                    invoice_documents: false,
-                    should_be_invoiced: false,
-                    expense_date: null,
-                    company_id: null,
-                    category_id: null,
-                    public_notes: null,
-                    private_notes: null,
-                    loading: false
-                }, () => localStorage.removeItem('expenseForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('expenseForm'))
             }
         })
     }

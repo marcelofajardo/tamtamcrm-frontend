@@ -26,7 +26,8 @@ import Notes from '../common/Notes'
 class AddCompany extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+
+        this.initialState = {
             modal: false,
             name: '',
             website: '',
@@ -35,7 +36,7 @@ class AddCompany extends React.Component {
             address_1: '',
             currency_id: null,
             assigned_user_id: null,
-            industry_id: null,
+            industry_id: '',
             country_id: null,
             company_logo: null,
             custom_value1: '',
@@ -54,6 +55,8 @@ class AddCompany extends React.Component {
             message: '',
             activeTab: '1'
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.updateContacts = this.updateContacts.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
@@ -143,26 +146,7 @@ class AddCompany extends React.Component {
                 this.props.brands.push(newUser)
                 this.props.action(this.props.brands)
                 localStorage.removeItem('companyForm')
-                this.setState({
-                    phone_number: '',
-                    email: '',
-                    address_1: '',
-                    currency_id: null,
-                    industry_id: null,
-                    country_id: null,
-                    company_logo: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    private_notes: '',
-                    address_2: '',
-                    town: '',
-                    city: '',
-                    postcode: '',
-                    loading: false,
-                    assigned_user_id: null
-                })
+                this.setState(this.initialState)
                 this.toggle()
             })
             .catch((error) => {
@@ -182,26 +166,7 @@ class AddCompany extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    phone_number: '',
-                    email: '',
-                    address_1: '',
-                    currency_id: null,
-                    assigned_user_id: null,
-                    industry_id: null,
-                    country_id: null,
-                    company_logo: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    private_notes: '',
-                    address_2: '',
-                    town: '',
-                    city: '',
-                    postcode: '',
-                    loading: false
-                }, () => localStorage.removeItem('companyForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('companyForm'))
             }
         })
     }

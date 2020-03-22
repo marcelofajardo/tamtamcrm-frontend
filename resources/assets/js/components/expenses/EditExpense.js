@@ -59,6 +59,7 @@ class EditExpense extends React.Component {
         }
 
         this.initialState = this.state
+        this.currencies = JSON.parse(localStorage.getItem('currencies'))
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -73,6 +74,12 @@ class EditExpense extends React.Component {
     }
 
     handleInput (e) {
+        if (e.target.name === 'expense_currency_id') {
+            const currency = this.currencies && this.currencies.length ? this.currencies.filter(currency => currency.id === parseInt(e.target.value)) : []
+            const exchange_rate = currency.length ? currency[0].exchange_rate : 1
+            this.setState({ exchange_rate: exchange_rate })
+        }
+
         this.setState({
             [e.target.name]: e.target.value,
             changesMade: true

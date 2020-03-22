@@ -25,7 +25,8 @@ import CustomFieldsForm from '../common/CustomFieldsForm'
 class AddUser extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+
+        this.initialState = {
             modal: false,
             username: '',
             email: '',
@@ -52,6 +53,8 @@ class AddUser extends React.Component {
             is_admin: false,
             activeTab: '1'
         }
+
+        this.state = this.initialState
 
         this.toggle = this.toggle.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
@@ -115,28 +118,7 @@ class AddUser extends React.Component {
                 this.props.users.push(newUser)
                 this.props.action(this.props.users)
                 localStorage.removeItem('userForm')
-                this.setState({
-                    username: '',
-                    email: '',
-                    first_name: '',
-                    last_name: '',
-                    dob: '',
-                    job_description: '',
-                    phone_number: '',
-                    gender: '',
-                    department: 0,
-                    role_id: 0,
-                    password: '',
-                    loading: false,
-                    errors: [],
-                    roles: [],
-                    selectedRoles: [],
-                    message: '',
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: ''
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 if (error.response.data.errors) {
@@ -163,28 +145,7 @@ class AddUser extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    username: '',
-                    email: '',
-                    first_name: '',
-                    last_name: '',
-                    dob: '',
-                    job_description: '',
-                    phone_number: '',
-                    gender: '',
-                    department: 0,
-                    role_id: 0,
-                    password: '',
-                    loading: false,
-                    errors: [],
-                    roles: [],
-                    selectedRoles: [],
-                    message: '',
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: ''
-                }, () => localStorage.removeItem('userForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('userForm'))
             }
         })
     }

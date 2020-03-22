@@ -5,7 +5,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    DropdownItem, TabPane
+    DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
 import SuccessMessage from '../common/SucessMessage'
@@ -24,7 +24,7 @@ class EditCredit extends React.Component {
             id: this.props.credit.id,
             showSuccessMessage: false,
             showErrorMessage: false,
-            invitations: [],
+            invitations: this.props.credit && this.props.credit.invitations && this.props.credit.invitations.length ? this.props.credit.invitations : [],
             contacts: [],
             total: this.props.credit.total,
             customer_id: this.props.credit.customer_id,
@@ -37,6 +37,14 @@ class EditCredit extends React.Component {
             custom_value2: this.props.credit.custom_value2,
             custom_value3: this.props.credit.custom_value3,
             custom_value4: this.props.credit.custom_value4,
+            custom_surcharge_tax1: this.props.credit.custom_surcharge_tax1,
+            custom_surcharge_tax2: this.props.credit.custom_surcharge_tax2,
+            custom_surcharge_tax3: this.props.credit.custom_surcharge_tax3,
+            custom_surcharge_tax4: this.props.credit.custom_surcharge_tax4,
+            custom_surcharge1: this.props.credit.custom_surcharge1,
+            custom_surcharge2: this.props.credit.custom_surcharge2,
+            custom_surcharge3: this.props.credit.custom_surcharge3,
+            custom_surcharge4: this.props.credit.custom_surcharge4,
             loading: false,
             dropdownOpen: false,
             changesMade: false,
@@ -50,6 +58,15 @@ class EditCredit extends React.Component {
         this.handleContactChange = this.handleContactChange.bind(this)
     }
 
+    componentDidMount () {
+        if (this.props.credit && this.props.credit.customer_id) {
+            const index = this.props.customers.findIndex(customer => customer.id === this.props.credit.customer_id)
+            const customer = this.props.customers[index]
+            const contacts = customer.contacts ? customer.contacts : []
+            this.setState({ contacts: contacts })
+        }
+    }
+
     handleInput (e) {
         if (e.target.name === 'customer_id') {
             const index = this.props.customers.findIndex(customer => customer.id === parseInt(e.target.value))
@@ -57,14 +74,16 @@ class EditCredit extends React.Component {
             const contacts = customer.contacts ? customer.contacts : []
             this.setState({
                 customer_id: e.target.value,
-                contacts: contacts
+                contacts: contacts,
+                changesMade: true
             })
 
             return
         }
 
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: e.target.value,
+            changesMade: true
         })
     }
 
@@ -96,6 +115,14 @@ class EditCredit extends React.Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
+            custom_surcharge1: this.state.custom_surcharge1,
+            custom_surcharge2: this.state.custom_surcharge2,
+            custom_surcharge3: this.state.custom_surcharge3,
+            custom_surcharge4: this.state.custom_surcharge4,
+            custom_surcharge_tax1: this.state.custom_surcharge_tax1,
+            custom_surcharge_tax2: this.state.custom_surcharge_tax2,
+            custom_surcharge_tax3: this.state.custom_surcharge_tax3,
+            custom_surcharge_tax4: this.state.custom_surcharge_tax4,
             public_notes: this.state.public_notes,
             private_notes: this.state.private_notes,
             footer: this.state.footer,
@@ -177,7 +204,8 @@ class EditCredit extends React.Component {
                             custom_value4={this.state.custom_value4}
                             custom_fields={this.props.custom_fields}/>
 
-                        <Invitations errors={this.state.errors} handleInput={this.handleInput}
+                        <Invitations invitations={this.state.invitations} errors={this.state.errors}
+                            handleInput={this.handleInput}
                             customers={this.props.customers}
                             customer_id={this.state.customer_id} contacts={this.state.contacts}
                             handleContactChange={this.handleContactChange}/>

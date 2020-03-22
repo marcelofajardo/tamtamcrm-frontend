@@ -100,7 +100,7 @@ class LineItem extends Component {
                     <Col md={2} data-id={index}>
                         <FormGroup>
                             <Label>Price</Label>
-                            <Input name="unit_price" data-line={index} type='text' data-column="5"
+                            <Input key={`a-${index}`} name="unit_price" data-line={index} type='text' data-column="5"
                                 value={lineItem.unit_price} onChange={this.props.onChange}
                                 className='pa2 mr2 f6 form-control'/>
                         </FormGroup>
@@ -109,7 +109,7 @@ class LineItem extends Component {
                     <Col md={1} data-id={index}>
                         <FormGroup>
                             <Label>Quantity</Label>
-                            <Input name="quantity" data-line={index} type='text' value={lineItem.quantity}
+                            <Input key={`b-${index}`} name="quantity" data-line={index} type='text' value={lineItem.quantity}
                                 onChange={this.props.onChange} className='pa2 mr2 f6 form-control'/>
                         </FormGroup>
                     </Col>
@@ -117,7 +117,7 @@ class LineItem extends Component {
                     <Col md={2} data-id={index}>
                         <FormGroup>
                             <Label>Discount</Label>
-                            <Input name="unit_discount" data-line={index} type='text'
+                            <Input key={`c-${index}`} name="unit_discount" data-line={index} type='text'
                                 value={lineItem.unit_discount}
                                 onChange={this.props.onChange} className='pa2 mr2 f6 form-control'/>
                         </FormGroup>
@@ -126,7 +126,7 @@ class LineItem extends Component {
                     <Col md={2} data-id={index}>
                         <FormGroup>
                             <Label>Tax</Label>
-                            <Input name="unit_tax" data-line={index} type='select' value={lineItem.tax_rate_id}
+                            <Input key={`d-${index}`} name="unit_tax" data-line={index} type='select' value={lineItem.tax_rate_id}
                                 onChange={this.props.onChange} className='pa2 mr2 f6 form-control'>
                                 <option value="0">No Tax</option>
                                 {this.props.tax_rates.map(tax_rate =>
@@ -151,7 +151,7 @@ class LineItem extends Component {
                     <Col md={2} data-id={index}>
                         <FormGroup>
                             <Label>Description</Label>
-                            <Input name="description" data-line={index} type='text'
+                            <Input key={`e-${index}`} name="description" data-line={index} type='text'
                                 value={lineItem.description}
                                 onChange={this.props.onChange} className='pa2 mr2 f6 form-control'/>
                         </FormGroup>

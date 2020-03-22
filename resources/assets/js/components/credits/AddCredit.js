@@ -16,7 +16,7 @@ import CustomFieldsForm from '../common/CustomFieldsForm'
 class AddCredit extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+        this.initialState = {
             modal: false,
             invitations: [],
             contacts: [],
@@ -26,6 +26,14 @@ class AddCredit extends React.Component {
             custom_value2: '',
             custom_value3: '',
             custom_value4: '',
+            custom_surcharge_tax1: false,
+            custom_surcharge_tax2: false,
+            custom_surcharge_tax3: false,
+            custom_surcharge_tax4: false,
+            custom_surcharge1: null,
+            custom_surcharge2: null,
+            custom_surcharge3: null,
+            custom_surcharge4: null,
             private_notes: '',
             public_notes: '',
             footer: '',
@@ -35,6 +43,8 @@ class AddCredit extends React.Component {
             errors: [],
             message: ''
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -114,6 +124,14 @@ class AddCredit extends React.Component {
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
+            custom_surcharge1: this.state.custom_surcharge1,
+            custom_surcharge2: this.state.custom_surcharge2,
+            custom_surcharge3: this.state.custom_surcharge3,
+            custom_surcharge4: this.state.custom_surcharge4,
+            custom_surcharge_tax1: this.state.custom_surcharge_tax1,
+            custom_surcharge_tax2: this.state.custom_surcharge_tax2,
+            custom_surcharge_tax3: this.state.custom_surcharge_tax3,
+            custom_surcharge_tax4: this.state.custom_surcharge_tax4,
             invitations: this.state.invitations
         })
             .then((response) => {
@@ -121,22 +139,7 @@ class AddCredit extends React.Component {
                 this.props.credits.push(newUser)
                 this.props.action(this.props.credits)
                 localStorage.removeItem('creditForm')
-                this.setState({
-                    contacts: [],
-                    total: 0,
-                    customer_id: null,
-                    footer: '',
-                    terms: '',
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: '',
-                    design_id: null,
-                    loading: false,
-                    errors: []
-                })
+                this.setState(this.initialState)
                 this.toggle()
             })
             .catch((error) => {
@@ -156,22 +159,7 @@ class AddCredit extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    contacts: [],
-                    total: 0,
-                    customer_id: null,
-                    footer: '',
-                    terms: '',
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    design_id: null,
-                    public_notes: '',
-                    private_notes: '',
-                    loading: false,
-                    errors: []
-                }, () => localStorage.removeItem('creditForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('creditForm'))
             }
         })
     }
@@ -206,7 +194,8 @@ class AddCredit extends React.Component {
                             customer_id={this.state.customer_id} contacts={this.state.contacts}
                             handleContactChange={this.handleContactChange}/>
 
-                        <Notes public_notes={this.state.public_notes} handleInput={this.handleInput}
+                        <Notes terms={this.state.terms} footer={this.state.footer}
+                            public_notes={this.state.public_notes} handleInput={this.handleInput}
                             private_notes={this.state.private_notes}/>
                     </ModalBody>
 

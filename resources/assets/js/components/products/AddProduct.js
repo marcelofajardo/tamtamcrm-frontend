@@ -4,7 +4,7 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
-    ModalFooter, TabPane
+    ModalFooter
 } from 'reactstrap'
 import axios from 'axios'
 import AddButtons from '../common/AddButtons'
@@ -16,7 +16,8 @@ import CustomFieldsForm from '../common/CustomFieldsForm'
 class AddProduct extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+
+        this.initialState = {
             modal: false,
             name: '',
             description: '',
@@ -36,6 +37,8 @@ class AddProduct extends React.Component {
             categories: [],
             selectedCategories: []
         }
+
+        this.state = this.initialState
 
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
@@ -103,22 +106,7 @@ class AddProduct extends React.Component {
                 this.props.products.push(newProduct)
                 this.props.action(this.props.products)
                 localStorage.removeItem('productForm')
-                this.setState({
-                    name: '',
-                    description: '',
-                    company_id: null,
-                    quantity: 0,
-                    cost: 0,
-                    assigned_user_id: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    notes: '',
-                    price: '',
-                    sku: '',
-                    loading: false
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 this.setState({
@@ -156,21 +144,7 @@ class AddProduct extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    name: '',
-                    description: '',
-                    company_id: null,
-                    quantity: 0,
-                    cost: 0,
-                    assigned_user_id: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    notes: '',
-                    price: '',
-                    sku: ''
-                }, () => localStorage.removeItem('productForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('productForm'))
             }
         })
     }

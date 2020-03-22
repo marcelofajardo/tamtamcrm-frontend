@@ -18,8 +18,8 @@ export default class SettingsForm extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
-            currencyOpen: false,
-            paymentOpen: false
+            currencyOpen: !!(this.props.expense_currency_id && this.props.expense_currency_id > 0),
+            paymentOpen: !!(this.props.payment_date && this.props.payment_date.length > 1)
         }
 
         this.toggleCurrency = this.toggleCurrency.bind(this)

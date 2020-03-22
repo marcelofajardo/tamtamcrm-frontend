@@ -1,5 +1,5 @@
 import React from 'react'
-import {Input, FormGroup, Label, CustomInput} from 'reactstrap'
+import { Input, FormGroup, Label, CustomInput } from 'reactstrap'
 import CountryDropdown from '../common/CountryDropdown'
 import CurrencyDropdown from '../common/CurrencyDropdown'
 import Switch from '../common/Switch'

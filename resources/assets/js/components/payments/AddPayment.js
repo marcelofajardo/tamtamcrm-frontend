@@ -7,13 +7,12 @@ import {
     ModalFooter,
     Input,
     FormGroup,
-    Label, TabPane
+    Label
 } from 'reactstrap'
 import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
 import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
 import moment from 'moment'
-import FormBuilder from '../accounts/FormBuilder'
 import InvoiceLine from './InvoiceLine'
 import AddButtons from '../common/AddButtons'
 import CustomFieldsForm from '../common/CustomFieldsForm'
@@ -22,7 +21,8 @@ import Notes from '../common/Notes'
 class AddPayment extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+
+        this.initialState = {
             invoices: this.props.invoices,
             modal: false,
             customer_id: null,
@@ -43,6 +43,8 @@ class AddPayment extends React.Component {
             payable_invoices: [],
             message: ''
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -117,14 +119,7 @@ class AddPayment extends React.Component {
                 this.props.payments.push(newUser)
                 this.props.action(this.props.payments)
                 localStorage.removeItem('paymentForm')
-                this.setState({
-                    type_id: null,
-                    transaction_reference: null,
-                    invoice_id: null,
-                    customer_id: null,
-                    amount: null,
-                    private_notes: ''
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 if (error.response.data.message) {
@@ -147,15 +142,7 @@ class AddPayment extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    invoice_id: null,
-                    amount: null,
-                    type_id: null,
-                    customer_id: null,
-                    payable_invoices: [],
-                    transaction_reference: null,
-                    private_notes: ''
-                }, () => localStorage.removeItem('paymentForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('paymentForm'))
             }
         })
     }

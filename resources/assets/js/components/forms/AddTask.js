@@ -15,7 +15,7 @@ import Notes from '../common/Notes'
 class AddModal extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
+        this.initialState = {
             modal: false,
             title: '',
             rating: '',
@@ -41,6 +41,8 @@ class AddModal extends React.Component {
             submitSuccess: false,
             selectedUsers: []
         }
+
+        this.state = this.initialState
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -83,24 +85,7 @@ class AddModal extends React.Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    title: '',
-                    rating: '',
-                    source_type: 0,
-                    valued_at: '',
-                    customer_id: null,
-                    content: '',
-                    contributors: '',
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: '',
-                    created_by: '5af1921c0fe5703dd4a463ec',
-                    due_date: '',
-                    start_date: ''
-                }, () => localStorage.removeItem('taskForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('taskForm'))
             }
         })
     }
@@ -149,26 +134,7 @@ class AddModal extends React.Component {
         })
             .then((response) => {
                 this.toggle()
-                this.setState({
-                    title: '',
-                    rating: '',
-                    source_type: 0,
-                    valued_at: '',
-                    customer_id: null,
-                    content: '',
-                    contributors: '',
-                    created_by: '5af1921c0fe5703dd4a463ec',
-                    due_date: '',
-                    start_date: '',
-                    loading: false,
-                    submitSuccess: true,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: ''
-                })
+                this.setState(this.initialState)
 
                 if (this.props.action) {
                     const firstTask = response.data

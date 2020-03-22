@@ -16,8 +16,9 @@ export default function Items (props) {
                     delete={props.handleDelete}
                     update={props.handleFieldChange}
                     onAddFiled={props.handleAddFiled}
-                    setTotal={props.setTotal}/>
-
+                    setTotal={props.setTotal}
+                    total_custom_values={props.total_custom_values}
+                    total_custom_tax={props.total_custom_tax}/>
                 <br/>
                 <br/>
             </CardBody>

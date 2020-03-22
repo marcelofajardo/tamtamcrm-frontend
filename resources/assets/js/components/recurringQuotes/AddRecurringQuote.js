@@ -4,7 +4,6 @@ import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalHeader, ModalFo
 import QuoteDropdown from '../common/QuoteDropdown'
 import axios from 'axios'
 import CustomerDropdown from '../common/CustomerDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import AddButtons from '../common/AddButtons'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
@@ -12,7 +11,8 @@ import Notes from '../common/Notes'
 class AddRecurringQuote extends Component {
     constructor (props, context) {
         super(props, context)
-        this.state = {
+
+        this.initialState = {
             errors: [],
             is_recurring: false,
             quote_id: null,
@@ -28,6 +28,8 @@ class AddRecurringQuote extends Component {
             custom_value3: '',
             custom_value4: ''
         }
+
+        this.state = this.initialState
 
         this.handleInput = this.handleInput.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -77,20 +79,7 @@ class AddRecurringQuote extends Component {
                 this.props.invoices.push(newUser)
                 this.props.action(this.props.invoices)
                 localStorage.removeItem('recurringQuoteForm')
-                this.setState({
-                    quote_id: null,
-                    customer_id: null,
-                    start_date: moment(new Date()).format('YYYY-MM-DD'),
-                    end_date: moment(new Date()).format('YYYY-MM-DD'),
-                    recurring_due_date: moment(new Date()).format('YYYY-MM-DD'),
-                    frequency: 1,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: ''
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 alert(error)
@@ -135,20 +124,7 @@ class AddRecurringQuote extends Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    quote_id: null,
-                    customer_id: null,
-                    start_date: moment(new Date()).format('YYYY-MM-DD'),
-                    end_date: moment(new Date()).format('YYYY-MM-DD'),
-                    recurring_due_date: moment(new Date()).format('YYYY-MM-DD'),
-                    frequency: 1,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: ''
-                }, () => localStorage.removeItem('recurringQuoteForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('recurringQuoteForm'))
             }
         })
     }

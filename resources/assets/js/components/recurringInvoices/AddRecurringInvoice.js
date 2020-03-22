@@ -11,7 +11,8 @@ import CustomFieldsForm from '../common/CustomFieldsForm'
 class AddRecurringInvoice extends Component {
     constructor (props, context) {
         super(props, context)
-        this.state = {
+
+        this.initialState = {
             errors: [],
             is_recurring: false,
             invoice_id: null,
@@ -27,6 +28,8 @@ class AddRecurringInvoice extends Component {
             custom_value3: '',
             custom_value4: ''
         }
+
+        this.state = this.initialState
 
         this.handleInput = this.handleInput.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -76,20 +79,7 @@ class AddRecurringInvoice extends Component {
                 this.props.invoices.push(newUser)
                 this.props.action(this.props.invoices)
                 localStorage.removeItem('recurringInvoiceForm')
-                this.setState({
-                    invoice_id: null,
-                    customer_id: null,
-                    start_date: moment(new Date()).format('YYYY-MM-DD'),
-                    end_date: moment(new Date()).format('YYYY-MM-DD'),
-                    recurring_due_date: moment(new Date()).format('YYYY-MM-DD'),
-                    frequency: 1,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: ''
-                })
+                this.setState(this.initialState)
             })
             .catch((error) => {
                 alert(error)
@@ -134,20 +124,7 @@ class AddRecurringInvoice extends Component {
             errors: []
         }, () => {
             if (!this.state.modal) {
-                this.setState({
-                    invoice_id: null,
-                    customer_id: null,
-                    start_date: moment(new Date()).format('YYYY-MM-DD'),
-                    end_date: moment(new Date()).format('YYYY-MM-DD'),
-                    recurring_due_date: moment(new Date()).format('YYYY-MM-DD'),
-                    frequency: 1,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    public_notes: '',
-                    private_notes: ''
-                }, () => localStorage.removeItem('recurringInvoiceForm'))
+                this.setState(this.initialState, () => localStorage.removeItem('recurringInvoiceForm'))
             }
         })
     }

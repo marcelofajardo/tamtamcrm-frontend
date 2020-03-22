@@ -131,7 +131,18 @@ class LineItemEditor extends Component {
             : null
 
         let total = this.props.sub_total - this.props.discount_total
-        total = total += this.props.tax_total
+        total += this.props.tax_total
+
+        let tax_total = this.props.tax_total
+
+        if (this.props.total_custom_values && this.props.total_custom_values > 0) {
+            total += this.props.total_custom_values
+        }
+
+        if (this.props.total_custom_tax && this.props.total_custom_tax > 0) {
+            total += this.props.total_custom_tax
+            tax_total += this.props.total_custom_tax
+        }
 
         return (
             <React.Fragment>
@@ -153,7 +164,7 @@ class LineItemEditor extends Component {
                             <th/>
                             <th>Tax total:</th>
                             <th>{<FormatMoney
-                                amount={this.props.tax_total}/>}</th>
+                                amount={tax_total}/>}</th>
                             <th/>
                         </tr>
 

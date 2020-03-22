@@ -113,7 +113,7 @@ export default class DetailsForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Users:</Label>
                     <UserDropdown
-                        user={this.props.assigned_user_id}
+                        user_id={this.props.assigned_user_id}
                         name="assigned_user_id"
                         errors={this.props.errors}
                         handleInputChanges={this.props.handleInput}

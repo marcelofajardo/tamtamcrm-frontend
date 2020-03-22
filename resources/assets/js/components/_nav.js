@@ -1,5 +1,7 @@
 const modules = JSON.parse(localStorage.getItem('modules'))
-const is_admin = true
+const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
+const user_account = JSON.parse(localStorage.getItem('appState')).accounts.filter(account => account.account_id === parseInt(account_id))
+const is_admin = user_account && user_account.length && (parseInt(user_account[0].is_owner) === 1 || parseInt(user_account[0].is_admin) === 1)
 
 const items = [
     {

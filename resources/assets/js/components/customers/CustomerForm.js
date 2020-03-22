@@ -3,7 +3,6 @@ import { FormGroup, Label, Input } from 'reactstrap'
 import {
     Card, CardBody, CardHeader
 } from 'reactstrap'
-import FormBuilder from '../accounts/FormBuilder'
 
 export default function CustomerForm (props) {
     const hasErrorFor = (field) => {

@@ -36,7 +36,7 @@ import ProductSettings from './accounts/ProductSettings'
 import NumberSettings from './accounts/NumberSettings'
 import GroupSettings from './accounts/GroupSettings'
 import Expenses from './expenses/Expenses'
-import Designs from './designs/Designs'
+import Designs_backup from './designs/Designs'
 import Integrations from './accounts/IntegrationSettings'
 import Notifications from './accounts/Notifications'
 import Modules from './accounts/ModuleSettings'
@@ -204,7 +204,7 @@ const routes = [
     {
         path: '/designs',
         name: 'Designs',
-        component: Designs
+        component: Designs_backup
     },
     {
         path: '/integrations',

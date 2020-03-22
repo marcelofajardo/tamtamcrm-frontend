@@ -16,6 +16,7 @@ import {
 } from 'reactstrap'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
+import DynamicOptionList from './DynamicOptionList'
 
 class CustomFieldSettings extends Component {
     constructor (props) {
@@ -67,6 +68,7 @@ class CustomFieldSettings extends Component {
         this.toggle = this.toggle.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getSettings = this.getSettings.bind(this)
+        this.handleOptionChange = this.handleOptionChange.bind(this)
     }
 
     componentDidMount () {
@@ -109,6 +111,23 @@ class CustomFieldSettings extends Component {
         } else {
             // this.setState({ [e.target.name]: e.target.value })
         }
+
+        if (className === 'type' && value === 'select' && !this.state[entity].options) {
+            const products = [...this.state[entity]]
+            products[id].options = [{ value: '', text: '' }]
+            this.setState({ [entity]: products }, () => console.log(this.state))
+        }
+    }
+
+    handleOptionChange (e) {
+        console.log('entity', e)
+        const entity = e.data_entity
+        const id = e.data_id
+
+        const products = [...this.state[entity]]
+        products[id].options = e.options
+        this.setState({ [entity]: products }, () => console.log(this.state))
+        console.log('element', e)
     }
 
     handleSubmit (e) {
@@ -193,6 +212,21 @@ class CustomFieldSettings extends Component {
                                                 value={customers[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {customers[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="customers"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(customers[idx], { data_id: idx, data_entity: 'customers' })}
+                                                key={customers[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -252,6 +286,21 @@ class CustomFieldSettings extends Component {
                                                 value={product[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {product[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="product"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(product[idx], { data_id: idx, data_entity: 'product' })}
+                                                key={product[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -312,6 +361,21 @@ class CustomFieldSettings extends Component {
                                                 value={invoices[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {invoices[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="invoices"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(invoices[idx], { data_id: idx, data_entity: 'invoices' })}
+                                                key={invoices[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -372,6 +436,21 @@ class CustomFieldSettings extends Component {
                                                 value={payments[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {payments[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="payments"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(payments[idx], { data_id: idx, data_entity: 'payments' })}
+                                                key={payments[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -432,6 +511,21 @@ class CustomFieldSettings extends Component {
                                                 value={companies[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {companies[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="companies"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(companies[idx], { data_id: idx, data_entity: 'companies' })}
+                                                key={companies[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -492,6 +586,21 @@ class CustomFieldSettings extends Component {
                                                 value={quotes[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {quotes[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="quotes"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(quotes[idx], { data_id: idx, data_entity: 'quotes' })}
+                                                key={quotes[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -553,6 +662,21 @@ class CustomFieldSettings extends Component {
                                                 value={credits[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {credits[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="credits"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(credits[idx], { data_id: idx, data_entity: 'credits' })}
+                                                key={credits[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -614,6 +738,21 @@ class CustomFieldSettings extends Component {
                                                 value={tasks[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {tasks[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="tasks"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(tasks[idx], { data_id: idx, data_entity: 'tasks' })}
+                                                key={tasks[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
@@ -675,6 +814,21 @@ class CustomFieldSettings extends Component {
                                                 value={expenses[idx].label}
                                             />
                                         </FormGroup>
+
+                                        {expenses[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="expenses"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(expenses[idx], { data_id: idx, data_entity: 'expenses' })}
+                                                key={expenses[idx].options.length} />
+                                        </div>
+                                        }
                                     </Form>
                                 )
                             })
