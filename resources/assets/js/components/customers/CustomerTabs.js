@@ -42,9 +42,10 @@ export default function CustomerTabs (props) {
     }
 
     const setCustomer = e => {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         setCustomerValues({
             ...customer,
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         })
     }
 

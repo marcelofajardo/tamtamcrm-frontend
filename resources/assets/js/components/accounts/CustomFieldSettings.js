@@ -12,7 +12,9 @@ import {
     TabContent,
     FormGroup,
     Input,
-    Label
+    Label,
+    Row,
+    Col
 } from 'reactstrap'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
@@ -181,37 +183,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="customers"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={customers[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="customers"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={customers[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="customers"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={customers[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="customers"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={customers[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {customers[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -256,36 +265,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="product"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={product[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="product"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={product[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="product"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={product[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="product"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={product[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {product[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -331,36 +348,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_name${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                id={catId}
-                                                data-entity="invoices"
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={invoices[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="invoices"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={invoices[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="invoices"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={invoices[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        id={catId}
+                                                        data-entity="invoices"
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={invoices[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {invoices[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -406,36 +431,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <label htmlFor={catId}>{`Custom Field #${idx + 1}`}</label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="payments"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={payments[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="payments"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={payments[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="payments"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={payments[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <label htmlFor={catId}>{`Custom Field #${idx + 1}`}</label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="payments"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={payments[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {payments[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -481,36 +514,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-entity="companies"
-                                                data-id={idx}
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={companies[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="companies"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={companies[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="companies"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={companies[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-entity="companies"
+                                                        data-id={idx}
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={companies[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {companies[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -556,36 +597,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <label htmlFor={catId}>{`Custom Field #${idx + 1}`}</label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="quotes"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={quotes[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="quotes"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={quotes[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="quotes"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={quotes[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <label htmlFor={catId}>{`Custom Field #${idx + 1}`}</label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="quotes"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={quotes[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {quotes[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -631,37 +680,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="credits"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={credits[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="credits"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={credits[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="credits"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={credits[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="credits"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={credits[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {credits[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -707,37 +763,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="tasks"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={tasks[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="tasks"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={tasks[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="tasks"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={tasks[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="tasks"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={tasks[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {tasks[idx].type === 'select' &&
                                         <div className="row col-12">
@@ -783,37 +846,44 @@ class CustomFieldSettings extends Component {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
                                 return (
-                                    <Form key={idx} inline>
-                                        <FormGroup className="mb-4" key={idx}>
-                                            <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                            <Input
-                                                type="select"
-                                                name={catId}
-                                                data-id={idx}
-                                                data-entity="expenses"
-                                                id={catId}
-                                                data-field="type"
-                                                onChange={this.handleChange}
-                                                value={expenses[idx].type}
-                                            >
-                                                <option value='text'>Text</option>
-                                                <option value='textarea'>Textarea</option>
-                                                <option value='select'>Select List</option>
-                                                <option value='checkbox'>Switch</option>
-                                            </Input>
-
-                                            <Label htmlFor={ageId}>Label</Label>
-                                            <Input
-                                                type="text"
-                                                name={ageId}
-                                                data-id={idx}
-                                                data-entity="expenses"
-                                                id={ageId}
-                                                data-field="label"
-                                                onChange={this.handleChange}
-                                                value={expenses[idx].label}
-                                            />
-                                        </FormGroup>
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="expenses"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={expenses[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="expenses"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={expenses[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
 
                                         {expenses[idx].type === 'select' &&
                                         <div className="row col-12">

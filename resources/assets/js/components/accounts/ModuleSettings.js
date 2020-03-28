@@ -1,15 +1,30 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import {
     Form,
     FormGroup,
     Label,
-    CustomInput
+    CustomInput,
+    TabContent,
+    TabPane,
+    Nav,
+    NavItem,
+    NavLink,
+    Card,
+    CardHeader,
+    CardBody,
+    Button,
+    Modal, ModalBody, ModalFooter, ModalHeader
+
 } from 'reactstrap'
 
 class ModuleSettings extends Component {
     constructor (props) {
         super(props)
         this.state = {
+            id: localStorage.getItem('account_id'),
+            activeTab: '1',
+            showConfirm: false,
             modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
                 recurringInvoices: false,
                 credits: false,
@@ -136,8 +151,31 @@ class ModuleSettings extends Component {
             ]
         }
 
+        this.deleteAccount = this.deleteAccount.bind(this)
         this.customInputSwitched = this.customInputSwitched.bind(this)
         this.handleAllChecked = this.handleAllChecked.bind(this)
+        this.toggleTab = this.toggleTab.bind(this)
+    }
+
+    toggleTab (tab) {
+        if (this.state.activeTab !== tab) {
+            this.setState({ activeTab: tab })
+        }
+    }
+
+    deleteAccount () {
+        const url = `/api/account/${this.state.id}`
+        const self = this
+        axios.delete(url)
+            .then(function (response) {
+                // const arrExpenses = [...self.props.expenses]
+                // const index = arrExpenses.findIndex(expense => expense.id === id)
+                // arrExpenses.splice(index, 1)
+                // self.props.updateExpenses(arrExpenses)
+            })
+            .catch(function (error) {
+                alert(error)
+            })
     }
 
     handleAllChecked (event) {
@@ -160,33 +198,84 @@ class ModuleSettings extends Component {
 
     render () {
         return (
-            <div>
-                <p>Start editing to see some magic happen :)</p>
-                <Form>
-                    <FormGroup>
-                        <Label for="exampleCheckbox">Switches <input type="checkbox" onClick={this.handleAllChecked}/>Check
-                            all </Label>
-                        {this.state.moduleTypes.map((module, index) => {
-                            const isChecked = this.state.modules[module.id]
+            <React.Fragment>
+                <Nav tabs>
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '1' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggleTab('1')
+                            }}>
+                            Overview
+                        </NavLink>
+                    </NavItem>
 
-                            return (
-                                <div key={index}>
-                                    <CustomInput
-                                        checked={isChecked}
-                                        type="switch"
-                                        id={module.id}
-                                        name="customSwitch"
-                                        label={module.label}
-                                        onChange={this.customInputSwitched.bind(this, module.value)}
-                                    />
-                                </div>
-                            )
-                        }
-                        )}
-                    </FormGroup>
-                </Form>
-                {this.state.log}
-            </div>
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '2' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggleTab('2')
+                            }}>
+                            Enable Modules
+                        </NavLink>
+                    </NavItem>
+                </Nav>
+
+                <TabContent activeTab={this.state.activeTab}>
+                    <TabPane tabId="1">
+                        <Card>
+                            <CardHeader>Account Management</CardHeader>
+                            <CardBody>
+                                <Button onClick={() => this.setState({ showConfirm: true })} color="danger" size="lg" block>Delete Account</Button>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="2">
+                        <Card>
+                            <CardHeader>Enable Modules</CardHeader>
+                            <CardBody>
+                                <Form>
+                                    <FormGroup>
+                                        <Label for="exampleCheckbox">Switches <input type="checkbox" onClick={this.handleAllChecked}/>Check
+                                            all </Label>
+                                        {this.state.moduleTypes.map((module, index) => {
+                                            const isChecked = this.state.modules[module.id]
+
+                                            return (
+                                                <div key={index}>
+                                                    <CustomInput
+                                                        checked={isChecked}
+                                                        type="switch"
+                                                        id={module.id}
+                                                        name="customSwitch"
+                                                        label={module.label}
+                                                        onChange={this.customInputSwitched.bind(this, module.value)}
+                                                    />
+                                                </div>
+                                            )
+                                        }
+                                        )}
+                                    </FormGroup>
+                                </Form>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+                </TabContent>
+
+                <Modal isOpen={this.state.showConfirm} fade="false" toggle={() => this.setState({ showConfirm: false })}>
+                    <ModalHeader toggle={() => this.setState({ showConfirm: false })}>Are you sure?</ModalHeader>
+                    <ModalBody>
+                        <p>This action cannot be reversed.</p>
+                    </ModalBody>
+                    <ModalFooter>
+
+                        <Button onClick={() => this.setState({ showConfirm: false })}>Cancel</Button>
+                        <Button onClick={this.deleteAccount} color="danger">Delete</Button>
+                    </ModalFooter>
+                </Modal>
+            </React.Fragment>
+
         )
     }
 }

@@ -70,7 +70,7 @@ class EditLeadForm extends React.Component {
         e.preventDefault()
         this.setState({
             [e.target.name]: e.target.value,
-            changesMade: true,
+            changesMade: true
         })
     }
 

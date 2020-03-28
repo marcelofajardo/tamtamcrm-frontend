@@ -60,6 +60,9 @@ export default class QuoteDropdownMenu extends Component {
                 }
 
                 if (action === 'mark_sent') {
+                    const index = this.props.invoices.findIndex(invoice => invoice.id === this.props.invoice_id)
+                    this.props.invoices[index] = response.data
+                    this.props.action(this.props.invoices)
                     message = 'The quote has been marked as sent'
                 }
 

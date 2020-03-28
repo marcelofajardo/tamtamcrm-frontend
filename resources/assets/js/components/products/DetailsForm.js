@@ -58,7 +58,7 @@ export default class DetailsForm extends React.Component {
                     <Input className={this.hasErrorFor('name') ? 'is-invalid' : ''}
                         type="text"
                         name="name"
-                        defaultValue={this.props.name}
+                        defaultValue={this.props.product.name}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('name')}
                 </FormGroup>
@@ -68,7 +68,7 @@ export default class DetailsForm extends React.Component {
                     <Input className={this.hasErrorFor('quantity') ? 'is-invalid' : ''}
                         type="text"
                         name="quantity"
-                        defaultValue={this.props.quantity}
+                        defaultValue={this.props.product.quantity}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('quantity')}
                 </FormGroup>
@@ -78,7 +78,7 @@ export default class DetailsForm extends React.Component {
                     <Input className={this.hasErrorFor('description') ? 'is-invalid' : ''}
                         type="textarea"
                         name="description"
-                        defaultValue={this.props.description}
+                        defaultValue={this.props.product.description}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('description')}
                 </FormGroup>
@@ -88,14 +88,14 @@ export default class DetailsForm extends React.Component {
                     <Input className={this.hasErrorFor('sku') ? 'is-invalid' : ''}
                         type="text"
                         name="sku"
-                        defaultValue={this.props.sku}
+                        defaultValue={this.props.product.sku}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('sku')}
                 </FormGroup>
 
                 <CompanyDropdown
                     name="company_id"
-                    company_id={this.props.company_id}
+                    company_id={this.props.product.company_id}
                     errors={this.props.errors}
                     handleInputChanges={this.props.handleInput}
                     companies={this.props.companies}
@@ -113,7 +113,7 @@ export default class DetailsForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Users:</Label>
                     <UserDropdown
-                        user_id={this.props.assigned_user_id}
+                        user_id={this.props.product.assigned_user_id}
                         name="assigned_user_id"
                         errors={this.props.errors}
                         handleInputChanges={this.props.handleInput}
@@ -125,7 +125,7 @@ export default class DetailsForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Notes:</Label>
                     <Input
-                        value={this.props.notes}
+                        value={this.props.product.notes}
                         type='textarea'
                         name="notes"
                         errors={this.props.errors}

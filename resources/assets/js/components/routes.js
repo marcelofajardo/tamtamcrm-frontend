@@ -41,6 +41,7 @@ import Integrations from './accounts/IntegrationSettings'
 import Notifications from './accounts/Notifications'
 import Modules from './accounts/ModuleSettings'
 import Localisation from './accounts/LocalisationSettings'
+import WorkflowSettings from './accounts/WorkflowSettings'
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
@@ -195,6 +196,11 @@ const routes = [
         path: '/group-settings',
         name: 'Group Settings',
         component: GroupSettings
+    },
+    {
+        path: '/workflow-settings',
+        name: 'Workflow Settings',
+        component: WorkflowSettings
     },
     {
         path: '/field-settings',

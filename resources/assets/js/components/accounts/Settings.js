@@ -70,7 +70,9 @@ class Settings extends Component {
 
     handleSettingsChange (event) {
         const name = event.target.name
-        const value = event.target.value
+        let value = event.target.value
+        value = value === 'true' ? true : value
+        value = value === 'false' ? false : value
 
         this.setState(prevState => ({
             settings: {
@@ -272,6 +274,64 @@ class Settings extends Component {
         return formFields
     }
 
+    getDefaultFields () {
+        const { settings } = this.state
+        const formFields = [
+            [
+                {
+                    name: 'invoice_terms',
+                    label: 'Invoice Terms',
+                    type: 'textarea',
+                    placeholder: 'Invoice Terms',
+                    value: settings.invoice_terms,
+                    group: 1
+                },
+                {
+                    name: 'invoice_footer',
+                    label: 'Invoice Footer',
+                    type: 'textarea',
+                    placeholder: 'Invoice Footer',
+                    value: settings.invoice_footer,
+                    group: 1
+                },
+                {
+                    name: 'quote_terms',
+                    label: 'Quote Terms',
+                    type: 'textarea',
+                    placeholder: 'Quote Terms',
+                    value: settings.quote_terms,
+                    group: 1
+                },
+                {
+                    name: 'quote_footer',
+                    label: 'Quote Footer',
+                    type: 'textarea',
+                    placeholder: 'Quote Footer',
+                    value: settings.quote_footer,
+                    group: 1
+                },
+                {
+                    name: 'credit_terms',
+                    label: 'Credit Terms',
+                    type: 'textarea',
+                    placeholder: 'Credit Terms',
+                    value: settings.credit_terms,
+                    group: 1
+                },
+                {
+                    name: 'credit_footer',
+                    label: 'Credit Footer',
+                    type: 'textarea',
+                    placeholder: 'Credit Footer',
+                    value: settings.credit_footer,
+                    group: 1
+                }
+            ]
+        ]
+
+        return formFields
+    }
+
     render () {
         return this.state.loaded === true ? (
             <React.Fragment>
@@ -303,6 +363,16 @@ class Settings extends Component {
                                 this.toggle('3')
                             }}>
                             Logo
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '4' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('4')
+                            }}>
+                            Defaults
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -341,6 +411,18 @@ class Settings extends Component {
                                         id="company_logo" name="company_logo"
                                         label="Logo"/>
                                 </FormGroup>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="4">
+                        <Card>
+                            <CardHeader>Defaults</CardHeader>
+                            <CardBody>
+                                <FormBuilder
+                                    handleChange={this.handleSettingsChange}
+                                    formFieldsRows={this.getDefaultFields()}
+                                />
                             </CardBody>
                         </Card>
                     </TabPane>

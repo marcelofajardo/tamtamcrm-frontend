@@ -1,63 +1,39 @@
 import React, { Component } from 'react'
+import 'react-dates/initialize' // necessary for latest version
+import 'react-dates/lib/css/_datepicker.css'
+import { DateRangePicker } from 'react-dates'
 import {
     Card, CardBody,
-    CardHeader, Label, Input, Button,
-    FormGroup, Modal, ModalHeader, ModalBody, ModalFooter, Nav,
+    CardHeader, Button,
+    Modal, ModalHeader, ModalBody, ModalFooter, Nav,
     NavItem,
     NavLink,
     TabContent,
     TabPane,
-    DropdownItem
+    DropdownItem,
+    FormGroup, Label
 } from 'reactstrap'
-import axios from 'axios'
 import AddLead from './AddLead'
 import 'react-dates/initialize' // necessary for latest version
-import 'react-dates/lib/css/_datepicker.css'
-import { DateRangePicker } from 'react-dates'
 import moment from 'moment'
 import EditTaskTimes from './EditTaskTimes'
 import TaskDropdownMenu from './TaskDropdownMenu'
-import CustomerDropdown from '../common/CustomerDropdown'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
+import TaskModel from '../models/TaskModel'
+import TaskDetails from './TaskDetails'
 
 class EditTask extends Component {
     constructor (props) {
         super(props)
 
-        const start_date = this.props.task.start_date ? moment(this.props.task.start_date, 'YYYY-MM-DD') : moment()
+        this.taskModel = new TaskModel(this.props.task, this.props.customers)
+        this.initialState = this.taskModel.fields
+        this.taskModel.start_date = this.initialState.start_date
+        this.taskModel.due_date = this.initialState.due_date
 
-        this.state = {
-            modal: false,
-            dropdownOpen: false,
-            isOpen: false,
-            changesMade: false,
-            title: this.props.task.title,
-            description: this.props.task.content,
-            due_date: moment(this.props.task.due_date),
-            start_date: start_date,
-            contributors: this.props.task.contributors,
-            rating: this.props.task.rating,
-            source_type: this.props.task.source_type,
-            valued_at: this.props.task.valued_at,
-            customer_id: this.props.task.customer_id,
-            start_time: this.props.task.start_time ? this.props.task.start_time : null,
-            duration: this.props.task.duration ? this.props.task.duration : null,
-            err: '',
-            action: null,
-            users: [],
-            errors: [],
-            public_notes: this.props.task ? this.props.task.public_notes : '',
-            private_notes: this.props.task ? this.props.task.private_notes : '',
-            custom_value1: this.props.task ? this.props.task.custom_value1 : '',
-            custom_value2: this.props.task ? this.props.task.custom_value2 : '',
-            custom_value3: this.props.task ? this.props.task.custom_value3 : '',
-            custom_value4: this.props.task ? this.props.task.custom_value4 : '',
-            selectedUsers: this.props.task.contributors ? this.props.task.contributors : [],
-            activeTab: '1'
-        }
+        this.state = this.initialState
 
-        this.initialState = this.state
         this.handleSave = this.handleSave.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.handleChange = this.handleChange.bind(this)
@@ -66,22 +42,6 @@ class EditTask extends Component {
         this.toggle = this.toggle.bind(this)
         this.toggleTab = this.toggleTab.bind(this)
         this.toggleMenu = this.toggleMenu.bind(this)
-        this.hasErrorFor = this.hasErrorFor.bind(this)
-        this.renderErrorFor = this.renderErrorFor.bind(this)
-    }
-
-    hasErrorFor (field) {
-        return !!this.state.errors[field]
-    }
-
-    renderErrorFor (field) {
-        if (this.hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{this.state.errors[field][0]}</strong>
-                </span>
-            )
-        }
     }
 
     toggle () {
@@ -112,17 +72,18 @@ class EditTask extends Component {
     }
 
     timerAction (e) {
-        axios.put(`/api/tasks/timer/${this.props.task.id}`, {
+        const data = {
             action: e.target.id
+        }
+
+        this.taskModel.timerAction(data).then(response => {
+            if (!response) {
+                this.setState({ errors: this.taskModel.errors, message: this.taskModel.error_message })
+                return
+            }
+
+            this.setState({ action: e.target.id })
         })
-            .then((response) => {
-                this.setState({ action: e.target.id })
-            })
-            .catch((error) => {
-                this.setState({
-                    err: error.response.data.errors
-                })
-            })
     }
 
     getFormData () {
@@ -146,23 +107,21 @@ class EditTask extends Component {
     }
 
     handleSave () {
-        const data = this.getFormData()
+        this.taskModel.update(this.getFormData()).then(response => {
+            if (!response) {
+                this.setState({ errors: this.taskModel.errors, message: this.taskModel.error_message })
+                return
+            }
 
-        axios.put(`/api/tasks/${this.props.task.id}`, data)
-            .then((response) => {
-                this.initialState = this.state
-                const index = this.props.allTasks.findIndex(task => task.id === this.props.task.id)
-                this.props.allTasks[index] = response.data
-                this.props.action(this.props.allTasks)
-                this.setState({
-                    editMode: false,
-                    changesMade: false
-                })
-                this.toggle()
+            const index = this.props.allTasks.findIndex(task => task.id === this.props.task.id)
+            this.props.allTasks[index] = response
+            this.props.action(this.props.allTasks)
+            this.setState({
+                editMode: false,
+                changesMade: false
             })
-            .catch((error) => {
-                alert(error)
-            })
+            this.toggle()
+        })
     }
 
     handleDelete () {
@@ -175,8 +134,9 @@ class EditTask extends Component {
     }
 
     handleChange (e) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({
-            [e.target.name]: e.target.value,
+            [e.target.name]: value,
             changesMade: true
         })
     }
@@ -203,22 +163,7 @@ class EditTask extends Component {
         this.setState({ selectedUsers: Array.from(e.target.selectedOptions, (item) => item.value) })
     }
 
-    buildUserOptions () {
-        let userContent = null
-        if (!this.props.users) {
-            userContent = <option value="">Loading...</option>
-        } else {
-            userContent = this.props.users.map((user, index) => (
-                <option key={index}
-                    value={user.id}>{user.first_name + ' ' + user.last_name}</option>
-            ))
-        }
-
-        return userContent
-    }
-
     render () {
-        const userContent = this.buildUserOptions()
         const leadForm = this.props.task_type === 2 ? this.getFormForLead(true) : ''
 
         const form = <React.Fragment>
@@ -247,34 +192,13 @@ class EditTask extends Component {
             <TabContent activeTab={this.state.activeTab}>
                 <TabPane tabId="1">
 
-                    <TaskDropdownMenu id={this.props.task.id} formData={this.getFormData()}/>
+                    <TaskDropdownMenu model={this.taskModel} id={this.props.task.id} formData={this.getFormData()}/>
                     <Card>
                         <CardHeader>Details</CardHeader>
                         <CardBody>
-                            <FormGroup>
-                                <Label>Title</Label>
-                                <Input type="text" name="title"
-                                    value={this.state.title}
-                                    onChange={this.handleChange}/>
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>Description</Label>
-                                <Input type="textarea" name="description"
-                                    value={this.state.description}
-                                    onChange={this.handleChange}/>
-                            </FormGroup>
-
-                            <FormGroup className="mb-3">
-                                <Label>Customer</Label>
-                                <CustomerDropdown
-                                    customer={this.state.customer_id}
-                                    renderErrorFor={this.renderErrorFor}
-                                    handleInputChanges={this.handleChange}
-                                    customers={this.props.customers}
-                                />
-                                {this.renderErrorFor('customer_id')}
-                            </FormGroup>
+                            <TaskDetails task={this.state} setTimeRange={this.setTimeRange} customers={this.props.customers}
+                                errors={this.state.errors} handleMultiSelect={this.handleMultiSelect}
+                                users={this.props.users} handleInput={this.handleChange}/>
 
                             <FormGroup>
                                 <Label>Start / End date</Label>
@@ -291,18 +215,6 @@ class EditTask extends Component {
                                     focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
                                     onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
                                 />
-                            </FormGroup>
-
-                            <FormGroup>
-                                <Label>Assigned To</Label>
-                                <Input multiple
-                                    type="select"
-                                    value={this.state.selectedUsers}
-                                    id="contributors"
-                                    name="contributors"
-                                    onChange={this.handleMultiSelect}>
-                                    {userContent}
-                                </Input>
                             </FormGroup>
 
                             {leadForm}
@@ -323,10 +235,9 @@ class EditTask extends Component {
                     <Card>
                         <CardHeader>Details</CardHeader>
                         <CardBody>
-                            <EditTaskTimes task_id={this.props.task.id}/>
+                            <EditTaskTimes model={this.taskModel} task_id={this.props.task.id}/>
                         </CardBody>
                     </Card>
-
                 </TabPane>
             </TabContent>
         </React.Fragment>

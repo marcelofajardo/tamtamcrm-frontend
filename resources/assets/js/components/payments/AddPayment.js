@@ -1,50 +1,20 @@
 import React from 'react'
-import {
-    Button,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    Input,
-    FormGroup,
-    Label
-} from 'reactstrap'
-import axios from 'axios'
-import CustomerDropdown from '../common/CustomerDropdown'
-import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
-import moment from 'moment'
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap'
 import InvoiceLine from './InvoiceLine'
 import AddButtons from '../common/AddButtons'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
+import Details from './Details'
+import PaymentModel from '../models/PaymentModel'
 
 class AddPayment extends React.Component {
     constructor (props) {
         super(props)
 
-        this.initialState = {
-            invoices: this.props.invoices,
-            modal: false,
-            customer_id: null,
-            invoice_id: null,
-            transaction_reference: null,
-            date: moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            amount: 0,
-            type_id: '',
-            loading: false,
-            custom_value1: '',
-            custom_value2: '',
-            custom_value3: '',
-            custom_value4: '',
-            private_notes: '',
-            errors: [],
-            send_email: true,
-            selectedInvoices: [],
-            payable_invoices: [],
-            message: ''
-        }
-
+        this.paymentModel = new PaymentModel(this.props.invoices)
+        this.initialState = this.paymentModel.fields
         this.state = this.initialState
+
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -63,8 +33,9 @@ class AddPayment extends React.Component {
     }
 
     handleInput (e) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         })
     }
 
@@ -99,7 +70,7 @@ class AddPayment extends React.Component {
     }
 
     handleClick () {
-        axios.post('/api/payments', {
+        const data = {
             date: this.state.date,
             type_id: this.state.type_id,
             invoices: this.state.payable_invoices,
@@ -112,28 +83,19 @@ class AddPayment extends React.Component {
             custom_value3: this.state.custom_value3,
             custom_value4: this.state.custom_value4,
             private_notes: this.state.private_notes
-        })
-            .then((response) => {
-                this.toggle()
-                const newUser = response.data
-                this.props.payments.push(newUser)
-                this.props.action(this.props.payments)
-                localStorage.removeItem('paymentForm')
-                this.setState(this.initialState)
-            })
-            .catch((error) => {
-                if (error.response.data.message) {
-                    this.setState({ message: error.response.data.message })
-                }
+        }
 
-                if (error.response.data.errors) {
-                    this.setState({
-                        errors: error.response.data.errors
-                    })
-                } else {
-                    this.setState({ message: error.response.data })
-                }
-            })
+        this.paymentModel.save(data).then(response => {
+            if (!response) {
+                this.setState({ errors: this.paymentModel.errors, message: this.paymentModel.error_message })
+                return
+            }
+
+            this.props.payments.push(response)
+            this.props.action(this.props.payments)
+            localStorage.removeItem('paymentForm')
+            this.setState(this.initialState)
+        })
     }
 
     toggle () {
@@ -163,68 +125,14 @@ class AddPayment extends React.Component {
                             {message}
                         </div>}
 
-                        <FormGroup className="mb-3">
-                            <Label>Amount</Label>
-                            <Input value={this.state.amount} className={this.hasErrorFor('amount') ? 'is-invalid' : ''}
-                                type="text" name="amount"
-                                onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('amount')}
-                        </FormGroup>
-
-                        <FormGroup className="mr-2">
-                            <Label for="date">Date(*):</Label>
-                            <Input className={this.hasErrorFor('date') ? 'is-invalid' : ''} value={this.state.date}
-                                type="date" id="date" name="date"
-                                onChange={this.handleInput}/>
-                            {this.renderErrorFor('date')}
-                        </FormGroup>
-
-                        <FormGroup className="mb-3">
-                            <Label>Transaction Reference</Label>
-                            <Input className={this.hasErrorFor('transaction_reference') ? 'is-invalid' : ''} type="text"
-                                value={this.state.transaction_reference}
-                                name="transaction_reference"
-                                onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('transaction_reference')}
-                        </FormGroup>
-
-                        <FormGroup className="mb-3">
-                            <Label>Payment Type</Label>
-                            <PaymentTypeDropdown
-                                errors={this.state.errors}
-                                name="type_id"
-                                value={this.state.type_id}
-                                renderErrorFor={this.renderErrorFor}
-                                handleInputChanges={this.handleInput}
-                            />
-                            {this.renderErrorFor('type_id')}
-                        </FormGroup>
-
-                        <FormGroup className="mb-3">
-                            <Label>Customer</Label>
-                            <CustomerDropdown
-                                disabled={true}
-                                customer={this.state.customer_id}
-                                errors={this.state.errors}
-                                name="customer_id"
-                                renderErrorFor={this.renderErrorFor}
-                                handleInputChanges={this.handleCustomerChange}
-                            />
-                            {this.renderErrorFor('customer_id')}
-                        </FormGroup>
+                        <Details payment={this.state} errors={this.state.errors} handleInput={this.handleInput}
+                            handleCustomerChange={this.handleCustomerChange} handleCheck={this.handleCheck}/>
 
                         <InvoiceLine status={2} handleAmountChange={this.setAmount} errors={this.state.errors}
                             invoices={this.props.invoices}
                             customerChange={this.handleCustomerChange} onChange={this.setInvoices}/>
 
                         <Notes private_notes={this.state.private_notes} handleInput={this.handleInput}/>
-
-                        <FormGroup check>
-                            <Label check>
-                                <Input value={this.state.send_email} onChange={this.handleCheck} type="checkbox"/>
-                                Send Email
-                            </Label>
-                        </FormGroup>
 
                         <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
                             custom_value2={this.state.custom_value2}

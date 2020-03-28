@@ -203,7 +203,7 @@ export default class Payments extends Component {
             </Card>
 
             <ViewEntity
-                ignore={['paymentables', 'id', 'customer', 'invoice_id', 'applied', 'deleted_at', 'customer_id', 'refunded', 'task_id', 'company_id']}
+                ignore={['paymentables', 'assigned_user_id', 'id', 'customer', 'invoice_id', 'applied', 'deleted_at', 'customer_id', 'refunded', 'task_id', 'company_id']}
                 toggle={this.toggleViewedEntity}
                 title={view.title}
                 viewed={view.viewMode}

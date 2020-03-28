@@ -38,7 +38,7 @@ export default class TabContent extends Component {
                     </div>
 
                     <div label="Product" className="tab-content">
-                        <ProductSelect task_id={this.props.task.id}/>
+                        <ProductSelect customers={this.props.customers} task_id={this.props.task.id}/>
                     </div>
 
                     <div label="Event" className="tab-content">

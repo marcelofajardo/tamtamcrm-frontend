@@ -7,8 +7,9 @@ import {
     CardBody,
     CardHeader
 } from 'reactstrap'
-import FormBuilder from '../accounts/FormBuilder'
-import DesignDropdown from '../common/DesignDropdown'
+import Datepicker from '../common/Datepicker'
+import CustomerDropdown from '../common/CustomerDropdown'
+import Address from '../invoice/Address'
 
 export default class Details extends React.Component {
     constructor (props) {
@@ -36,20 +37,45 @@ export default class Details extends React.Component {
         return (<Card>
             <CardHeader>Details</CardHeader>
             <CardBody>
-                <FormGroup className="mb-3">
-                    <Label>Amount</Label>
-                    <Input value={this.props.total}
-                        className={this.hasErrorFor('total') ? 'is-invalid' : ''}
-                        type="text" name="total"
-                        onChange={this.props.handleInput}/>
-                    {this.renderErrorFor('total')}
+                <h2>{this.props.customerName}</h2>
+                <Address address={this.props.address}/>
+
+                <FormGroup className="mr-2">
+                    <Label for="date">Credit Date(*):</Label>
+                    <Datepicker name="date" date={this.props.credit.date} handleInput={this.props.handleInput}
+                        className={this.hasErrorFor('date') ? 'form-control is-invalid' : 'form-control'}/>
+                    {this.renderErrorFor('date')}
                 </FormGroup>
 
-                <FormGroup className="mb-3">
-                    <Label>Design</Label>
-                    <DesignDropdown name="design_id" handleChange={this.props.handleInput}
-                        design={this.props.design_id}/>
+                <FormGroup>
+                    <Label for="po_number">PO Number(*):</Label>
+                    <Input value={this.props.credit.po_number} type="text" id="po_number" name="po_number"
+                        onChange={this.props.handleInput}/>
+                    {this.renderErrorFor('po_number')}
                 </FormGroup>
+                <FormGroup>
+                    <Label>Partial</Label>
+                    <Input
+                        value={this.props.credit.partial}
+                        type='text'
+                        name='partial'
+                        id='partial'
+                        onChange={this.props.handleInput}
+                    />
+                </FormGroup>
+
+                <FormGroup className={this.props.credit.has_partial === true ? '' : 'd-none'}>
+                    <Label>Partial Due Date</Label>
+                    <Datepicker name="partial_due_date" date={this.props.credit.partial_due_date} handleInput={this.props.handleInput}
+                        className={this.hasErrorFor('partial_due_date') ? 'form-control is-invalid' : 'form-control'}/>
+                </FormGroup>
+
+                <CustomerDropdown
+                    handleInputChanges={this.props.handleInput}
+                    customer={this.props.credit.customer_id}
+                    customers={this.props.customers}
+                    errors={this.props.errors}
+                />
             </CardBody>
         </Card>
         )

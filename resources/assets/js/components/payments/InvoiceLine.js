@@ -1,9 +1,13 @@
 import React, { Component } from 'react'
 import InvoiceLineInputs from './InvoiceLineInputs'
+import PaymentModel from '../models/PaymentModel'
 
 export default class InvoiceLine extends Component {
     constructor (props) {
         super(props)
+
+        this.paymentModel = new PaymentModel(this.props.invoices)
+
         this.state = {
             lines: this.props.lines && this.props.lines.length ? this.props.lines : [{ invoice_id: null, amount: 0 }],
             amount: 0,
@@ -23,17 +27,15 @@ export default class InvoiceLine extends Component {
         let amount = 0
 
         if (name === 'invoice_id') {
-            const invoice = this.props.invoices.filter(function (invoice) {
-                return invoice.id === parseInt(e.target.value)
-            })
+            const invoice = this.paymentModel.getInvoice(e.target.value)
 
-            if (!invoice.length) {
+            if (!invoice) {
                 return
             }
 
-            this.props.customerChange(invoice[0].customer_id)
-            lines[idx].amount = parseFloat(invoice[0].total)
-            amount = this.state.amount += parseFloat(invoice[0].total)
+            this.props.customerChange(invoice.customer_id)
+            lines[idx].amount = parseFloat(invoice.total)
+            amount = this.state.amount += parseFloat(invoice.total)
         }
 
         lines[e.target.dataset.id][e.target.name] = e.target.value
@@ -54,7 +56,7 @@ export default class InvoiceLine extends Component {
     }
 
     addLine (e) {
-        const allowedInvoices = this.props.status ? this.props.invoices.filter(invoice => invoice.status_id === this.props.status) : this.props.invoices
+        const allowedInvoices = this.paymentModel.getInvoicesByStatus(this.props.status)
 
         if (this.state.lines.length >= allowedInvoices.length) {
             return

@@ -1,5 +1,6 @@
 import React from 'react'
 import { FormGroup, Label, Input } from 'reactstrap'
+import IndustryDropdown from '../common/IndustryDropdown'
 
 export default function NotesForm (props) {
     const hasErrorFor = (field) => {
@@ -34,15 +35,10 @@ export default function NotesForm (props) {
 
             <FormGroup>
                 <Label for="industry_id">Industry</Label>
-                <Input className={hasErrorFor('industry_id') ? 'is-invalid' : ''}
-                    type="select"
-                    id="industry_id"
-                    value={props.customer.industry_id}
-                    onChange={props.onChange}
-                    name="industry_id">
-                    <option value="">Industry</option>
-                    <option value="1">test</option>
-                </Input>
+                <IndustryDropdown
+                    industry_id={props.customer.industry_id}
+                    handleInputChanges={props.onChange}
+                />
                 {renderErrorFor('industry_id')}
             </FormGroup>
         </div>

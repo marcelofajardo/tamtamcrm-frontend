@@ -206,7 +206,7 @@ export default class Companies extends Component {
                     </CardBody>
                 </Card>
 
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
+                <ViewEntity ignore={['assigned_user_id', 'country_id', 'currency_id', 'industry_id', 'user_id']} toggle={this.toggleViewedEntity} title={view.title}
                     viewed={view.viewMode}
                     entity={view.viewedId}/>
             </div>

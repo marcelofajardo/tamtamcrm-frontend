@@ -38,7 +38,7 @@ export default class SettingsForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Currency(*):</Label>
                     <CurrencyDropdown
-                        currency_id={this.props.currency_id}
+                        currency_id={this.props.company.currency_id}
                         errors={this.props.errors}
                         handleInputChanges={this.props.handleInput}
                     />
@@ -47,7 +47,7 @@ export default class SettingsForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Industry:</Label>
                     <IndustryDropdown
-                        industry_id={this.props.industry_id}
+                        industry_id={this.props.company.industry_id}
                         errors={this.props.errors}
                         handleInputChanges={this.props.handleInput}
                     />
@@ -56,7 +56,7 @@ export default class SettingsForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Users:</Label>
                     <UserDropdown
-                        user_id={this.props.assigned_user_id}
+                        user_id={this.props.company.assigned_user_id}
                         name="assigned_user_id"
                         errors={this.props.errors}
                         handleInputChanges={this.props.handleInput}

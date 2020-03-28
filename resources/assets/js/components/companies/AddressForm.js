@@ -41,7 +41,7 @@ export default class AddressForm extends React.Component {
                         placeholder="Address"
                         type="text"
                         name="address_1"
-                        value={this.props.address_1}
+                        value={this.props.company.address_1}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('address_1')}
                 </FormGroup>
@@ -52,7 +52,7 @@ export default class AddressForm extends React.Component {
                         placeholder="Address"
                         type="text"
                         name="address_2"
-                        value={this.props.address_2}
+                        value={this.props.company.address_2}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('address_2')}
                 </FormGroup>
@@ -63,7 +63,7 @@ export default class AddressForm extends React.Component {
                         placeholder="Town"
                         type="text"
                         name="town"
-                        value={this.props.town}
+                        value={this.props.company.town}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('town')}
                 </FormGroup>
@@ -74,7 +74,7 @@ export default class AddressForm extends React.Component {
                         placeholder="City"
                         type="text"
                         name="city"
-                        value={this.props.city}
+                        value={this.props.company.city}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('city')}
                 </FormGroup>
@@ -85,7 +85,7 @@ export default class AddressForm extends React.Component {
                         placeholder="Postcode"
                         type="text"
                         name="postcode"
-                        value={this.props.postcode}
+                        value={this.props.company.postcode}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('postcode')}
                 </FormGroup>
@@ -93,7 +93,7 @@ export default class AddressForm extends React.Component {
                 <FormGroup>
                     <Label for="postcode">Country(*):</Label>
                     <CountryDropdown
-                        country={this.props.country_id}
+                        country={this.props.company.country_id}
                         errors={this.props.errors}
                         handleInputChanges={this.props.handleInput.bind(this)}
                     />

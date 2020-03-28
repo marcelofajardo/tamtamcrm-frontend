@@ -12,6 +12,8 @@ import {
 } from 'reactstrap'
 import InvoiceTotals from './InvoiceTotals'
 import PaymentTotals from './PaymentTotals'
+import CustomerTotals from './CustomerTotals'
+import ExpenseTotals from './ExpenseTotals'
 
 export default class ViewEntity extends Component {
     constructor (props) {
@@ -55,8 +57,14 @@ export default class ViewEntity extends Component {
                         {this.props.entity && this.props.entity_type && ['Invoice', 'Quote', 'Credit'].includes(this.props.entity_type) &&
                         <InvoiceTotals entity={this.props.entity}/>}
 
+                        {this.props.entity && this.props.entity_type && ['Customer'].includes(this.props.entity_type) &&
+                        <CustomerTotals entity={this.props.entity}/>}
+
                         {this.props.entity && this.props.entity_type && (this.props.entity_type === 'Payment') &&
                         <PaymentTotals entity={this.props.entity}/>}
+
+                        {this.props.entity && this.props.entity_type && ['Expense'].includes(this.props.entity_type) &&
+                        <ExpenseTotals entity={this.props.entity}/>}
 
                         <ListGroup>
                             {columnList}

@@ -137,9 +137,9 @@ export default class TaskList extends Component {
     }
 
     userList () {
-        const { tasks, custom_fields, users, ignoredColumns } = this.state
+        const { tasks, custom_fields, users, ignoredColumns, customers } = this.state
 
-        return <TaskItem tasks={tasks} users={users} custom_fields={custom_fields}
+        return <TaskItem action={this.addUserToState} tasks={tasks} users={users} custom_fields={custom_fields} customers={customers}
             ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
             toggleViewedEntity={this.toggleViewedEntity}
             onChangeBulk={this.onChangeBulk}/>

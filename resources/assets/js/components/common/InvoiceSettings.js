@@ -17,9 +17,11 @@ export default function InvoiceSettings (props) {
                         </FormGroup>
                     </Col>
                     <Col md={6}>
-                        <FormGroup>
-                            <Label for="examplePassword">Custom Surcharge Tax 1</Label>
-                            <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax1" id="examplePassword" checked={props.settings.custom_surcharge_tax1} />
+                        <FormGroup check>
+                            <Label check for="examplePassword">
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax1" id="examplePassword" checked={props.settings.custom_surcharge_tax1} />
+                                Custom Surcharge Tax 1
+                            </Label>
                         </FormGroup>
                     </Col>
                 </Row>
@@ -32,9 +34,11 @@ export default function InvoiceSettings (props) {
                         </FormGroup>
                     </Col>
                     <Col md={6}>
-                        <FormGroup>
-                            <Label for="examplePassword">Custom Surcharge Tax 2</Label>
-                            <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax2" id="examplePassword" checked={props.settings.custom_surcharge_tax2} />
+                        <FormGroup check>
+                            <Label check for="examplePassword">
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax2" id="examplePassword" checked={props.settings.custom_surcharge_tax2} />
+                                Custom Surcharge Tax 2
+                            </Label>
                         </FormGroup>
                     </Col>
                 </Row>
@@ -47,9 +51,11 @@ export default function InvoiceSettings (props) {
                         </FormGroup>
                     </Col>
                     <Col md={6}>
-                        <FormGroup>
-                            <Label for="examplePassword">Custom Surcharge Tax 3</Label>
-                            <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax3" id="examplePassword" checked={props.settings.custom_surcharge_tax3} />
+                        <FormGroup check>
+                            <Label check for="examplePassword">
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax3" id="examplePassword" checked={props.settings.custom_surcharge_tax3} />
+                                Custom Surcharge Tax 3
+                            </Label>
                         </FormGroup>
                     </Col>
                 </Row>
@@ -62,9 +68,11 @@ export default function InvoiceSettings (props) {
                         </FormGroup>
                     </Col>
                     <Col md={6}>
-                        <FormGroup>
-                            <Label for="examplePassword">Custom Surcharge Tax 4</Label>
-                            <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax4" id="examplePassword" checked={props.settings.custom_surcharge_tax4} />
+                        <FormGroup check>
+                            <Label check for="examplePassword">
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax4" id="examplePassword" checked={props.settings.custom_surcharge_tax4} />
+                                Custom Surcharge Tax 4
+                            </Label>
                         </FormGroup>
                     </Col>
                 </Row>

@@ -163,7 +163,6 @@ export default class Invoice extends Component {
         const addButton = this.state.customers.length ? <EditInvoice
             custom_fields={custom_fields}
             customers={customers}
-            invoice={{}}
             add={true}
             action={this.updateInvoice}
             invoices={invoices}
@@ -194,7 +193,8 @@ export default class Invoice extends Component {
                 </Card>
 
                 <ViewEntity
-                    ignore={[]} toggle={this.toggleViewedEntity}
+                    ignore={['design_id', 'status_id', 'custom_surcharge_tax1', 'custom_surcharge_tax2', 'custom_surcharge_tax3', 'custom_surcharge_tax4']}
+                    toggle={this.toggleViewedEntity}
                     title={view.title}
                     viewed={view.viewMode}
                     entity={view.viewedId}

@@ -39,7 +39,7 @@ export default class CostsForm extends React.Component {
                     <Input className={this.hasErrorFor('price') ? 'is-invalid' : ''}
                         type="text"
                         name="price"
-                        defaultValue={this.props.price}
+                        defaultValue={this.props.product.price}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('price')}
                 </FormGroup>
@@ -49,7 +49,7 @@ export default class CostsForm extends React.Component {
                     <Input className={this.hasErrorFor('cost') ? 'is-invalid' : ''}
                         type="text"
                         name="cost"
-                        defaultValue={this.props.cost}
+                        defaultValue={this.props.product.cost}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('cost')}
                 </FormGroup>

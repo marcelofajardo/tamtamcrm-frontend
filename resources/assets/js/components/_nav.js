@@ -75,13 +75,18 @@ const items = [
                 icon: 'fa fa-dashboard'
             },
             {
-                name: 'Modules',
+                name: 'Account Management',
                 url: '/modules',
                 icon: 'fa fa-dashboard'
             },
             {
                 name: 'Localisation',
                 url: '/localisation',
+                icon: 'fa fa-dashboard'
+            },
+            {
+                name: 'Workflow Settings',
+                url: '/workflow-settings',
                 icon: 'fa fa-dashboard'
             }
         ]

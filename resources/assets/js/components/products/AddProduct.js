@@ -133,8 +133,9 @@ class AddProduct extends React.Component {
     }
 
     handleInput (e) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         }, () => localStorage.setItem('productForm', JSON.stringify(this.state)))
     }
 
@@ -158,13 +159,10 @@ class AddProduct extends React.Component {
                         Add Product
                     </ModalHeader>
                     <ModalBody>
-                        <DetailsForm errors={this.state.errors} handleInput={this.handleInput} notes={this.state.notes}
-                            assigned_user_id={this.state.assigned_user_id}
+                        <DetailsForm errors={this.state.errors} handleInput={this.handleInput} product={this.state}
                             handleMultiSelect={this.handleMultiSelect} categories={this.props.categories}
                             selectedCategories={this.state.selectedCategories}
-                            company_id={this.state.company_id} companies={this.state.companies}
-                            sku={this.state.sku} description={this.state.description}
-                            quantity={this.state.quantity} name={this.state.name}/>
+                            companies={this.state.companies}/>
 
                         <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
                             custom_value2={this.state.custom_value2}
@@ -172,8 +170,7 @@ class AddProduct extends React.Component {
                             custom_value4={this.state.custom_value4}
                             custom_fields={this.props.custom_fields}/>
 
-                        <CostsForm errors={this.state.errors} price={this.state.price} handleInput={this.handleInput}
-                            cost={this.state.cost}/>
+                        <CostsForm product={this.state} errors={this.state.errors} handleInput={this.handleInput}/>
 
                         <ImageForm errors={this.state.errors} images={this.state.images}
                             deleteImage={null} handleFileChange={this.handleFileChange}

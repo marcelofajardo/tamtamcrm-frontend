@@ -28,68 +28,18 @@ import QuoteDropdownMenu from './QuoteDropdownMenu'
 import Notes from '../common/Notes'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import InvoiceSettings from '../common/InvoiceSettings'
+import { CalculateLineTotals, CalculateSurcharges, CalculateTotal } from '../common/InvoiceCalculations'
+import QuoteModel from '../models/QuoteModel'
+import DropdownMenuBuilder from '../common/DropdownMenuBuilder'
 
 class EditInvoice extends Component {
     constructor (props, context) {
         super(props, context)
 
-        this.state = {
-            invitations: this.props.invoice && this.props.invoice.invitations && this.props.invoice.invitations.length ? this.props.invoice.invitations : [],
-            customer_id: this.props.invoice && this.props.invoice.customer_id ? this.props.invoice.customer_id : null,
-            contacts: [],
-            due_date: this.props.invoice && this.props.invoice.due_date && this.props.invoice.due_date.length ? moment(this.props.invoice.due_date).format('YYYY-MM-DD') : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            quantity: '',
-            finance_type: this.props.finance_type ? this.props.finance_type : 1,
-            invoice_id: this.props.invoice && this.props.invoice.id ? this.props.invoice.id : null,
-            lines: [],
-            address: {},
-            customerName: '',
-            tax_rate_name: '',
-            tax_rate: this.props.invoice && this.props.invoice.tax_rate ? this.props.invoice.tax_rate : 0,
-            company_id: this.props.invoice && this.props.invoice.company_id ? this.props.invoice.company_id : null,
-            status_id: this.props.invoice && this.props.invoice.status_id ? parseInt(this.props.invoice.status_id) : 1,
-            customers: this.props.customers,
-            tasks: [],
-            errors: [],
-            total: this.props.invoice && this.props.invoice.total ? this.props.invoice.total : 0,
-            discount_total: this.props.invoice && this.props.invoice.discount_total ? this.props.invoice.discount_total : 0,
-            tax_total: this.props.invoice && this.props.invoice.tax_total ? this.props.invoice.tax_total : 0,
-            sub_total: this.props.invoice && this.props.invoice.sub_total ? this.props.invoice.sub_total : 0,
-            data: this.props.invoice && this.props.invoice.line_items ? this.props.invoice.line_items : [],
-            date: this.props.invoice && this.props.invoice.date ? this.props.invoice.date : moment(new Date()).add(1, 'days').format('YYYY-MM-DD'),
-            partial: this.props.invoice && this.props.invoice.partial ? this.props.invoice.partial : 0,
-            has_partial: false,
-            partial_due_date: this.props.invoice && this.props.invoice.partial_due_date ? this.props.invoice.partial_due_date : null,
-            public_notes: this.props.invoice && this.props.invoice.public_notes ? this.props.invoice.public_notes : null,
-            private_notes: this.props.invoice && this.props.invoice.private_notes ? this.props.invoice.private_notes : null,
-            terms: this.props.invoice && this.props.invoice.terms ? this.props.invoice.terms : null,
-            footer: this.props.invoice && this.props.invoice.footer ? this.props.invoice.footer : null,
-            visible: 'collapse',
-            custom_value1: this.props.invoice ? this.props.invoice.custom_value1 : '',
-            custom_value2: this.props.invoice ? this.props.invoice.custom_value2 : '',
-            custom_value3: this.props.invoice ? this.props.invoice.custom_value3 : '',
-            custom_value4: this.props.invoice ? this.props.invoice.custom_value4 : '',
-            custom_surcharge_tax1: this.props.invoice ? this.props.invoice.custom_surcharge_tax1 : false,
-            custom_surcharge_tax2: this.props.invoice ? this.props.invoice.custom_surcharge_tax2 : false,
-            custom_surcharge_tax3: this.props.invoice ? this.props.invoice.custom_surcharge_tax3 : false,
-            custom_surcharge_tax4: this.props.invoice ? this.props.invoice.custom_surcharge_tax4 : false,
-            custom_surcharge1: this.props.invoice ? this.props.invoice.custom_surcharge1 : 0,
-            custom_surcharge2: this.props.invoice ? this.props.invoice.custom_surcharge2 : 0,
-            custom_surcharge3: this.props.invoice ? this.props.invoice.custom_surcharge3 : 0,
-            custom_surcharge4: this.props.invoice ? this.props.invoice.custom_surcharge4 : 0,
-            tax: 0,
-            discount: 0,
-            total_custom_values: 0,
-            total_custom_tax: 0,
-            recurring: '',
-            activeTab: '1',
-            po_number: this.props.invoice && this.props.invoice.po_number ? this.props.invoice.po_number : '',
-            design_id: this.props.invoice && this.props.invoice.design_id ? this.props.invoice.design_id : null,
-            success: false,
-            showSuccessMessage: false,
-            showErrorMessage: false,
-            width: window.innerWidth
-        }
+        const data = this.props.invoice ? this.props.invoice : null
+        this.quoteModel = new QuoteModel(data, this.props.customers)
+        this.initialState = this.quoteModel.fields
+        this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
         this.saveData = this.saveData.bind(this)
@@ -122,9 +72,9 @@ class EditInvoice extends Component {
     }
 
     componentDidMount () {
-        if (this.props.task_id || this.props.invoice_id) {
+        if (this.props.task_id) {
             this.loadInvoice()
-        } else {
+        } else if (!this.props.invoice.id) {
             if (Object.prototype.hasOwnProperty.call(localStorage, 'quoteForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('quoteForm'))
                 this.setState({ ...storedValues }, () => console.log('new state', this.state))
@@ -132,9 +82,7 @@ class EditInvoice extends Component {
         }
 
         if (this.props.invoice && this.props.invoice.customer_id) {
-            const index = this.props.customers.findIndex(customer => customer.id === this.props.invoice.customer_id)
-            const customer = this.props.customers[index]
-            const contacts = customer.contacts ? customer.contacts : []
+            const contacts = this.quoteModel.contacts
             this.setState({ contacts: contacts })
         }
     }
@@ -156,46 +104,20 @@ class EditInvoice extends Component {
     }
 
     handleContactChange (e) {
-        const invitations = this.state.invitations
-
-        const contact = e.target.value
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            invitations.push({ client_contact_id: contact })
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            const index = invitations.findIndex(contact => contact.client_contact_id === contact)
-            invitations.splice(index, 1)
-        }
-
+        const invitations = this.quoteModel.buildInvitations(e.target.value, e.target.checked)
         // update the state with the new array of options
-        this.setState({ invitations: invitations }, () => localStorage.setItem('quoteForm', JSON.stringify(this.state)))
+        this.setState({ invitations: invitations }, () => console.log('invitations', invitations))
     }
 
     handleInput (e) {
         if (e.target.name === 'customer_id') {
-            const index = this.state.customers.findIndex(customer => customer.id === parseInt(e.target.value))
-            const customer = this.state.customers[index]
-
-            const contacts = customer.contacts ? customer.contacts : []
+            const customer = this.quoteModel.customerChange(e.target.value)
 
             this.setState({
                 customerName: customer.name,
-                contacts: contacts
-            }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
-
-            if (customer.billing) {
-                const address = customer.billing
-                const objAddress = {
-                    line1: address.address_1,
-                    town: address.address_2,
-                    county: address.city,
-                    country: 'United Kingdom'
-                }
-                this.setState({ address: objAddress }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
-            }
+                contacts: customer.contacts,
+                address: customer.address
+            }, () => localStorage.setItem('quoteForm', JSON.stringify(this.state)))
         }
 
         if (e.target.name === 'tax') {
@@ -206,7 +128,7 @@ class EditInvoice extends Component {
                 tax: rate,
                 tax_rate_name: name
             }, () => {
-                localStorage.setItem('invoiceForm', JSON.stringify(this.state))
+                localStorage.setItem('quoteForm', JSON.stringify(this.state))
                 this.calculateTotals()
             })
 
@@ -223,7 +145,7 @@ class EditInvoice extends Component {
 
         this.setState({
             [e.target.name]: value
-        }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+        }, () => localStorage.setItem('quoteForm', JSON.stringify(this.state)))
     }
 
     handleSurcharge (e) {
@@ -235,63 +157,32 @@ class EditInvoice extends Component {
     }
 
     calculateSurcharges (x) {
-        let total = 0
-        let tax_total = 0
-        const tax = parseFloat(this.state.tax)
+        const surcharge_totals = CalculateSurcharges({ surcharges: this.state })
 
-        if (this.state.custom_surcharge1 && this.state.custom_surcharge1 > 0) {
-            total += this.state.custom_surcharge1
-        }
-
-        if (this.state.custom_surcharge1 && this.state.custom_surcharge1 > 0 && this.state.custom_surcharge_tax1 === true && tax > 0) {
-            tax_total += this.state.custom_surcharge1 * (tax / 100)
-        }
-
-        if (this.state.custom_surcharge2 && this.state.custom_surcharge2 > 0) {
-            total += this.state.custom_surcharge2
-        }
-
-        if (this.state.custom_surcharge2 && this.state.custom_surcharge2 > 0 && this.state.custom_surcharge_tax2 === true && tax > 0) {
-            tax_total += this.state.custom_surcharge2 * (tax / 100)
-        }
-
-        if (this.state.custom_surcharge3 && this.state.custom_surcharge3 > 0) {
-            total += this.state.custom_surcharge3
-        }
-
-        if (this.state.custom_surcharge3 && this.state.custom_surcharge3 > 0 && this.state.custom_surcharge_tax3 === true && tax > 0) {
-            tax_total += this.state.custom_surcharge3 * (tax / 100)
-        }
-
-        if (this.state.custom_surcharge4 && this.state.custom_surcharge4 > 0) {
-            total += this.state.custom_surcharge4
-        }
-
-        if (this.state.custom_surcharge4 && this.state.custom_surcharge4 > 0 && this.state.custom_surcharge_tax4 === true && tax > 0) {
-            tax_total += this.state.custom_surcharge4 * (tax / 100)
-        }
-
-        this.setState({ total_custom_values: total, total_custom_tax: tax_total }, () => this.calculateTotals())
+        this.setState({
+            total_custom_values: surcharge_totals.total_custom_values,
+            total_custom_tax: surcharge_totals.total_custom_tax
+        }, () => this.calculateTotals())
     }
 
     handleTaskChange (e) {
-        axios.get(`/api/products/tasks/${this.props.task_id}/1`)
+        axios.get(`/api/products/tasks/${this.props.task_id}/1,2`)
             .then((r) => {
                 const arrLines = []
                 let total = 0
 
-                if (r.data && r.data.length) {
-                    r.data.map((product) => {
+                if (r.data && r.data.line_items) {
+                    r.data.line_items.map((product) => {
                         const objLine = {
                             quantity: product.quantity,
                             product_id: product.product_id,
-                            unit_price: product.price,
+                            unit_price: product.unit_price,
                             unit_discount: product.unit_discount,
                             unit_tax: product.unit_tax,
-                            order_id: product.order_id
+                            order_id: r.data.id
                         }
 
-                        total += parseFloat(product.price)
+                        total += parseFloat(product.unit_price)
                         arrLines.push(objLine)
                     })
                 }
@@ -307,22 +198,24 @@ class EditInvoice extends Component {
     }
 
     loadInvoice () {
-        const url = this.props.task_id ? `/api/quotes/task/${this.props.task_id}` : `/api/quote/${this.state.invoice_id}`
+        const url = this.props.task_id ? `/api/quotes/task/${this.props.task_id}` : `/api/quote/${this.state.id}`
 
         axios.get(url)
             .then((r) => {
                 if (r.data) {
                     this.setState({
-                        data: r.data.line_items,
+                        line_items: r.data.line_items,
                         due_date: moment(r.data.due_date).format('YYYY-MM-DD'),
+                        po_number: r.data.po_number,
                         invoice_id: r.data.id,
                         customer_id: r.data.customer_id,
+                        user_id: r.data.user_id,
                         company_id: r.data.company_id,
                         public_notes: r.data.public_notes,
                         private_notes: r.data.private_notes,
                         terms: r.data.terms,
                         footer: r.data.footer,
-                        status: r.data.status_id
+                        status_id: parseInt(r.data.status_id)
                     })
                 }
             })
@@ -333,38 +226,11 @@ class EditInvoice extends Component {
 
     toggle () {
         this.setState({
-            modal: !this.state.modal,
+            modalOpen: !this.state.modalOpen,
             errors: []
         }, () => {
-            if (!this.state.modal) {
-                this.setState({
-                    public_notes: '',
-                    tax: null,
-                    tax_rate_name: '',
-                    private_notes: '',
-                    custom_surcharge1: null,
-                    custom_surcharge2: null,
-                    custom_surcharge3: null,
-                    custom_surcharge4: null,
-                    custom_surcharge_tax1: null,
-                    custom_surcharge_tax2: null,
-                    custom_surcharge_tax3: null,
-                    custom_surcharge_tax4: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    terms: '',
-                    footer: '',
-                    partial: 0,
-                    partial_due_date: null,
-                    invoice_id: null,
-                    customer_id: null,
-                    company_id: null,
-                    status_id: null,
-                    data: [],
-                    invitations: []
-                }, () => localStorage.removeItem('quoteForm'))
+            if (!this.state.modalOpen) {
+                this.setState(this.initialState, () => localStorage.removeItem('quoteForm'))
             }
         })
     }
@@ -376,91 +242,19 @@ class EditInvoice extends Component {
     }
 
     calculateTotals () {
-        let total = 0
-        let discount_total = 0
-        let tax_total = 0
-        let sub_total = 0
-        let lexieTotal = 0
-
-        this.state.data.map((product) => {
-            const quantity = product.quantity === 0 ? 1 : product.quantity
-
-            const line_total = product.unit_price * quantity
-            total += line_total
-            sub_total += line_total
-            lexieTotal += line_total
-
-            if (product.unit_discount > 0 && this.state.discount === 0) {
-                const n = parseFloat(total)
-                const percentage = n * product.unit_discount / 100
-                discount_total += percentage
-                lexieTotal -= discount_total
-            }
-
-            if (product.unit_tax > 0 && this.state.tax === 0) {
-                const tax_percentage = lexieTotal * product.unit_tax / 100
-                tax_total += tax_percentage
-            }
-        })
-
-        if (this.state.tax > 0) {
-            const a_total = this.state.total_custom_values > 0 ? parseFloat(this.state.total_custom_values) + parseFloat(this.state.total) : parseFloat(this.state.total)
-            const tax_percentage = parseFloat(a_total) * parseFloat(this.state.tax) / 100
-            tax_total += tax_percentage
-        }
-
-        if (this.state.discount > 0) {
-            const discount_percentage = parseFloat(this.state.total) * parseFloat(this.state.discount) / 100
-            total -= discount_percentage
-        }
+        const totals = CalculateTotal({ invoice: this.state })
 
         this.setState({
-            total: total,
-            discount_total: discount_total,
-            tax_total: tax_total,
-            sub_total: sub_total
-        }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+            total: totals.total,
+            discount_total: totals.discount_total,
+            tax_total: totals.tax_total,
+            sub_total: totals.sub_total
+        }, () => localStorage.setItem('quoteForm', JSON.stringify(this.state)))
     }
 
     updatePriceData (index) {
         const data = this.state.data.slice()
-        const currentRow = data[index]
-        const price = currentRow.unit_price
-        let lexieTotal = 0
-
-        if (price < 0) {
-            return false
-        }
-
-        let total = price
-        const unit_discount = currentRow.unit_discount
-        const unit_tax = currentRow.unit_tax
-        const uses_inclusive_taxes = this.settings.inclusive_taxes
-
-        const quantity = currentRow.quantity
-
-        if (quantity > 0) {
-            total = price * quantity
-            lexieTotal += price * quantity
-        }
-
-        if (unit_discount > 0 && this.state.discount === 0) {
-            const n = parseFloat(total)
-            //
-            const percentage = n * unit_discount / 100
-            lexieTotal -= percentage
-        }
-
-        if (unit_tax > 0 && this.state.tax === 0) {
-            const tax_percentage = lexieTotal * unit_tax / 100
-            currentRow.tax_total = tax_percentage
-
-            if (uses_inclusive_taxes === false) {
-                total += tax_percentage
-            }
-        }
-
-        currentRow.sub_total = total
+        data[index] = CalculateLineTotals({ currentRow: data[index], settings: this.settings, invoice: this.state })
 
         this.setState({ data: data }, () => localStorage.setItem('quoteForm', JSON.stringify(this.state)))
     }
@@ -473,44 +267,13 @@ class EditInvoice extends Component {
     }
 
     handleAddFiled () {
-        this.setState((prevState, props) => {
-            return {
-                data: this.state.data.concat({
-                    unit_discount: 0,
-                    unit_tax: 0,
-                    quantity: 0,
-                    unit_price: 0,
-                    product_id: 0
-                })
-            }
-        })
+        const items = this.quoteModel.addItem()
+        this.setState({ line_items: items })
     }
 
     handleDelete (idx) {
-        if (this.state.data[idx] && this.state.data[idx].order_id) {
-            axios.put(`/api/orders/${this.state.data[idx].order_id}`, { status: 1 })
-                .then((response) => {
-                    this.setState({
-                        showSuccessMessage: true,
-                        showErrorMessage: false
-                    })
-                })
-                .catch((error) => {
-                    this.setState({
-                        errors: error.response.data.errors,
-                        showErrorMessage: true,
-                        showSuccessMessage: false
-                    })
-
-                    console.warn(error)
-                })
-        }
-
-        const newTasks = this.state.data.filter((task, tIndex) => {
-            return idx !== tIndex
-        })
-
-        this.setState({ data: newTasks })
+        const items = this.quoteModel.removeItem(idx)
+        this.setState({ line_items: items })
     }
 
     setTotal (total) {
@@ -524,7 +287,7 @@ class EditInvoice extends Component {
             tax_rate: this.state.tax,
             tax_rate_name: this.state.tax_rate_name,
             is_recurring: this.state.is_recurring,
-            invoice_id: this.state.invoice_id,
+            invoice_id: this.state.id,
             task_id: this.props.task_id,
             due_date: this.state.due_date,
             customer_id: this.state.customer_id,
@@ -561,58 +324,35 @@ class EditInvoice extends Component {
     }
 
     saveData () {
-        const data = this.getFormData()
-
-        if (!this.state.invoice_id) {
-            return this.createInvoice(data)
+        if (!this.state.id) {
+            return this.createInvoice()
         }
 
-        axios.put(`/api/quote/${this.state.invoice_id}`, data)
-            .then((response) => {
-                const firstInvoice = response.data
-                const allInvoices = this.props.invoices
-                allInvoices.push(firstInvoice)
-                localStorage.removeItem('quoteForm')
-                this.setState({
-                    success: true,
-                    showSuccessMessage: true,
-                    showErrorMessage: false
-                })
-                this.props.action(allInvoices)
-            })
-            .catch((error) => {
-                this.setState({
-                    errors: error.response.data.errors,
-                    showErrorMessage: true,
-                    showSuccessMessage: false
-                })
+        this.quoteModel.update(this.getFormData()).then(response => {
+            if (!response) {
+                this.setState({ errors: this.quoteModel.errors, message: this.quoteModel.error_message })
+                return
+            }
 
-                console.warn(error)
-            })
+            const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
+            this.props.invoices[index] = response
+            this.props.action(this.props.invoices)
+        })
     }
 
-    createInvoice (data) {
-        axios.post('/api/quote', data)
-            .then((response) => {
-                const firstInvoice = response.data
-                const allInvoices = this.props.invoices
-                allInvoices.push(firstInvoice)
-                this.props.action(allInvoices)
-                localStorage.removeItem('quoteForm')
-                this.setState({
-                    showSuccessMessage: true,
-                    showErrorMessage: false
-                })
-            })
-            .catch((error) => {
-                this.setState({
-                    errors: error.response.data.errors,
-                    showErrorMessage: true,
-                    showSuccessMessage: false
-                })
-
-                console.warn(error)
-            })
+    createInvoice () {
+        this.quoteModel.save(this.getFormData()).then(response => {
+            if (!response) {
+                this.setState({ errors: this.quoteModel.errors, message: this.quoteModel.error_message })
+                return
+            }
+            const firstInvoice = response
+            const allInvoices = this.props.invoices
+            allInvoices.push(firstInvoice)
+            this.props.action(allInvoices)
+            localStorage.removeItem('quoteForm')
+            this.setState(this.initialState)
+        })
     }
 
     setRecurring (recurring) {
@@ -625,7 +365,7 @@ class EditInvoice extends Component {
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
-        const documentTabLink = this.state.invoice_id !== null ? <NavItem>
+        const documentTabLink = this.state.id !== null ? <NavItem>
             <NavLink
                 className={this.state.activeTab === '5' ? 'active' : ''}
                 onClick={() => {
@@ -678,13 +418,11 @@ class EditInvoice extends Component {
             {documentTabLink}
         </Nav>
 
-        const details = <Details company_id={this.state.company_id} handleInput={this.handleInput}
-            has_partial={this.state.has_partial}
-            customer_id={this.state.customer_id} customers={this.props.customers}
-            errors={this.state.errors} partial_due_date={this.state.partial_due_date}
-            partial={this.state.partial} invoice={this.props.invoice}
-            po_number={this.state.po_number} due_date={this.state.due_date} date={this.state.date}
-            address={this.state.address} customerName={this.state.customerName} />
+        const details = <Details handleInput={this.handleInput}
+            customers={this.props.customers}
+            errors={this.state.errors}
+            quote={this.state}
+            address={this.state.address} customerName={this.state.customerName}/>
 
         const custom = <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
             custom_value2={this.state.custom_value2}
@@ -695,29 +433,27 @@ class EditInvoice extends Component {
         const contacts = <Contacts errors={this.state.errors} contacts={this.state.contacts}
             invitations={this.state.invitations} handleContactChange={this.handleContactChange}/>
 
-        const settings = <InvoiceSettings handleSurcharge={this.handleSurcharge} settings={this.state} errors={this.state.errors} handleInput={this.handleInput}
+        const settings = <InvoiceSettings handleSurcharge={this.handleSurcharge} settings={this.state}
+            errors={this.state.errors} handleInput={this.handleInput}
             discount={this.state.discount} design_id={this.state.design_id}/>
 
-        const items = <Items errors={this.state.errors} handleFieldChange={this.handleFieldChange}
+        const items = <Items quote={this.state} errors={this.state.errors} handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
-            handleDelete={this.handleDelete} discount_total={this.state.discount_total}
-            sub_total={this.state.sub_total} tax_total={this.state.tax_total}
-            total={this.state.total} data={this.state.data}
-            total_custom_values={this.state.total_custom_values}
-            total_custom_tax={this.state.total_custom_tax}/>
+            handleDelete={this.handleDelete}
+        />
 
         const notes = <Notes private_notes={this.state.private_notes} public_notes={this.state.public_notes}
             terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
             handleInput={this.handleInput}/>
 
-        const documents = <Documents invoice={this.props.invoice}/>
+        const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
-        const dropdownMenu = <QuoteDropdownMenu invoices={this.props.invoices} formData={this.getFormData()}
-            invoice_id={this.props.invoice.id}
-            task_id={this.state.task_id}
-            handleTaskChange={this.handleTaskChange}
-            action={this.props.action}
-            status_id={this.props.invoice.status_id}/>
+        const dropdownMenu = this.state.id
+            ? <DropdownMenuBuilder invoices={this.props.invoices}
+                formData={this.getFormData()}
+                model={this.quoteModel}
+                handleTaskChange={this.handleTaskChange}
+                action={this.props.action} /> : null
 
         const isMobile = this.state.width <= 500
         const form = isMobile
@@ -796,7 +532,7 @@ class EditInvoice extends Component {
             return (
                 <React.Fragment>
                     {button}
-                    <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}
+                    <Modal isOpen={this.state.modalOpen} toggle={this.toggle} className={this.props.className}
                         size="lg">
                         <ModalHeader toggle={this.toggle}>
                             Quote

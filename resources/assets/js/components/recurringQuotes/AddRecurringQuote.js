@@ -7,6 +7,7 @@ import CustomerDropdown from '../common/CustomerDropdown'
 import AddButtons from '../common/AddButtons'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
+import Datepicker from '../common/Datepicker'
 
 class AddRecurringQuote extends Component {
     constructor (props, context) {
@@ -90,9 +91,7 @@ class AddRecurringQuote extends Component {
     }
 
     handleInput (e) {
-        if (e.target.value === '') {
-            return
-        }
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
 
         let customerId = this.state.customer_id
 
@@ -110,7 +109,7 @@ class AddRecurringQuote extends Component {
 
         this.setState({
             customer_id: customerId,
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         }, () => localStorage.setItem('recurringQuoteForm', JSON.stringify(this.state)))
 
         if (this.props.setRecurring) {
@@ -136,22 +135,22 @@ class AddRecurringQuote extends Component {
             <div className={inlineClass}>
                 <FormGroup>
                     <Label for="start_date">Start Date(*):</Label>
-                    <Input value={this.state.start_date} type="date" id="start_date" name="start_date"
-                        onChange={this.handleInput}/>
+                    <Datepicker name="start_date" date={this.state.start_date} handleInput={this.handleInput}
+                        className={this.hasErrorFor('start_date') ? 'form-control is-invalid' : 'form-control'}/>
                     {this.renderErrorFor('start_date')}
                 </FormGroup>
 
                 <FormGroup>
                     <Label for="end_date">End Date(*):</Label>
-                    <Input value={this.state.end_date} type="date" id="end_date" name="end_date"
-                        onChange={this.handleInput}/>
+                    <Datepicker name="end_date" date={this.state.end_date} handleInput={this.handleInput}
+                        className={this.hasErrorFor('end_date') ? 'form-control is-invalid' : 'form-control'}/>
                     {this.renderErrorFor('end_date')}
                 </FormGroup>
 
                 <FormGroup>
                     <Label for="recurring_due_date">Recurring Due Date(*):</Label>
-                    <Input value={this.state.recurring_due_date} type="date" id="recurring_due_date"
-                        name="recurring_due_date" onChange={this.handleInput}/>
+                    <Datepicker name="recurring_due_date" date={this.state.recurring_due_date} handleInput={this.handleInput}
+                        className={this.hasErrorFor('recurring_due_date') ? 'form-control is-invalid' : 'form-control'}/>
                     {this.renderErrorFor('recurring_due_date')}
                 </FormGroup>
 

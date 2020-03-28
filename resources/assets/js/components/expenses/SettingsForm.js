@@ -13,13 +13,15 @@ import {
 } from 'reactstrap'
 import CurrencyDropdown from '../common/CurrencyDropdown'
 import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
+import Datepicker from '../common/Datepicker'
 
 export default class SettingsForm extends React.Component {
     constructor (props) {
         super(props)
+
         this.state = {
-            currencyOpen: !!(this.props.expense_currency_id && this.props.expense_currency_id > 0),
-            paymentOpen: !!(this.props.payment_date && this.props.payment_date.length > 1)
+            currencyOpen: !!(this.props.expense.expense_currency_id && this.props.expense.expense_currency_id > 0),
+            paymentOpen: !!(this.props.expense.payment_date && this.props.expense.payment_date.length > 1)
         }
 
         this.toggleCurrency = this.toggleCurrency.bind(this)
@@ -70,7 +72,7 @@ export default class SettingsForm extends React.Component {
 
             <CardBody>
                 <CustomInput
-                    checked={this.props.should_be_invoiced}
+                    checked={this.props.expense.should_be_invoiced}
                     type="switch"
                     id="should_be_invoiced"
                     name="customSwitch"
@@ -90,7 +92,7 @@ export default class SettingsForm extends React.Component {
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="exampleEmail">Payment Type</Label>
-                                <PaymentTypeDropdown payment_type={this.props.payment_type_id}
+                                <PaymentTypeDropdown payment_type={this.props.expense.payment_type_id}
                                     handleInputChanges={this.props.handleInput}
                                     name="payment_type_id"/>
                             </FormGroup>
@@ -98,16 +100,14 @@ export default class SettingsForm extends React.Component {
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="examplePassword">Date</Label>
-                                <Input value={this.props.payment_date} type="date"
-                                    onChange={this.props.handleInput}
-                                    name="payment_date" id="examplePassword"
-                                    placeholder="password placeholder"/>
+                                <Datepicker className="form-control" name="payment_date" date={this.props.expense.payment_date}
+                                    handleInput={this.props.handleInput}/>
                             </FormGroup>
                         </Col>
                         <Col md={4}>
                             <FormGroup>
                                 <Label for="examplePassword">Transaction Reference</Label>
-                                <Input value={this.props.transaction_reference} type="text"
+                                <Input value={this.props.expense.transaction_reference} type="text"
                                     name="transaction_reference"
                                     onChange={this.props.handleInput} id="transaction_reference"
                                     placeholder="password placeholder"/>
@@ -129,7 +129,7 @@ export default class SettingsForm extends React.Component {
                         <Col md={6}>
                             <FormGroup>
                                 <Label for="exampleEmail">Currency</Label>
-                                <CurrencyDropdown currency_id={this.props.expense_currency_id}
+                                <CurrencyDropdown currency_id={this.props.expense.expense_currency_id}
                                     handleInputChanges={this.props.handleInput}
                                     name="expense_currency_id"/>
                             </FormGroup>
@@ -139,7 +139,7 @@ export default class SettingsForm extends React.Component {
                                 <Label for="examplePassword">Exchange Rate</Label>
                                 <Input type="text" name="exchange_rate" id="exchange_rate"
                                     onChange={this.props.handleInput}
-                                    value={this.props.exchange_rate}
+                                    value={this.props.expense.exchange_rate}
                                     placeholder="Exchange Rate"/>
                             </FormGroup>
                         </Col>
@@ -147,7 +147,7 @@ export default class SettingsForm extends React.Component {
                 </Collapse>
 
                 <CustomInput
-                    checked={this.props.invoice_documents}
+                    checked={this.props.expense.invoice_documents}
                     type="switch"
                     id="invoice_documents"
                     name="customSwitch"

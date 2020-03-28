@@ -8,17 +8,12 @@ export default function Items (props) {
             <CardHeader>Items</CardHeader>
             <CardBody>
                 <LineItemEditor
-                    total={props.total}
-                    sub_total={props.sub_total}
-                    tax_total={props.tax_total}
-                    discount_total={props.discount_total}
-                    rows={props.data}
+                    invoice={props.invoice}
                     delete={props.handleDelete}
                     update={props.handleFieldChange}
                     onAddFiled={props.handleAddFiled}
                     setTotal={props.setTotal}
-                    total_custom_values={props.total_custom_values}
-                    total_custom_tax={props.total_custom_tax}/>
+                />
                 <br/>
                 <br/>
             </CardBody>

@@ -225,9 +225,13 @@ export default class Customers extends Component {
                     </CardBody>
                 </Card>
 
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
+                <ViewEntity
+                    ignore={['default_payment_method', 'industry_id', 'size_id', 'currency_id']} toggle={this.toggleViewedEntity}
+                    title={view.title}
                     viewed={view.viewMode}
-                    entity={view.viewedId}/>
+                    entity={view.viewedId}
+                    entity_type="Customer"
+                />
             </div>
         )
     }

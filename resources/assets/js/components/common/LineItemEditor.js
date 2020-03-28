@@ -13,7 +13,7 @@ class LineItemEditor extends Component {
             taxRates: [],
             expenses: [],
             line_type: 1,
-            total: this.props.total
+            total: this.props.invoice.total
         }
 
         this.handleRowChange = this.handleRowChange.bind(this)
@@ -54,7 +54,7 @@ class LineItemEditor extends Component {
     }
 
     handleRowChange (e) {
-        const rows = [...this.props.rows]
+        const rows = [...this.props.invoice.line_items]
 
         if (e.target.name.includes('task_id')) {
             const test = e.target.name.split('|')
@@ -119,7 +119,7 @@ class LineItemEditor extends Component {
         const lineItemRows = this.state.products.length && this.state.taxRates.length
             ? <LineItem
                 line_type={parseInt(this.state.line_type)}
-                rows={this.props.rows}
+                rows={this.props.invoice.line_items}
                 tax_rates={this.state.taxRates}
                 expenses={this.state.expenses}
                 products={this.state.products}
@@ -130,18 +130,18 @@ class LineItemEditor extends Component {
             />
             : null
 
-        let total = this.props.sub_total - this.props.discount_total
-        total += this.props.tax_total
+        let total = this.props.invoice.sub_total - this.props.invoice.discount_total
+        total += this.props.invoice.tax_total
 
-        let tax_total = this.props.tax_total
+        let tax_total = this.props.invoice.tax_total
 
-        if (this.props.total_custom_values && this.props.total_custom_values > 0) {
-            total += this.props.total_custom_values
+        if (this.props.invoice.total_custom_values && this.props.invoice.total_custom_values > 0) {
+            total += this.props.invoice.total_custom_values
         }
 
-        if (this.props.total_custom_tax && this.props.total_custom_tax > 0) {
-            total += this.props.total_custom_tax
-            tax_total += this.props.total_custom_tax
+        if (this.props.invoice.total_custom_tax && this.props.invoice.total_custom_tax > 0) {
+            total += this.props.invoice.total_custom_tax
+            tax_total += this.props.invoice.total_custom_tax
         }
 
         return (
@@ -172,7 +172,7 @@ class LineItemEditor extends Component {
                             <th/>
                             <th>Discount total:</th>
                             <th>{<FormatMoney
-                                amount={this.props.discount_total}/>}</th>
+                                amount={this.props.invoice.discount_total}/>}</th>
                             <th/>
                         </tr>
 
@@ -180,7 +180,7 @@ class LineItemEditor extends Component {
                             <th/>
                             <th>Sub total:</th>
                             <th>{<FormatMoney
-                                amount={this.props.sub_total}/>}</th>
+                                amount={this.props.invoice.sub_total}/>}</th>
                             <th/>
                         </tr>
 

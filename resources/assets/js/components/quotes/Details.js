@@ -5,6 +5,7 @@ import CustomerDropdown from '../common/CustomerDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import FormBuilder from '../accounts/FormBuilder'
 import AddRecurringQuote from '../recurringQuotes/AddRecurringQuote'
+import Datepicker from '../common/Datepicker'
 
 export default class Details extends Component {
     constructor (props, context) {
@@ -80,26 +81,26 @@ export default class Details extends Component {
 
                         <FormGroup>
                             <Label for="date">Quote Date(*):</Label>
-                            <Input value={this.props.date} type="date" id="date" name="date"
-                                onChange={this.props.handleInput}/>
+                            <Datepicker name="date" date={this.props.quote.date} handleInput={this.props.handleInput}
+                                className={this.hasErrorFor('date') ? 'form-control is-invalid' : 'form-control'}/>
                             {this.renderErrorFor('due_date')}
                         </FormGroup>
                         <FormGroup>
                             <Label for="due_date">Expiry Date(*):</Label>
-                            <Input value={this.props.due_date} type="date" id="due_date" name="due_date"
-                                onChange={this.props.handleInput}/>
+                            <Datepicker name="due_date" date={this.props.quote.due_date} handleInput={this.props.handleInput}
+                                className={this.hasErrorFor('due_date') ? 'form-control is-invalid' : 'form-control'}/>
                             {this.renderErrorFor('due_date')}
                         </FormGroup>
                         <FormGroup>
                             <Label for="po_number">PO Number(*):</Label>
-                            <Input value={this.props.po_number} type="text" id="po_number" name="po_number"
+                            <Input value={this.props.quote.po_number} type="text" id="po_number" name="po_number"
                                 onChange={this.props.handleInput}/>
                             {this.renderErrorFor('po_number')}
                         </FormGroup>
                         <FormGroup>
                             <Label>Partial</Label>
                             <Input
-                                value={this.props.partial}
+                                value={this.props.quote.partial}
                                 type='text'
                                 name='partial'
                                 id='partial'
@@ -109,13 +110,8 @@ export default class Details extends Component {
 
                         <FormGroup className={this.props.has_partial === true ? '' : 'd-none'}>
                             <Label>Partial Due Date</Label>
-                            <Input
-                                value={this.props.partial_due_date}
-                                type='text'
-                                name='partial_due_date'
-                                id='partial_due_date'
-                                onChange={this.props.handleInput}
-                            />
+                            <Datepicker name="partial_due_date" date={this.props.quote.partial_due_date} handleInput={this.props.handleInput}
+                                className={this.hasErrorFor('partial_due_date') ? 'form-control is-invalid' : 'form-control'}/>
                         </FormGroup>
 
                         <CustomerDropdown
@@ -126,7 +122,7 @@ export default class Details extends Component {
                         />
 
                         <CompanyDropdown
-                            company_id={this.props.company_id}
+                            company_id={this.props.quote.company_id}
                             name="company_id"
                             hasErrorFor={this.hasErrorFor}
                             errors={this.props.errors}

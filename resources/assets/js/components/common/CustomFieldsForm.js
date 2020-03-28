@@ -7,9 +7,7 @@ export default function CustomFieldsForm (props) {
 
     if (customFields[0] && Object.keys(customFields[0]).length) {
         customFields[0].forEach((element, index, array) => {
-            if (props[element.name] && props[element.name].length) {
-                customFields[0][index].value = props[element.name]
-            }
+            customFields[0][index].value = props[element.name] && props[element.name].length ? props[element.name] : ''
         })
     }
 

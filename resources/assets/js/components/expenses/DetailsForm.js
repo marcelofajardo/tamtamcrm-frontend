@@ -7,9 +7,9 @@ import {
     CardBody,
     CardHeader
 } from 'reactstrap'
-import FormBuilder from '../accounts/FormBuilder'
 import CompanyDropdown from '../common/CompanyDropdown'
 import CustomerDropdown from '../common/CustomerDropdown'
+import Datepicker from '../common/Datepicker'
 
 export default class DetailsForm extends React.Component {
     hasErrorFor (field) {
@@ -32,26 +32,24 @@ export default class DetailsForm extends React.Component {
             <CardBody>
                 <FormGroup className="mb-3">
                     <Label>Amount</Label>
-                    <Input value={this.props.amount}
+                    <Input value={this.props.expense.amount}
                         className={this.hasErrorFor('amount') ? 'is-invalid' : ''}
                         type="text" name="amount"
-                        onChange={this.props.handleInput.bind(this)}/>
+                        onChange={this.props.handleInput}/>
                     {this.renderErrorFor('amount')}
                 </FormGroup>
 
                 <FormGroup className="mr-2">
                     <Label for="expense_date">Date(*):</Label>
-                    <Input className={this.hasErrorFor('expense_date') ? 'is-invalid' : ''}
-                        value={this.props.expense_date} type="date" id="expense_date"
-                        name="date"
-                        onChange={this.props.handleInput}/>
+                    <Datepicker className="form-control" name="expense_date" date={this.props.expense.expense_date}
+                        handleInput={this.props.handleInput}/>
                     {this.renderErrorFor('expense_date')}
                 </FormGroup>
 
                 <FormGroup className="mr-2">
                     <Label for="date">Category(*):</Label>
                     <Input className={this.hasErrorFor('category_id') ? 'is-invalid' : ''}
-                        value={this.props.category_id} type="select" id="category_id"
+                        value={this.props.expense.category_id} type="select" id="category_id"
                         name="category_id"
                         onChange={this.props.handleInput}>
                         <option value="">Select Category</option>
@@ -63,7 +61,7 @@ export default class DetailsForm extends React.Component {
                 <FormGroup className="mb-3">
                     <Label>Customer</Label>
                     <CustomerDropdown
-                        customer={this.props.customer_id}
+                        customer={this.props.expense.customer_id}
                         renderErrorFor={this.renderErrorFor}
                         handleInputChanges={this.props.handleInput}
                         customers={this.props.customers}
@@ -75,7 +73,7 @@ export default class DetailsForm extends React.Component {
                     <Label>Company</Label>
                     <CompanyDropdown
                         companies={this.props.companies}
-                        company_id={this.props.company_id}
+                        company_id={this.props.expense.company_id}
                         renderErrorFor={this.renderErrorFor}
                         handleInputChanges={this.props.handleInput}
                     />

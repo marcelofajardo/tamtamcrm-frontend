@@ -5,6 +5,7 @@ import Address from './Address'
 import CustomerDropdown from '../common/CustomerDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import FormBuilder from '../accounts/FormBuilder'
+import Datepicker from '../common/Datepicker'
 
 export default class Details extends Component {
     constructor (props, context) {
@@ -65,26 +66,26 @@ export default class Details extends Component {
 
                         <FormGroup>
                             <Label for="date">Invoice Date(*):</Label>
-                            <Input value={this.props.date} type="date" id="date" name="date"
-                                onChange={this.props.handleInput}/>
-                            {this.renderErrorFor('due_date')}
+                            <Datepicker name="date" date={this.props.invoice.date} handleInput={this.props.handleInput}
+                                className={this.hasErrorFor('date') ? 'form-control is-invalid' : 'form-control'}/>
+                            {this.renderErrorFor('date')}
                         </FormGroup>
                         <FormGroup>
                             <Label for="due_date">Due Date(*):</Label>
-                            <Input value={this.props.due_date} type="date" id="due_date" name="due_date"
-                                onChange={this.props.handleInput}/>
+                            <Datepicker name="due_date" date={this.props.invoice.due_date} handleInput={this.props.handleInput}
+                                className={this.hasErrorFor('due_date') ? 'form-control is-invalid' : 'form-control'}/>
                             {this.renderErrorFor('due_date')}
                         </FormGroup>
                         <FormGroup>
                             <Label for="po_number">PO Number(*):</Label>
-                            <Input value={this.props.po_number} type="text" id="po_number" name="po_number"
+                            <Input value={this.props.invoice.po_number} type="text" id="po_number" name="po_number"
                                 onChange={this.props.handleInput}/>
                             {this.renderErrorFor('po_number')}
                         </FormGroup>
                         <FormGroup>
                             <Label>Partial</Label>
                             <Input
-                                value={this.props.partial}
+                                value={this.props.invoice.partial}
                                 type='text'
                                 name='partial'
                                 id='partial'
@@ -92,26 +93,21 @@ export default class Details extends Component {
                             />
                         </FormGroup>
 
-                        <FormGroup className={this.props.has_partial === true ? '' : 'd-none'}>
+                        <FormGroup className={this.props.invoice.has_partial === true ? '' : 'd-none'}>
                             <Label>Partial Due Date</Label>
-                            <Input
-                                value={this.props.partial_due_date}
-                                type='date'
-                                name='partial_due_date'
-                                id='partial_due_date'
-                                onChange={this.props.handleInput}
-                            />
+                            <Datepicker name="partial_due_date" date={this.props.invoice.partial_due_date} handleInput={this.props.handleInput}
+                                className={this.hasErrorFor('partial_due_date') ? 'form-control is-invalid' : 'form-control'}/>
                         </FormGroup>
 
                         <CustomerDropdown
                             handleInputChanges={this.props.handleInput}
-                            customer={this.props.customer_id}
+                            customer={this.props.invoice.customer_id}
                             customers={this.props.customers}
                             errors={this.props.errors}
                         />
 
                         <CompanyDropdown
-                            company_id={this.props.company_id}
+                            company_id={this.props.invoice.company_id}
                             name="company_id"
                             hasErrorFor={this.hasErrorFor}
                             errors={this.props.errors}

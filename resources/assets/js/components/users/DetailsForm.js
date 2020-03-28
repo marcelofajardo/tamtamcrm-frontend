@@ -56,7 +56,7 @@ export default class DetailsForm extends React.Component {
         return (
             <FormGroup>
                 <Label for="gender">Gender(*):</Label>
-                <Input className={this.hasErrorFor('gender') ? 'is-invalid' : ''}
+                <Input value={this.props.user.gender} className={this.hasErrorFor('gender') ? 'is-invalid' : ''}
                     type="select"
                     name="gender"
                     onChange={this.props.handleInput.bind(this)}>
@@ -86,7 +86,7 @@ export default class DetailsForm extends React.Component {
                                 placeholder="Username"
                                 type="text"
                                 name="username"
-                                value={this.props.username}
+                                value={this.props.user.username}
                                 onChange={this.props.handleInput.bind(this)}/>
                             <small className="form-text text-muted">Your username must be
                                     "firstname"."lastname"
@@ -104,7 +104,7 @@ export default class DetailsForm extends React.Component {
                                 placeholder="Email"
                                 type="email"
                                 name="email"
-                                value={this.props.email}
+                                value={this.props.user.email}
                                 onChange={this.props.handleInput.bind(this)}/>
                             {this.renderErrorFor('email')}
                         </FormGroup>
@@ -118,7 +118,7 @@ export default class DetailsForm extends React.Component {
                             <Input className={this.hasErrorFor('first_name') ? 'is-invalid' : ''}
                                 type="text"
                                 name="first_name"
-                                value={this.props.first_name}
+                                value={this.props.user.first_name}
                                 placeholder="First Name"
                                 onChange={this.props.handleInput.bind(this)}/>
                             {this.renderErrorFor('first_name')}
@@ -130,7 +130,7 @@ export default class DetailsForm extends React.Component {
                             <Label for="last_name">Last Name(*):</Label>
                             <Input className={this.hasErrorFor('last_name') ? 'is-invalid' : ''}
                                 type="text"
-                                value={this.props.last_name}
+                                value={this.props.user.last_name}
                                 placeholder="Last Name"
                                 name="last_name"
                                 onChange={this.props.handleInput.bind(this)}/>
@@ -145,7 +145,7 @@ export default class DetailsForm extends React.Component {
                     </Col>
 
                     <Col md={6}>
-                        <DropdownDate selectedDate={this.props.dob} classes={this.classes} defaultValues={this.defaultValues}
+                        <DropdownDate selectedDate={this.props.user.dob} classes={this.classes} defaultValues={this.defaultValues}
                             onDateChange={this.props.setDate}/>
                     </Col>
                 </Row>
@@ -155,7 +155,7 @@ export default class DetailsForm extends React.Component {
                         <FormGroup>
                             <Label for="phone_number">Phone Number:</Label>
                             <Input className={this.hasErrorFor('phone_number') ? 'is-invalid' : ''}
-                                value={this.props.phone_number}
+                                value={this.props.user.phone_number}
                                 type="tel"
                                 name="phone_number"
                                 onChange={this.props.handleInput.bind(this)}/>
@@ -169,7 +169,7 @@ export default class DetailsForm extends React.Component {
                             <Input className={this.hasErrorFor('job_description') ? 'is-invalid' : ''}
                                 type="text"
                                 placeholder="Job Description"
-                                value={this.props.job_description}
+                                value={this.props.user.job_description}
                                 name="job_description"
                                 onChange={this.props.handleInput.bind(this)}/>
                             {this.renderErrorFor('job_description')}
@@ -180,7 +180,7 @@ export default class DetailsForm extends React.Component {
                         <FormGroup>
                             <Label for="password">Password:</Label>
                             <Input className={this.hasErrorFor('password') ? 'is-invalid' : ''}
-                                value={this.props.password}
+                                value={this.props.user.password}
                                 type="password"
                                 name="password" onChange={this.props.handleInput.bind(this)}/>
                             <small className="form-text text-muted">Your password must be more than 8

@@ -90,7 +90,7 @@ class FormBuilder extends React.Component {
                 returnedField = <React.Fragment>
                     <FormGroup>
                         <Label>{field.label}</Label>
-                        <CurrencyDropdown
+                        <CurrencyDropdown key={field.id}
                             currency_id={field.value}
                             errors={{}}
                             handleInputChanges={this.props.handleChange}
@@ -103,7 +103,7 @@ class FormBuilder extends React.Component {
                 returnedField = <React.Fragment>
                     <FormGroup>
                         <Label>{field.label}</Label>
-                        <CountryDropdown
+                        <CountryDropdown key={field.id}
                             country={field.value}
                             errors={{}}
                             handleInputChanges={this.props.handleChange}
@@ -113,6 +113,7 @@ class FormBuilder extends React.Component {
                 break
             case 'checkbox':
                 returnedField = <Switch
+                    ley={field.id}
                     label={field.label}
                     name={field.name}
                     isOn={field.value}

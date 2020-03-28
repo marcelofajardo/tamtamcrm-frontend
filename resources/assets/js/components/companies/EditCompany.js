@@ -70,8 +70,9 @@ class EditCompany extends React.Component {
     }
 
     handleInput (e) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({
-            [e.target.name]: e.target.value,
+            [e.target.name]: value,
             changesMade: true
         })
     }
@@ -219,8 +220,7 @@ class EditCompany extends React.Component {
                             <TabPane tabId="1">
                                 <DetailsForm errors={this.state.errors}
                                     handleInput={this.handleInput}
-                                    name={this.state.name} website={this.state.website}
-                                    phone_number={this.state.phone_number} email={this.state.email}
+                                    company={this.state}
                                     handleFileChange={this.handleFileChange}/>
 
                                 <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
@@ -243,16 +243,13 @@ class EditCompany extends React.Component {
                             </TabPane>
 
                             <TabPane tabId="3">
-                                <AddressForm errors={this.state.errors} address_1={this.state.address_1}
-                                    address_2={this.state.address_2} handleInput={this.handleInput}
-                                    town={this.state.town} city={this.state.city}
-                                    postcode={this.state.postcode} country_id={this.state.country_id}/>
+                                <AddressForm errors={this.state.errors}
+                                    handleInput={this.handleInput}
+                                    company={this.state} />
                             </TabPane>
 
                             <TabPane tabId="4">
-                                <SettingsForm errors={this.state.errors} currency_id={this.state.currency_id}
-                                    industry_id={this.state.industry_id}
-                                    assigned_user_id={this.state.assigned_user_id}
+                                <SettingsForm errors={this.state.errors} company={this.state}
                                     handleInput={this.handleInput}/>
 
                                 <Notes handleInput={this.handleInput} errors={this.state.errors}

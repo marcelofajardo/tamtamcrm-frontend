@@ -237,9 +237,14 @@ export default class Expenses extends Component {
                     </CardBody>
                 </Card>
 
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
+                <ViewEntity
+                    ignore={['user_id', 'assigned_user_id', 'company_id', 'customer_id', 'invoice_id', 'bank_id', 'deleted_at', 'customer_id', 'invoice_currency_id', 'payment_type_id', 'expense_currency_id', 'recurring_expense_id', 'updated_at', 'invoice_category_id']}
+                    toggle={this.toggleViewedEntity}
+                    title={view.title}
                     viewed={view.viewMode}
-                    entity={view.viewedId}/>
+                    entity={view.viewedId}
+                    entity_type="Expense"
+                />
             </div>
         ) : null
     }

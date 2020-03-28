@@ -12,54 +12,22 @@ import {
     TabPane,
     DropdownItem
 } from 'reactstrap'
-import axios from 'axios'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import DetailsForm from './DetailsForm'
 import SettingsForm from './SettingsForm'
-import ExpenseDropdown from './ExpenseDropdown'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
+import ExpenseModel from '../models/ExpenseModel'
+import DropdownMenuBuilder from '../common/DropdownMenuBuilder'
 
 class EditExpense extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
-            id: this.props.expense.id,
-            amount: this.props.expense.amount,
-            date: this.props.expense.date,
-            customer_id: this.props.expense.customer_id,
-            company_id: this.props.expense.company_id,
-            category_id: this.props.expense.category_id,
-            public_notes: this.props.expense.public_notes,
-            private_notes: this.props.expense.private_notes,
-            custom_value1: this.props.expense.custom_value1,
-            custom_value2: this.props.expense.custom_value2,
-            custom_value3: this.props.expense.custom_value3,
-            custom_value4: this.props.expense.custom_value4,
-            expense_currency_id: this.props.expense.expense_currency_id,
-            exchange_rate: this.props.expense.exchange_rate,
-            transaction_reference: this.props.expense.transaction_reference,
-            payment_type_id: this.props.expense.payment_type_id,
-            expense_date: this.props.expense.expense_date,
-            payment_date: this.props.expense.payment_date,
-            invoice_documents: this.props.expense.invoice_documents,
-            should_be_invoiced: this.props.expense.should_be_invoiced,
-            errors: [],
-            message: '',
-            activeTab: '1',
-            currencyOpen: false,
-            paymentOpen: false,
-            changesMade: false,
-            loading: false,
-            modal: false,
-            dropdownOpen: false,
-            showSuccessMessage: false,
-            showErrorMessage: false
-        }
+        this.expenseModel = new ExpenseModel(this.props.expense, this.props.customers)
+        this.initialState = this.expenseModel.fields
+        this.state = this.initialState
 
-        this.initialState = this.state
-        this.currencies = JSON.parse(localStorage.getItem('currencies'))
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.renderErrorFor = this.renderErrorFor.bind(this)
@@ -74,14 +42,16 @@ class EditExpense extends React.Component {
     }
 
     handleInput (e) {
+        console.log('e', e)
         if (e.target.name === 'expense_currency_id') {
-            const currency = this.currencies && this.currencies.length ? this.currencies.filter(currency => currency.id === parseInt(e.target.value)) : []
-            const exchange_rate = currency.length ? currency[0].exchange_rate : 1
+            const exchange_rate = this.expenseModel.getExchangeRateForCurrency(e.target.value)
             this.setState({ exchange_rate: exchange_rate })
         }
 
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+
         this.setState({
-            [e.target.name]: e.target.value,
+            [e.target.name]: value,
             changesMade: true
         })
     }
@@ -130,24 +100,18 @@ class EditExpense extends React.Component {
     }
 
     handleClick () {
-        const data = this.getFormData()
-        axios.put(`/api/expense/${this.state.id}`, data)
-            .then((response) => {
-                const index = this.props.expenses.findIndex(expense => expense.id === this.props.expense.id)
-                this.props.expenses[index] = response.data
-                this.props.action(this.props.expenses)
-                this.setState({ changesMade: false })
-                this.toggle()
-            })
-            .catch((error) => {
-                if (error.response.data.errors) {
-                    this.setState({
-                        errors: error.response.data.errors
-                    })
-                } else {
-                    this.setState({ message: error.response.data })
-                }
-            })
+        this.expenseModel.update(this.getFormData()).then(response => {
+            if (!response) {
+                this.setState({ errors: this.expenseModel.errors, message: this.expenseModel.error_message })
+                return
+            }
+
+            const index = this.props.expenses.findIndex(expense => expense.id === this.state.id)
+            this.props.expenses[index] = response
+            this.props.action(this.props.expenses)
+            this.setState({ changesMade: false })
+            this.toggle()
+        })
     }
 
     toggle () {
@@ -186,7 +150,7 @@ class EditExpense extends React.Component {
                             {message}
                         </div>}
 
-                        <ExpenseDropdown formData={this.getFormData()} id={this.state.id}/>
+                        <DropdownMenuBuilder formData={this.getFormData()} model={this.expenseModel}/>
                         {successMessage}
                         {errorMessage}
 
@@ -224,13 +188,11 @@ class EditExpense extends React.Component {
                         <TabContent activeTab={this.state.activeTab}>
                             <TabPane tabId="1">
                                 <DetailsForm errors={this.state.errors}
-                                    amount={this.state.amount}
-                                    handleInput={this.handleInput} expense_date={this.state.expense_date}
-                                    category_id={this.state.category_id} customer_id={this.state.customer_id}
-                                    customers={this.props.customers} companies={this.props.companies}
-                                    company_id={this.state.company_id}/>
+                                    handleInput={this.handleInput} expense={this.state}
+                                    customers={this.props.customers} companies={this.props.companies}/>
 
-                                <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
+                                <CustomFieldsForm handleInput={this.handleInput}
+                                    custom_value1={this.state.custom_value1}
                                     custom_value2={this.state.custom_value2}
                                     custom_value3={this.state.custom_value3}
                                     custom_value4={this.state.custom_value4}
@@ -240,13 +202,10 @@ class EditExpense extends React.Component {
 
                             <TabPane tabId="2">
                                 <SettingsForm errors={this.state.errors}
-                                    should_be_invoiced={this.state.should_be_invoiced}
-                                    invoice_documents={this.state.invoice_documents}
-                                    transaction_reference={this.state.transaction_reference}
-                                    handleInput={this.handleInput} payment_date={this.state.payment_date}
-                                    payment_type_id={this.state.payment_type_id}
-                                    expense_currency_id={this.state.expense_currency_id}
-                                    exchange_rate={this.state.exchange_rate}/>
+
+                                    handleInput={this.handleInput}
+
+                                    expense={this.state}/>
                             </TabPane>
 
                             <TabPane tabId="3">

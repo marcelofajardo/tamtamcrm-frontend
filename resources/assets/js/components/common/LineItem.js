@@ -126,11 +126,11 @@ class LineItem extends Component {
                     <Col md={2} data-id={index}>
                         <FormGroup>
                             <Label>Tax</Label>
-                            <Input key={`d-${index}`} name="unit_tax" data-line={index} type='select' value={lineItem.tax_rate_id}
+                            <Input key={`d_${index}`} name="unit_tax" data-line={index} type='select' value={lineItem.tax_rate_id}
                                 onChange={this.props.onChange} className='pa2 mr2 f6 form-control'>
                                 <option value="0">No Tax</option>
                                 {this.props.tax_rates.map(tax_rate =>
-                                    <option key={index} data-rate={tax_rate.rate}
+                                    <option key={tax_rate.id} data-rate={tax_rate.rate}
                                         value={tax_rate.id}>{`${tax_rate.name} (${tax_rate.rate})`}</option>
                                 )}
                             </Input>

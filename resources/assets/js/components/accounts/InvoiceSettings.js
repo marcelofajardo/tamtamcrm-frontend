@@ -3,6 +3,10 @@ import FormBuilder from './FormBuilder'
 import { Button, Card, CardHeader, CardBody, NavLink, Nav, NavItem, TabContent, TabPane } from 'reactstrap'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
+import { credit_pdf_fields } from '../models/CreditModel'
+import { quote_pdf_fields } from '../models/QuoteModel'
+import { invoice_pdf_fields } from '../models/InvoiceModel'
+import PdfFields from './PdfFields'
 
 class InvoiceSettings extends Component {
     constructor (props) {
@@ -15,6 +19,7 @@ class InvoiceSettings extends Component {
         }
 
         this.handleSettingsChange = this.handleSettingsChange.bind(this)
+        this.handleColumnChange = this.handleColumnChange.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getAccount = this.getAccount.bind(this)
@@ -60,9 +65,19 @@ class InvoiceSettings extends Component {
         }))
     }
 
-    handleSubmit (e) {
+    handleColumnChange (values) {
+        this.setState(prevState => ({
+            settings: {
+                ...prevState.settings,
+                pdf_variables: values
+            }
+        }), () => this.handleSubmit())
+    }
+
+    handleSubmit () {
+        const { settings } = this.state
         const formData = new FormData()
-        formData.append('settings', JSON.stringify(this.state.settings))
+        formData.append('settings', JSON.stringify(settings))
         formData.append('_method', 'PUT')
 
         axios.post(`/api/accounts/${this.state.id}`, formData, {
@@ -79,44 +94,13 @@ class InvoiceSettings extends Component {
             })
     }
 
-    getInvoiceFields () {
+    getSettingFields () {
         const settings = this.state.settings
 
         console.log('settings', settings)
 
         const formFields = [
             [
-                {
-                    name: 'invoice_terms',
-                    label: 'Invoice Terms',
-                    type: 'textarea',
-                    placeholder: 'Invoice Terms',
-                    value: settings.invoice_terms,
-                    group: 1
-                },
-                {
-                    name: 'invoice_footer',
-                    label: 'Invoice Footer',
-                    type: 'textarea',
-                    placeholder: 'Invoice Footer',
-                    value: settings.invoice_footer,
-                    group: 1
-                },
-                {
-                    name: 'invoice_number_pattern',
-                    label: 'Invoice Number Pattern',
-                    type: 'text',
-                    placeholder: 'Invoice Number Pattern',
-                    value: settings.invoice_number_pattern,
-                    group: 1
-                },
-                {
-                    name: 'invoice_number_counter',
-                    label: 'Invoice Counter',
-                    type: 'text',
-                    placeholder: 'Invoice Counter',
-                    value: settings.invoice_number_counter
-                },
                 {
                     name: 'invoice_design_id',
                     label: 'Invoice Design',
@@ -181,173 +165,38 @@ class InvoiceSettings extends Component {
         return formFields
     }
 
-    getQuoteFields () {
-        const settings = this.state.settings
-
-        const formFields = [
-            [
-                {
-                    name: 'quote_terms',
-                    label: 'Quote Terms',
-                    type: 'textarea',
-                    placeholder: 'Quote Terms',
-                    value: settings.quote_terms,
-                    group: 1
-                },
-                {
-                    name: 'quote_footer',
-                    label: 'Quote Footer',
-                    type: 'textarea',
-                    placeholder: 'Quote Footer',
-                    value: settings.quote_footer,
-                    group: 1
-                },
-                {
-                    name: 'quote_number_pattern',
-                    label: 'Quote Number Pattern',
-                    type: 'text',
-                    placeholder: 'Quote Number Pattern',
-                    value: settings.quote_number_pattern,
-                    group: 1
-                },
-                {
-                    name: 'quote_number_counter',
-                    label: 'Quote Counter',
-                    type: 'text',
-                    placeholder: 'Quote Counter',
-                    value: settings.quote_number_counter
-                },
-                {
-                    name: 'quote_design_id',
-                    label: 'Quote Design',
-                    type: 'select',
-                    value: settings.quote_design_id,
-                    options: [
-                        {
-                            value: '1',
-                            text: 'Clean'
-                        },
-                        {
-                            value: '2',
-                            text: 'Bold'
-                        },
-                        {
-                            value: '3',
-                            text: 'Modern'
-                        },
-                        {
-                            value: '4',
-                            text: 'Plain'
-                        }
-                    ],
-                    group: 1
-                }
-            ]
+    getCustomerFields () {
+        return ['$client.name', '$client.id_number', '$client.vat_number', '$client.address1', '$client.address2', '$client.city_state_postal',
+            '$client.postal_city_state', '$client.country', '$client.email', '$client.client1', '$client.client2', '$client.client3',
+            '$client.client4'
         ]
+    }
 
-        return formFields
+    getAccountFields () {
+        return [
+            '$company.company_name', '$company.id_number', '$client.vat_number', '$company.website', '$client.email', '$company.company1',
+            '$company.company2', '$company.company3', '$company.company4'
+        ]
+    }
+
+    getInvoiceFields () {
+        return invoice_pdf_fields
+    }
+
+    getQuoteFields () {
+        return quote_pdf_fields
     }
 
     getCreditFields () {
-        const settings = this.state.settings
-
-        const formFields = [
-            [
-                {
-                    name: 'credit_terms',
-                    label: 'Credit Terms',
-                    type: 'textarea',
-                    placeholder: 'Credit Terms',
-                    value: settings.credit_terms,
-                    group: 1
-                },
-                {
-                    name: 'credit_footer',
-                    label: 'Credit Footer',
-                    type: 'textarea',
-                    placeholder: 'Credit Footer',
-                    value: settings.credit_footer,
-                    group: 1
-                },
-                {
-                    name: 'credit_number_pattern',
-                    label: 'Credit Number Pattern',
-                    type: 'text',
-                    placeholder: 'Credit Number Pattern',
-                    value: settings.credit_number_pattern,
-                    group: 1
-                },
-                {
-                    name: 'credit_number_counter',
-                    label: 'Credit Counter',
-                    type: 'text',
-                    placeholder: 'Credit Counter',
-                    value: settings.credit_number_counter
-                }
-                // {
-                //     name: 'credit_design_id',
-                //     label: 'Credit Design',
-                //     type: 'select',
-                //     value: settings.credit_design_id,
-                //     options: [
-                //         {
-                //             value: '1',
-                //             text: 'Clean'
-                //         },
-                //         {
-                //             value: '2',
-                //             text: 'Bold'
-                //         },
-                //         {
-                //             value: '3',
-                //             text: 'Modern'
-                //         },
-                //         {
-                //             value: '4',
-                //             text: 'Plain'
-                //         }
-                //     ],
-                //     group: 1
-                // }
-            ]
-        ]
-
-        return formFields
+        return credit_pdf_fields
     }
 
-    getPaymentFields () {
-        const settings = this.state.settings
+    getProductFields () {
+        return []
+    }
 
-        const formFields = [
-            [
-                {
-                    name: 'payment_number_counter',
-                    label: 'Payment Counter',
-                    type: 'text',
-                    placeholder: 'Payment Counter',
-                    value: settings.payment_number_counter
-                },
-                {
-                    name: 'payment_terms',
-                    label: 'Payment Terms',
-                    type: 'select',
-                    placeholder: 'Payment Terms',
-                    value: settings.payment_terms,
-                    options: [
-                        {
-                            value: '1',
-                            text: 'Yes'
-                        },
-                        {
-                            value: '0',
-                            text: 'No'
-                        }
-                    ]
-                }
-            ]
-        ]
-
-        return formFields
+    getTaskFields () {
+        return []
     }
 
     render () {
@@ -362,7 +211,7 @@ class InvoiceSettings extends Component {
                             onClick={() => {
                                 this.toggle('1')
                             }}>
-                            Invoices
+                            Settings
                         </NavLink>
                     </NavItem>
 
@@ -372,7 +221,7 @@ class InvoiceSettings extends Component {
                             onClick={() => {
                                 this.toggle('2')
                             }}>
-                            Quotes
+                            Invoice Settings
                         </NavLink>
                     </NavItem>
 
@@ -382,7 +231,7 @@ class InvoiceSettings extends Component {
                             onClick={() => {
                                 this.toggle('3')
                             }}>
-                            Payments
+                            Customer
                         </NavLink>
                     </NavItem>
 
@@ -392,18 +241,68 @@ class InvoiceSettings extends Component {
                             onClick={() => {
                                 this.toggle('4')
                             }}>
-                            Credits
+                            Account
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '5' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('5')
+                            }}>
+                            Invoice
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '6' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('6')
+                            }}>
+                            Quote
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '7' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('7')
+                            }}>
+                            Credit
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '8' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('8')
+                            }}>
+                            Product
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '9' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('9')
+                            }}>
+                            Task
                         </NavLink>
                     </NavItem>
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
                         <Card>
-                            <CardHeader>Invoice Settings</CardHeader>
+                            <CardHeader>Settings</CardHeader>
                             <CardBody>
                                 <FormBuilder
                                     handleChange={this.handleSettingsChange}
-                                    formFieldsRows={this.getInvoiceFields()}
+                                    formFieldsRows={this.getSettingFields()}
                                 />
                             </CardBody>
                         </Card>
@@ -411,36 +310,77 @@ class InvoiceSettings extends Component {
 
                     <TabPane tabId="2">
                         <Card>
-                            <CardHeader>Quote Settings</CardHeader>
-                            <CardBody>
-                                <FormBuilder
-                                    handleChange={this.handleSettingsChange}
-                                    formFieldsRows={this.getQuoteFields()}
-                                />
-                            </CardBody>
+                            <CardHeader>Invoice Options</CardHeader>
+                            <CardBody/>
                         </Card>
                     </TabPane>
 
                     <TabPane tabId="3">
                         <Card>
-                            <CardHeader>Payment Settings</CardHeader>
+                            <CardHeader>Customer</CardHeader>
                             <CardBody>
-                                <FormBuilder
-                                    handleChange={this.handleSettingsChange}
-                                    formFieldsRows={this.getPaymentFields()}
-                                />
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="client_details" columns={this.getCustomerFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
                             </CardBody>
                         </Card>
                     </TabPane>
 
                     <TabPane tabId="4">
                         <Card>
-                            <CardHeader>Credit Settings</CardHeader>
+                            <CardHeader>Account</CardHeader>
                             <CardBody>
-                                <FormBuilder
-                                    handleChange={this.handleSettingsChange}
-                                    formFieldsRows={this.getCreditFields()}
-                                />
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="company_details" columns={this.getAccountFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="5">
+                        <Card>
+                            <CardHeader>Invoice</CardHeader>
+                            <CardBody>
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="invoice_details" columns={this.getInvoiceFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="6">
+                        <Card>
+                            <CardHeader>Quote</CardHeader>
+                            <CardBody>
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="quote_details" columns={this.getQuoteFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="7">
+                        <Card>
+                            <CardHeader>Credit</CardHeader>
+                            <CardBody>
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="credit_details" columns={this.getCreditFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="8">
+                        <Card>
+                            <CardHeader>Product</CardHeader>
+                            <CardBody>
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="product_columns" columns={this.getProductFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="9">
+                        <Card>
+                            <CardHeader>Task</CardHeader>
+                            <CardBody>
+                                <PdfFields onChange2={this.handleColumnChange} settings={this.state.settings} section="task_columns" columns={this.getTaskFields()}
+                                    ignored_columns={this.state.settings.pdf_variables}/>
                             </CardBody>
                         </Card>
                     </TabPane>

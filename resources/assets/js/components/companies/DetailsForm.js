@@ -57,7 +57,7 @@ export default class DetailsForm extends React.Component {
                         type="text"
                         placeholder="Name"
                         name="name"
-                        value={this.props.name}
+                        value={this.props.company.name}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('name')}
                 </FormGroup>
@@ -68,7 +68,7 @@ export default class DetailsForm extends React.Component {
                         type="text"
                         name="website"
                         placeholder="Website"
-                        value={this.props.website}
+                        value={this.props.company.website}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('website')}
                 </FormGroup>
@@ -79,7 +79,7 @@ export default class DetailsForm extends React.Component {
                         placeholder="Phone Number"
                         type="tel"
                         name="phone_number"
-                        value={this.props.phone_number}
+                        value={this.props.company.phone_number}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('phone_number')}
                 </FormGroup>
@@ -90,7 +90,7 @@ export default class DetailsForm extends React.Component {
                         placeholder="Email"
                         type="email"
                         name="email"
-                        value={this.props.email}
+                        value={this.props.company.email}
                         onChange={this.props.handleInput}/>
                     {this.renderErrorFor('email')}
                 </FormGroup>

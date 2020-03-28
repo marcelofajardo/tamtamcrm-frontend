@@ -1,46 +1,24 @@
 import React from 'react'
 import {
-    Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, FormGroup, DropdownItem, TabPane
+    Button, Modal, ModalHeader, ModalBody, ModalFooter, DropdownItem
 } from 'reactstrap'
-import axios from 'axios'
-import CustomerDropdown from '../common/CustomerDropdown'
-import PaymentTypeDropdown from '../common/PaymentTypeDropdown'
-import moment from 'moment'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
 import InvoiceLine from './InvoiceLine'
-import PaymentDropdownMenu from './PaymentDropdownMenu'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
+import Details from './Details'
+import PaymentModel from '../models/PaymentModel'
+import DropdownMenuBuilder from '../common/DropdownMenuBuilder'
 
 class EditPayment extends React.Component {
     constructor (props) {
         super(props)
-        this.state = {
-            invoices: this.props.invoices,
-            modal: false,
-            loading: false,
-            changesMade: false,
-            showSuccessMessage: false,
-            showErrorMessage: false,
-            errors: [],
-            customer_id: this.props.payment.customer_id,
-            custom_value1: this.props.payment.custom_value1,
-            custom_value2: this.props.payment.custom_value2,
-            custom_value3: this.props.payment.custom_value3,
-            custom_value4: this.props.payment.custom_value4,
-            private_notes: this.props.payment.private_notes,
-            invoice_id: this.props.payment.invoice_id,
-            amount: this.props.payment.amount,
-            payable_invoices: this.props.payment.paymentables && this.props.payment.paymentables.length ? this.props.payment.paymentables : [],
-            date: this.props.payment.date ? this.props.payment.date : moment(new Date()).format('YYYY-MM-DD'),
-            id: this.props.payment.id,
-            type_id: this.props.payment.type_id,
-            transaction_reference: this.props.payment.transaction_reference,
-            message: ''
-        }
 
-        this.initialState = this.state
+        this.paymentModel = new PaymentModel(this.props.invoices, this.props.payment)
+        this.initialState = this.paymentModel.fields
+        this.state = this.initialState
+
         this.toggle = this.toggle.bind(this)
         this.hasErrorFor = this.hasErrorFor.bind(this)
         this.setInvoices = this.setInvoices.bind(this)
@@ -48,6 +26,11 @@ class EditPayment extends React.Component {
         this.handleInput = this.handleInput.bind(this)
         this.handleCustomerChange = this.handleCustomerChange.bind(this)
         this.handleInvoiceChange = this.handleInvoiceChange.bind(this)
+        this.handleCheck = this.handleCheck.bind(this)
+    }
+
+    handleCheck () {
+        this.setState({ send_email: !this.state.checked })
     }
 
     handleInvoiceChange (e) {
@@ -55,42 +38,34 @@ class EditPayment extends React.Component {
             return
         }
 
-        const invoice = this.props.invoices.filter(function (invoice) {
-            return invoice.id === parseInt(e.target.value)
-        })
+        const invoice = this.paymentModel.getInvoice(e.target.value)
 
-        if (!invoice.length) {
+        if (!invoice) {
             return
         }
 
         this.setState({
             [e.target.name]: e.target.value,
-            customer_id: invoice[0].customer_id,
-            amount: invoice[0].total
+            customer_id: invoice.customer_id,
+            amount: invoice.total
         })
 
         this.setState({ payable_invoices: Array.from(e.target.selectedOptions, (item) => item.value) })
     }
 
     handleCustomerChange (e) {
-        var filteredData
-        if (e.target.value === '') {
-            filteredData = this.props.invoices
-        } else {
-            filteredData = this.props.invoices.filter(function (invoice) {
-                return invoice.customer_id === parseInt(e.target.value)
-            })
-        }
+        const invoices = this.paymentModel.filterInvoicesByCustomer(e.target.value)
 
         this.setState({
             [e.target.name]: e.target.value,
-            invoices: filteredData
+            invoices: invoices
         })
     }
 
     handleInput (e) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({
-            [e.target.name]: e.target.value,
+            [e.target.name]: value,
             changesMade: true
         })
     }
@@ -126,28 +101,18 @@ class EditPayment extends React.Component {
     }
 
     handleClick () {
-        const data = this.getFormData()
-        axios.put(`/api/payments/${this.state.id}`, data)
-            .then((response) => {
-                const index = this.props.payments.findIndex(payment => payment.id === this.props.payment.id)
-                this.props.payments[index] = response.data
-                this.props.action(this.props.payments)
-                this.setState({ changesMade: false })
-                this.toggle()
-            })
-            .catch((error) => {
-                if (error.response.data.message) {
-                    this.setState({ message: error.response.data.message })
-                }
+        this.paymentModel.update(this.getFormData()).then(response => {
+            if (!response) {
+                this.setState({ errors: this.paymentModel.errors, message: this.paymentModel.error_message })
+                return
+            }
 
-                if (error.response.data.errors) {
-                    this.setState({
-                        errors: error.response.data.errors
-                    })
-                } else {
-                    this.setState({ message: error.response.data })
-                }
-            })
+            const index = this.props.payments.findIndex(payment => payment.id === this.state.id)
+            this.props.payments[index] = response
+            this.props.action(this.props.payments)
+            this.setState({ changesMade: false })
+            this.toggle()
+        })
     }
 
     toggle () {
@@ -194,51 +159,12 @@ class EditPayment extends React.Component {
                             {message}
                         </div>}
 
-                        <PaymentDropdownMenu id={this.state.id} formData={this.getFormData()}/>
+                        <DropdownMenuBuilder model={this.paymentModel} formData={this.getFormData()}/>
                         {successMessage}
                         {errorMessage}
 
-                        <FormGroup className="mb-3">
-                            <Label>Amount</Label>
-                            <Input value={this.state.amount}
-                                className={this.hasErrorFor('amount') ? 'is-invalid' : ''} type="text" name="amount"
-                                onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('amount')}
-                        </FormGroup>
-
-                        <FormGroup className="mr-2">
-                            <Label for="date">Date(*):</Label>
-                            <Input className={this.hasErrorFor('date') ? 'is-invalid' : ''} value={this.state.date}
-                                type="date" id="date" name="date"
-                                onChange={this.handleInput}/>
-                            {this.renderErrorFor('due_date')}
-                        </FormGroup>
-
-                        <FormGroup className="mb-3">
-                            <Label>Transaction Reference</Label>
-                            <Input value={this.state.transaction_reference}
-                                className={this.hasErrorFor('transaction_reference') ? 'is-invalid' : ''} type="text"
-                                name="transaction_reference"
-                                onChange={this.handleInput.bind(this)}/>
-                            {this.renderErrorFor('transaction_reference')}
-                        </FormGroup>
-
-                        <PaymentTypeDropdown
-                            name="type_id"
-                            errors={this.state.errors}
-                            handleInputChanges={this.handleInput}
-                        />
-
-                        <FormGroup>
-                            <Label>Customer</Label>
-                            <CustomerDropdown
-                                customers={this.props.customers}
-                                customer={this.state.customer_id}
-                                name="customer_id"
-                                errors={this.state.errors}
-                                handleInputChanges={this.handleCustomerChange}
-                            />
-                        </FormGroup>
+                        <Details payment={this.state} errors={this.state.errors} handleInput={this.handleInput}
+                            handleCustomerChange={this.handleCustomerChange} handleCheck={this.handleCheck}/>
 
                         <InvoiceLine lines={this.state.payable_invoices} handleAmountChange={this.setAmount}
                             errors={this.state.errors}

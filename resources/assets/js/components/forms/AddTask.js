@@ -1,54 +1,34 @@
 import React from 'react'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, FormGroup, Label, Form, TabPane } from 'reactstrap'
-import moment from 'moment'
-import axios from 'axios'
-import AddLead from './AddLead'
-import FormBuilder from '../accounts/FormBuilder'
-import 'react-dates/initialize' // necessary for latest version
-import 'react-dates/lib/css/_datepicker.css'
 import { DateRangePicker } from 'react-dates'
+import {
+    Button,
+    Form,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader, FormGroup, Label
+} from 'reactstrap'
+import moment from 'moment'
+import AddLead from './AddLead'
 import AddButtons from '../common/AddButtons'
-import CustomerDropdown from '../common/CustomerDropdown'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import Notes from '../common/Notes'
+import TaskModel from '../models/TaskModel'
+import TaskDetails from './TaskDetails'
 
 class AddModal extends React.Component {
     constructor (props) {
         super(props)
-        this.initialState = {
-            modal: false,
-            title: '',
-            rating: '',
-            source_type: 0,
-            valued_at: '',
-            customer_id: null,
-            content: '',
-            contributors: '',
-            custom_value1: '',
-            custom_value2: '',
-            custom_value3: '',
-            custom_value4: '',
-            public_notes: '',
-            private_notes: '',
-            created_by: '5af1921c0fe5703dd4a463ec',
-            due_date: moment(),
-            start_date: moment(),
-            task_status: parseInt(this.props.status),
-            project_id: this.props.storyType ? parseInt(this.props.storyType) : 0,
-            loading: false,
-            users: [],
-            errors: [],
-            submitSuccess: false,
-            selectedUsers: []
-        }
+
+        this.taskModel = new TaskModel(null, this.props.customers)
+        this.initialState = this.taskModel.fields
+        this.taskModel.start_date = this.initialState.start_date
+        this.taskModel.due_date = this.initialState.due_date
 
         this.state = this.initialState
         this.toggle = this.toggle.bind(this)
-        this.hasErrorFor = this.hasErrorFor.bind(this)
-        this.renderErrorFor = this.renderErrorFor.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.buildForm = this.buildForm.bind(this)
-        this.buildUserOptions = this.buildUserOptions.bind(this)
         this.handleMultiSelect = this.handleMultiSelect.bind(this)
     }
 
@@ -59,23 +39,10 @@ class AddModal extends React.Component {
         }
     }
 
-    hasErrorFor (field) {
-        return !!this.state.errors[field]
-    }
-
-    renderErrorFor (field) {
-        if (this.hasErrorFor(field)) {
-            return (
-                <span className='invalid-feedback'>
-                    <strong>{this.state.errors[field][0]}</strong>
-                </span>
-            )
-        }
-    }
-
     handleInput (e) {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.name]: value
         }, () => localStorage.setItem('taskForm', JSON.stringify(this.state)))
     }
 
@@ -110,7 +77,7 @@ class AddModal extends React.Component {
             loading: true
         })
 
-        axios.post('/api/tasks', {
+        const data = {
             rating: this.state.rating,
             source_type: this.state.source_type,
             valued_at: this.state.valued_at,
@@ -131,23 +98,18 @@ class AddModal extends React.Component {
             custom_value4: this.state.custom_value4,
             public_notes: this.state.public_notes,
             private_notes: this.state.private_notes
-        })
-            .then((response) => {
-                this.toggle()
-                this.setState(this.initialState)
+        }
 
-                if (this.props.action) {
-                    const firstTask = response.data
-                    this.props.tasks.push(firstTask)
-                    this.props.action(this.props.tasks)
-                }
-                localStorage.removeItem('taskForm')
-            })
-            .catch((error) => {
-                this.setState({
-                    errors: error.response.data.errors
-                })
-            })
+        this.taskModel.save(data).then(response => {
+            if (!response) {
+                this.setState({ errors: this.taskModel.errors, message: this.taskModel.error_message })
+                return
+            }
+            this.props.tasks.push(response)
+            this.props.action(this.props.tasks)
+            this.setState(this.initialState)
+            localStorage.removeItem('taskForm')
+        })
     }
 
     getFormForLead () {
@@ -159,51 +121,28 @@ class AddModal extends React.Component {
     }
 
     buildForm () {
-        const userOptions = this.buildUserOptions()
-
         return (
             <Form>
-                <FormGroup>
-                    <Label for="title">Task Title(*):</Label>
-                    <Input className={this.hasErrorFor('title') ? 'is-invalid' : ''} type="text" name="title"
-                        value={this.state.title}
-                        id="taskTitle" onChange={this.handleInput.bind(this)}/>
-                    {this.renderErrorFor('title')}
-                </FormGroup>
+                <TaskDetails task={this.state} setTimeRange={this.setTimeRange} customers={this.props.customers}
+                    errors={this.state.errors} handleMultiSelect={this.handleMultiSelect}
+                    users={this.props.users} handleInput={this.handleInput}/>
 
-                <FormGroup className="mb-3">
-                    <Label>Customer</Label>
-                    <CustomerDropdown
-                        customer={this.state.customer_id}
-                        renderErrorFor={this.renderErrorFor}
-                        handleInputChanges={this.handleInput}
-                        customers={this.props.customers}
+                <FormGroup>
+                    <Label>Start / End date</Label>
+                    <DateRangePicker
+                        startDate={this.state.start_date} // momentPropTypes.momentObj or null,
+                        startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
+                        endDate={this.state.due_date} // momentPropTypes.momentObj or null,
+                        endDateId="due_date" // PropTypes.string.isRequired,
+                        displayFormat="DD-MM-YYYY"
+                        onDatesChange={({ startDate, endDate }) => this.setState({
+                            start_date: startDate,
+                            due_date: endDate
+                        })} // PropTypes.func.isRequired,
+                        focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                        onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
                     />
-                    {this.renderErrorFor('customer_id')}
                 </FormGroup>
-
-                <FormGroup>
-                    <Label for="content">Task Details:</Label>
-                    <Input className={this.hasErrorFor('content') ? 'is-invalid' : ''} type="textarea"
-                        name="content" value={this.state.content} id="content"
-                        onChange={this.handleInput.bind(this)}/>
-                    {this.renderErrorFor('content')}
-                </FormGroup>
-
-                {userOptions}
-
-                <DateRangePicker
-                    startDate={this.state.start_date} // momentPropTypes.momentObj or null,
-                    startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
-                    endDate={this.state.due_date} // momentPropTypes.momentObj or null,
-                    endDateId="due_date" // PropTypes.string.isRequired,
-                    onDatesChange={({ startDate, endDate }) => this.setState({
-                        start_date: startDate,
-                        due_date: endDate
-                    })} // PropTypes.func.isRequired,
-                    focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-                    onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
-                />
 
                 <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
                     custom_value2={this.state.custom_value2}
@@ -220,30 +159,6 @@ class AddModal extends React.Component {
 
     handleMultiSelect (e) {
         this.setState({ selectedUsers: Array.from(e.target.selectedOptions, (item) => item.value) })
-    }
-
-    buildUserOptions () {
-        let userContent
-        if (!this.props.users) {
-            userContent = <option value="">Loading...</option>
-        } else {
-            userContent = this.props.users.map((user, index) => (
-                <option key={index} value={user.id}>{user.first_name + ' ' + user.last_name}</option>
-            ))
-        }
-
-        return (
-            <FormGroup>
-                <Label for="contributors">Assign to:</Label>
-                <Input className={this.hasErrorFor('contributors') ? 'is-invalid' : ''} multiple
-                    type="select"
-                    value={this.state.selectedUsers}
-                    name="contributors" id="contributors" onChange={this.handleMultiSelect.bind(this)}>
-                    {userContent}
-                </Input>
-                {this.renderErrorFor('contributors')}
-            </FormGroup>
-        )
     }
 
     render () {

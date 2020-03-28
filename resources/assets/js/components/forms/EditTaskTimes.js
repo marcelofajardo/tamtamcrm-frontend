@@ -26,11 +26,14 @@ class EditTaskTimes extends Component {
             dropdown2Open: true
         }
 
+        this.model = this.props.model
+        this.model.time_log = this.state.times
         this.handleSlideClick = this.handleSlideClick.bind(this)
         this.closeForm = this.closeForm.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.handleSave = this.handleSave.bind(this)
+        this.addTaskTime = this.addTaskTime.bind(this)
     }
 
     handleSlideClick (index) {
@@ -50,16 +53,16 @@ class EditTaskTimes extends Component {
     }
 
     handleChange (e) {
-        const times = [...this.state.times]
-        times[e.target.dataset.id][e.target.name] = e.target.value
-        this.setState({ times }, () => console.log('times', this.state.times))
+        const times = this.model.updateTaskTime(e.target.dataset.id, e.target.name, e.target.value)
+        this.setState({ times: times })
+        console.log('times', times)
     }
 
     handleDelete (idx) {
+        const times = this.model.deleteTaskTime(idx)
+
         this.setState({
-            times: this.state.times.filter(function (time, sidx) {
-                return sidx !== idx
-            })
+            times: times
         }, () => {
             this.closeForm()
             this.handleSave(true)
@@ -67,13 +70,8 @@ class EditTaskTimes extends Component {
     }
 
     addTaskTime () {
-        this.setState((prevState) => ({
-            times: [...prevState.times, {
-                date: moment().format('YYYY-MM-DD'),
-                start_time: moment().format('HH:MM:SS'),
-                end_time: ''
-            }]
-        }), () => console.log('times', this.state.times))
+        const times = this.model.addTaskTime()
+        this.setState({ times: times })
     }
 
     handleSave (isDelete = false) {
@@ -96,25 +94,15 @@ class EditTaskTimes extends Component {
             })
     }
 
-    calculateDuration (currentStartTime, currentEndTime) {
-        const startTime = moment(currentStartTime, 'hh:mm:ss a')
-        const endTime = moment(currentEndTime, 'hh:mm:ss a')
-        let totalHours = (endTime.diff(startTime, 'hours'))
-        totalHours = ('0' + totalHours).slice(-2)
-        const totalMinutes = endTime.diff(startTime, 'minutes')
-        let clearMinutes = totalMinutes % 60
-        clearMinutes = ('0' + clearMinutes).slice(-2)
-        return `${totalHours}:${clearMinutes}`
-    }
-
     render () {
+        const { model } = this.props
         const { currentIndex, times, showSuccess, showError } = this.state
         const timeList = times.length ? times.map((time, index) => {
             return <div key={index}
                 className="list-group-item list-group-item-action flex-column align-items-start">
                 <div className="d-flex w-100 justify-content-between">
                     <h5 className="mb-1">{time.date}</h5>
-                    <small>{this.calculateDuration(time.start_time, time.end_time)}</small>
+                    <small>{model.calculateDuration(time.start_time, time.end_time)}</small>
                     <i onClick={() => this.handleSlideClick(index)} className="fa fa-arrow-right"/>
                 </div>
                 <p className="mb-1">{`${time.start_time} - ${time.end_time}`}</p>
@@ -150,7 +138,7 @@ class EditTaskTimes extends Component {
             <FormGroup>
                 <Label>Duration</Label>
                 <Input data-id={currentIndex}
-                    value={this.calculateDuration(currentData.start_time, currentData.end_time)}
+                    value={model.calculateDuration(currentData.start_time, currentData.end_time)}
                     type="text" name="duration" onChange={this.handleChange}/>
             </FormGroup>
 
@@ -164,6 +152,7 @@ class EditTaskTimes extends Component {
                 {showErrorMessage}
                 <div className={`list-group ${this.state.dropdown2Open ? 'collapse show' : 'collapse'}`}>
                     {timeList}
+                    <Button color="primary" onClick={this.addTaskTime}>Add</Button>
                 </div>
 
                 <div className={this.state.dropdownOpen ? 'collapse show' : 'collapse'}>

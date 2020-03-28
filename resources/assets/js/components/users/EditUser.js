@@ -278,13 +278,8 @@ class EditUser extends React.Component {
                             <TabPane tabId="1">
                                 {Object.keys(this.state.user).length &&
                                     <React.Fragment>
-                                        <DetailsForm setDate={this.setDate} errors={this.state.errors}
-                                            dob={this.state.dob} username={this.state.username}
-                                            handleInput={this.handleInput} email={this.state.email}
-                                            first_name={this.state.first_name} last_name={this.state.last_name}
-                                            phone_number={this.state.phone_number}
-                                            job_description={this.state.job_description}
-                                            password={this.state.password}/>
+                                        <DetailsForm user={this.state} setDate={this.setDate} errors={this.state.errors}
+                                            handleInput={this.handleInput} />
 
                                         <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
                                             custom_value2={this.state.custom_value2}
