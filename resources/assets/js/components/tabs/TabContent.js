@@ -3,12 +3,12 @@ import TabList from './TabList'
 import Comments from '../comments/Comments'
 import FileUploads from '../attachments/FileUploads'
 import EditTask from '../forms/EditTask'
-import ProductSelect from '../products/ProductSelect'
 import EditCustomer from '../customers/EditCustomer'
 import EventTab from './EventTab'
 import TaskTab from './TaskTab'
 import EditInvoice from '../invoice/EditInvoice'
 import EditQuote from '../quotes/EditQuote'
+import EditOrder from '../orders/EditOrder'
 
 export default class TabContent extends Component {
     render () {
@@ -38,7 +38,7 @@ export default class TabContent extends Component {
                     </div>
 
                     <div label="Product" className="tab-content">
-                        <ProductSelect customers={this.props.customers} task_id={this.props.task.id}/>
+                        <EditOrder customers={this.props.customers} task_id={this.props.task.id}/>
                     </div>
 
                     <div label="Event" className="tab-content">

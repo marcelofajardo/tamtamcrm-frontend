@@ -108,7 +108,7 @@ export default class Details extends Component {
                             />
                         </FormGroup>
 
-                        <FormGroup className={this.props.has_partial === true ? '' : 'd-none'}>
+                        <FormGroup className={this.props.quote.has_partial === true ? '' : 'd-none'}>
                             <Label>Partial Due Date</Label>
                             <Datepicker name="partial_due_date" date={this.props.quote.partial_due_date} handleInput={this.props.handleInput}
                                 className={this.hasErrorFor('partial_due_date') ? 'form-control is-invalid' : 'form-control'}/>
@@ -116,7 +116,7 @@ export default class Details extends Component {
 
                         <CustomerDropdown
                             handleInputChanges={this.props.handleInput}
-                            customer={this.props.customer_id}
+                            customer={this.props.quote.customer_id}
                             customers={this.props.customers}
                             errors={this.props.errors}
                         />

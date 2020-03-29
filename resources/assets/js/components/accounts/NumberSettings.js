@@ -135,6 +135,34 @@ class NumberSettings extends Component {
         return formFields
     }
 
+    getOrderFields () {
+        const settings = this.state.settings
+
+        console.log('settings', settings)
+
+        const formFields = [
+            [
+                {
+                    name: 'order_number_pattern',
+                    label: 'Order Number Pattern',
+                    type: 'text',
+                    placeholder: 'Order Number Pattern',
+                    value: settings.order_number_pattern,
+                    group: 1
+                },
+                {
+                    name: 'order_number_counter',
+                    label: 'Order Counter',
+                    type: 'text',
+                    placeholder: 'Order Counter',
+                    value: settings.order_number_counter
+                },
+            ]
+        ]
+
+        return formFields
+    }
+
     getQuoteFields () {
         const settings = this.state.settings
 
@@ -327,6 +355,16 @@ class NumberSettings extends Component {
                             Credits
                         </NavLink>
                     </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '6' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('6')
+                            }}>
+                            Orders
+                        </NavLink>
+                    </NavItem>
                 </Nav>
 
                 <TabContent activeTab={this.state.activeTab}>
@@ -385,6 +423,18 @@ class NumberSettings extends Component {
                                 <FormBuilder
                                     handleChange={this.handleSettingsChange}
                                     formFieldsRows={this.getCreditFields()}
+                                />
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="6">
+                        <Card>
+                            <CardHeader>Order Settings</CardHeader>
+                            <CardBody>
+                                <FormBuilder
+                                    handleChange={this.handleSettingsChange}
+                                    formFieldsRows={this.getOrderFields()}
                                 />
                             </CardBody>
                         </Card>

@@ -132,6 +132,10 @@ export default class CreditModel extends BaseModel {
             actions.push('convert')
         }
 
+        if (this.isModuleEnabled('orders')) {
+            actions.push('clone_to_order')
+        }
+
         if (this.isModuleEnabled('credits')) {
             actions.push('cloneToCredit')
         }

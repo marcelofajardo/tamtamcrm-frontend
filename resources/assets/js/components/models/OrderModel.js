@@ -117,6 +117,10 @@ export default class OrderModel extends BaseModel {
             actions.push('markSent')
         }
 
+        if (!this.isApproved) {
+            actions.push('approve')
+        }
+
         if (!this.fields.is_deleted) {
             actions.push('delete')
         }

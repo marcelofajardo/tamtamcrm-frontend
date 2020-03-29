@@ -2,54 +2,40 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import {
     Button,
-    Col,
-    DropdownItem,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    ModalHeader,
-    Nav,
-    NavItem,
-    NavLink,
-    Row,
-    TabContent,
-    TabPane
+    Col, DropdownItem, Modal, ModalBody, ModalFooter, ModalHeader, Nav, NavItem, NavLink,
+    Row, TabContent, TabPane
 } from 'reactstrap'
 import 'react-dates/lib/css/_datepicker.css'
-import moment from 'moment'
 import SuccessMessage from '../common/SucessMessage'
 import ErrorMessage from '../common/ErrorMessage'
-import AddButtons from '../common/AddButtons'
-import Details from './Details'
-import Contacts from './Contacts'
-import Items from './Items'
-import Documents from './Documents'
-import DropdownMenu from '../common/DropdownMenuBuilder'
-import Notes from '../common/Notes'
+import Details from '../orders/Details'
+import Items from '../orders/Items'
+import OrderModel from '../models/OrderModel'
+import { CalculateLineTotals, CalculateSurcharges, CalculateTotal } from '../common/InvoiceCalculations'
 import CustomFieldsForm from '../common/CustomFieldsForm'
 import InvoiceSettings from '../common/InvoiceSettings'
-import { CalculateLineTotals, CalculateSurcharges, CalculateTotal } from '../common/InvoiceCalculations'
-import InvoiceModel from '../models/InvoiceModel'
+import Notes from '../common/Notes'
+import DropdownMenuBuilder from '../common/DropdownMenuBuilder'
+import AddButtons from '../common/AddButtons'
+import Contacts from '../credits/Contacts'
 import EmailEditor from '../common/EmailEditorForm'
 
-class EditInvoice extends Component {
-    constructor (props, context) {
-        super(props, context)
+export default class EditOrder extends Component {
+    constructor (props) {
+        super(props)
 
-        const data = this.props.invoice ? this.props.invoice : null
-        this.invoiceModel = new InvoiceModel(data, this.props.customers)
-        this.initialState = this.invoiceModel.fields
+        const data = this.props.order ? this.props.order : null
+        this.orderModel = new OrderModel(data, this.props.customers)
+        this.initialState = this.orderModel.fields
+        this.orderModel.task_id = this.props.task_id
         this.state = this.initialState
 
         this.updateData = this.updateData.bind(this)
         this.saveData = this.saveData.bind(this)
         this.setTotal = this.setTotal.bind(this)
-        this.toggle = this.toggle.bind(this)
-        this.handleTaskChange = this.handleTaskChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.buildForm = this.buildForm.bind(this)
         this.createInvoice = this.createInvoice.bind(this)
-        this.setRecurring = this.setRecurring.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleAddFiled = this.handleAddFiled.bind(this)
         this.handleFieldChange = this.handleFieldChange.bind(this)
@@ -60,6 +46,7 @@ class EditInvoice extends Component {
         this.handleSurcharge = this.handleSurcharge.bind(this)
         this.calculateSurcharges = this.calculateSurcharges.bind(this)
         this.handleWindowSizeChange = this.handleWindowSizeChange.bind(this)
+        this.handleTaskChange = this.handleTaskChange.bind(this)
 
         this.total = 0
         const account_id = JSON.parse(localStorage.getItem('appState')).user.account_id
@@ -72,17 +59,19 @@ class EditInvoice extends Component {
     }
 
     componentDidMount () {
-        if (this.props.task_id) {
-            this.loadInvoice()
-        } else if (!this.state.id) {
-            if (Object.prototype.hasOwnProperty.call(localStorage, 'invoiceForm')) {
-                const storedValues = JSON.parse(localStorage.getItem('invoiceForm'))
+        if (!this.state.id) {
+            if (Object.prototype.hasOwnProperty.call(localStorage, 'orderForm')) {
+                const storedValues = JSON.parse(localStorage.getItem('orderForm'))
                 this.setState({ ...storedValues }, () => console.log('new state', this.state))
             }
         }
 
-        if (this.props.invoice && this.props.invoice.customer_id) {
-            const contacts = this.invoiceModel.contacts
+        if (this.props.task_id) {
+            this.handleTaskChange()
+        }
+
+        if (this.props.order && this.props.order.customer_id) {
+            const contacts = this.orderModel.contacts
             this.setState({ contacts: contacts })
         }
     }
@@ -91,10 +80,6 @@ class EditInvoice extends Component {
     // when the component is not mounted anymore
     componentWillUnmount () {
         window.removeEventListener('resize', this.handleWindowSizeChange)
-    }
-
-    setRecurring (recurring) {
-        this.setState({ recurring: recurring })
     }
 
     toggleTab (tab) {
@@ -107,15 +92,39 @@ class EditInvoice extends Component {
         this.setState({ width: window.innerWidth })
     }
 
+    handleClick () {
+        axios.post(`/api/tasks/products/${this.props.task_id}`, {
+            products: this.state.selectedProducts
+        })
+            .then((response) => {
+                this.setState({ success: true })
+            })
+            .catch((error) => {
+                this.setState({
+                    errors: error.response.data.errors
+                })
+            })
+    }
+
+    handleMultiSelect (e) {
+        this.setState({ selectedProducts: Array.from(e.target.selectedOptions, (item) => item.value) })
+    }
+
+    handleContactChange (e) {
+        const invitations = this.orderModel.buildInvitations(e.target.value, e.target.checked)
+        // update the state with the new array of options
+        this.setState({ invitations: invitations }, () => console.log('invitations', invitations))
+    }
+
     handleInput (e) {
         if (e.target.name === 'customer_id') {
-            const customer = this.invoiceModel.customerChange(e.target.value)
+            const customer = this.orderModel.customerChange(e.target.value)
 
             this.setState({
                 customerName: customer.name,
                 contacts: customer.contacts,
                 address: customer.address
-            }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+            }, () => localStorage.setItem('orderForm', JSON.stringify(this.state)))
         }
 
         if (e.target.name === 'tax') {
@@ -126,16 +135,10 @@ class EditInvoice extends Component {
                 tax: rate,
                 tax_rate_name: name
             }, () => {
-                localStorage.setItem('invoiceForm', JSON.stringify(this.state))
+                localStorage.setItem('orderForm', JSON.stringify(this.state))
                 this.calculateTotals()
             })
 
-            return
-        }
-
-        if (e.target.name === 'partial') {
-            const has_partial = e.target.value.trim() !== ''
-            this.setState({ has_partial: has_partial, partial: e.target.value })
             return
         }
 
@@ -143,7 +146,7 @@ class EditInvoice extends Component {
 
         this.setState({
             [e.target.name]: value
-        }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+        }, () => localStorage.setItem('orderForm', JSON.stringify(this.state)))
     }
 
     handleSurcharge (e) {
@@ -163,106 +166,10 @@ class EditInvoice extends Component {
         }, () => this.calculateTotals())
     }
 
-    handleTaskChange (e) {
-        axios.get(`/api/products/tasks/${this.props.task_id}/1,2`)
-            .then((r) => {
-                const arrLines = []
-                let total = 0
-
-                if (r.data && r.data.line_items) {
-                    r.data.line_items.map((product) => {
-                        const objLine = {
-                            quantity: product.quantity,
-                            product_id: product.product_id,
-                            unit_price: product.unit_price,
-                            unit_discount: product.unit_discount,
-                            unit_tax: product.unit_tax,
-                            order_id: r.data.id
-                        }
-
-                        total += parseFloat(product.unit_price)
-                        arrLines.push(objLine)
-                    })
-                }
-
-                this.setState({
-                    data: arrLines,
-                    total: total
-                }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
-            })
-            .catch((e) => {
-                console.warn(e)
-            })
-    }
-
-    loadInvoice () {
-        const url = this.props.task_id ? `/api/invoice/task/${this.props.task_id}` : `/api/invoice/${this.state.id}`
-
-        axios.get(url)
-            .then((r) => {
-                if (r.data) {
-                    this.setState({
-                        line_items: r.data.line_items,
-                        due_date: moment(r.data.due_date).format('YYYY-MM-DD'),
-                        po_number: r.data.po_number,
-                        invoice_id: r.data.id,
-                        customer_id: r.data.customer_id,
-                        user_id: r.data.user_id,
-                        company_id: r.data.company_id,
-                        public_notes: r.data.public_notes,
-                        private_notes: r.data.private_notes,
-                        terms: r.data.terms,
-                        footer: r.data.footer,
-                        status_id: parseInt(r.data.status_id)
-                    }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
-                }
-            })
-            .catch((e) => {
-                console.warn(e)
-            })
-    }
-
-    toggle () {
-        this.setState({
-            modalOpen: !this.state.modalOpen,
-            errors: []
-        }, () => {
-            if (!this.state.modalOpen) {
-                this.setState({
-                    public_notes: '',
-                    tax: null,
-                    tax_rate_name: '',
-                    private_notes: '',
-                    custom_surcharge1: null,
-                    custom_surcharge2: null,
-                    custom_surcharge3: null,
-                    custom_surcharge_tax1: null,
-                    custom_surcharge_tax2: null,
-                    custom_surcharge_tax3: null,
-                    custom_surcharge_tax4: null,
-                    custom_value1: '',
-                    custom_value2: '',
-                    custom_value3: '',
-                    custom_value4: '',
-                    terms: '',
-                    footer: '',
-                    partial: 0,
-                    partial_due_date: null,
-                    invoice_id: null,
-                    customer_id: null,
-                    company_id: null,
-                    status_id: null,
-                    data: [],
-                    invitations: []
-                }, () => localStorage.removeItem('invoiceForm'))
-            }
-        })
-    }
-
     updateData (rowData) {
         this.setState(prevState => ({
             data: [...prevState.data, rowData]
-        }), () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+        }), () => localStorage.setItem('orderForm', JSON.stringify(this.state)))
     }
 
     calculateTotals () {
@@ -273,14 +180,14 @@ class EditInvoice extends Component {
             discount_total: totals.discount_total,
             tax_total: totals.tax_total,
             sub_total: totals.sub_total
-        }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+        }, () => localStorage.setItem('orderForm', JSON.stringify(this.state)))
     }
 
     updatePriceData (index) {
         const data = this.state.data.slice()
         data[index] = CalculateLineTotals({ currentRow: data[index], settings: this.settings, invoice: this.state })
 
-        this.setState({ data: data }, () => localStorage.setItem('invoiceForm', JSON.stringify(this.state)))
+        this.setState({ data: data }, () => localStorage.setItem('orderForm', JSON.stringify(this.state)))
     }
 
     handleFieldChange (data, row) {
@@ -291,36 +198,30 @@ class EditInvoice extends Component {
     }
 
     handleAddFiled () {
-        const items = this.invoiceModel.addItem()
+        const items = this.orderModel.addItem()
         this.setState({ line_items: items })
     }
 
     handleDelete (idx) {
-        const items = this.invoiceModel.removeItem(idx)
+        const items = this.orderModel.removeItem(idx)
         this.setState({ line_items: items })
-
-        if (this.state.data[idx] && this.state.data[idx].order_id) {
-            axios.put(`/api/orders/${this.state.data[idx].order_id}`, { status: 1 })
-                .then((response) => {
-                    this.setState({
-                        showSuccessMessage: true,
-                        showErrorMessage: false
-                    })
-                })
-                .catch((error) => {
-                    this.setState({
-                        errors: error.response.data.errors,
-                        showErrorMessage: true,
-                        showSuccessMessage: false
-                    })
-
-                    console.warn(error)
-                })
-        }
     }
 
     setTotal (total) {
         this.total = total
+    }
+
+    handleTaskChange () {
+        axios.get(`/api/products/tasks/${this.props.task_id}/1,2`)
+            .then((r) => {
+                this.setState(r.data)
+                this.orderModel = new OrderModel(r.data, this.props.customers)
+                const contacts = this.orderModel.contacts
+                this.setState({ contacts: contacts })
+            })
+            .catch((e) => {
+                console.warn(e)
+            })
     }
 
     getFormData () {
@@ -329,26 +230,21 @@ class EditInvoice extends Component {
             design_id: this.state.design_id,
             tax_rate: this.state.tax,
             tax_rate_name: this.state.tax_rate_name,
-            invoice_id: this.state.id,
             task_id: this.props.task_id,
             due_date: this.state.due_date,
             customer_id: this.state.customer_id,
-            company_id: this.state.company_id,
             line_items: this.state.data,
             total: this.state.total,
-            balance: this.props.invoice && this.props.invoice.balance ? this.props.invoice.balance : this.state.total,
+            balance: this.props.credit && this.props.credit.balance ? this.props.credit.balance : this.state.total,
             sub_total: this.state.sub_total,
             tax_total: this.state.tax_total,
             discount_total: this.state.discount_total,
             public_notes: this.state.public_notes,
             private_notes: this.state.private_notes,
-            po_number: this.state.po_number,
             terms: this.state.terms,
             footer: this.state.footer,
+            po_number: this.state.po_number,
             date: this.state.date,
-            partial: this.state.partial,
-            partial_due_date: this.state.partial_due_date,
-            recurring: this.state.recurring,
             custom_value1: this.state.custom_value1,
             custom_value2: this.state.custom_value2,
             custom_value3: this.state.custom_value3,
@@ -370,37 +266,31 @@ class EditInvoice extends Component {
             return this.createInvoice()
         }
 
-        this.invoiceModel.update(this.getFormData()).then(response => {
+        this.orderModel.update(this.getFormData()).then(response => {
             if (!response) {
-                this.setState({ errors: this.invoiceModel.errors, message: this.invoiceModel.error_message })
+                this.setState({ errors: this.orderModel.errors, message: this.orderModel.error_message })
                 return
             }
 
-            const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
-            this.props.invoices[index] = response
-            this.props.action(this.props.invoices)
+            const index = this.props.credits.findIndex(credit => credit.id === this.state.id)
+            this.props.credits[index] = response
+            this.props.action(this.props.credits)
         })
     }
 
     createInvoice () {
-        this.invoiceModel.save(this.getFormData()).then(response => {
+        this.orderModel.save(this.getFormData()).then(response => {
             if (!response) {
-                this.setState({ errors: this.invoiceModel.errors, message: this.invoiceModel.error_message })
+                this.setState({ errors: this.orderModel.errors, message: this.orderModel.error_message })
                 return
             }
             const firstInvoice = response
-            const allInvoices = this.props.invoices
+            const allInvoices = this.props.credits
             allInvoices.push(firstInvoice)
             this.props.action(allInvoices)
-            localStorage.removeItem('invoiceForm')
+            localStorage.removeItem('orderForm')
             this.setState(this.initialState)
         })
-    }
-
-    handleContactChange (e) {
-        const invitations = this.invoiceModel.buildInvitations(e.target.value, e.target.checked)
-        // update the state with the new array of options
-        this.setState({ invitations: invitations }, () => console.log('invitations', invitations))
     }
 
     buildForm () {
@@ -458,6 +348,7 @@ class EditInvoice extends Component {
                     Documents
                 </NavLink>
             </NavItem>
+
             <NavItem>
                 <NavLink
                     className={this.state.activeTab === '6' ? 'active' : ''}
@@ -471,7 +362,7 @@ class EditInvoice extends Component {
 
         const details = <Details handleInput={this.handleInput}
             customers={this.props.customers}
-            errors={this.state.errors} invoice={this.state}
+            errors={this.state.errors} order={this.state}
             address={this.state.address} customerName={this.state.customerName}/>
 
         const custom = <CustomFieldsForm handleInput={this.handleInput} custom_value1={this.state.custom_value1}
@@ -487,7 +378,7 @@ class EditInvoice extends Component {
             errors={this.state.errors} handleInput={this.handleInput}
             discount={this.state.discount} design_id={this.state.design_id}/>
 
-        const items = <Items invoice={this.state} errors={this.state.errors} handleFieldChange={this.handleFieldChange}
+        const items = <Items order={this.state} errors={this.state.errors} handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}
             handleDelete={this.handleDelete}/>
 
@@ -496,17 +387,13 @@ class EditInvoice extends Component {
             handleInput={this.handleInput}/>
 
         const email_editor = this.state.id
-            ? <EmailEditor template="email_template_invoice" show_editor={true} entity="invoice"
+            ? <EmailEditor template="email_template_order" show_editor={true} entity="order"
                 entity_id={this.state.id}/> : null
 
-        const documents = this.state.id ? <Documents invoice={this.state}/> : null
-
         const dropdownMenu = this.state.id
-            ? <DropdownMenu invoices={this.props.invoices} formData={this.getFormData()}
-                task_id={this.state.task_id}
-                handleTaskChange={this.handleTaskChange}
-                action={this.props.action} model={this.invoiceModel}
-            /> : null
+            ? <DropdownMenuBuilder formData={this.getFormData()}
+                model={this.orderModel}
+                task_id={this.props.task_id}/> : null
 
         const isMobile = this.state.width <= 500
         const form = isMobile
@@ -533,9 +420,8 @@ class EditInvoice extends Component {
                         {notes}
                     </TabPane>
 
-                    <TabPane tabId="5">
-                        {documents}
-                    </TabPane>
+                    <TabPane tabId="5"/>
+
                     <TabPane tabId="6">
                         {email_editor}
                     </TabPane>
@@ -585,9 +471,7 @@ class EditInvoice extends Component {
                                 {notes}
                             </Col>
 
-                            <Col md={6}>
-                                {documents}
-                            </Col>
+                            <Col md={6}/>
                         </Row>
                     </TabPane>
 
@@ -621,7 +505,7 @@ class EditInvoice extends Component {
                     <Modal isOpen={this.state.modalOpen} toggle={this.toggle} className={this.props.className}
                         size="lg">
                         <ModalHeader toggle={this.toggle}>
-                            Invoice
+                            Credit
                         </ModalHeader>
 
                         <ModalBody>
@@ -649,5 +533,3 @@ class EditInvoice extends Component {
         )
     }
 }
-
-export default EditInvoice

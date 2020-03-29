@@ -104,6 +104,38 @@ export default class WorkflowSettings extends Component {
         return formFields
     }
 
+    getOrderFields () {
+        const settings = this.state.settings
+
+        const formFields = [
+            [
+                {
+                    name: 'auto_email_order',
+                    label: 'Auto Email',
+                    type: 'switch',
+                    value: settings.auto_email_order,
+                    group: 1
+                },
+                {
+                    name: 'auto_archive_order',
+                    label: 'Auto Archive',
+                    type: 'switch',
+                    value: settings.auto_archive_order,
+                    group: 1
+                },
+                {
+                    name: 'auto_convert_order',
+                    label: 'Auto Convert',
+                    type: 'switch',
+                    value: settings.auto_convert_order,
+                    group: 1
+                }
+            ]
+        ]
+
+        return formFields
+    }
+
     getLeadFields () {
         const settings = this.state.settings
 
@@ -121,6 +153,13 @@ export default class WorkflowSettings extends Component {
                     label: 'Auto Archive',
                     type: 'switch',
                     value: settings.auto_archive_lead,
+                    group: 1
+                },
+                {
+                    name: 'auto_convert_lead',
+                    label: 'Auto Convert',
+                    type: 'switch',
+                    value: settings.auto_convert_lead,
                     group: 1
                 }
             ]
@@ -196,6 +235,16 @@ export default class WorkflowSettings extends Component {
                             Leads
                         </NavLink>
                     </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '4' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggle('4')
+                            }}>
+                            Orders
+                        </NavLink>
+                    </NavItem>
                 </Nav>
 
                 <TabContent activeTab={this.state.activeTab}>
@@ -230,6 +279,18 @@ export default class WorkflowSettings extends Component {
                                 <FormBuilder
                                     handleChange={this.handleSettingsChange}
                                     formFieldsRows={this.getLeadFields()}
+                                />
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="4">
+                        <Card>
+                            <CardHeader>Order Settings</CardHeader>
+                            <CardBody>
+                                <FormBuilder
+                                    handleChange={this.handleSettingsChange}
+                                    formFieldsRows={this.getOrderFields()}
                                 />
                             </CardBody>
                         </Card>

@@ -88,6 +88,9 @@ export default class DropdownMenuBuilder extends Component {
                 return <DropdownItem className="primary" onClick={() => this.changeStatus('email')}>Send
                     Email</DropdownItem>
 
+            case 'approve':
+                return <DropdownItem className="primary" onClick={() => this.changeStatus('approve')}>Approve</DropdownItem>
+
             case 'markSent':
                 return <DropdownItem onClick={() => this.changeStatus('mark_sent')}>Mark Sent</DropdownItem>
 
@@ -103,6 +106,10 @@ export default class DropdownMenuBuilder extends Component {
             case 'cloneToCredit':
                 return <DropdownItem className="primary"
                     onClick={() => this.changeStatus('clone_to_credit')}>Clone Credit</DropdownItem>
+
+            case 'clone_to_order':
+                return <DropdownItem className="primary"
+                    onClick={() => this.changeStatus('clone_to_order')}>Clone Order</DropdownItem>
 
             case 'markPaid':
                 return <DropdownItem color="primary" onClick={() => this.changeStatus('mark_paid')}>Mark

@@ -63,6 +63,10 @@ class CustomFieldSettings extends Component {
             expenses: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
                 name: 'custom_value3',
                 label: ''
+            }, { name: 'custom_value4', label: '' }],
+            orders: [{ name: 'custom_value1', label: '' }, { name: 'custom_value2', label: '' }, {
+                name: 'custom_value3',
+                label: ''
             }, { name: 'custom_value4', label: '' }]
         }
 
@@ -82,6 +86,7 @@ class CustomFieldSettings extends Component {
             .then((r) => {
                 if (r.data.Customer && Object.keys(r.data)) {
                     this.setState({
+                        // orders: r.data.Order,
                         expenses: r.data.Expense,
                         product: r.data.Product,
                         customers: r.data.Customer,
@@ -134,6 +139,7 @@ class CustomFieldSettings extends Component {
 
     handleSubmit (e) {
         const fields = {}
+        fields.Order = this.state.orders
         fields.Product = this.state.product
         fields.Customer = this.state.customers
         fields.Company = this.state.companies
@@ -168,7 +174,7 @@ class CustomFieldSettings extends Component {
     }
 
     render () {
-        const { customers, product, invoices, payments, companies, quotes, credits, tasks, expenses } = this.state
+        const { customers, product, invoices, payments, companies, quotes, credits, tasks, expenses, orders } = this.state
         let tabCounter = 1
         const tabContent = []
         const tabItems = []
@@ -913,6 +919,89 @@ class CustomFieldSettings extends Component {
                     data-id={tabCounter}
                     onClick={this.toggle}>
                     Expenses
+                </NavLink>
+            </NavItem>)
+
+            tabCounter++
+        }
+
+        if (orders && this.modules.orders === true) {
+            tabContent.push(<TabPane tabId={String(tabCounter)}>
+                <Card>
+                    <CardHeader>Orders</CardHeader>
+                    <CardBody>
+                        {
+                            tasks.map((val, idx) => {
+                                const catId = `custom_value${idx}`
+                                const ageId = `age-${idx}`
+                                return (
+                                    <Form className="clearfix" key={idx}>
+                                        <Row form>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label htmlFor={ageId}>Label</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name={ageId}
+                                                        data-id={idx}
+                                                        data-entity="orders"
+                                                        id={ageId}
+                                                        data-field="label"
+                                                        onChange={this.handleChange}
+                                                        value={orders[idx].label}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup className="mb-4" key={idx}>
+                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
+                                                    <Input
+                                                        type="select"
+                                                        name={catId}
+                                                        data-id={idx}
+                                                        data-entity="orders"
+                                                        id={catId}
+                                                        data-field="type"
+                                                        onChange={this.handleChange}
+                                                        value={orders[idx].type}
+                                                    >
+                                                        <option value='text'>Text</option>
+                                                        <option value='textarea'>Textarea</option>
+                                                        <option value='select'>Select List</option>
+                                                        <option value='switch'>Switch</option>
+                                                    </Input>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
+
+                                        {orders[idx].type === 'select' &&
+                                        <div className="row col-12">
+                                            <DynamicOptionList showCorrectColumn={false}
+                                                data-entity="orders"
+                                                data-id={idx}
+                                                canHaveOptionCorrect={false}
+                                                canHaveOptionValue={true}
+                                                // data={this.props.preview.state.data}
+                                                updateElement={this.handleOptionChange}
+                                                // preview={this.props.preview}
+                                                element={Object.assign(orders[idx], { data_id: idx, data_entity: 'orders' })}
+                                                key={orders[idx].options.length} />
+                                        </div>
+                                        }
+                                    </Form>
+                                )
+                            })
+                        }
+                    </CardBody>
+                </Card>
+            </TabPane>)
+
+            tabItems.push(<NavItem>
+                <NavLink
+                    className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
+                    data-id={tabCounter}
+                    onClick={this.toggle}>
+                    Orders
                 </NavLink>
             </NavItem>)
         }

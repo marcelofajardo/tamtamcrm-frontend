@@ -28,6 +28,7 @@ class ModuleSettings extends Component {
             modules: Object.prototype.hasOwnProperty.call(localStorage, 'modules') ? JSON.parse(localStorage.getItem('modules')) : {
                 recurringInvoices: false,
                 credits: false,
+                orders: false,
                 leads: false,
                 deals: false,
                 products: false,
@@ -147,7 +148,13 @@ class ModuleSettings extends Component {
                     value: 1024,
                     label: 'Invoices',
                     isChecked: false
-                }
+                },
+                {
+                    id: 'orders',
+                    value: 2000,
+                    label: 'Orders',
+                    isChecked: false
+                },
             ]
         }
 

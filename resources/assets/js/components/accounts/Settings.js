@@ -325,6 +325,22 @@ class Settings extends Component {
                     placeholder: 'Credit Footer',
                     value: settings.credit_footer,
                     group: 1
+                },
+                {
+                    name: 'order_terms',
+                    label: 'Order Terms',
+                    type: 'textarea',
+                    placeholder: 'Order Terms',
+                    value: settings.order_terms,
+                    group: 1
+                },
+                {
+                    name: 'order_footer',
+                    label: 'Order Footer',
+                    type: 'textarea',
+                    placeholder: 'Order Footer',
+                    value: settings.order_footer,
+                    group: 1
                 }
             ]
         ]

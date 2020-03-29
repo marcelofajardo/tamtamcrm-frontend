@@ -4,7 +4,7 @@ import {
     Label,
     Card,
     CardBody,
-    CardHeader
+    CardHeader, Input
 } from 'reactstrap'
 import Datepicker from '../common/Datepicker'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -43,6 +43,13 @@ export default class Details extends React.Component {
                     <Datepicker name="date" date={this.props.order.date} handleInput={this.props.handleInput}
                         className={this.hasErrorFor('date') ? 'form-control is-invalid' : 'form-control'}/>
                     {this.renderErrorFor('date')}
+                </FormGroup>
+
+                <FormGroup>
+                    <Label for="po_number">PO Number(*):</Label>
+                    <Input value={this.props.order.po_number} type="text" id="po_number" name="po_number"
+                        onChange={this.props.handleInput}/>
+                    {this.renderErrorFor('po_number')}
                 </FormGroup>
 
                 <CustomerDropdown

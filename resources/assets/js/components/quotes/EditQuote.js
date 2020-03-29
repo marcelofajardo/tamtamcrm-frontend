@@ -31,6 +31,7 @@ import InvoiceSettings from '../common/InvoiceSettings'
 import { CalculateLineTotals, CalculateSurcharges, CalculateTotal } from '../common/InvoiceCalculations'
 import QuoteModel from '../models/QuoteModel'
 import DropdownMenuBuilder from '../common/DropdownMenuBuilder'
+import EmailEditor from '../common/EmailEditorForm'
 
 class EditInvoice extends Component {
     constructor (props, context) {
@@ -365,16 +366,6 @@ class EditInvoice extends Component {
         const errorMessage = this.state.showErrorMessage === true
             ? <ErrorMessage message="Something went wrong"/> : null
 
-        const documentTabLink = this.state.id !== null ? <NavItem>
-            <NavLink
-                className={this.state.activeTab === '5' ? 'active' : ''}
-                onClick={() => {
-                    this.toggleTab('5')
-                }}>
-                Documents
-            </NavLink>
-        </NavItem> : null
-
         const tabs = <Nav tabs>
             <NavItem>
                 <NavLink
@@ -415,7 +406,24 @@ class EditInvoice extends Component {
                     Notes
                 </NavLink>
             </NavItem>
-            {documentTabLink}
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '5' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('5')
+                    }}>
+                    Documents
+                </NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '6' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('6')
+                    }}>
+                    Email
+                </NavLink>
+            </NavItem>
         </Nav>
 
         const details = <Details handleInput={this.handleInput}
@@ -448,12 +456,16 @@ class EditInvoice extends Component {
 
         const documents = this.state.id ? <Documents invoice={this.state}/> : null
 
+        const email_editor = this.state.id
+            ? <EmailEditor template="email_template_quote" show_editor={true} entity="quote"
+                entity_id={this.state.id}/> : null
+
         const dropdownMenu = this.state.id
             ? <DropdownMenuBuilder invoices={this.props.invoices}
                 formData={this.getFormData()}
                 model={this.quoteModel}
                 handleTaskChange={this.handleTaskChange}
-                action={this.props.action} /> : null
+                action={this.props.action}/> : null
 
         const isMobile = this.state.width <= 500
         const form = isMobile
@@ -483,32 +495,66 @@ class EditInvoice extends Component {
                     <TabPane tabId="5">
                         {documents}
                     </TabPane>
+
+                    <TabPane tabId="6">
+                        {email_editor}
+                    </TabPane>
                 </TabContent>
             </React.Fragment>
 
             : <React.Fragment>
-                <Row form>
-                    <Col md={6}>
-                        {details}
-                        {custom}
-                    </Col>
+                <Nav tabs>
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '1' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggleTab('1')
+                            }}>
+                            Invoice
+                        </NavLink>
+                    </NavItem>
 
-                    <Col md={6}>
-                        {contacts}
-                        {settings}
-                    </Col>
-                </Row>
-                {items}
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '2' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggleTab('2')
+                            }}>
+                            Email
+                        </NavLink>
+                    </NavItem>
+                </Nav>
 
-                <Row form>
-                    <Col md={6}>
-                        {notes}
-                    </Col>
+                <TabContent activeTab={this.state.activeTab}>
+                    <TabPane tabId="1">
+                        <Row form>
+                            <Col md={6}>
+                                {details}
+                                {custom}
+                            </Col>
 
-                    <Col md={6}>
-                        {documents}
-                    </Col>
-                </Row>
+                            <Col md={6}>
+                                {contacts}
+                                {settings}
+                            </Col>
+                        </Row>
+                        {items}
+
+                        <Row form>
+                            <Col md={6}>
+                                {notes}
+                            </Col>
+
+                            <Col md={6}>
+                                {documents}
+                            </Col>
+                        </Row>
+                    </TabPane>
+
+                    <TabPane tabId="2">
+                        {email_editor}
+                    </TabPane>
+                </TabContent>
             </React.Fragment>
 
         return (

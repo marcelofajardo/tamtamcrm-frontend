@@ -28,6 +28,7 @@ import InvoiceSettings from '../common/InvoiceSettings'
 import { CalculateLineTotals, CalculateSurcharges, CalculateTotal } from '../common/InvoiceCalculations'
 import CreditModel from '../models/CreditModel'
 import DropdownMenuBuilder from '../common/DropdownMenuBuilder'
+import EmailEditor from '../common/EmailEditorForm'
 
 export default class EditCredit extends Component {
     constructor (props, context) {
@@ -397,6 +398,26 @@ export default class EditCredit extends Component {
                     Notes
                 </NavLink>
             </NavItem>
+
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '5' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('5')
+                    }}>
+                    Documents
+                </NavLink>
+            </NavItem>
+
+            <NavItem>
+                <NavLink
+                    className={this.state.activeTab === '6' ? 'active' : ''}
+                    onClick={() => {
+                        this.toggleTab('6')
+                    }}>
+                    Email
+                </NavLink>
+            </NavItem>
         </Nav>
 
         const details = <Details handleInput={this.handleInput}
@@ -425,12 +446,16 @@ export default class EditCredit extends Component {
             terms={this.state.terms} footer={this.state.footer} errors={this.state.errors}
             handleInput={this.handleInput}/>
 
+        const email_editor = this.state.id
+            ? <EmailEditor template="email_template_credit" show_editor={true} entity="credit"
+                entity_id={this.state.id}/> : null
+
         const dropdownMenu = this.state.id
             ? <DropdownMenuBuilder credits={this.props.credits} formData={this.getFormData()}
                 model={this.creditModel}
                 task_id={this.state.task_id}
                 handleTaskChange={this.handleTaskChange}
-                action={this.props.action} /> : null
+                action={this.props.action}/> : null
 
         const isMobile = this.state.width <= 500
         const form = isMobile
@@ -457,31 +482,66 @@ export default class EditCredit extends Component {
                         {notes}
                     </TabPane>
 
-                    <TabPane tabId="5" />
+                    <TabPane tabId="5"/>
+
+                    <TabPane tabId="6">
+                        {email_editor}
+                    </TabPane>
                 </TabContent>
             </React.Fragment>
 
             : <React.Fragment>
-                <Row form>
-                    <Col md={6}>
-                        {details}
-                        {custom}
-                    </Col>
+                <Nav tabs>
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '1' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggleTab('1')
+                            }}>
+                            Invoice
+                        </NavLink>
+                    </NavItem>
 
-                    <Col md={6}>
-                        {contacts}
-                        {settings}
-                    </Col>
-                </Row>
-                {items}
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '2' ? 'active' : ''}
+                            onClick={() => {
+                                this.toggleTab('2')
+                            }}>
+                            Email
+                        </NavLink>
+                    </NavItem>
+                </Nav>
 
-                <Row form>
-                    <Col md={6}>
-                        {notes}
-                    </Col>
+                <TabContent activeTab={this.state.activeTab}>
+                    <TabPane tabId="1">
+                        <Row form>
+                            <Col md={6}>
+                                {details}
+                                {custom}
+                            </Col>
 
-                    <Col md={6} />
-                </Row>
+                            <Col md={6}>
+                                {contacts}
+                                {settings}
+                            </Col>
+                        </Row>
+                        {items}
+
+                        <Row form>
+                            <Col md={6}>
+                                {notes}
+                            </Col>
+
+                            <Col md={6}/>
+                        </Row>
+                    </TabPane>
+
+                    <TabPane tabId="2">
+                        {email_editor}
+                    </TabPane>
+                </TabContent>
+
             </React.Fragment>
 
         return (
