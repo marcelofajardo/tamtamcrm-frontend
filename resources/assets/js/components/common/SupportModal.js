@@ -64,12 +64,12 @@ export default class SupportModal extends Component {
 
         return (
             <React.Fragment>
-                <UncontrolledTooltip placement="right" target="contactTooltip">
+                <UncontrolledTooltip placement="right" target="aboutTooltip">
                     Contact Us
                 </UncontrolledTooltip>
 
-                <i id="contactTooltip" onClick={this.toggle}
-                    style={{ marginRight: 'auto', color: '#000', fontSize: '26px', cursor: 'pointer' }}
+                <i id="aboutTooltip" onClick={this.toggle}
+                    style={{ color: '#000', fontSize: '26px', cursor: 'pointer' }}
                     className="fa fa-envelope"/>
 
                 <Modal centered={true} backdrop="static" isOpen={this.state.modal} toggle={this.toggle}

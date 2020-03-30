@@ -25,6 +25,7 @@ export default class EmailEditorForm extends Component {
             showSuccessMessage: false,
             showErrorMessage: false,
             subject: '',
+            design: '',
             body: ''
         }
 
@@ -44,14 +45,14 @@ export default class EmailEditorForm extends Component {
     }
 
     hasErrorFor (field) {
-        return !!this.props.errors[field]
+        return !!this.state.errors[field]
     }
 
     renderErrorFor (field) {
         if (this.hasErrorFor(field)) {
             return (
-                <span className='invalid-feedback'>
-                    <strong>{this.props.errors[field][0]}</strong>
+                <span className='invalid-feedback d-inline-block'>
+                    <strong>{this.state.errors[field][0]}</strong>
                 </span>
             )
         }
@@ -68,12 +69,13 @@ export default class EmailEditorForm extends Component {
             template: this.props.template,
             entity: this.props.entity,
             entity_id: this.props.entity_id,
-            mark_sent: this.state.mark_sent
+            mark_sent: this.state.mark_sent,
+            design: this.state.design
         })
-            .then(function (response) {
-
+            .then((r) => {
+                console.warn(this.state.users)
             })
-            .catch(function (error) {
+            .catch((error) => {
                 this.setState({
                     errors: error.response.data.errors
                 })
@@ -89,7 +91,7 @@ export default class EmailEditorForm extends Component {
     exportHtml () {
         this.editor.exportHtml(data => {
             const { design, html } = data
-            this.setState({ body: html }, () => this.sendMessage())
+            this.setState({ design: design, body: html }, () => this.sendMessage())
         })
     }
 
@@ -122,10 +124,12 @@ export default class EmailEditorForm extends Component {
                             <Label for="exampleEmail">Subject</Label>
                             <Input type="text" onChange={this.handleChange} name="subject" id="subject"
                                 placeholder="Subject"/>
+                            {this.renderErrorFor('subject')}
                         </FormGroup>
 
                         <FormGroup>
                             {editor}
+                            {this.renderErrorFor('body')}
                         </FormGroup>
 
                         <FormGroup check>

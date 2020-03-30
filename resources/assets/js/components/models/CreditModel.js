@@ -188,6 +188,10 @@ export default class CreditModel extends BaseModel {
     }
 
     async save (data) {
+        if (this.fields.id) {
+            return this.update(data)
+        }
+
         try {
             this.errors = []
             this.error_message = ''

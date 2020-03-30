@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
 import React, { Component } from 'react'
 import { Tooltip } from 'reactstrap'
 import AddTask from './forms/AddTask'
-import AddLeadForm from './forms/AddLeadForm'
+import AddLeadForm from './leads/AddLeadForm'
 
 class Tooltips extends Component {
     constructor (props) {

@@ -35,7 +35,6 @@ export default class EditOrder extends Component {
         this.setTotal = this.setTotal.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.buildForm = this.buildForm.bind(this)
-        this.createInvoice = this.createInvoice.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleAddFiled = this.handleAddFiled.bind(this)
         this.handleFieldChange = this.handleFieldChange.bind(this)
@@ -59,12 +58,12 @@ export default class EditOrder extends Component {
     }
 
     componentDidMount () {
-        if (!this.state.id) {
+        /* if (!this.state.id) {
             if (Object.prototype.hasOwnProperty.call(localStorage, 'orderForm')) {
                 const storedValues = JSON.parse(localStorage.getItem('orderForm'))
                 this.setState({ ...storedValues }, () => console.log('new state', this.state))
             }
-        }
+        } */
 
         if (this.props.task_id) {
             this.handleTaskChange()
@@ -262,34 +261,25 @@ export default class EditOrder extends Component {
     }
 
     saveData () {
-        if (!this.state.id) {
-            return this.createInvoice()
-        }
-
-        this.orderModel.update(this.getFormData()).then(response => {
+        this.orderModel.save(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.orderModel.errors, message: this.orderModel.error_message })
+                return
+            }
+
+            if (!this.state.id) {
+                const firstInvoice = response
+                const allInvoices = this.props.orders
+                allInvoices.push(firstInvoice)
+                this.props.action(allInvoices)
+                localStorage.removeItem('orderForm')
+                this.setState(this.initialState)
                 return
             }
 
             const index = this.props.credits.findIndex(credit => credit.id === this.state.id)
             this.props.credits[index] = response
             this.props.action(this.props.credits)
-        })
-    }
-
-    createInvoice () {
-        this.orderModel.save(this.getFormData()).then(response => {
-            if (!response) {
-                this.setState({ errors: this.orderModel.errors, message: this.orderModel.error_message })
-                return
-            }
-            const firstInvoice = response
-            const allInvoices = this.props.credits
-            allInvoices.push(firstInvoice)
-            this.props.action(allInvoices)
-            localStorage.removeItem('orderForm')
-            this.setState(this.initialState)
         })
     }
 

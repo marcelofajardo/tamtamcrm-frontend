@@ -17,6 +17,7 @@ import {
     Modal, ModalBody, ModalFooter, ModalHeader
 
 } from 'reactstrap'
+import { toast } from 'react-toastify'
 
 class ModuleSettings extends Component {
     constructor (props) {
@@ -154,7 +155,7 @@ class ModuleSettings extends Component {
                     value: 2000,
                     label: 'Orders',
                     isChecked: false
-                },
+                }
             ]
         }
 
@@ -172,16 +173,16 @@ class ModuleSettings extends Component {
 
     deleteAccount () {
         const url = `/api/account/${this.state.id}`
-        const self = this
         axios.delete(url)
-            .then(function (response) {
-                // const arrExpenses = [...self.props.expenses]
-                // const index = arrExpenses.findIndex(expense => expense.id === id)
-                // arrExpenses.splice(index, 1)
-                // self.props.updateExpenses(arrExpenses)
+            .then((r) => {
+                this.setState({
+                    showConfirm: false
+                })
+                alert('The account has been deleted')
+                location.href = '/Login#/login'
             })
-            .catch(function (error) {
-                alert(error)
+            .catch((e) => {
+                toast.error('There was an issue updating the settings')
             })
     }
 

@@ -46,7 +46,6 @@ export default class EditCredit extends Component {
         this.handleTaskChange = this.handleTaskChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.buildForm = this.buildForm.bind(this)
-        this.createInvoice = this.createInvoice.bind(this)
         this.setRecurring = this.setRecurring.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleAddFiled = this.handleAddFiled.bind(this)
@@ -315,34 +314,25 @@ export default class EditCredit extends Component {
     }
 
     saveData () {
-        if (!this.state.id) {
-            return this.createInvoice()
-        }
-
-        this.creditModel.update(this.getFormData()).then(response => {
+        this.creditModel.save(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.creditModel.errors, message: this.creditModel.error_message })
+                return
+            }
+
+            if (!this.state.id) {
+                const firstInvoice = response
+                const allInvoices = this.props.credits
+                allInvoices.push(firstInvoice)
+                this.props.action(allInvoices)
+                localStorage.removeItem('creditForm')
+                this.setState(this.initialState)
                 return
             }
 
             const index = this.props.credits.findIndex(credit => credit.id === this.state.id)
             this.props.credits[index] = response
             this.props.action(this.props.credits)
-        })
-    }
-
-    createInvoice () {
-        this.creditModel.save(this.getFormData()).then(response => {
-            if (!response) {
-                this.setState({ errors: this.creditModel.errors, message: this.creditModel.error_message })
-                return
-            }
-            const firstInvoice = response
-            const allInvoices = this.props.credits
-            allInvoices.push(firstInvoice)
-            this.props.action(allInvoices)
-            localStorage.removeItem('creditForm')
-            this.setState(this.initialState)
         })
     }
 

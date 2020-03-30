@@ -20,6 +20,10 @@ class ViewTask extends React.Component {
         e.preventDefault()
         this.setState({
             modal: !this.state.modal
+        }, () => {
+            if (!this.state.modal) {
+                localStorage.removeItem('orderForm')
+            }
         })
     }
 

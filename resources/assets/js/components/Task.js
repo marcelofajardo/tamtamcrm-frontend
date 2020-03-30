@@ -9,7 +9,7 @@ import ViewTask from './forms/viewTask'
 import Subtasks from './forms/Subtasks'
 import Avatar from './common/Avatar'
 import RestoreModal from './common/RestoreModal'
-import EditLeadForm from './forms/EditLeadForm'
+import EditLeadForm from "./leads/EditLeadForm";
 
 class Task extends Component {
     componentWillReceiveProps () {

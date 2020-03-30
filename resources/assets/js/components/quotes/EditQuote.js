@@ -49,7 +49,6 @@ class EditInvoice extends Component {
         this.handleTaskChange = this.handleTaskChange.bind(this)
         this.handleDelete = this.handleDelete.bind(this)
         this.buildForm = this.buildForm.bind(this)
-        this.createInvoice = this.createInvoice.bind(this)
         this.setRecurring = this.setRecurring.bind(this)
         this.handleInput = this.handleInput.bind(this)
         this.handleAddFiled = this.handleAddFiled.bind(this)
@@ -325,34 +324,25 @@ class EditInvoice extends Component {
     }
 
     saveData () {
-        if (!this.state.id) {
-            return this.createInvoice()
-        }
-
-        this.quoteModel.update(this.getFormData()).then(response => {
+        this.quoteModel.save(this.getFormData()).then(response => {
             if (!response) {
                 this.setState({ errors: this.quoteModel.errors, message: this.quoteModel.error_message })
+                return
+            }
+
+            if (!this.state.id) {
+                const firstInvoice = response
+                const allInvoices = this.props.invoices
+                allInvoices.push(firstInvoice)
+                this.props.action(allInvoices)
+                localStorage.removeItem('quoteForm')
+                this.setState(this.initialState)
                 return
             }
 
             const index = this.props.invoices.findIndex(invoice => invoice.id === this.state.id)
             this.props.invoices[index] = response
             this.props.action(this.props.invoices)
-        })
-    }
-
-    createInvoice () {
-        this.quoteModel.save(this.getFormData()).then(response => {
-            if (!response) {
-                this.setState({ errors: this.quoteModel.errors, message: this.quoteModel.error_message })
-                return
-            }
-            const firstInvoice = response
-            const allInvoices = this.props.invoices
-            allInvoices.push(firstInvoice)
-            this.props.action(allInvoices)
-            localStorage.removeItem('quoteForm')
-            this.setState(this.initialState)
         })
     }
 
@@ -510,7 +500,7 @@ class EditInvoice extends Component {
                             onClick={() => {
                                 this.toggleTab('1')
                             }}>
-                            Invoice
+                            Quote
                         </NavLink>
                     </NavItem>
 

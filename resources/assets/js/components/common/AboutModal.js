@@ -76,20 +76,19 @@ export default class AboutModal extends Component {
                 </UncontrolledTooltip>
 
                 <i id="contactTooltip" onClick={this.toggle}
-                    style={{ marginRight: 'auto', color: '#000', fontSize: '26px', cursor: 'pointer' }}
+                    style={{ marginLeft: '12px', marginRight: 'auto', color: '#000', fontSize: '26px', cursor: 'pointer' }}
                     className="fa fa-question-circle"/>
 
                 <Modal centered={true} backdrop="static" isOpen={this.state.modal} toggle={this.toggle}
                     className={this.props.className}>
-                    <ModalHeader toggle={this.toggle}>Contact us</ModalHeader>
+                    <ModalHeader toggle={this.toggle}>TamTam CRM</ModalHeader>
                     <ModalBody>
-                        {successMessage}
-                        {errorMessage}
+                        TamTam CRM is an all in one invoicing, accounting and crm system. It was built to prevent the need for multiple subscriptions with data spread across multiple systems. As well as giving you full control over customers, vendors, products, events, tasks and many other features. It also includes financial management including invoices, quotes, expenses, credits and payments. https://michael-hampton.github.io/tamtam
                     </ModalBody>
                     <ModalFooter>
                         <Button onClick={this.toggle} color="secondary">Cancel</Button>
                         <Button onClick={this.sendMessage}
-                            color="primary">Send</Button>{' '}
+                            color="primary">Upgrade</Button>{' '}
                     </ModalFooter>
                 </Modal>
             </React.Fragment>

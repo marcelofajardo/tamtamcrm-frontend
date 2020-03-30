@@ -5,6 +5,7 @@ import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react'
 import logo from '../../assets/img/brand/logo.svg'
 import sygnet from '../../assets/img/brand/sygnet.svg'
 import SupportModal from '../../common/SupportModal'
+import AboutModal from '../../common/AboutModal'
 
 const propTypes = {
     children: PropTypes.node
@@ -22,6 +23,7 @@ class DefaultHeader extends Component {
                 <AppSidebarToggler className="d-lg-none" display="md" mobile/>
                 <AppSidebarToggler className="d-md-down-none" display="lg"/>
                 <SupportModal />
+                <AboutModal />
 
                 <AppNavbarBrand
                     full={{
