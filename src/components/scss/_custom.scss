@@ -1,0 +1,68 @@
+.badge {
+  font-size: 16px;
+}
+
+::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar {
+  width: 10px !important;
+  z-index: 9 !important;
+}
+
+.textarea-lg {
+  min-height: 200px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+.sidebar .nav-link.active {
+  border-left: 4px solid $color_science_blue_approx_hover;
+
+  .nav-icon {
+    color: $color_slate_gray_approx;
+  }
+}
+
+@media ( min-width: 576px ) {
+  .card-group > .card {
+    flex: 1 0 auto !important;
+  }
+}
+
+.modal-dialog-centered {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  min-height: calc(100% - (0.5rem * 2));
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+.container-fluid {
+  height: inherit;
+  margin-top: 35px;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+
+@media (min-width: 1920px) {
+  .table-responsive {
+    margin-bottom: 25px;
+  }
+}
