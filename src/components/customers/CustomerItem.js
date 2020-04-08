@@ -52,10 +52,12 @@ export default class CustomerItem extends Component {
                         field={key} entity={customer}/>
                 })
 
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return (
                     <tr key={customer.id}>
                         <td>
-                            <Input value={customer.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                            <Input className={checkboxClass} value={customer.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>

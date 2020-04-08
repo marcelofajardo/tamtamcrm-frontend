@@ -240,9 +240,10 @@ class Designs extends React.Component {
                         <NavLink
                             className={this.state.activeTab === '1' ? 'active' : ''}
                             onClick={() => { this.toggleTabs('1') }}>
-                            Edit
+                            Settings
                         </NavLink>
                     </NavItem>
+
                     <NavItem>
                         <NavLink
                             className={this.state.activeTab === '2' ? 'active' : ''}
@@ -250,11 +251,50 @@ class Designs extends React.Component {
                             Preview
                         </NavLink>
                     </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '3' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('3') }}>
+                            Header
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '4' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('4') }}>
+                            Body
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '5' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('5') }}>
+                            Footer
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '6' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('6') }}>
+                            Product
+                        </NavLink>
+                    </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={this.state.activeTab === '6' ? 'active' : ''}
+                            onClick={() => { this.toggleTabs('6') }}>
+                            Task
+                        </NavLink>
+                    </NavItem>
                 </Nav>
 
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
-
                         <Card>
                             <CardHeader>{this.state.template_type}</CardHeader>
                             <CardBody>
@@ -264,6 +304,25 @@ class Designs extends React.Component {
                                     <Label for="name">Design <span className="text-danger">*</span></Label>
                                     <DesignDropdown resetCounters={this.resetCounters} handleInputChanges={this.switchDesign}/>
                                 </FormGroup>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="2">
+                        <Card>
+                            <CardHeader>Preview</CardHeader>
+                            <CardBody>
+                                <div className="embed-responsive embed-responsive-21by9">
+                                    <iframe className="embed-responsive-item" id="viewer" src={this.state.obj_url}/>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="3">
+                        <Card>
+                            <CardHeader>Header</CardHeader>
+                            <CardBody>
 
                                 <FormGroup>
                                     <Label for="name">Header <span className="text-danger">*</span></Label>
@@ -289,7 +348,14 @@ class Designs extends React.Component {
                                         }}
                                     />
                                 </FormGroup>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
 
+                    <TabPane tabId="4">
+                        <Card>
+                            <CardHeader>Body</CardHeader>
+                            <CardBody>
                                 <FormGroup>
                                     <Label for="name">Body <span className="text-danger">*</span></Label>
                                     <CKEditor
@@ -314,7 +380,14 @@ class Designs extends React.Component {
                                         }}
                                     />
                                 </FormGroup>
+                            </CardBody>
+                        </Card>
+                    </TabPane>
 
+                    <TabPane tabId="5">
+                        <Card>
+                            <CardHeader>Footer</CardHeader>
+                            <CardBody>
                                 <FormGroup>
                                     <Label for="name">Footer <span className="text-danger">*</span></Label>
                                     <CKEditor
@@ -343,15 +416,17 @@ class Designs extends React.Component {
                         </Card>
                     </TabPane>
 
-                    <TabPane tabId="2">
-
+                    <TabPane tabId="6">
                         <Card>
-                            <CardHeader>Preview</CardHeader>
-                            <CardBody>
-                                <div className="embed-responsive embed-responsive-21by9">
-                                    <iframe className="embed-responsive-item" id="viewer" src={this.state.obj_url}/>
-                                </div>
-                            </CardBody>
+                            <CardHeader>Product</CardHeader>
+                            <CardBody />
+                        </Card>
+                    </TabPane>
+
+                    <TabPane tabId="7">
+                        <Card>
+                            <CardHeader>Task</CardHeader>
+                            <CardBody />
                         </Card>
                     </TabPane>
                 </TabContent>

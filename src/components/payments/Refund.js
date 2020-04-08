@@ -69,9 +69,13 @@ class Refund extends React.Component {
     }
 
     handleClick () {
+        const invoices = this.state.payable_invoices.filter(function (el) {
+            return el.amount !== 0 && el.invoice_id !== null
+        })
+
         axios.put(`/api/refund/${this.state.id}`, {
             amount: this.state.amount,
-            invoices: this.state.payable_invoices,
+            invoices: invoices,
             send_email: this.state.send_email,
             date: this.state.date,
             id: this.props.payment.id

@@ -28,6 +28,10 @@
   font-size: 1rem;
 }
 
+//.html {
+//  overflow: hidden;
+//}
+
 .table-responsive {
   margin-bottom: 22px;
   padding-bottom: 75px;
@@ -123,7 +127,7 @@ table .th-lg {
   }
 }
 
-@media screen and( max-width: 767px ) {
+@media screen and(max-width: 767px) {
   .dataTables_info,
   .dataTables_paginate {
     text-align: center;
@@ -134,53 +138,51 @@ table .th-lg {
 //  width: 14rem !important;
 //}
 
-@media screen and (max-width: 768px) {
-  table {
-    border: 0;
-  }
+table.mobile {
+  border: 0;
+}
 
-  table caption {
-    font-size: 1.3em;
-  }
+table.mobile caption {
+  font-size: 1.3em;
+}
 
-  table thead {
-    border: none;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
-  }
+table.mobile thead {
+  border: none;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
 
-  table tr {
-    border-bottom: 3px solid #dddddd;
-    display: block;
-    margin-bottom: 0.625em;
-  }
+table.mobile tr {
+  border-bottom: 3px solid #dddddd;
+  display: block;
+  margin-bottom: 0.625em;
+}
 
-  table td {
-    border-bottom: 1px solid #dddddd;
-    display: block;
-    font-size: 0.8em;
-    text-align: right;
-  }
+table.mobile td {
+  border-bottom: 1px solid #dddddd;
+  display: block;
+  font-size: 0.8em;
+  text-align: right;
+}
 
-  table td::before {
+table.mobile td::before {
 
-    /*
-    * aria-label has no advantage, it won't be read inside a table
-    content: attr(aria-label);
-    */
-    content: attr(data-label);
-    float: left;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
+  /*
+  * aria-label has no advantage, it won't be read inside a table
+  content: attr(aria-label);
+  */
+  content: attr(data-label);
+  float: left;
+  font-weight: 700;
+  text-transform: uppercase;
+}
 
-  table td:last-child {
-    border-bottom: 0;
-    padding-bottom: 30px;
-  }
+table.mobile td:last-child {
+  border-bottom: 0;
+  padding-bottom: 30px;
 }

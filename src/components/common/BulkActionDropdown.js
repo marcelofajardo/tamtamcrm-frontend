@@ -25,7 +25,7 @@ export default class BulkActionDropdown extends Component {
                     Bulk Actions
                 </UncontrolledTooltip>
 
-                <ButtonDropdown isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
+                <ButtonDropdown className="mr-2" isOpen={this.state.dropdownButtonOpen} toggle={this.toggleDropdownButton}>
                     <DropdownToggle caret color="primary">
                         <i id="bulkActionTooltip" className="fa fa-h" aria-hidden="true" type="ellipsis"/> Bulk Action
                     </DropdownToggle>

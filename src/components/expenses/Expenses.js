@@ -5,7 +5,6 @@ import AddExpense from './AddExpense'
 import {
     Card, CardBody
 } from 'reactstrap'
-import ViewEntity from '../common/ViewEntity'
 import ExpenseFilters from './ExpenseFilters'
 import ExpenseItem from './ExpenseItem'
 
@@ -15,6 +14,7 @@ export default class Expenses extends Component {
         this.state = {
             per_page: 5,
             view: {
+                ignore: ['user_id', 'assigned_user_id', 'company_id', 'customer_id', 'invoice_id', 'bank_id', 'deleted_at', 'customer_id', 'invoice_currency_id', 'payment_type_id', 'expense_currency_id', 'recurring_expense_id', 'updated_at', 'invoice_category_id'],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -75,10 +75,6 @@ export default class Expenses extends Component {
         this.updateExpenses = this.updateExpenses.bind(this)
         this.expenseList = this.expenseList.bind(this)
         this.filterExpenses = this.filterExpenses.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
         this.getCompanies = this.getCompanies.bind(this)
     }
 
@@ -86,23 +82,6 @@ export default class Expenses extends Component {
         this.getCustomers()
         this.getCustomFields()
         this.getCompanies()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('customer') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
     }
 
     getCompanies () {
@@ -119,43 +98,6 @@ export default class Expenses extends Component {
 
     filterExpenses (filters) {
         this.setState({ filters: filters })
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/expense/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     getCustomers () {
@@ -178,13 +120,14 @@ export default class Expenses extends Component {
         })
     }
 
-    expenseList () {
-        const { expenses, customers, custom_fields, ignoredColumns, companies } = this.state
-        return <ExpenseItem expenses={expenses} customers={customers} companies={companies}
+    expenseList (props) {
+        const { expenses, customers, custom_fields, companies } = this.state
+        return <ExpenseItem showCheckboxes={props.showCheckboxes} expenses={expenses} customers={customers}
+            companies={companies}
             custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} updateExpenses={this.updateExpenses}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+            ignoredColumns={props.ignoredColumns} updateExpenses={this.updateExpenses}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     getCustomFields () {
@@ -226,6 +169,10 @@ export default class Expenses extends Component {
                         {addButton}
 
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="Expense"
+                            bulk_save_url="/api/expense/bulk"
+                            view={view}
                             columnMapping={{ customer_id: 'CUSTOMER' }}
                             disableSorting={['id']}
                             defaultColumn='amount'
@@ -236,15 +183,6 @@ export default class Expenses extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity
-                    ignore={['user_id', 'assigned_user_id', 'company_id', 'customer_id', 'invoice_id', 'bank_id', 'deleted_at', 'customer_id', 'invoice_currency_id', 'payment_type_id', 'expense_currency_id', 'recurring_expense_id', 'updated_at', 'invoice_category_id']}
-                    toggle={this.toggleViewedEntity}
-                    title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}
-                    entity_type="Expense"
-                />
             </div>
         ) : null
     }

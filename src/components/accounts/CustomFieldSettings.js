@@ -5,20 +5,14 @@ import {
     CardHeader,
     CardBody,
     NavLink,
-    Form,
     NavItem,
     Nav,
     TabPane,
-    TabContent,
-    FormGroup,
-    Input,
-    Label,
-    Row,
-    Col
+    TabContent
 } from 'reactstrap'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
-import DynamicOptionList from './DynamicOptionList'
+import CustomFieldSettingsForm from './CustomFieldSettingsForm'
 
 class CustomFieldSettings extends Component {
     constructor (props) {
@@ -188,62 +182,11 @@ class CustomFieldSettings extends Component {
                             customers.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="customers"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={customers[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="customers"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={customers[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {customers[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="customers"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(customers[idx], { data_id: idx, data_entity: 'customers' })}
-                                                key={customers[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={customers[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="customers" type={customers[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={customers[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -255,7 +198,7 @@ class CustomFieldSettings extends Component {
                     data-id={tabCounter}
                     className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
                     onClick={this.toggle}>
-                                     Customers
+                    Customers
                 </NavLink>
             </NavItem>)
             tabCounter++
@@ -270,62 +213,11 @@ class CustomFieldSettings extends Component {
                             product.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="product"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={product[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="product"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={product[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {product[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="product"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(product[idx], { data_id: idx, data_entity: 'product' })}
-                                                key={product[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={product[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="product" type={product[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={product[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -337,7 +229,7 @@ class CustomFieldSettings extends Component {
                     data-id={tabCounter}
                     className={this.state.activeTab === String(tabCounter) ? 'active' : ''}
                     onClick={this.toggle}>
-                                     Products
+                    Products
                 </NavLink>
             </NavItem>)
 
@@ -353,62 +245,11 @@ class CustomFieldSettings extends Component {
                             invoices.map((val, idx) => {
                                 const catId = `custom_name${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="invoices"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={invoices[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        id={catId}
-                                                        data-entity="invoices"
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={invoices[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {invoices[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="invoices"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(invoices[idx], { data_id: idx, data_entity: 'invoices' })}
-                                                key={invoices[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={invoices[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="invoices" type={invoices[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={invoices[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -436,62 +277,11 @@ class CustomFieldSettings extends Component {
                             payments.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="payments"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={payments[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <label htmlFor={catId}>{`Custom Field #${idx + 1}`}</label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="payments"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={payments[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {payments[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="payments"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(payments[idx], { data_id: idx, data_entity: 'payments' })}
-                                                key={payments[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={payments[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="payments" type={payments[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={payments[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -519,62 +309,11 @@ class CustomFieldSettings extends Component {
                             companies.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="companies"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={companies[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-entity="companies"
-                                                        data-id={idx}
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={companies[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {companies[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="companies"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(companies[idx], { data_id: idx, data_entity: 'companies' })}
-                                                key={companies[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={companies[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="companies" type={companies[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={companies[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -602,62 +341,11 @@ class CustomFieldSettings extends Component {
                             quotes.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="quotes"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={quotes[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <label htmlFor={catId}>{`Custom Field #${idx + 1}`}</label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="quotes"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={quotes[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {quotes[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="quotes"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(quotes[idx], { data_id: idx, data_entity: 'quotes' })}
-                                                key={quotes[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={quotes[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="quotes" type={quotes[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={quotes[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -685,62 +373,11 @@ class CustomFieldSettings extends Component {
                             credits.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="credits"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={credits[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="credits"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={credits[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {credits[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="credits"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(credits[idx], { data_id: idx, data_entity: 'credits' })}
-                                                key={credits[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={credits[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="credits" type={credits[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={credits[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -768,62 +405,11 @@ class CustomFieldSettings extends Component {
                             tasks.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="tasks"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={tasks[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="tasks"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={tasks[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {tasks[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="tasks"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(tasks[idx], { data_id: idx, data_entity: 'tasks' })}
-                                                key={tasks[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={tasks[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="tasks" type={tasks[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={tasks[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -848,65 +434,14 @@ class CustomFieldSettings extends Component {
                     <CardHeader>Expenses</CardHeader>
                     <CardBody>
                         {
-                            tasks.map((val, idx) => {
+                            expenses.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="expenses"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={expenses[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="expenses"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={expenses[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {expenses[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="expenses"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(expenses[idx], { data_id: idx, data_entity: 'expenses' })}
-                                                key={expenses[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={expenses[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="expenses" type={expenses[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={expenses[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -931,65 +466,14 @@ class CustomFieldSettings extends Component {
                     <CardHeader>Orders</CardHeader>
                     <CardBody>
                         {
-                            tasks.map((val, idx) => {
+                            orders.map((val, idx) => {
                                 const catId = `custom_value${idx}`
                                 const ageId = `age-${idx}`
-                                return (
-                                    <Form className="clearfix" key={idx}>
-                                        <Row form>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label htmlFor={ageId}>Label</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name={ageId}
-                                                        data-id={idx}
-                                                        data-entity="orders"
-                                                        id={ageId}
-                                                        data-field="label"
-                                                        onChange={this.handleChange}
-                                                        value={orders[idx].label}
-                                                    />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup className="mb-4" key={idx}>
-                                                    <Label htmlFor={catId}>{`Custom Field #${idx + 1}`}</Label>
-                                                    <Input
-                                                        type="select"
-                                                        name={catId}
-                                                        data-id={idx}
-                                                        data-entity="orders"
-                                                        id={catId}
-                                                        data-field="type"
-                                                        onChange={this.handleChange}
-                                                        value={orders[idx].type}
-                                                    >
-                                                        <option value='text'>Text</option>
-                                                        <option value='textarea'>Textarea</option>
-                                                        <option value='select'>Select List</option>
-                                                        <option value='switch'>Switch</option>
-                                                    </Input>
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-
-                                        {orders[idx].type === 'select' &&
-                                        <div className="row col-12">
-                                            <DynamicOptionList showCorrectColumn={false}
-                                                data-entity="orders"
-                                                data-id={idx}
-                                                canHaveOptionCorrect={false}
-                                                canHaveOptionValue={true}
-                                                // data={this.props.preview.state.data}
-                                                updateElement={this.handleOptionChange}
-                                                // preview={this.props.preview}
-                                                element={Object.assign(orders[idx], { data_id: idx, data_entity: 'orders' })}
-                                                key={orders[idx].options.length} />
-                                        </div>
-                                        }
-                                    </Form>
-                                )
+                                return <CustomFieldSettingsForm idx={idx} age={ageId} obj={orders[idx]}
+                                    handleOptionChange={this.handleOptionChange}
+                                    entity="orders" type={orders[idx].type}
+                                    handleChange={this.handleChange} catId={catId}
+                                    label={orders[idx].label}/>
                             })
                         }
                     </CardBody>
@@ -1014,7 +498,7 @@ class CustomFieldSettings extends Component {
                     {tabItems}
                 </Nav>
 
-                <TabContent activeTab={this.state.activeTab} >
+                <TabContent activeTab={this.state.activeTab}>
                     {tabContent}
                     <Button color="primary" onClick={this.handleSubmit}>Save</Button>
                 </TabContent>

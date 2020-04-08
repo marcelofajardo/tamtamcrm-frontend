@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import {
     FormGroup, Input, Row, Col
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 import FilterTile from '../common/FilterTile'
 
 export default class LeadFilters extends Component {
@@ -61,17 +59,11 @@ export default class LeadFilters extends Component {
 
     getFilters () {
         const { status_id, searchText, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.leads.length
-            ? <DisplayColumns onChange={this.props.updateIgnoredColumns} columns={Object.keys(this.props.leads[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
             <Row form>
                 <Col className="h-100" md={3}>
                     <TableSearch onChange={this.filterLeads}/>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
                 </Col>
 
                 <Col className="h-100" md={2}>
@@ -89,13 +81,7 @@ export default class LeadFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col className="h-100" md={2}>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
-                <Col className="h-100" md={2}>
+                <Col md={1}>
                     <CsvImporter filename="leads.csv"
                         url={`/api/leads?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>

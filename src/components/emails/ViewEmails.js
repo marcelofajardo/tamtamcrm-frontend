@@ -20,7 +20,7 @@ export default class Emails extends Component {
     render () {
         return this.props.emails && this.props.emails.length ? this.props.emails.map(email => {
             const active = parseInt(this.props.active_id) === email.id ? 'active' : ''
-            return <ListGroup>
+            return <ListGroup key={email.id}>
                 <ListGroupItem color="dark" onClick={() => this.handleCheck(email)} className={active}>
                     <ListGroupItemHeading>{email.subject}</ListGroupItemHeading>
                     <ListGroupItemText>

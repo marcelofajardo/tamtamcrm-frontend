@@ -7,9 +7,7 @@ import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import ActionsMenu from '../common/ActionsMenu'
 import EditTask from './EditTask'
-import CompanyPresenter from '../presenters/CompanyPresenter'
 import TaskPresenter from '../presenters/TaskPresenter'
-import TabContent from '../tabs/TabContent'
 
 export default class TaskItem extends Component {
     constructor (props) {
@@ -66,9 +64,12 @@ export default class TaskItem extends Component {
                         action={this.props.action}
                         task={task}/>
                 })
+
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return <tr key={task.id}>
                     <td>
-                        <Input value={task.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                        <Input className={checkboxClass} value={task.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

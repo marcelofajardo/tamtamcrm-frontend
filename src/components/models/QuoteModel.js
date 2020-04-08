@@ -17,6 +17,7 @@ export default class CreditModel extends BaseModel {
 
         this._fields = {
             modalOpen: false,
+            is_amount_discount: false,
             invitations: [],
             customer_id: '',
             user_id: null,

@@ -46,8 +46,10 @@ function calculateTotals (array) {
 }
 
 function getAverages (array) {
-    console.log('array', array)
     const avg = calculateAverage(array)
+
+    console.log('array', array)
+
     const totals = calculateTotals(array)
     const pct = calculatePercentage(avg, totals)
 
@@ -557,8 +559,12 @@ class Dashboard extends Component {
                 labels: dates,
                 buttons: {
                     // Logged: getAverages(taskInvoiced),
-                    Invoiced: taskInvoiced && Object.keys(taskInvoiced).length ? getAverages(taskInvoiced) : 0
                     // Paid: getAverages(taskPaid)
+                    Active: {
+                        avg: taskInvoiced && Object.keys(taskInvoiced).length ? taskInvoiced.avg : 0,
+                        pct: taskInvoiced && Object.keys(taskInvoiced).length ? taskInvoiced.pct : 0,
+                        value: taskInvoiced && Object.keys(taskInvoiced).length ? taskInvoiced.value : 0
+                    }
                 },
                 datasets: [
                     // {

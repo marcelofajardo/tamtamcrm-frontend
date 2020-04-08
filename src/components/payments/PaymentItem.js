@@ -90,10 +90,13 @@ export default class PaymentItem extends Component {
                         payments={payments}
                         action={this.props.updateCustomers}/> : null
 
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return (
                     <tr key={payment.id}>
                         <td>
-                            <Input value={payment.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                            <Input className={checkboxClass} value={payment.id} type="checkbox"
+                                onChange={this.props.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 refund={refundButton}
                                 restore={restoreButton}/>

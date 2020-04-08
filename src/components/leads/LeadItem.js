@@ -62,9 +62,12 @@ export default class LeadItem extends Component {
                     return <td onClick={() => this.props.toggleViewedEntity(lead, lead.title)} data-label={key}
                         key={key}>{lead[key]}</td>
                 })
+
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return <tr key={lead.id}>
                     <td>
-                        <Input value={lead.id} type="checkbox" onChange={this.props.onChangeBulk} />
+                        <Input className={checkboxClass} value={lead.id} type="checkbox" onChange={this.props.onChangeBulk} />
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

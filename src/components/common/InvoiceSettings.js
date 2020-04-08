@@ -13,7 +13,7 @@ export default function InvoiceSettings (props) {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="exampleEmail">Custom Surcharge 1</Label>
-                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge1" id="exampleEmail" placeholder="with a placeholder" value={props.settings.custom_surcharge1} />
+                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge1" id="custom_surcharge1" placeholder="with a placeholder" value={props.settings.custom_surcharge1} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
@@ -30,13 +30,13 @@ export default function InvoiceSettings (props) {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="exampleEmail">Custom Surcharge 2</Label>
-                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge2" id="exampleEmail" value={props.settings.custom_surcharge2} placeholder="with a placeholder" />
+                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge2" id="custom_surcharge2" value={props.settings.custom_surcharge2} placeholder="with a placeholder" />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup check>
                             <Label check for="examplePassword">
-                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax2" id="examplePassword" checked={props.settings.custom_surcharge_tax2} />
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax2" id="custom_surcharge_tax2" checked={props.settings.custom_surcharge_tax2} />
                                 Custom Surcharge Tax 2
                             </Label>
                         </FormGroup>
@@ -47,13 +47,13 @@ export default function InvoiceSettings (props) {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="exampleEmail">Custom Surcharge 3</Label>
-                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge3" id="exampleEmail" placeholder="with a placeholder" value={props.settings.custom_surcharge3} />
+                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge3" id="custom_surcharge3" placeholder="with a placeholder" value={props.settings.custom_surcharge3} />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup check>
                             <Label check for="examplePassword">
-                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax3" id="examplePassword" checked={props.settings.custom_surcharge_tax3} />
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax3" id="custom_surcharge_tax3" checked={props.settings.custom_surcharge_tax3} />
                                 Custom Surcharge Tax 3
                             </Label>
                         </FormGroup>
@@ -64,13 +64,13 @@ export default function InvoiceSettings (props) {
                     <Col md={6}>
                         <FormGroup>
                             <Label for="exampleEmail">Custom Surcharge 4</Label>
-                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge4" id="exampleEmail" value={props.settings.custom_surcharge4} placeholder="with a placeholder" />
+                            <Input onChange={props.handleSurcharge} type="text" name="custom_surcharge4" id="custom_surcharge4" value={props.settings.custom_surcharge4} placeholder="with a placeholder" />
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup check>
                             <Label check for="examplePassword">
-                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax4" id="examplePassword" checked={props.settings.custom_surcharge_tax4} />
+                                <Input onChange={props.handleSurcharge} type="checkbox" name="custom_surcharge_tax4" id="custom_surcharge_tax4" checked={props.settings.custom_surcharge_tax4} />
                                 Custom Surcharge Tax 4
                             </Label>
                         </FormGroup>
@@ -85,16 +85,37 @@ export default function InvoiceSettings (props) {
                     />
                 </FormGroup>
 
-                <FormGroup>
-                    <Label>Discount</Label>
-                    <Input
-                        value={props.discount}
-                        type='text'
-                        name='discount'
-                        id='discount'
-                        onChange={props.handleInput}
-                    />
-                </FormGroup>
+                <Row form>
+                    <Col>
+                        <FormGroup>
+                            <Label>Discount</Label>
+                            <Input
+                                value={props.discount}
+                                type='text'
+                                name='discount'
+                                id='discount'
+                                onChange={props.handleInput}
+                            />
+                        </FormGroup>
+                    </Col>
+
+                    <Col>
+                        <FormGroup>
+                            <Label>Discount Type</Label>
+                            <Input
+                                bsSize="sm"
+                                value={props.is_amount_discount}
+                                type='select'
+                                name='is_amount_discount'
+                                id='is_amount_discount'
+                                onChange={props.handleInput}
+                            >
+                                <option value="false">Percent</option>
+                                <option value="true">Amount</option>
+                            </Input>
+                        </FormGroup>
+                    </Col>
+                </Row>
 
                 <FormGroup>
                     <Label>Design</Label>

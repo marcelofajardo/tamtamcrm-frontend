@@ -8,8 +8,6 @@ import {
     UncontrolledTooltip
 } from 'reactstrap'
 import axios from 'axios'
-import SuccessMessage from './SucessMessage'
-import ErrorMessage from './ErrorMessage'
 
 export default class AboutModal extends Component {
     constructor (props) {
@@ -64,11 +62,6 @@ export default class AboutModal extends Component {
     }
 
     render () {
-        const successMessage = this.state.showSuccessMessage === true
-            ? <SuccessMessage message="Your message has been sent successfully"/> : null
-        const errorMessage = this.state.showErrorMessage === true ? <ErrorMessage
-            message="Your message could not be sent"/> : null
-
         return (
             <React.Fragment>
                 <UncontrolledTooltip placement="right" target="contactTooltip">

@@ -62,9 +62,12 @@ export default class ProjectItem extends Component {
                     return <td onClick={() => this.props.toggleViewedEntity(project, project.title)} data-label={key}
                         key={key}>{project[key]}</td>
                 })
+
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return <tr key={project.id}>
                     <td>
-                        <Input value={project.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                        <Input className={checkboxClass} value={project.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

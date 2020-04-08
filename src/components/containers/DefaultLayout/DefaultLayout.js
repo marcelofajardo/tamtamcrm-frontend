@@ -22,6 +22,8 @@ import routes from '../../routes'
 import DefaultAside from './DefaultAside'
 import DefaultHeader from './DefaultHeader'
 import AccountList from '../../common/AccountList'
+import Footer from '../../common/Footer'
+import DefaultFooter from './DefaultFooter'
 
 class DefaultLayout extends Component {
     constructor (props) {
@@ -55,7 +57,7 @@ class DefaultLayout extends Component {
                     </AppSidebar>
                     <main className="main">
                         <AppBreadcrumb appRoutes={routes} router={router}/>
-                        <Container fluid>
+                        <Container>
                             <Suspense fallback={this.loading}>
                                 <Switch>
                                     {routes.map((route, idx) => {
@@ -75,6 +77,7 @@ class DefaultLayout extends Component {
                                 </Switch>
                             </Suspense>
                         </Container>
+
                     </main>
                     <AppAside fixed>
                         <Suspense fallback={this.loading}>
@@ -82,6 +85,7 @@ class DefaultLayout extends Component {
                         </Suspense>
                     </AppAside>
                 </div>
+
                 {/* <AppFooter> */}
                 {/*    <Suspense> */}
                 {/*        <DefaultFooter/> */}

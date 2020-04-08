@@ -4,6 +4,7 @@ import RestoreModal from '../common/RestoreModal'
 import DeleteModal from '../common/DeleteModal'
 import ActionsMenu from '../common/ActionsMenu'
 import EditGroupSetting from './EditGroupSetting'
+import { Input } from 'reactstrap'
 
 export default class GroupSettingItem extends Component {
     constructor (props) {
@@ -52,8 +53,11 @@ export default class GroupSettingItem extends Component {
                         key={key}>{group[key]}</td>
                 })
 
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return <tr key={group.id}>
                     <td>
+                        <Input className={checkboxClass} value={group.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

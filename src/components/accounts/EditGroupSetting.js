@@ -9,6 +9,7 @@ class EditGroupSetting extends React.Component {
             modal: false,
             id: this.props.group.id,
             name: this.props.group.name,
+            settings: this.props.group.settings,
             loading: false,
             changesMade: false,
             errors: []
@@ -43,7 +44,8 @@ class EditGroupSetting extends React.Component {
 
     handleClick () {
         axios.put(`/api/groups/${this.state.id}`, {
-            name: this.state.name
+            name: this.state.name,
+            settings: this.state.settings
         })
             .then((response) => {
                 const index = this.props.groups.findIndex(group => group.id === this.state.id)

@@ -2,13 +2,11 @@ import React, { Component } from 'react'
 import {
     FormGroup, Input, Row, Col
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import CustomerDropdown from '../common/CustomerDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 import FilterTile from '../common/FilterTile'
 
 export default class ExpenseFilters extends Component {
@@ -63,9 +61,6 @@ export default class ExpenseFilters extends Component {
 
     getFilters () {
         const { searchText, status_id, customer_id, company_id, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.expenses.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns} columns={Object.keys(this.props.expenses[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
         return (
             <Row form>
                 <Col md={2}>
@@ -109,21 +104,9 @@ export default class ExpenseFilters extends Component {
                         url={`/api/expenses?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&company_id=${company_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>
 
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterExpenses} />
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

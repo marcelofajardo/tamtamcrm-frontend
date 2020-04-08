@@ -2532,3 +2532,12 @@ textarea.form-control {
 *[dir=rtl] .nav {
   padding-right: 0;
 }
+
+input:focus, select:focus {
+  border: 2px solid $color_curious_blue_approx !important;
+  border-radius: 8px;
+}
+
+a.active.nav-link {
+  border-bottom: 2px solid $color_curious_blue_approx !important;
+}

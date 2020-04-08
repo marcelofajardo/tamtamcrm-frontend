@@ -140,6 +140,11 @@ class EditInvoice extends Component {
             return
         }
 
+        if (e.target.name === 'is_amount_discount') {
+            this.setState({ is_amount_discount: e.target.value === 'true' })
+            return
+        }
+
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
 
         this.setState({
@@ -432,7 +437,7 @@ class EditInvoice extends Component {
 
         const settings = <InvoiceSettings handleSurcharge={this.handleSurcharge} settings={this.state}
             errors={this.state.errors} handleInput={this.handleInput}
-            discount={this.state.discount} design_id={this.state.design_id}/>
+            discount={this.state.discount} is_amount_discount={this.state.is_amount_discount} design_id={this.state.design_id}/>
 
         const items = <Items quote={this.state} errors={this.state.errors} handleFieldChange={this.handleFieldChange}
             handleAddFiled={this.handleAddFiled} setTotal={this.setTotal}

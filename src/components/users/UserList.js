@@ -5,7 +5,6 @@ import {
     Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import ViewEntity from '../common/ViewEntity'
 import UserItem from './UserItem'
 import UserFilters from './UserFilters'
 
@@ -22,6 +21,7 @@ export default class UserList extends Component {
             dropdownButtonActions: ['download'],
             error: '',
             view: {
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -56,10 +56,6 @@ export default class UserList extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterUsers = this.filterUsers.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
         this.getAccounts = this.getAccounts.bind(this)
         this.getDepartments = this.getDepartments.bind(this)
     }
@@ -68,60 +64,6 @@ export default class UserList extends Component {
         this.getDepartments()
         this.getAccounts()
         this.getCustomFields()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('customer', 'account_users') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post(`/api/user/bulk/${action}`, { ids: this.state.bulk }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     filterUsers (filters) {
@@ -181,12 +123,13 @@ export default class UserList extends Component {
         })
     }
 
-    userList () {
-        const { users, departments, custom_fields, ignoredColumns, accounts } = this.state
-        return <UserItem accounts={accounts} departments={departments} users={users} custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+    userList (props) {
+        const { users, departments, custom_fields, accounts } = this.state
+        return <UserItem showCheckboxes={props.showCheckboxes} accounts={accounts} departments={departments}
+            users={users} custom_fields={custom_fields}
+            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     render () {
@@ -213,6 +156,10 @@ export default class UserList extends Component {
                             saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="User"
+                            bulk_save_url="/api/user/bulk"
+                            view={view}
                             disableSorting={['id']}
                             defaultColumn='last_name'
                             ignore={this.state.ignoredColumns}
@@ -222,10 +169,6 @@ export default class UserList extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
             </div>
         )
     }

@@ -3,12 +3,10 @@ import {
     FormGroup, Input, Col, Row
 } from 'reactstrap'
 import CustomerDropdown from '../common/CustomerDropdown'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class QuoteFilters extends Component {
     constructor (props) {
@@ -61,10 +59,7 @@ export default class QuoteFilters extends Component {
 
     getFilters () {
         const { status_id, customer_id, searchText, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.quotes.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns}
-                columns={Object.keys(this.props.quotes[0]).concat(this.props.ignoredColumns)}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
             <Row form>
                 <Col md={3}>
@@ -100,13 +95,7 @@ export default class QuoteFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
-                <Col>
+                <Col md={1}>
                     <CsvImporter filename="quotes.csv"
                         url={`/api/quote?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>
@@ -114,12 +103,6 @@ export default class QuoteFilters extends Component {
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterInvoices} />
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

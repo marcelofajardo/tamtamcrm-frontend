@@ -118,6 +118,7 @@ class LineItemEditor extends Component {
     render () {
         const lineItemRows = this.state.products.length && this.state.taxRates.length
             ? <LineItem
+                invoice={this.props.invoice}
                 line_type={parseInt(this.state.line_type)}
                 rows={this.props.invoice.line_items}
                 tax_rates={this.state.taxRates}
@@ -131,6 +132,7 @@ class LineItemEditor extends Component {
             : null
 
         let total = this.props.invoice.sub_total - this.props.invoice.discount_total
+
         total += this.props.invoice.tax_total
 
         let tax_total = this.props.invoice.tax_total

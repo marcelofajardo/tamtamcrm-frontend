@@ -33,8 +33,12 @@ class LineItem extends Component {
                 total = lineItem.unit_price * lineItem.quantity
 
                 if (lineItem.unit_discount > 0) {
-                    const percentage = total * lineItem.unit_discount / 100
-                    total -= percentage
+                    if (this.props.invoice.is_amount_discount === true) {
+                        total -= lineItem.unit_discount
+                    } else {
+                        const percentage = total * lineItem.unit_discount / 100
+                        total -= percentage
+                    }
                 }
 
                 if (lineItem.unit_tax > 0) {

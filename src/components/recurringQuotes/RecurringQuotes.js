@@ -5,7 +5,6 @@ import {
     Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import ViewEntity from '../common/ViewEntity'
 import RecurringQuoteItem from './RecurringQuoteItem'
 import RecurringQuoteFilters from './RecurringQuoteFilters'
 
@@ -15,6 +14,7 @@ export default class RecurringQuotes extends Component {
         this.state = {
             per_page: 5,
             view: {
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -44,21 +44,11 @@ export default class RecurringQuotes extends Component {
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
         this.getQuotes = this.getQuotes.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
     }
 
     componentDidMount () {
         this.getCustomers()
         this.getQuotes()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('line_items', 'customer', 'settings') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
     }
 
     updateInvoice (invoices) {
@@ -67,54 +57,6 @@ export default class RecurringQuotes extends Component {
             invoices: invoices,
             cachedData: cachedData
         })
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/recurringQuote/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
     }
 
     getQuotes () {
@@ -133,12 +75,13 @@ export default class RecurringQuotes extends Component {
         this.setState({ filters: filters })
     }
 
-    userList () {
-        const { invoices, custom_fields, customers, allQuotes, ignoredColumns } = this.state
-        return <RecurringQuoteItem allQuotes={allQuotes} invoices={invoices} customers={customers} custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+    userList (props) {
+        const { invoices, custom_fields, customers, allQuotes } = this.state
+        return <RecurringQuoteItem showCheckboxes={props.showCheckboxes} allQuotes={allQuotes} invoices={invoices}
+            customers={customers} custom_fields={custom_fields}
+            ignoredColumns={props.ignoredColumns} updateInvoice={this.updateInvoice}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     renderErrorFor () {
@@ -198,6 +141,10 @@ export default class RecurringQuotes extends Component {
                             saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="Recurring Quote"
+                            bulk_save_url="/api/recurring-quote/bulk"
+                            view={view}
                             columnMapping={{ customer_id: 'Customer' }}
                             ignore={this.state.ignoredColumns}
                             disableSorting={['id']}
@@ -208,10 +155,6 @@ export default class RecurringQuotes extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
             </div>
         )
     }

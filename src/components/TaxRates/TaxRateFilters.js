@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 import {
     FormGroup, Input, Row, Col
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class TaxRateFilters extends Component {
     constructor (props) {
@@ -19,7 +17,7 @@ export default class TaxRateFilters extends Component {
             filters: {
                 start_date: '',
                 end_date: '',
-                status: 'active',
+                status_id: 'active',
                 role_id: '',
                 department_id: '',
                 searchText: ''
@@ -63,9 +61,7 @@ export default class TaxRateFilters extends Component {
 
     getFilters () {
         const { searchText, status_id, start_date, end_date } = this.props.filters
-        const columnFilter = this.props.taxRates.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns} columns={Object.keys(this.props.taxRates[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
             <Row form>
                 <Col md={3}>
@@ -87,26 +83,14 @@ export default class TaxRateFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col>
+                <Col md={1}>
                     <CsvImporter filename="taxRates.csv"
                         url={`/api/taxRates?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
                 </Col>
 
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterTaxRates} />
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

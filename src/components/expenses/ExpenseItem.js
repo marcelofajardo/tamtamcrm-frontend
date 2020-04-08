@@ -60,10 +60,12 @@ export default class ExpenseItem extends Component {
                         field={key} entity={expense}/>
                 })
 
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return (
                     <tr key={expense.id}>
                         <td>
-                            <Input value={expense.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                            <Input className={checkboxClass} value={expense.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>

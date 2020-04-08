@@ -3,12 +3,10 @@ import CustomerDropdown from '../common/CustomerDropdown'
 import {
     FormGroup, Input, Col, Row
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class CreditFilters extends Component {
     constructor (props) {
@@ -60,11 +58,6 @@ export default class CreditFilters extends Component {
     }
 
     getFilters () {
-        const columnFilter = this.props.credits.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns}
-                columns={Object.keys(this.props.credits[0]).concat(this.props.ignoredColumns)}
-                ignored_columns={this.props.ignoredColumns}/> : null
-
         return (
             <Row form>
                 <Col md={3}>
@@ -99,13 +92,7 @@ export default class CreditFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
-                <Col>
+                <Col md={1}>
                     <CsvImporter filename="credits.csv"
                         url={`/api/credits?status=${this.state.filters.status_id}&customer_id=${this.state.filters.customer_id} &start_date=${this.state.filters.start_date}&end_date=${this.state.filters.end_date}&page=1&per_page=5000`}/>
                 </Col>
@@ -114,10 +101,6 @@ export default class CreditFilters extends Component {
                     <FormGroup>
                         <DateFilter onChange={this.filterCredits}/>
                     </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
                 </Col>
             </Row>
         )

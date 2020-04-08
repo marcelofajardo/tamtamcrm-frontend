@@ -54,17 +54,10 @@ export default class GroupSettingFilters extends Component {
     }
 
     getFilters () {
-        const columnFilter = this.props.groups.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns} columns={Object.keys(this.props.groups[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
         return (
             <Row form>
                 <Col md={3}>
                     <TableSearch onChange={this.filterGroups}/>
-                </Col>
-
-                <Col md={2}>
-                    {columnFilter}
                 </Col>
 
                 <Col md={2}>

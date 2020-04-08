@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import DataTable from '../common/DataTable'
 import { Card, CardBody, Button } from 'reactstrap'
-import ViewEntity from '../common/ViewEntity'
 import TaskFilters from './TaskFilters'
 import TaskItem from './TaskItem'
 import AddModal from './AddTask'
@@ -12,12 +11,14 @@ export default class TaskList extends Component {
         super(props)
 
         this.state = {
+            dropdownButtonActions: ['download'],
             tasks: [],
             users: [],
             customers: [],
             errors: [],
             kanban: false,
             view: {
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -73,56 +74,15 @@ export default class TaskList extends Component {
 
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
         this.filterTasks = this.filterTasks.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
         this.getCustomers = this.getCustomers.bind(this)
         this.getUsers = this.getUsers.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
     }
 
     componentDidMount () {
         this.getUsers()
         this.getCustomers()
         this.getCustomFields()
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
-    }
-
-    updateIgnoredColumns (columns) {
-        console.log('columns', columns)
-        this.setState({ ignoredColumns: columns.concat('comments', 'customer', 'users', 'contributors') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
     }
 
     addUserToState (tasks) {
@@ -136,13 +96,14 @@ export default class TaskList extends Component {
         return true
     }
 
-    userList () {
-        const { tasks, custom_fields, users, ignoredColumns, customers } = this.state
+    userList (props) {
+        const { tasks, custom_fields, users, customers } = this.state
 
-        return <TaskItem action={this.addUserToState} tasks={tasks} users={users} custom_fields={custom_fields} customers={customers}
-            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+        return <TaskItem showCheckboxes={props.showCheckboxes} action={this.addUserToState} tasks={tasks} users={users}
+            custom_fields={custom_fields} customers={customers}
+            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     getCustomFields () {
@@ -175,24 +136,6 @@ export default class TaskList extends Component {
             })
     }
 
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post(`/api/user/bulk/${action}`, { ids: this.state.bulk }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
-    }
-
     getCustomers () {
         axios.get('api/customers')
             .then((r) => {
@@ -214,6 +157,10 @@ export default class TaskList extends Component {
         const fetchUrl = `/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}`
         const { error, view } = this.state
         const table = <DataTable
+            dropdownButtonActions={this.state.dropdownButtonActions}
+            entity_type="Task"
+            bulk_save_url="/api/task/bulk"
+            view={view}
             disableSorting={['id']}
             defaultColumn='title'
             ignore={this.state.ignoredColumns}
@@ -258,10 +205,6 @@ export default class TaskList extends Component {
                         {table}
                     </CardBody>
                 </Card>
-
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
             </div>
         )
     }

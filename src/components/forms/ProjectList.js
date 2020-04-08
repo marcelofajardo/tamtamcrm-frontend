@@ -5,7 +5,6 @@ import DataTable from '../common/DataTable'
 import {
     Card, CardBody
 } from 'reactstrap'
-import ViewEntity from '../common/ViewEntity'
 import ProjectFilters from './ProjectFilters'
 import ProjectItem from './ProjectItem'
 
@@ -21,6 +20,7 @@ export default class ProjectList extends Component {
             dropdownButtonActions: ['download'],
             error: '',
             view: {
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -57,21 +57,11 @@ export default class ProjectList extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterProjects = this.filterProjects.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
     }
 
     componentDidMount () {
         this.getUsers()
         this.getCustomFields()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('settings') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
     }
 
     addUserToState (projects) {
@@ -82,64 +72,17 @@ export default class ProjectList extends Component {
         })
     }
 
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/project/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
-    }
-
     filterProjects (filters) {
         this.setState({ filters: filters })
     }
 
-    userList () {
-        const { projects, custom_fields, users, ignoredColumns } = this.state
-        return <ProjectItem projects={projects} users={users} custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+    userList (props) {
+        const { projects, custom_fields, users } = this.state
+        return <ProjectItem showCheckboxes={props.showCheckboxes} projects={projects} users={users}
+            custom_fields={custom_fields}
+            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     getCustomFields () {
@@ -193,6 +136,10 @@ export default class ProjectList extends Component {
                             custom_fields={custom_fields}/>
 
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="Project"
+                            bulk_save_url="/api/project/bulk"
+                            view={view}
                             disableSorting={['id']}
                             defaultColumn='title'
                             ignore={ignoredColumns}
@@ -202,10 +149,6 @@ export default class ProjectList extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
             </div>
         )
     }

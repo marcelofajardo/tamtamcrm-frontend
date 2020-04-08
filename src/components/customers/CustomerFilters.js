@@ -3,13 +3,11 @@ import {
     FormGroup, Input, Row, Col
 } from 'reactstrap'
 import CompanyDropdown from '../common/CompanyDropdown'
-import DisplayColumns from '../common/DisplayColumns'
 import CustomerGroupDropdown from '../common/CustomerGroupDropdown'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class CustomerFilters extends Component {
     constructor (props) {
@@ -65,9 +63,7 @@ export default class CustomerFilters extends Component {
 
     getFilters () {
         const { searchText, status, company_id, group_settings_id, start_date, end_date } = this.props.filters
-        const columnFilter = this.props.customers.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns} columns={Object.keys(this.props.customers[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
             <Row form>
                 <Col md={2}>
@@ -110,20 +106,8 @@ export default class CustomerFilters extends Component {
                 </Col>
 
                 <Col md={2}>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
-                <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterCustomers} />
-                    </FormGroup>
-                </Col>
-
-                <Col md={6}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

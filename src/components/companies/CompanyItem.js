@@ -62,9 +62,12 @@ export default class CompanyItem extends Component {
                     return <CompanyPresenter key={key} toggleViewedEntity={this.props.toggleViewedEntity}
                         field={key} entity={brand}/>
                 })
+
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return <tr key={brand.id}>
                     <td>
-                        <Input value={brand.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                        <Input className={checkboxClass} value={brand.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

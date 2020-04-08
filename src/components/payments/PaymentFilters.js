@@ -3,11 +3,9 @@ import {
     FormGroup, Input, Row, Col
 } from 'reactstrap'
 import CustomerDropdown from '../common/CustomerDropdown'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 import FilterTile from '../common/FilterTile'
 
 export default class PaymentFilters extends Component {
@@ -62,10 +60,6 @@ export default class PaymentFilters extends Component {
 
     getFilters () {
         const { status_id, searchText, customer_id, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.payments.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns}
-                columns={Object.keys(this.props.payments[0]).concat(this.props.ignoredColumns)}
-                ignored_columns={this.props.ignoredColumns}/> : null
         return (
             <Row form>
                 <Col md={3}>
@@ -95,26 +89,14 @@ export default class PaymentFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col>
+                <Col md={1}>
                     <CsvImporter filename="payments.csv"
                         url={`/api/payments?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
                 </Col>
 
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterPayments} />
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

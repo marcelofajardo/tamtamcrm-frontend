@@ -5,7 +5,6 @@ import {
     Card, CardBody
 } from 'reactstrap'
 import axios from 'axios'
-import ViewEntity from '../common/ViewEntity'
 import PaymentItem from './PaymentItem'
 import PaymentFilters from './PaymentFilters'
 
@@ -15,6 +14,7 @@ export default class Payments extends Component {
         this.state = {
             per_page: 5,
             view: {
+                ignore: ['paymentables', 'assigned_user_id', 'id', 'customer', 'invoice_id', 'applied', 'deleted_at', 'customer_id', 'refunded', 'task_id', 'company_id'],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -41,73 +41,12 @@ export default class Payments extends Component {
         this.customerList = this.customerList.bind(this)
         this.getInvoices = this.getInvoices.bind(this)
         this.filterPayments = this.filterPayments.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
     }
 
     componentDidMount () {
         this.getInvoices()
         this.getCustomers()
         this.getCustomFields()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('customer', 'invoices') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/payment/bulk', {
-            ids: this.state.bulk,
-            action: action
-        }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     getCustomFields () {
@@ -161,12 +100,13 @@ export default class Payments extends Component {
         this.setState({ filters: filters })
     }
 
-    customerList () {
-        const { payments, custom_fields, invoices, customers, ignoredColumns } = this.state
-        return <PaymentItem payments={payments} customers={customers} invoices={invoices} custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} updateCustomers={this.updateCustomers}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+    customerList (props) {
+        const { payments, custom_fields, invoices, customers } = this.state
+        return <PaymentItem showCheckboxes={props.showCheckboxes} payments={payments} customers={customers}
+            invoices={invoices} custom_fields={custom_fields}
+            ignoredColumns={props.ignoredColumns} updateCustomers={this.updateCustomers}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     render () {
@@ -191,9 +131,14 @@ export default class Payments extends Component {
                     {addButton}
 
                     <DataTable
-                        columnMapping={{ customer_id: 'Customer' }}
+                        dropdownButtonActions={this.state.dropdownButtonActions}
+                        entity_type="Payment"
+                        bulk_save_url="/api/payment/bulk"
+                        view={view}
                         ignore={this.state.ignoredColumns}
-                        disableSorting={['id', 'invoice_id']}
+                        columnMapping={{ customer_id: 'CUSTOMER' }}
+                        // order={['id', 'number', 'date', 'customer_name', 'total', 'balance', 'status_id']}
+                        disableSorting={['id']}
                         defaultColumn='number'
                         userList={this.customerList}
                         fetchUrl={fetchUrl}
@@ -201,15 +146,6 @@ export default class Payments extends Component {
                     />
                 </CardBody>
             </Card>
-
-            <ViewEntity
-                ignore={['paymentables', 'assigned_user_id', 'id', 'customer', 'invoice_id', 'applied', 'deleted_at', 'customer_id', 'refunded', 'task_id', 'company_id']}
-                toggle={this.toggleViewedEntity}
-                title={view.title}
-                viewed={view.viewMode}
-                entity={view.viewedId}
-                entity_type="Payment"
-            />
         </div>
     }
 }

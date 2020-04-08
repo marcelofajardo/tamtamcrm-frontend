@@ -1,5 +1,4 @@
 import axios from 'axios'
-import moment from 'moment'
 import BaseModel from './BaseModel'
 
 export default class LeadModel extends BaseModel {

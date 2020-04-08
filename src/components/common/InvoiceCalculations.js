@@ -8,8 +8,6 @@ export const CalculateTotal = (props) => {
     let lexieTotal = 0
     const { invoice } = props
 
-    console.log('invoice', invoice)
-
     invoice.data.map((product) => {
         const quantity = product.quantity === 0 ? 1 : product.quantity
 
@@ -20,13 +18,25 @@ export const CalculateTotal = (props) => {
 
         if (product.unit_discount > 0 && invoice.discount === 0) {
             const n = parseFloat(total)
-            const percentage = n * product.unit_discount / 100
-            discount_total += percentage
-            lexieTotal -= discount_total
+
+            if (invoice.is_amount_discount === true) {
+                discount_total += parseFloat(product.unit_discount)
+            } else {
+                const percentage = n * product.unit_discount / 100
+                discount_total += percentage
+                // lexieTotal -= discount_total
+            }
+
+            // lexieTotal -= discount_total
         }
 
         if (product.unit_tax > 0 && invoice.tax === 0) {
-            const tax_percentage = lexieTotal * product.unit_tax / 100
+            let a = lexieTotal
+            if (discount_total > 0) {
+                a -= discount_total
+            }
+
+            const tax_percentage = a * product.unit_tax / 100
             tax_total += tax_percentage
         }
     })
@@ -39,7 +49,8 @@ export const CalculateTotal = (props) => {
 
     if (invoice.discount > 0) {
         const discount_percentage = parseFloat(invoice.total) * parseFloat(invoice.discount) / 100
-        total -= discount_percentage
+        discount_total += discount_percentage
+        // total -= discount_percentage
     }
 
     return {
@@ -115,9 +126,13 @@ export const CalculateLineTotals = (props) => {
 
     if (unit_discount > 0 && invoice.discount === 0) {
         const n = parseFloat(total)
-        //
-        const percentage = n * unit_discount / 100
-        lexieTotal -= percentage
+
+        if (invoice.is_amount_discount === true) {
+            lexieTotal -= unit_discount
+        } else {
+            const percentage = n * unit_discount / 100
+            lexieTotal -= percentage
+        }
     }
 
     if (unit_tax > 0 && invoice.tax === 0) {

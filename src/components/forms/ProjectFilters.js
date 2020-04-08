@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 import {
     FormGroup, Input, Row, Col
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import CustomerDropdown from '../common/CustomerDropdown'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 import FilterTile from '../common/FilterTile'
 
 export default class ProjectFilters extends Component {
@@ -63,9 +61,7 @@ export default class ProjectFilters extends Component {
 
     getFilters () {
         const { status_id, customer_id, searchText, start_date, end_date } = this.props.filters
-        const columnFilter = this.props.projects.length
-            ? <DisplayColumns onChange={this.props.updateIgnoredColumns} columns={Object.keys(this.props.projects[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
             <Row form>
                 <Col md={3}>
@@ -94,13 +90,7 @@ export default class ProjectFilters extends Component {
                     </FormGroup>
                 </Col>
 
-                <Col>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
-                </Col>
-
-                <Col>
+                <Col md={1}>
                     <CsvImporter filename="project.csv"
                         url={`/api/projects?search_term=${searchText}&status=${status_id}&customer_id=${customer_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
                 </Col>
@@ -109,10 +99,6 @@ export default class ProjectFilters extends Component {
                     <FormGroup>
                         <DateFilter onChange={this.filterProjects} />
                     </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    {columnFilter}
                 </Col>
             </Row>
         )

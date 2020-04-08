@@ -4,6 +4,7 @@ import DeleteModal from '../common/DeleteModal'
 import ActionsMenu from '../common/ActionsMenu'
 import EditTaxRate from './EditTaxRate'
 import axios from 'axios'
+import { Input } from 'reactstrap'
 
 export default class TaxRateItem extends Component {
     constructor (props) {
@@ -56,8 +57,11 @@ export default class TaxRateItem extends Component {
                         key={key}>{taxRate[key]}</td>
                 })
 
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return <tr key={taxRate.id}>
                     <td>
+                        <Input className={checkboxClass} value={taxRate.id} type="checkbox" onChange={this.props.onChangeBulk} />
                         <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                             restore={restoreButton}/>
                     </td>

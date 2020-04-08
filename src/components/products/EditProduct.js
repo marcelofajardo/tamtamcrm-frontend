@@ -8,7 +8,7 @@ import {
     Card,
     CardBody,
     CardHeader,
-    DropdownItem, TabPane
+    DropdownItem
 } from 'reactstrap'
 import axios from 'axios'
 import PropTypes from 'prop-types'

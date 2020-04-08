@@ -5,7 +5,6 @@ import DataTable from '../common/DataTable'
 import {
     Card, CardBody
 } from 'reactstrap'
-import ViewEntity from '../common/ViewEntity'
 import ProductItem from './ProductItem'
 import ProductFilters from './ProductFilters'
 
@@ -15,6 +14,7 @@ export default class ProductList extends Component {
         this.state = {
             per_page: 5,
             view: {
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -65,71 +65,13 @@ export default class ProductList extends Component {
         this.addProductToState = this.addProductToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterProducts = this.filterProducts.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
         this.getCompanies = this.getCompanies.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
     }
 
     componentDidMount () {
         this.getCompanies()
         this.getCategories()
         this.getCustomFields()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('customer') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(+e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/product/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
     }
 
     addProductToState (products) {
@@ -142,10 +84,6 @@ export default class ProductList extends Component {
 
     filterProducts (filters) {
         this.setState({ filters: filters })
-    }
-
-    renderErrorFor () {
-
     }
 
     getCompanies () {
@@ -187,13 +125,14 @@ export default class ProductList extends Component {
             })
     }
 
-    userList () {
-        const { products, custom_fields, companies, categories, ignoredColumns } = this.state
+    userList (props) {
+        const { products, custom_fields, companies, categories } = this.state
 
-        return <ProductItem products={products} categories={categories} companies={companies} custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} addProductToState={this.addProductToState}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
+        return <ProductItem showCheckboxes={props.showCheckboxes} products={products} categories={categories}
+            companies={companies} custom_fields={custom_fields}
+            ignoredColumns={props.ignoredColumns} addProductToState={this.addProductToState}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     render () {
@@ -219,6 +158,10 @@ export default class ProductList extends Component {
                             saveBulk={this.saveBulk} ignoredColumns={this.state.ignoredColumns}/>
                         {addButton}
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="Product"
+                            bulk_save_url="/api/product/bulk"
+                            view={view}
                             ignore={this.state.ignoredColumns}
                             disableSorting={['id']}
                             defaultColumn='name'
@@ -228,10 +171,6 @@ export default class ProductList extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
             </div>
         )
     }

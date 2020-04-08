@@ -19,8 +19,6 @@ export default function PaymentPresenter (props) {
         ? <Badge color={colors[entity.status]}>{entity.status}</Badge>
         : <Badge color="warning">Archived</Badge>
 
-    console.log('paymentables', props.paymentables)
-
     const paymentInvoices = props.paymentables && Object.keys(props.paymentables).length > 0 ? Array.prototype.map.call(props.paymentables, s => s.number).toString() : null
 
     switch (field) {

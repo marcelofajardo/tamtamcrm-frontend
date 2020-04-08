@@ -3,7 +3,6 @@ import axios from 'axios'
 import AddGroupSetting from './AddGroupSetting'
 import { CardBody, Card } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import ViewEntity from '../common/ViewEntity'
 import GroupSettingFilters from './GroupSettingFilters'
 import GroupSettingItem from './GroupSettingItem'
 
@@ -12,9 +11,11 @@ export default class GroupSettings extends Component {
         super(props)
 
         this.state = {
+            dropdownButtonActions: ['download'],
             groups: [],
             cachedData: [],
             view: {
+                ignore: [],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -32,8 +33,6 @@ export default class GroupSettings extends Component {
         this.addUserToState = this.addUserToState.bind(this)
         this.userList = this.userList.bind(this)
         this.filterGroups = this.filterGroups.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
     }
 
     addUserToState (groups) {
@@ -41,12 +40,6 @@ export default class GroupSettings extends Component {
         this.setState({
             groups: groups,
             cachedData: cachedData
-        })
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('settings') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
         })
     }
 
@@ -58,23 +51,12 @@ export default class GroupSettings extends Component {
         this.props.reset()
     }
 
-    userList () {
-        const { groups, ignoredColumns } = this.state
-        return <GroupSettingItem groups={groups}
-            ignoredColumns={ignoredColumns} addUserToState={this.addUserToState}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
-    }
-
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
+    userList (props) {
+        const { groups } = this.state
+        return <GroupSettingItem showCheckboxes={props.showCheckboxes} groups={groups}
+            ignoredColumns={props.ignoredColumns} addUserToState={this.addUserToState}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     getUsers () {
@@ -113,6 +95,10 @@ export default class GroupSettings extends Component {
                         />
 
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="Group"
+                            bulk_save_url="/api/group/bulk"
+                            view={view}
                             ignore={this.state.ignoredColumns}
                             userList={this.userList}
                             fetchUrl={fetchUrl}
@@ -120,10 +106,6 @@ export default class GroupSettings extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity ignore={[]} toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}/>
             </div>
         )
     }

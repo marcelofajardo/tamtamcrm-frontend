@@ -68,10 +68,12 @@ export default class RecurringInvoiceItem extends Component {
                         field={key} entity={user}/>
                 })
 
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return (
                     <tr key={user.id}>
                         <td>
-                            <Input value={user.id} type="checkbox" onChange={this.props.onChangeBulk} />
+                            <Input className={checkboxClass} value={user.id} type="checkbox" onChange={this.props.onChangeBulk} />
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>

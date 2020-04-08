@@ -61,10 +61,13 @@ export default class CreditItem extends Component {
                     return <CreditPresenter key={key} customers={customers} toggleViewedEntity={this.props.toggleViewedEntity}
                         field={key} entity={credit}/>
                 })
+
+                const checkboxClass = this.props.showCheckboxes === true ? '' : 'd-none'
+
                 return (
                     <tr key={credit.id}>
                         <td>
-                            <Input value={credit.id} type="checkbox" onChange={this.props.onChangeBulk}/>
+                            <Input className={checkboxClass} value={credit.id} type="checkbox" onChange={this.props.onChangeBulk}/>
                             <ActionsMenu edit={editButton} delete={deleteButton} archive={archiveButton}
                                 restore={restoreButton}/>
                         </td>

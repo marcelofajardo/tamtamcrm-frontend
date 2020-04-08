@@ -1,16 +1,14 @@
 import React, { Component } from 'react'
-import EmailEditor from 'react-email-editor'
 import {
-    Card,
     Button,
-    CardHeader,
-    CardBody,
     FormGroup,
     Form,
     Input,
     Label
 } from 'reactstrap'
 import axios from 'axios'
+import SuccessMessage from '../common/SucessMessage'
+import ErrorMessage from '../common/ErrorMessage'
 
 export default class EmailEditorForm extends Component {
     constructor (props) {

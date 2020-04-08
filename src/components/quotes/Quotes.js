@@ -5,7 +5,6 @@ import {
     Card, CardBody
 } from 'reactstrap'
 import DataTable from '../common/DataTable'
-import ViewEntity from '../common/ViewEntity'
 import QuoteItem from './QuoteItem'
 import QuoteFilters from './QuoteFilters'
 
@@ -15,6 +14,7 @@ export default class Quotes extends Component {
         this.state = {
             per_page: 5,
             view: {
+                ignore: ['next_send_date', 'updated_at', 'use_inclusive_taxes', 'last_sent_date', 'uses_inclusive_taxes', 'line_items', 'next_sent_date', 'first_name', 'last_name', 'design_id', 'status_id', 'custom_surcharge_tax1', 'custom_surcharge_tax2', 'custom_surcharge_tax3', 'custom_surcharge_tax4'],
                 viewMode: false,
                 viewedId: null,
                 title: null
@@ -40,21 +40,11 @@ export default class Quotes extends Component {
         this.updateInvoice = this.updateInvoice.bind(this)
         this.userList = this.userList.bind(this)
         this.filterInvoices = this.filterInvoices.bind(this)
-        this.updateIgnoredColumns = this.updateIgnoredColumns.bind(this)
-        this.toggleViewedEntity = this.toggleViewedEntity.bind(this)
-        this.onChangeBulk = this.onChangeBulk.bind(this)
-        this.saveBulk = this.saveBulk.bind(this)
     }
 
     componentDidMount () {
         this.getCustomers()
         this.getCustomFields()
-    }
-
-    updateIgnoredColumns (columns) {
-        this.setState({ ignoredColumns: columns.concat('line_items', 'emails') }, function () {
-            console.log('ignored columns', this.state.ignoredColumns)
-        })
     }
 
     updateInvoice (quotes) {
@@ -65,68 +55,17 @@ export default class Quotes extends Component {
         })
     }
 
-    toggleViewedEntity (id, title = null) {
-        this.setState({
-            view: {
-                ...this.state.view,
-                viewMode: !this.state.view.viewMode,
-                viewedId: id,
-                title: title
-            }
-        }, () => console.log('view', this.state.view))
-    }
-
-    onChangeBulk (e) {
-        // current array of options
-        const options = this.state.bulk
-        let index
-
-        // check if the check box is checked or unchecked
-        if (e.target.checked) {
-            // add the numerical value of the checkbox to options array
-            options.push(e.target.value)
-        } else {
-            // or remove the value from the unchecked checkbox from the array
-            index = options.indexOf(+e.target.value)
-            options.splice(index, 1)
-        }
-
-        // update the state with the new array of options
-        this.setState({ bulk: options })
-    }
-
-    saveBulk (e) {
-        const action = e.target.id
-        const self = this
-        axios.post('/api/quote/bulk', { ids: this.state.bulk, action: action }).then(function (response) {
-            // const arrQuotes = [...self.state.invoices]
-            // const index = arrQuotes.findIndex(payment => payment.id === id)
-            // arrQuotes.splice(index, 1)
-            // self.updateInvoice(arrQuotes)
-        })
-            .catch(function (error) {
-                self.setState(
-                    {
-                        error: error.response.data
-                    }
-                )
-            })
-    }
-
     filterInvoices (filters) {
         this.setState({ filters: filters })
     }
 
-    userList () {
-        const { quotes, custom_fields, customers, ignoredColumns } = this.state
-        return <QuoteItem quotes={quotes} customers={customers} custom_fields={custom_fields}
-            ignoredColumns={ignoredColumns} updateInvoice={this.updateInvoice}
-            toggleViewedEntity={this.toggleViewedEntity}
-            onChangeBulk={this.onChangeBulk}/>
-    }
-
-    renderErrorFor () {
-
+    userList (props) {
+        const { quotes, custom_fields, customers } = this.state
+        return <QuoteItem showCheckboxes={props.showCheckboxes} quotes={quotes} customers={customers}
+            custom_fields={custom_fields}
+            ignoredColumns={props.ignoredColumns} updateInvoice={this.updateInvoice}
+            toggleViewedEntity={props.toggleViewedEntity}
+            onChangeBulk={props.onChangeBulk}/>
     }
 
     getCustomers () {
@@ -182,6 +121,10 @@ export default class Quotes extends Component {
                         {addButton}
 
                         <DataTable
+                            dropdownButtonActions={this.state.dropdownButtonActions}
+                            entity_type="Quote"
+                            bulk_save_url="/api/quote/bulk"
+                            view={view}
                             columnMapping={{ customer_id: 'CUSTOMER' }}
                             ignore={this.state.ignoredColumns}
                             disableSorting={['id']}
@@ -192,14 +135,6 @@ export default class Quotes extends Component {
                         />
                     </CardBody>
                 </Card>
-
-                <ViewEntity
-                    ignore={['next_send_date', 'updated_at', 'use_inclusive_taxes', 'last_sent_date', 'uses_inclusive_taxes', 'line_items', 'next_sent_date', 'first_name', 'last_name', 'design_id', 'status_id', 'custom_surcharge_tax1', 'custom_surcharge_tax2', 'custom_surcharge_tax3', 'custom_surcharge_tax4']}
-                    toggle={this.toggleViewedEntity} title={view.title}
-                    viewed={view.viewMode}
-                    entity={view.viewedId}
-                    entity_type="Quote"
-                />
             </div>
         )
     }

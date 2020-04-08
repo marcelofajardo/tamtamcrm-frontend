@@ -4,7 +4,6 @@ import AddRecurringInvoice from '../recurringInvoices/AddRecurringInvoice'
 import Address from './Address'
 import CustomerDropdown from '../common/CustomerDropdown'
 import CompanyDropdown from '../common/CompanyDropdown'
-import FormBuilder from '../accounts/FormBuilder'
 import Datepicker from '../common/Datepicker'
 
 export default class Details extends Component {

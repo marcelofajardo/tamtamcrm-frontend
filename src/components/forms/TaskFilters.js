@@ -2,11 +2,9 @@ import React, { Component } from 'react'
 import {
     FormGroup, Input, Col, Row
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 import FilterTile from '../common/FilterTile'
 import UserDropdown from '../common/UserDropdown'
 import CustomerDropdown from '../common/CustomerDropdown'
@@ -19,6 +17,8 @@ export default class TaskFilters extends Component {
         this.state = {
             dropdownButtonActions: ['download'],
             filters: {
+                start_date: '',
+                end_date: '',
                 project_id: '',
                 status_id: 'active',
                 task_status: '',
@@ -66,9 +66,7 @@ export default class TaskFilters extends Component {
 
     getFilters () {
         const { searchText, start_date, end_date, customer_id, project_id, task_status, task_type, user_id } = this.state.filters
-        const columnFilter = this.props.tasks.length
-            ? <DisplayColumns onChange={this.props.updateIgnoredColumns} columns={Object.keys(this.props.tasks[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
 
             <Row form>
@@ -116,25 +114,13 @@ export default class TaskFilters extends Component {
                 </Col>
 
                 <Col md={1}>
-                    <CsvImporter filename="expenses.csv"
+                    <CsvImporter filename="tasks.csv"
                         url={`/api/tasks?search_term=${searchText}&project_id=${project_id}&task_status=${task_status}&task_type=${task_type}&customer_id=${customer_id}&user_id=${user_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                </Col>
-
-                <Col md={1}>
-                    <BulkActionDropdown
-                        dropdownButtonActions={this.state.dropdownButtonActions}
-                        saveBulk={this.props.saveBulk}/>
                 </Col>
 
                 <Col md={2}>
                     <FormGroup>
                         <DateFilter onChange={this.filterTasks} />
-                    </FormGroup>
-                </Col>
-
-                <Col md={6}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
             </Row>

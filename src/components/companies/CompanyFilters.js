@@ -5,12 +5,10 @@ import {
     Row,
     Col
 } from 'reactstrap'
-import DisplayColumns from '../common/DisplayColumns'
 import TableSearch from '../common/TableSearch'
 import FilterTile from '../common/FilterTile'
 import DateFilter from '../common/DateFilter'
 import CsvImporter from '../common/CsvImporter'
-import BulkActionDropdown from '../common/BulkActionDropdown'
 
 export default class CompanyFilters extends Component {
     constructor (props) {
@@ -63,9 +61,7 @@ export default class CompanyFilters extends Component {
 
     getFilters () {
         const { searchText, status_id, start_date, end_date } = this.state.filters
-        const columnFilter = this.props.brands.length
-            ? <DisplayColumns onChange2={this.props.updateIgnoredColumns} columns={Object.keys(this.props.brands[0])}
-                ignored_columns={this.props.ignoredColumns}/> : null
+
         return (
             <Row form>
                 <Col md={3}>
@@ -89,22 +85,8 @@ export default class CompanyFilters extends Component {
 
                 <Col md={2}>
                     <FormGroup>
-                        <BulkActionDropdown
-                            dropdownButtonActions={this.state.dropdownButtonActions}
-                            saveBulk={this.props.saveBulk}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={2}>
-                    <FormGroup>
                         <CsvImporter filename="companies.csv"
                             url={`/api/companies?search_term=${searchText}&status=${status_id}&start_date=${start_date}&end_date=${end_date}&page=1&per_page=5000`}/>
-                    </FormGroup>
-                </Col>
-
-                <Col md={8}>
-                    <FormGroup>
-                        {columnFilter}
                     </FormGroup>
                 </Col>
 
